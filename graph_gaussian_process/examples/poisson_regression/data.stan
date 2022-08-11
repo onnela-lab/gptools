@@ -2,19 +2,19 @@
 
 data {
     // Information about nodes.
-    int num_obs;
+    int num_nodes;
     int num_dims;
-    array [num_obs] int y;
-    array [num_obs] vector[num_dims] X;
+    array [num_nodes] int y;
+    array [num_nodes] vector[num_dims] X;
 
     // Information about the graph.
     int num_edges;
     array [2, num_edges] int edge_index;
 
     // Kernel parameters.
-    real<lower=0> alpha, rho, eps;
+    real<lower=0> alpha, rho, epsilon;
 }
 
 transformed data {
-    array [num_obs] int degrees = in_degrees(num_obs, edge_index);
+    array [num_nodes] int degrees = in_degrees(num_nodes, edge_index);
 }

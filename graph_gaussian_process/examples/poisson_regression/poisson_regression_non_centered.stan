@@ -7,10 +7,14 @@ functions {
 #include data.stan
 
 parameters {
-    vector[num_obs] eta;
+    vector[num_nodes] eta_;
+}
+
+transformed parameters {
+    vector[num_nodes] eta = graph_gp_transform(eta_, X, alpha, rho, epsilon, edge_index, degrees);
 }
 
 model {
-    eta ~ graph_gp(X, alpha, rho, eps, edge_index, degrees);
+    eta_ ~ normal(0, 1);
     y ~ poisson_log(eta);
 }
