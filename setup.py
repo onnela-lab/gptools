@@ -16,6 +16,7 @@ setup(
             "flake8",
             "ipykernel",
             "nbconvert",
+            "networkx",
             "pytest",
             "pytest-cov",
             "scipy",

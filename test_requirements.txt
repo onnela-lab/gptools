@@ -126,6 +126,8 @@ nest-asyncio==1.5.5
     #   ipykernel
     #   jupyter-client
     #   nbclient
+networkx==2.8.5
+    # via graph-gaussian-process
 numpy==1.22.1
     # via
     #   cmdstanpy
