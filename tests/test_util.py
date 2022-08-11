@@ -10,6 +10,7 @@ def test_include() -> None:
     assert include.is_file()
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("p", [1, 3, 5])
 def test_evaluate_squared_distance(p: int) -> None:
     X = np.random.normal(0, 1, (57, p))
