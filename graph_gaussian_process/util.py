@@ -54,14 +54,15 @@ def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha:
     return line, ax.fill_between(x, l, u, color=line.get_color(), alpha=alpha)
 
 
-def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True, indexing:
-              typing.Literal["ij", "xy"] = "ij") -> np.ndarray:
+def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
+              indexing: typing.Literal["ij", "xy"] = "ij") -> np.ndarray:
     """
     Obtain coordinates for all grid points induced by `xs`.
 
     Args:
         xs: Coordinates to construct the grid.
         ravel: Whether to reshape the leading dimensions.
+        indexing: Whether to use Cartesian `xy` or matrix `ij` indexing (defaults to `ij`).
 
     Returns:
         coord: Coordinates for all grid points with shape `(len(xs[0]), ..., len(xs[p - 1]), p)` if
@@ -111,13 +112,21 @@ def spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]],
     return np.where(invalid, -1, neighborhoods)
 
 
-def neighborhood_to_edge_index(neighborhoods: np.ndarray) -> np.ndarray:
+def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal["numpy", "stan"]:
+    if indexing not in (expected := {"numpy", "stan"}):
+        raise ValueError(f"`indexing` must be one of {expected} but got {indexing}")
+    return indexing
+
+
+def neighborhood_to_edge_index(neighborhoods: np.ndarray,
+                               indexing: typing.Literal["numpy", "stan"] = "stan") -> np.ndarray:
     """
     Convert a tensor of neighborhoods to an edgelist with self loops.
 
     Args:
         neighborhoods: Neighborhood matrix such that each row corresponds to the parental neighbors
-        of the associated node. Negative node labels are omitted
+            of the associated node. Negative node labels are omitted
+        indexing: Whether to use zero-based indexing (`numpy`) or one-based indexing (`stan`).
 
     Returns:
         edge_index: Tuple of parent and child node labels.
@@ -126,8 +135,12 @@ def neighborhood_to_edge_index(neighborhoods: np.ndarray) -> np.ndarray:
         raise ValueError("neighborhoods must be a matrix")
     if (neighborhoods[:, 0] != np.arange(neighborhoods.shape[0])).any():
         raise ValueError("first element in the neighborhood must be the corresponding node")
-    return np.transpose([(parent, child) for child, parents in enumerate(neighborhoods) for parent
-                         in parents if parent >= 0])
+
+    edge_index = np.transpose([(parent, child) for child, parents in enumerate(neighborhoods) for
+                               parent in parents if parent >= 0])
+    if _check_indexing(indexing) == "stan":
+        return edge_index + 1
+    return edge_index
 
 
 def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "stan"] = "stan") \
@@ -153,9 +166,7 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
         raise ValueError(f"edge index must have shape (2, num_edges) but got {edge_index.shape}")
 
     # Check that child nodes start with the proper value.
-    if indexing not in (expected := {"numpy", "stan"}):
-        raise ValueError(f"`indexing` must be one of {expected} but got {indexing}")
-    expected = 0 if indexing == "numpy" else 1
+    expected = 0 if _check_indexing(indexing) == "numpy" else 1
     parents, children = edge_index
 
     # Check that child labels are consecutive.

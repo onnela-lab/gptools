@@ -67,7 +67,7 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
         "rho": kernel.rho,
         "epsilon": kernel.epsilon,
         "num_edges": edge_index.shape[1],
-        "edge_index": edge_index + 1,
+        "edge_index": edge_index,
         "noise_scale": args.noise_scale,
     }
     start = time.time()

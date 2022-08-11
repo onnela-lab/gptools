@@ -65,17 +65,18 @@ def test_spatial_neighborhoods_invalid(shape: tuple[int], ks: tuple[int], match:
         util.spatial_neighborhoods(shape, ks)
 
 
-def test_neighborhood_to_edge_index() -> None:
+@pytest.mark.parametrize("indexing", ["numpy", "stan"])
+def test_neighborhood_to_edge_index(indexing: typing.Literal["numpy", "stan"]) -> None:
     shape = (5, 7, 11)
     ks = (2, 3, 5)
     neighborhoods = util.spatial_neighborhoods(shape, ks)
-    edge_index = util.neighborhood_to_edge_index(neighborhoods)
+    edge_index = util.neighborhood_to_edge_index(neighborhoods, indexing)
     # The number of edges is the number of all combinations less the neighbors that fall outside the
     # bounds of the tensor. We just do a weak check here.
     assert edge_index.shape[0] == 2
     assert edge_index.shape[1] < neighborhoods.size
     # Check the validity of the edge index obtained from spatial neighborhoods.
-    assert util.check_edge_index(edge_index, indexing="numpy") is edge_index
+    assert util.check_edge_index(edge_index, indexing=indexing) is edge_index
 
 
 @pytest.mark.parametrize("neighborhoods, match", [
