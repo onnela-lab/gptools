@@ -35,9 +35,15 @@ profile_configurations = {
     "non_centered-weak": ("non_centered", 1.0),
     "non_centered-strong": ("non_centered", 0.1),
 }
-for name, configuration in profile_configurations.items():
+for name, (parametrization, noise_scale) in profile_configurations.items():
     target = f"workspace/{name}.pkl"
-    args = ["python", "-m", "graph_gaussian_process.profile", *configuration, target,
+    args = ["python", "-m", "graph_gaussian_process.profile", parametrization, noise_scale, target,
             "--iter_sampling=100"]
+    file_dep = [
+        "graph_gaussian_process/graph_gaussian_process.stan",
+        "graph_gaussian_process/profile/__main__.py",
+        "graph_gaussian_process/profile/data.stan",
+        f"graph_gaussian_process/profile/{parametrization}.stan",
+    ]
     manager(basename="profile", name=name, actions=[args], targets=[target],
-            file_dep=["graph_gaussian_process/profile/__main__.py"])
+            file_dep=file_dep)
