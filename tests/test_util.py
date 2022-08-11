@@ -3,6 +3,7 @@ import numbers
 import numpy as np
 import pathlib
 import pytest
+import re
 from scipy.spatial.distance import cdist
 import typing
 
@@ -73,6 +74,8 @@ def test_neighborhood_to_edge_index() -> None:
     # bounds of the tensor. We just do a weak check here.
     assert edge_index.shape[0] == 2
     assert edge_index.shape[1] < neighborhoods.size
+    # Check the validity of the edge index obtained from spatial neighborhoods.
+    assert util.check_edge_index(edge_index, indexing="numpy") is edge_index
 
 
 @pytest.mark.parametrize("neighborhoods, match", [
@@ -82,3 +85,20 @@ def test_neighborhood_to_edge_index() -> None:
 def test_neighborhood_to_edge_index_invalid(neighborhoods: np.ndarray, match: str) -> None:
     with pytest.raises(ValueError, match=match):
         util.neighborhood_to_edge_index(neighborhoods)
+
+
+@pytest.mark.parametrize("edge_index, indexing, match", [
+    (np.zeros(2), None, "edge index must have shape (2, num_edges) but got (2,)"),
+    (np.zeros((3, 2)), None, "edge index must have shape (2, num_edges) but got (3, 2)"),
+    (np.zeros((2, 3)), "foobar", "`indexing` must be one of"),
+    (np.zeros((2, 3)), "stan", "child node indices must be consecutive starting at 1"),
+    (np.ones((2, 3)), "numpy", "child node indices must be consecutive starting at 0"),
+    ([np.ones(2), np.zeros(2)], "numpy", "the first edge of each child must be a self loop"),
+    ([[0, 2, 1], [0, 2, 1]], "numpy", "child node indices must be consecutive"),
+    ([[0, 1, 1, 2, 2, 0], [0, 0, 1, 1, 2, 2]], "numpy", "edge index induces a graph with"),
+])
+def test_check_edge_index_invalid(
+        edge_index: np.ndarray, indexing: typing.Literal["numpy", "stan"],
+        match: typing.Optional[str]) -> None:
+    with pytest.raises(ValueError, match=re.escape(match)):
+        util.check_edge_index(np.asarray(edge_index), indexing)
