@@ -69,8 +69,8 @@ vector conditional_loc_scale(vector y, array[] vector x, real alpha, real rho, r
 *
 * @return Log probability of the graph Gaussian process.
 */
-real ggp_lpdf(vector y, array [] vector x, real alpha, real rho, real epsilon, array [,] int edges,
-              array[] int degrees) {
+real graph_gp_lpdf(vector y, array [] vector x, real alpha, real rho, real epsilon,
+                   array [,] int edges, array[] int degrees) {
     real lpdf = 0;
     int offset_ = 1;
     for (i in 1:size(x)) {
@@ -101,8 +101,8 @@ real ggp_lpdf(vector y, array [] vector x, real alpha, real rho, real epsilon, a
 *
 * @return Sample from the Graph gaussian process.
 */
-vector to_ggp(vector z, array [] vector x, real alpha, real rho, real epsilon, array [,] int edges,
-              array [] int degrees) {
+vector graph_gp_transform(vector z, array [] vector x, real alpha, real rho, real epsilon,
+                          array [,] int edges, array [] int degrees) {
     vector[size(z)] y;
     int offset_ = 1;
     for (i in 1:size(x)) {

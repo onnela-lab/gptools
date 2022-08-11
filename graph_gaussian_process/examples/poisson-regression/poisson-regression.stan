@@ -11,6 +11,6 @@ parameters {
 }
 
 model {
-    eta ~ ggp(X, alpha, rho, eps, edge_index, degrees);
+    eta ~ graph_gp(X, alpha, rho, eps, edge_index, degrees);
     y ~ poisson_log(eta);
 }

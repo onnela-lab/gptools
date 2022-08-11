@@ -11,6 +11,6 @@ parameters {
 }
 
 model {
-    eta ~ ggp(X, alpha, rho, epsilon, edge_index, degrees);
+    eta ~ graph_gp(X, alpha, rho, epsilon, edge_index, degrees);
     y ~ normal(eta, noise_scale);
 }

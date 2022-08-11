@@ -11,7 +11,7 @@ parameters {
 }
 
 transformed parameters {
-   vector[num_nodes] eta = to_ggp(eta_, X, alpha, rho, epsilon, edge_index, degrees);
+   vector[num_nodes] eta = graph_gp_transform(eta_, X, alpha, rho, epsilon, edge_index, degrees);
 }
 
 model {
