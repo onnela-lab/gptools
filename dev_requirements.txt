@@ -248,6 +248,8 @@ nest-asyncio==1.5.5
     #   jupyter-client
     #   nbclient
     #   notebook
+networkx==2.8.5
+    # via -r test_requirements.txt
 notebook==6.4.12
     # via
     #   jupyter

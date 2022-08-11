@@ -128,3 +128,53 @@ def neighborhood_to_edge_index(neighborhoods: np.ndarray) -> np.ndarray:
         raise ValueError("first element in the neighborhood must be the corresponding node")
     return np.transpose([(parent, child) for child, parents in enumerate(neighborhoods) for parent
                          in parents if parent >= 0])
+
+
+def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "stan"] = "stan") \
+        -> np.ndarray:
+    """
+    Check the edge index, ensuring it has the right structure for the Stan implementation and
+    corresponds to a directed acyclic graph.
+
+    Args:
+        edge_index: Edge index to check.
+        indexing: Whether to use zero-based indexing (`numpy`) or one-based indexing (`stan`).
+
+    Returns:
+        edge_index: Edge index after checking.
+    """
+    try:
+        import networkx as nx
+    except ModuleNotFoundError as ex:  # pragma: no cover
+        raise RuntimeError("networkx must be installed to check edge indices") from ex
+
+    # Check the tensor shape.
+    if edge_index.ndim != 2 or edge_index.shape[0] != 2:
+        raise ValueError(f"edge index must have shape (2, num_edges) but got {edge_index.shape}")
+
+    # Check that child nodes start with the proper value.
+    if indexing not in (expected := {"numpy", "stan"}):
+        raise ValueError(f"`indexing` must be one of {expected} but got {indexing}")
+    expected = 0 if indexing == "numpy" else 1
+    parents, children = edge_index
+
+    # Check that child labels are consecutive.
+    unique, index = np.unique(children, return_index=True)
+    if (np.diff(index) < 0).any() or (unique != np.arange(unique.size) + expected).any():
+        raise ValueError(f"child node indices must be consecutive starting at {expected} for "
+                         f"{indexing} indexing")
+
+    # Check that the first edge of each node is a self-loop.
+    if (children[index] != parents[index]).any():
+        raise ValueError("the first edge of each child must be a self loop")
+
+    # Check that there are no cycles after removing self-loops.
+    graph = nx.DiGraph()
+    graph.add_edges_from((u, v) for u, v in edge_index.T if u != v)
+    try:
+        cycle = nx.find_cycle(graph)
+        raise ValueError(f"edge index induces a graph with the cycle: {cycle}")
+    except nx.NetworkXNoCycle:
+        pass
+
+    return edge_index
