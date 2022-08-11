@@ -1,0 +1,6 @@
+# Include all requirements that are also used in CI.
+-r test_requirements.txt
+# Include additional packages we need for development.
+jupyter
+pip-tools
+tqdm
