@@ -32,7 +32,7 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser.add_argument("--show_progress", help="show progress bars", action="store_true")
     parser.add_argument("--show_diagnostics", help="show cmdstanpy diagnostics",
                         action="store_true")
-    parser.add_argument("--compile", help="whether to compile the model",
+    parser.add_argument("--compile", help="whether to compile the model", default="true",
                         choices={"false", "true", "force"})
     parser.add_argument("--iter_warmup", help="number of warmup samples", type=int)
     args = parser.parse_args(args)
