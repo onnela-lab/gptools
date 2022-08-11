@@ -27,7 +27,7 @@ jobs:
           path: |
             ${{ env.pythonLocation }}
             /home/runner/.cmdstan
-          key: ${{ env.pythonLocation }}-${{ hashFiles('test_requirements.txt') }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('test_requirements.txt') }}-${{ env.cmdstanVersion }}
       - name: Install dependencies
         run: |
           pip install -r test_requirements.txt
