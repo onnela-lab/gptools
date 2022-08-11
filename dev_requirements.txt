@@ -217,6 +217,7 @@ numpy==1.22.1
     #   graph-gaussian-process
     #   matplotlib
     #   pandas
+    #   scipy
 packaging==21.0
     # via
     #   -r test_requirements.txt
@@ -325,6 +326,8 @@ requests==2.26.0
     # via
     #   -r test_requirements.txt
     #   sphinx
+scipy==1.9.0
+    # via -r test_requirements.txt
 send2trash==1.8.0
     # via notebook
 six==1.16.0

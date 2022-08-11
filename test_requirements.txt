@@ -60,6 +60,7 @@ numpy==1.22.1
     #   graph-gaussian-process
     #   matplotlib
     #   pandas
+    #   scipy
 packaging==21.0
     # via
     #   matplotlib
@@ -99,6 +100,8 @@ pytz==2021.3
     #   pandas
 requests==2.26.0
     # via sphinx
+scipy==1.9.0
+    # via graph-gaussian-process
 six==1.16.0
     # via python-dateutil
 snowballstemmer==2.1.0

@@ -16,6 +16,7 @@ setup(
             "flake8",
             "pytest",
             "pytest-cov",
+            "scipy",
         ],
         "docs": [
             "sphinx",
