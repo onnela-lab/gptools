@@ -1,0 +1,1 @@
+include graph_gaussian_process/graph_gaussian_process.stan
