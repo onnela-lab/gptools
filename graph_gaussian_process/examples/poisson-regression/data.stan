@@ -1,8 +1,4 @@
-// Graph gaussian process with log link for Poisson observations.
-
-functions {
-    #include graph_gaussian_process.stan
-}
+// Shared data definition for Poisson regression models.
 
 data {
     // Information about nodes.
@@ -21,13 +17,4 @@ data {
 
 transformed data {
     array [num_obs] int degrees = in_degrees(num_obs, edge_index);
-}
-
-parameters {
-    vector[num_obs] eta;
-}
-
-model {
-    eta ~ ggp(X, alpha, rho, eps, edge_index, degrees);
-    y ~ poisson_log(eta);
 }

@@ -21,9 +21,7 @@ manager(basename="tests", actions=["pytest --cov-fail-under=100 --cov=graph_gaus
                                    "--cov-report=term-missing --cov-report=html"])
 
 
-with di.group_tasks("examples"):
-    for path in pathlib.Path("graph_gaussian_process/examples").glob("*.ipynb"):
-        target = path.with_suffix(".html")
-        basename = pathlib.Path(*path.with_suffix("").parts[-2:])
-        manager(basename=str(basename), file_dep=[path], targets=[target],
-                actions=[f"jupyter nbconvert --execute --to=html {path}"])
+for path in pathlib.Path("graph_gaussian_process/examples").glob("*/*.ipynb"):
+    target = path.with_suffix(".html")
+    manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
+            targets=[target], actions=[f"jupyter nbconvert --execute --to=html {path}"])
