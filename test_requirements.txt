@@ -226,6 +226,8 @@ sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 stack-data==0.3.0
     # via ipython
+tabulate==0.8.10
+    # via graph-gaussian-process
 tinycss2==1.1.1
     # via nbconvert
 toml==0.10.2

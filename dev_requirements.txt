@@ -433,6 +433,8 @@ stack-data==0.3.0
     # via
     #   -r test_requirements.txt
     #   ipython
+tabulate==0.8.10
+    # via -r test_requirements.txt
 terminado==0.15.0
     # via notebook
 tinycss2==1.1.1
