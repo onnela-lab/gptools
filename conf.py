@@ -6,7 +6,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
 ]
-project = "TEMPLATE_NAME"
+project = "graph_gaussian_process"
 napoleon_custom_sections = [("Returns", "params_style")]
 plot_formats = [
     ("png", 144),

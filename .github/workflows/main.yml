@@ -11,6 +11,7 @@ env:
   # Our tests may contain a number of stochastic elements. Setting a seed will make sure they are
   # not flaky (but also hide potential issues).
   SEED: "0"
+  cmdstanVersion: "2.30.1"
 
 jobs:
   build:
@@ -20,24 +21,17 @@ jobs:
       - uses: "actions/checkout@v2"
       - uses: "actions/setup-python@v2"
         with:
-          python-version: "3.9"
+          python-version: "3.10"
       - uses: actions/cache@v2
         with:
-          path: ${{ env.pythonLocation }}
+          path: |
+            ${{ env.pythonLocation }}
+            /home/runner/.cmdstan
           key: ${{ env.pythonLocation }}-${{ hashFiles('test_requirements.txt') }}
-      - if: github.repository == 'tillahoffmann/template'
-        name: "Maybe apply template"
-        run: |
-          python apply_template.py myproject -u myuser -r myrepo
-          ! grep --exclude-dir=.git --exclude=apply_template.py -r TEMPLATE_NAME .
-          ! grep --exclude-dir=.git --exclude=apply_template.py -r TEMPLATE_USER .
-          ! grep --exclude-dir=.git --exclude=apply_template.py -r TEMPLATE_REPO .
-          ! find . -name TEMPLATE_NAME | grep .
-          ! find . -name TEMPLATE_USER | grep .
-          ! find . -name TEMPLATE_REPO | grep .
-          ! ls apply_template.py
       - name: Install dependencies
-        run: pip install -r test_requirements.txt
+        run: |
+          pip install -r test_requirements.txt
+          python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
       - name: Run the tests
         run: doit tests
       - name: Lint the code
