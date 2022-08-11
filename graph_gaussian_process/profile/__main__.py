@@ -29,6 +29,9 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser.add_argument("--seed", help="random number generator seed", type=int, default=42)
     parser.add_argument("--iter_sampling", help="number of posterior samples", type=int,
                         default=500)
+    parser.add_argument("--show_progress", help="show progress bars", action="store_true")
+    parser.add_argument("--show_diagnostics", help="show cmdstanpy diagnostics",
+                        action="store_true")
     parser.add_argument("--iter_warmup", help="number of warmup samples", type=int)
     args = parser.parse_args(args)
 
@@ -65,8 +68,10 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
         "noise_scale": args.noise_scale,
     }
     start = time.time()
-    fit = model.sample(data, seed=args.seed, iter_sampling=args.iter_sampling,
-                       iter_warmup=args.iter_warmup or args.iter_sampling)
+    fit = model.sample(
+        data, seed=args.seed, iter_sampling=args.iter_sampling, show_progress=args.show_progress,
+        iter_warmup=args.iter_warmup or args.iter_sampling,
+    )
     end = time.time()
 
     # Save the result.
@@ -81,20 +86,18 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
             pickle.dump(result, fp)
 
     # Report the results.
-    lines = [
-        f"profiling report with total duration {end - start:.3f}s",
-        "",
-        "configuration",
-        "=============",
-        "",
-        tabulate.tabulate((key, str(value)) for key, value in result["args"].items()),
-        "",
-        "diagnostics",
-        "===========",
-        "",
-        fit.diagnose(),
-    ]
-    print("\n".join(lines))
+    values = vars(args) | {
+        "duration": f"{end - start:.3f}",
+        "divergences": f"{fit.divergences.sum()} / {fit.num_draws_sampling} "
+            f"({100 * fit.divergences.sum() / fit.num_draws_sampling:.1f}%)",  # noqa: E131
+        "max_treedepths": f"{fit.max_treedepths.sum()} / {fit.num_draws_sampling} "
+            f"({100 * fit.max_treedepths.sum() / fit.num_draws_sampling:.1f}%)",  # noqa: E131
+    }
+    rows = [(key, str(value)) for key, value in values.items()]
+    print(tabulate.tabulate(rows))
+
+    if args.show_diagnostics:
+        print(fit.diagnose())
 
 
 if __name__ == "__main__":
