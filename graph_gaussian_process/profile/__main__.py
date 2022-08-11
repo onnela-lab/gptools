@@ -32,6 +32,8 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser.add_argument("--show_progress", help="show progress bars", action="store_true")
     parser.add_argument("--show_diagnostics", help="show cmdstanpy diagnostics",
                         action="store_true")
+    parser.add_argument("--compile", help="whether to compile the model",
+                        choices={"false", "true", "force"})
     parser.add_argument("--iter_warmup", help="number of warmup samples", type=int)
     args = parser.parse_args(args)
 
@@ -51,9 +53,10 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
     edge_index = neighborhood_to_edge_index(neighborhoods)
 
     # Compile the model and fit it.
+    compile = {"false": False, "true": True, "force": "force"}[args.compile]
     model = cmdstanpy.CmdStanModel(
         stan_file=pathlib.Path(__file__).parent / f"{args.parametrization}.stan",
-        stanc_options={"include-paths": [get_include()]},
+        stanc_options={"include-paths": [get_include()]}, compile=compile,
     )
     data = {
         "num_nodes": args.num_nodes,

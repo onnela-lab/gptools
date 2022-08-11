@@ -12,5 +12,6 @@ def test_example(filename: str) -> None:
     with open(filename) as fp:
         notebook = nbformat.read(fp, as_version=4)
     preprocessor = ExecutePreprocessor(timeout=60)
-    with mock.patch.dict(os.environ, {"STAN_ITER_WARMUP": "1", "STAN_ITER_SAMPLING": "1"}):
+    env = {"STAN_ITER_WARMUP": "1", "STAN_ITER_SAMPLING": "1", "STAN_COMPILE": "force"}
+    with mock.patch.dict(os.environ, env):
         preprocessor.preprocess(notebook, {"metadata": {"path": os.path.dirname(filename)}})

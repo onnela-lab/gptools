@@ -17,7 +17,8 @@ def sample_kwargs_from_env(**kwargs):
     return kwargs
 
 
-def compile(stan_file: pathlib.Path, stanc_options: typing.Optional[dict] = None, **kwargs) \
+def compile(stan_file: pathlib.Path, stanc_options: typing.Optional[dict] = None,
+            compile: typing.Optional[typing.Union[bool, str]] = None, **kwargs) \
         -> cmdstanpy.CmdStanModel:
     """
     Compile a :class:`cmstanpy.CmdStanModel` model for examples.
@@ -33,5 +34,9 @@ def compile(stan_file: pathlib.Path, stanc_options: typing.Optional[dict] = None
     """
     stanc_options = stanc_options or {}
     stanc_options.setdefault("include-paths", []).append(get_include())
+    if compile is None:
+        compile_options = {"true": True, "false": False, "force": "force"}
+        compile = compile_options[os.environ.get("STAN_COMPILE", "true")]
     # Compile the model.
-    return cmdstanpy.CmdStanModel(stan_file=stan_file, stanc_options=stanc_options, **kwargs)
+    return cmdstanpy.CmdStanModel(stan_file=stan_file, stanc_options=stanc_options, compile=compile,
+                                  **kwargs)
