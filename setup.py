@@ -14,6 +14,7 @@ setup(
         "tests": [
             "doit-interface",
             "flake8",
+            "nbconvert",
             "pytest",
             "pytest-cov",
             "scipy",
