@@ -1,8 +1,10 @@
 from graph_gaussian_process import util
+import numbers
 import numpy as np
 import pathlib
 import pytest
 from scipy.spatial.distance import cdist
+import typing
 
 
 def test_include() -> None:
@@ -17,7 +19,66 @@ def test_evaluate_squared_distance(p: int) -> None:
     np.testing.assert_allclose(util.evaluate_squared_distance(X), cdist(X, X) ** 2)
 
 
-def test_plot_band():
+def test_plot_band() -> None:
     x = np.linspace(0, 1, 21)
     ys = np.random.normal(0, 1, (43, 21))
     line, band = util.plot_band(x, ys)
+
+
+@pytest.mark.parametrize("shape", [(3,), (4, 5)])
+@pytest.mark.parametrize("ravel", [False, True])
+def test_coord_grid(shape: tuple[int], ravel: bool) -> None:
+    xs = [np.arange(p) for p in shape]
+    coords = util.coordgrid(*xs, ravel=ravel)
+    if ravel:
+        assert coords.shape == (np.prod(shape), len(shape),)
+    else:
+        assert coords.shape == shape + (len(shape),)
+
+
+@pytest.mark.parametrize("shape, ks", [
+    ((23,), 5),
+    ((19, 23), 7),
+    ((19, 23), (5, 7)),
+    ((7, 9, 11), 3),
+    ((7, 9, 11), (3, 4, 5)),
+])
+@pytest.mark.parametrize("ravel", [False, True])
+def test_spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool) \
+        -> None:
+    neighborhoods = util.spatial_neighborhoods(shape, ks, ravel)
+    if isinstance(ks, numbers.Integral):
+        ks = (ks,) * len(shape)
+    if ravel:
+        neighborhoods.shape == (np.prod(shape), np.prod(ks))
+    else:
+        neighborhoods.shape == shape + ks
+
+
+@pytest.mark.parametrize("shape, ks, match", [
+    ((5, 6), (3,), "must have matching length"),
+    ((5, 6), (3, 7), "is larger than the tensor size"),
+])
+def test_spatial_neighborhoods_invalid(shape: tuple[int], ks: tuple[int], match: str) -> None:
+    with pytest.raises(ValueError, match=match):
+        util.spatial_neighborhoods(shape, ks)
+
+
+def test_neighborhood_to_edge_index() -> None:
+    shape = (5, 7, 11)
+    ks = (2, 3, 5)
+    neighborhoods = util.spatial_neighborhoods(shape, ks)
+    edge_index = util.neighborhood_to_edge_index(neighborhoods)
+    # The number of edges is the number of all combinations less the neighbors that fall outside the
+    # bounds of the tensor. We just do a weak check here.
+    assert edge_index.shape[0] == 2
+    assert edge_index.shape[1] < neighborhoods.size
+
+
+@pytest.mark.parametrize("neighborhoods, match", [
+    (np.asarray([[1], [0]]), "first element in the neighborhood must be the corresponding node"),
+    (np.arange(3), "must be a matrix"),
+])
+def test_neighborhood_to_edge_index_invalid(neighborhoods: np.ndarray, match: str) -> None:
+    with pytest.raises(ValueError, match=match):
+        util.neighborhood_to_edge_index(neighborhoods)
