@@ -2,7 +2,6 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
-import numbers
 import numpy as np
 import os
 import typing
@@ -76,8 +75,9 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
     return coords.reshape((-1, len(xs)))
 
 
-def spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]],
-                          ravel: bool = True) -> np.ndarray:
+def spatial_neighborhoods(
+        shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool = True,
+        bounds: typing.Literal["cuboid", "ellipsoid"] = "cuboid") -> np.ndarray:
     """
     Evaluate parental neighborhoods for tensors with finite window size.
 
@@ -85,31 +85,41 @@ def spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]],
         shape: Shape of the tensor with Gaussian process distribution.
         ks: Sequence of window widths for each dimension. The same window width is used if `ks` is
             an integer.
+        bounds: Whether to a hypercube or hyperellipsoid region of influence.
 
     Returns:
         neighborhoods: Mapping from each element of the tensor to its neighborhood. If `ravel`, the
             shape is `(prod(shape), prod(ks))`. If `not ravel`, the shape is
             `(*shape, prod(ks), len(shape))`.
     """
-    if isinstance(ks, numbers.Integral):
-        ks = (ks,) * len(shape)
-    if len(shape) != len(ks):
-        raise ValueError("`shape` and `ks` must have matching length or `ks` must be an integer")
-    for i, (n, k) in enumerate(zip(shape, ks)):
-        if k > n:
-            raise ValueError(f"window width {k} is larger than the tensor size {n} along dim {i}")
-    # Get all possible combinations of indices and steps. We always ravel the steps.
-    coords = coordgrid(*[np.arange(p) for p in shape], ravel=ravel)
-    steps = coordgrid(*[np.arange(k) for k in ks], ravel=True)
-    # Construct the vector neighborhoods.
+    if bounds not in (expected := {"cuboid", "ellipsoid"}):
+        raise ValueError(f"`bounds` must be one of {expected} but got {bounds}")
+    # Convert shape and window widths to arrays and verify bounds.
+    shape = np.asarray(shape)
+    ks = ks * np.ones_like(shape)
+    for i, (size, width) in enumerate(zip(shape, 2 * ks + 1)):
+        if width > size:
+            raise ValueError(f"window width {width} exceeds the tensor size {size} along dim {i}")
+    # Get all possible combinations of indices and steps.
+    coords = coordgrid(*[np.arange(p) for p in shape], ravel=True)
+    steps = coordgrid(*[np.roll(np.arange(- k, k + 1), - k) for k in ks], ravel=True)
+    # Construct the vector neighborhoods and a mask that removes indices outside the tensor bounds.
     neighborhoods = coords[..., None, :] - steps
-    if not ravel:
+    assert neighborhoods.shape == (shape.prod(), (2 * ks + 1).prod(), len(shape))
+    mask = ((neighborhoods >= 0) & (neighborhoods < shape)).all(axis=-1)
+    # If we want an ellipsoidal neighborhood, we remove neighbors that are too far.
+    if bounds == "ellipsoid":
+        t = np.square(steps / ks).sum(axis=-1)
+        mask &= t <= 1
+    # Mask invalid indices, ravel the coordinate indices, and mask again after ravelling.
+    neighborhoods = np.where(mask[..., None], neighborhoods, 0)
+    neighborhoods = np.ravel_multi_index(np.moveaxis(neighborhoods, -1, 0), shape)
+    # Ensure all neighbors are predecessors of each node.
+    mask &= neighborhoods <= np.arange(coords.shape[0])[:, None]
+    neighborhoods = np.where(mask, neighborhoods, -1)
+    if ravel:
         return neighborhoods
-    # Identify which indices are invalid so we can mark them as such after ravelling the indices.
-    neighborhoods = np.moveaxis(neighborhoods, -1, 0)
-    invalid = (neighborhoods < 0).any(axis=0)
-    neighborhoods = np.ravel_multi_index(tuple(neighborhoods.clip(0)), shape)
-    return np.where(invalid, -1, neighborhoods)
+    return neighborhoods.reshape([*shape, (2 * ks + 1).prod()])
 
 
 def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal["numpy", "stan"]:

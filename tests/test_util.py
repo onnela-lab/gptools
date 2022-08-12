@@ -45,9 +45,10 @@ def test_coord_grid(shape: tuple[int], ravel: bool) -> None:
     ((7, 9, 11), (3, 4, 5)),
 ])
 @pytest.mark.parametrize("ravel", [False, True])
-def test_spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool) \
-        -> None:
-    neighborhoods = util.spatial_neighborhoods(shape, ks, ravel)
+@pytest.mark.parametrize("bounds", ["cuboid", "ellipsoid"])
+def test_spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool,
+                               bounds: typing.Literal["cuboid", "ellipsoid"]) -> None:
+    neighborhoods = util.spatial_neighborhoods(shape, ks, ravel, bounds)
     if isinstance(ks, numbers.Integral):
         ks = (ks,) * len(shape)
     if ravel:
@@ -57,8 +58,7 @@ def test_spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[in
 
 
 @pytest.mark.parametrize("shape, ks, match", [
-    ((5, 6), (3,), "must have matching length"),
-    ((5, 6), (3, 7), "is larger than the tensor size"),
+    ((5, 6), (3, 7), "exceeds the tensor size"),
 ])
 def test_spatial_neighborhoods_invalid(shape: tuple[int], ks: tuple[int], match: str) -> None:
     with pytest.raises(ValueError, match=match):
