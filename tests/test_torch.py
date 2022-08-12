@@ -35,7 +35,7 @@ def data() -> dict:
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 # We omit "gels" because masked covariances do not have full rank.
 @pytest.mark.parametrize("lstsq_driver", ["gelsy", "gelsd", "gelss"])
-def test_torch_evaluate_log_prob(data: dict, lstsq_driver: str):
+def test_torch_evaluate_log_prob(data: dict, lstsq_driver: str) -> None:
     """
     Generate a few datasets and ensure that the log prob using the full covariance is correlated
     with the log prob of the nearest-neighbor based covariance.
@@ -55,7 +55,7 @@ def test_torch_evaluate_log_prob(data: dict, lstsq_driver: str):
 
 
 @pytest.mark.parametrize("lstsq_drivers", it.product(*[["gelsy", "gelsd", "gelss"]] * 2))
-def test_torch_evaluate_log_prob_drivers(data: dict, lstsq_drivers: str):
+def test_torch_evaluate_log_prob_drivers(data: dict, lstsq_drivers: str) -> None:
     a, b = [
         GraphGaussianProcess(data["loc"], data["x"], data["neighborhoods"], data["kernel"],
                              lstsq_driver=driver).log_prob(data["ys"]) for driver in lstsq_drivers
@@ -65,3 +65,15 @@ def test_torch_evaluate_log_prob_drivers(data: dict, lstsq_drivers: str):
     mrd = (2 * (a - b) / (a + b)).abs().max()
     assert th.allclose(a, b, atol=1e-4, rtol=1e-4), \
         f"drivers {lstsq_drivers} do not yield same log probs; max relative difference: {mrd}"
+
+
+@pytest.mark.parametrize("size", [None, [1], [3, 4]])
+def test_torch_sample(size: th.Size) -> None:
+    num_nodes = 100
+    x = th.linspace(0, 1, num_nodes)
+    X = x[:, None]
+    kernel = ExpQuadKernel(1.4, 0.1, 1e-3)
+    neighborhoods = lattice_neighborhoods(x.shape, 7)
+    dist = GraphGaussianProcess(th.zeros_like(x), X, neighborhoods, kernel)
+    y = dist.sample(size)
+    assert y.shape == th.Size(size or ()) + (num_nodes,)

@@ -40,9 +40,9 @@ class GraphGaussianProcess(th.distributions.Distribution):
             validate_args=None) -> None:
         # Store parameter values and evaluate the shapes.
         self.num_nodes = loc.shape[-1]
-        self.loc = loc
-        self.coords = coords
-        self.neighborhoods = neighborhoods
+        self.loc = th.as_tensor(loc)
+        self.coords = th.as_tensor(coords)
+        self.neighborhoods = th.as_tensor(neighborhoods)
         self.kernel = kernel
         batch_shape = loc.shape[:-1]
         event_shape = loc.shape[-1:]
@@ -72,5 +72,15 @@ class GraphGaussianProcess(th.distributions.Distribution):
         scale = (self.cov_ii - (self.weights * self.cov_iN).sum(axis=-1)).sqrt()
         return th.distributions.Normal(loc, scale).log_prob(value).sum(axis=-1)
 
-    def sample(self, size: th.Size) -> th.Tensor:
-        raise NotImplementedError
+    def sample(self, size: typing.Optional[th.Size] = None) -> th.Tensor:
+        # We sample elements sequentially. This isn't particularly efficient due to the python loop
+        # but it's much more efficient than inverting the whole matrix. TODO: look at sparse matrix
+        # solvers that could solve this problem in a batch. First, sample white noise which we will
+        # transform to a Gaussian process sample.
+        ys = th.randn(th.Size(size or ()) + (self.num_nodes,))
+        scale = (self.cov_ii - (self.weights * self.cov_iN).sum(axis=-1)).sqrt()
+        for i in range(self.num_nodes):
+            loc = (self.weights[i] * ys[..., self.indices[i, 1:]]).sum(axis=-1)
+            ys[..., i] = loc + scale[i] * ys[..., i]
+
+        return ys + self.loc
