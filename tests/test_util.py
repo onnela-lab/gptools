@@ -57,12 +57,15 @@ def test_spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[in
         neighborhoods.shape == shape + ks
 
 
-@pytest.mark.parametrize("shape, ks, match", [
-    ((5, 6), (3, 7), "exceeds the tensor size"),
+@pytest.mark.parametrize("shape, ks, bounds, match", [
+    ((5, 6), (3, 7), "cuboid", "exceeds the tensor size"),
+    ((10, 6), 2, "invalid-shape", "`bounds` must be one of"),
 ])
-def test_spatial_neighborhoods_invalid(shape: tuple[int], ks: tuple[int], match: str) -> None:
-    with pytest.raises(ValueError, match=match):
-        util.spatial_neighborhoods(shape, ks)
+def test_spatial_neighborhoods_invalid(
+        shape: tuple[int], ks: tuple[int], bounds: typing.Literal["cuboid", "ellipsoid"],
+        match: str) -> None:
+    with pytest.raises(ValueError, match=re.escape(match)):
+        util.spatial_neighborhoods(shape, ks, bounds=bounds)
 
 
 @pytest.mark.parametrize("indexing", ["numpy", "stan"])
