@@ -13,6 +13,7 @@ setup(
             "doit-interface",
             "flake8",
             "ipykernel",
+            "matplotlib",
             "nbconvert",
             "networkx",
             "pytest",

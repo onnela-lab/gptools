@@ -1,18 +1,21 @@
-from matplotlib import pyplot as plt
-from matplotlib.axes import Axes
-from matplotlib.collections import PolyCollection
-from matplotlib.lines import Line2D
 import numpy as np
 import typing
 from .missing_module import MissingModule
 try:
-    import torch as th
+    import matplotlib.axes
+    import matplotlib.collections
+    import matplotlib.lines
+    from matplotlib import pyplot as plt
 except ModuleNotFoundError as ex:
-    th = MissingModule(ex)
+    matplotlib = plt = MissingModule(ex)
 try:
     import networkx as nx
 except ModuleNotFoundError as ex:
     nx = MissingModule(ex)
+try:
+    import torch as th
+except ModuleNotFoundError as ex:
+    th = MissingModule(ex)
 
 
 def evaluate_squared_distance(x: typing.Union[np.ndarray, "th.Tensor"]) \
@@ -32,7 +35,8 @@ def evaluate_squared_distance(x: typing.Union[np.ndarray, "th.Tensor"]) \
 
 
 def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha: float = 0.25,
-              ax: typing.Optional[Axes] = None, **kwargs) -> tuple[Line2D, PolyCollection]:
+              ax: typing.Optional[matplotlib.axes.Axes] = None, **kwargs) \
+        -> tuple[matplotlib.lines.Line2D, matplotlib.collections.PolyCollection]:
     """
     Plot a credible band given posterior samples.
 
