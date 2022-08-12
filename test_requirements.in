@@ -1,1 +1,1 @@
--e file:[tests,docs]
+-e file:[cmdstanpy,docs,tests,torch]
