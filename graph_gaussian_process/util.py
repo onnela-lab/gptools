@@ -5,6 +5,8 @@ from matplotlib.lines import Line2D
 import numpy as np
 import os
 import typing
+if typing.TYPE_CHECKING:  # pragma: no cover
+    import networkx as nx
 
 
 def get_include() -> str:
@@ -160,17 +162,12 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
     corresponds to a directed acyclic graph.
 
     Args:
-        edge_index: Edge index to check.
+        edge_index: Tuple of parent and child node labels to check.
         indexing: Whether to use zero-based indexing (`numpy`) or one-based indexing (`stan`).
 
     Returns:
         edge_index: Edge index after checking.
     """
-    try:
-        import networkx as nx
-    except ModuleNotFoundError as ex:  # pragma: no cover
-        raise RuntimeError("networkx must be installed to check edge indices") from ex
-
     # Check the tensor shape.
     if edge_index.ndim != 2 or edge_index.shape[0] != 2:
         raise ValueError(f"edge index must have shape (2, num_edges) but got {edge_index.shape}")
@@ -190,8 +187,8 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
         raise ValueError("the first edge of each child must be a self loop")
 
     # Check that there are no cycles after removing self-loops.
-    graph = nx.DiGraph()
-    graph.add_edges_from((u, v) for u, v in edge_index.T if u != v)
+    graph = edge_index_to_graph(edge_index)
+    import networkx as nx
     try:
         cycle = nx.find_cycle(graph)
         raise ValueError(f"edge index induces a graph with the cycle: {cycle}")
@@ -199,3 +196,24 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
         pass
 
     return edge_index
+
+
+def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) -> "nx.DiGraph":
+    """
+    Convert edge indices to a directed graph.
+
+    Args:
+        edge_index: Tuple of parent and child node labels.
+        remove_self_loops: Whether to remove self loops.
+
+    Returns:
+        graph: Directed graph induced by the edge indices.
+    """
+    try:
+        import networkx as nx
+    except ModuleNotFoundError as ex:  # pragma: no cover
+        raise RuntimeError("networkx must be installed to convert edge indices to a graph") from ex
+
+    graph = nx.DiGraph()
+    graph.add_edges_from((u, v) for u, v in edge_index.T if u != v and remove_self_loops)
+    return graph
