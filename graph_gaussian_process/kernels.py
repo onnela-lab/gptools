@@ -1,4 +1,6 @@
 import numpy as np
+import torch as th
+import typing
 from .util import evaluate_squared_distance
 
 
@@ -15,8 +17,12 @@ class ExpQuadKernel:
         self.rho = rho
         self.epsilon = epsilon
 
-    def __call__(self, x: np.ndarray) -> np.ndarray:
-        cov = self.alpha ** 2 * np.exp(- evaluate_squared_distance(x) / (2 * self.rho ** 2))
+    def __call__(self, x: typing.Union[np.ndarray, th.Tensor]) \
+            -> typing.Union[np.ndarray, th.Tensor]:
+        is_tensor = isinstance(x, th.Tensor)
+        exponent = - evaluate_squared_distance(x) / (2 * self.rho ** 2)
+        cov = self.alpha * self.alpha * (exponent.exp() if is_tensor else np.exp(exponent))
         if self.epsilon:
-            cov += self.epsilon * np.eye(cov.shape[-1])
+            eye = th.eye(cov.shape[-1]) if is_tensor else np.eye(cov.shape[-1])
+            return cov + self.epsilon * eye
         return cov

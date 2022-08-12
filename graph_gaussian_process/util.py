@@ -3,12 +3,14 @@ from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 import numpy as np
+import torch as th
 import typing
 if typing.TYPE_CHECKING:  # pragma: no cover
     import networkx as nx
 
 
-def evaluate_squared_distance(x: np.ndarray) -> np.ndarray:
+def evaluate_squared_distance(x: typing.Union[np.ndarray, th.Tensor]) \
+        -> typing.Union[np.ndarray, th.Tensor]:
     """
     Evaluate the squared distance between the Cartesian product of nodes, preserving batch shape.
 
@@ -19,7 +21,8 @@ def evaluate_squared_distance(x: np.ndarray) -> np.ndarray:
     Returns:
         dist2: Squared distance Cartesian product of nodes with shape `(..., n, n)`.
     """
-    return np.square(x[..., :, None, :] - x[..., None, :, :]).sum(axis=-1)
+    residuals = x[..., :, None, :] - x[..., None, :, :]
+    return (residuals * residuals).sum(axis=-1)
 
 
 def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha: float = 0.25,
