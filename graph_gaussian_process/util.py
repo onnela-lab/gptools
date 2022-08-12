@@ -79,7 +79,7 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
 
 def lattice_neighborhoods(
         shape: tuple[int], k: typing.Union[int, tuple[int]], ravel: bool = True,
-        bounds: typing.Literal["cuboid", "ellipsoid"] = "cuboid") -> np.ndarray:
+        bounds: typing.Literal["cuboid", "ellipsoid"] = "ellipsoid") -> np.ndarray:
     """
     Evaluate predecessor neighborhoods for nodes on a lattice with given window size.
 
