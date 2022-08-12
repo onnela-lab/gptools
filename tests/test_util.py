@@ -45,9 +45,10 @@ def test_coord_grid(shape: tuple[int], ravel: bool) -> None:
     ((7, 9, 11), (3, 4, 5)),
 ])
 @pytest.mark.parametrize("ravel", [False, True])
-def test_spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool) \
-        -> None:
-    neighborhoods = util.spatial_neighborhoods(shape, ks, ravel)
+@pytest.mark.parametrize("bounds", ["cuboid", "ellipsoid"])
+def test_lattice_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool,
+                               bounds: typing.Literal["cuboid", "ellipsoid"]) -> None:
+    neighborhoods = util.lattice_neighborhoods(shape, ks, ravel, bounds)
     if isinstance(ks, numbers.Integral):
         ks = (ks,) * len(shape)
     if ravel:
@@ -56,20 +57,22 @@ def test_spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[in
         neighborhoods.shape == shape + ks
 
 
-@pytest.mark.parametrize("shape, ks, match", [
-    ((5, 6), (3,), "must have matching length"),
-    ((5, 6), (3, 7), "is larger than the tensor size"),
+@pytest.mark.parametrize("shape, ks, bounds, match", [
+    ((5, 6), (3, 7), "cuboid", "exceeds the tensor size"),
+    ((10, 6), 2, "invalid-shape", "`bounds` must be one of"),
 ])
-def test_spatial_neighborhoods_invalid(shape: tuple[int], ks: tuple[int], match: str) -> None:
-    with pytest.raises(ValueError, match=match):
-        util.spatial_neighborhoods(shape, ks)
+def test_lattice_neighborhoods_invalid(
+        shape: tuple[int], ks: tuple[int], bounds: typing.Literal["cuboid", "ellipsoid"],
+        match: str) -> None:
+    with pytest.raises(ValueError, match=re.escape(match)):
+        util.lattice_neighborhoods(shape, ks, bounds=bounds)
 
 
 @pytest.mark.parametrize("indexing", ["numpy", "stan"])
 def test_neighborhood_to_edge_index(indexing: typing.Literal["numpy", "stan"]) -> None:
     shape = (5, 7, 11)
     ks = (2, 3, 5)
-    neighborhoods = util.spatial_neighborhoods(shape, ks)
+    neighborhoods = util.lattice_neighborhoods(shape, ks)
     edge_index = util.neighborhood_to_edge_index(neighborhoods, indexing)
     # The number of edges is the number of all combinations less the neighbors that fall outside the
     # bounds of the tensor. We just do a weak check here.

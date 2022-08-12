@@ -2,10 +2,11 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
-import numbers
 import numpy as np
 import os
 import typing
+if typing.TYPE_CHECKING:  # pragma: no cover
+    import networkx as nx
 
 
 def get_include() -> str:
@@ -76,40 +77,55 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
     return coords.reshape((-1, len(xs)))
 
 
-def spatial_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]],
-                          ravel: bool = True) -> np.ndarray:
+def lattice_neighborhoods(
+        shape: tuple[int], k: typing.Union[int, tuple[int]], ravel: bool = True,
+        bounds: typing.Literal["cuboid", "ellipsoid"] = "ellipsoid") -> np.ndarray:
     """
-    Evaluate parental neighborhoods for tensors with finite window size.
+    Evaluate predecessor neighborhoods for nodes on a lattice with given window size.
 
     Args:
         shape: Shape of the tensor with Gaussian process distribution.
-        ks: Sequence of window widths for each dimension. The same window width is used if `ks` is
-            an integer.
+        k: Half window width or sequence of half window widths for each dimension. Each node will
+            have a receptive field at most `k` to the "left" and "right" in each dimension.
+        bounds: Boundary shape for the receptive field. "cuboid" results in a cuboid with dimensions
+            `2 * k + 1`. "ellipsoid" results in a graph with ellipsoidal receptive field that is a
+            strict subset of the cuboid. Using an ellipsoidal receptive field can reduce
+            computational cost, especially in high dimensions. Ellipsoids can also attenuate
+            artefacts that may arise from the anisotropy of the cuboidal receptive field.
 
     Returns:
         neighborhoods: Mapping from each element of the tensor to its neighborhood. If `ravel`, the
             shape is `(prod(shape), prod(ks))`. If `not ravel`, the shape is
             `(*shape, prod(ks), len(shape))`.
     """
-    if isinstance(ks, numbers.Integral):
-        ks = (ks,) * len(shape)
-    if len(shape) != len(ks):
-        raise ValueError("`shape` and `ks` must have matching length or `ks` must be an integer")
-    for i, (n, k) in enumerate(zip(shape, ks)):
-        if k > n:
-            raise ValueError(f"window width {k} is larger than the tensor size {n} along dim {i}")
-    # Get all possible combinations of indices and steps. We always ravel the steps.
-    coords = coordgrid(*[np.arange(p) for p in shape], ravel=ravel)
-    steps = coordgrid(*[np.arange(k) for k in ks], ravel=True)
-    # Construct the vector neighborhoods.
+    if bounds not in (expected := {"cuboid", "ellipsoid"}):
+        raise ValueError(f"`bounds` must be one of {expected} but got {bounds}")
+    # Convert shape and window widths to arrays and verify bounds.
+    shape = np.asarray(shape)
+    k = k * np.ones_like(shape)
+    for i, (size, width) in enumerate(zip(shape, 2 * k + 1)):
+        if width > size:
+            raise ValueError(f"window width {width} exceeds the tensor size {size} along dim {i}")
+    # Get all possible combinations of indices and steps.
+    coords = coordgrid(*[np.arange(p) for p in shape], ravel=True)
+    steps = coordgrid(*[np.roll(np.arange(- s, s + 1), - s) for s in k], ravel=True)
+    # Construct the vector neighborhoods and a mask that removes indices outside the tensor bounds.
     neighborhoods = coords[..., None, :] - steps
-    if not ravel:
+    assert neighborhoods.shape == (shape.prod(), (2 * k + 1).prod(), len(shape))
+    mask = ((neighborhoods >= 0) & (neighborhoods < shape)).all(axis=-1)
+    # If we want an ellipsoidal neighborhood, we remove neighbors that are too far.
+    if bounds == "ellipsoid":
+        t = np.square(steps / k).sum(axis=-1)
+        mask &= t <= 1
+    # Mask invalid indices, ravel the coordinate indices, and mask again after ravelling.
+    neighborhoods = np.where(mask[..., None], neighborhoods, 0)
+    neighborhoods = np.ravel_multi_index(np.moveaxis(neighborhoods, -1, 0), shape)
+    # Ensure all neighbors are predecessors of each node.
+    mask &= neighborhoods <= np.arange(coords.shape[0])[:, None]
+    neighborhoods = np.where(mask, neighborhoods, -1)
+    if ravel:
         return neighborhoods
-    # Identify which indices are invalid so we can mark them as such after ravelling the indices.
-    neighborhoods = np.moveaxis(neighborhoods, -1, 0)
-    invalid = (neighborhoods < 0).any(axis=0)
-    neighborhoods = np.ravel_multi_index(tuple(neighborhoods.clip(0)), shape)
-    return np.where(invalid, -1, neighborhoods)
+    return neighborhoods.reshape([*shape, (2 * k + 1).prod()])
 
 
 def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal["numpy", "stan"]:
@@ -150,17 +166,12 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
     corresponds to a directed acyclic graph.
 
     Args:
-        edge_index: Edge index to check.
+        edge_index: Tuple of parent and child node labels to check.
         indexing: Whether to use zero-based indexing (`numpy`) or one-based indexing (`stan`).
 
     Returns:
         edge_index: Edge index after checking.
     """
-    try:
-        import networkx as nx
-    except ModuleNotFoundError as ex:  # pragma: no cover
-        raise RuntimeError("networkx must be installed to check edge indices") from ex
-
     # Check the tensor shape.
     if edge_index.ndim != 2 or edge_index.shape[0] != 2:
         raise ValueError(f"edge index must have shape (2, num_edges) but got {edge_index.shape}")
@@ -180,8 +191,8 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
         raise ValueError("the first edge of each child must be a self loop")
 
     # Check that there are no cycles after removing self-loops.
-    graph = nx.DiGraph()
-    graph.add_edges_from((u, v) for u, v in edge_index.T if u != v)
+    graph = edge_index_to_graph(edge_index)
+    import networkx as nx
     try:
         cycle = nx.find_cycle(graph)
         raise ValueError(f"edge index induces a graph with the cycle: {cycle}")
@@ -189,3 +200,24 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
         pass
 
     return edge_index
+
+
+def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) -> "nx.DiGraph":
+    """
+    Convert edge indices to a directed graph.
+
+    Args:
+        edge_index: Tuple of parent and child node labels.
+        remove_self_loops: Whether to remove self loops.
+
+    Returns:
+        graph: Directed graph induced by the edge indices.
+    """
+    try:
+        import networkx as nx
+    except ModuleNotFoundError as ex:  # pragma: no cover
+        raise RuntimeError("networkx must be installed to convert edge indices to a graph") from ex
+
+    graph = nx.DiGraph()
+    graph.add_edges_from((u, v) for u, v in edge_index.T if u != v and remove_self_loops)
+    return graph
