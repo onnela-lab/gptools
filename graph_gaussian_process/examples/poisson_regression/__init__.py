@@ -3,10 +3,9 @@ from matplotlib import pyplot as plt
 import numpy as np
 import typing
 from ...kernels import ExpQuadKernel
-from ...util import check_edge_index, neighborhood_to_edge_index, spatial_neighborhoods
 
 
-def simulate(X: np.ndarray, mu: float, kernel: ExpQuadKernel, k: int) -> dict:
+def simulate(X: np.ndarray, mu: float, kernel: ExpQuadKernel) -> dict:
     """
     Simulate data from a Gaussian process Poisson regression model with log link function.
 
@@ -26,9 +25,6 @@ def simulate(X: np.ndarray, mu: float, kernel: ExpQuadKernel, k: int) -> dict:
     lam = np.exp(eta)
     y = np.random.poisson(lam)
 
-    neighborhoods = spatial_neighborhoods(X.shape[:-1], k)
-    edge_index = check_edge_index(neighborhood_to_edge_index(neighborhoods))
-
     return {
         "X": X,
         "mu": mu,
@@ -40,9 +36,6 @@ def simulate(X: np.ndarray, mu: float, kernel: ExpQuadKernel, k: int) -> dict:
         "alpha": kernel.alpha,
         "rho": kernel.rho,
         "epsilon": kernel.epsilon,
-        "edge_index": edge_index,
-        "num_edges": edge_index.shape[1],
-        "k": k,
     }
 
 
