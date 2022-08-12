@@ -3,14 +3,20 @@ from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 import numpy as np
-import torch as th
 import typing
-if typing.TYPE_CHECKING:  # pragma: no cover
+from .missing_module import MissingModule
+try:
+    import torch as th
+except ModuleNotFoundError as ex:
+    th = MissingModule(ex)
+try:
     import networkx as nx
+except ModuleNotFoundError as ex:
+    nx = MissingModule(ex)
 
 
-def evaluate_squared_distance(x: typing.Union[np.ndarray, th.Tensor]) \
-        -> typing.Union[np.ndarray, th.Tensor]:
+def evaluate_squared_distance(x: typing.Union[np.ndarray, "th.Tensor"]) \
+        -> typing.Union[np.ndarray, "th.Tensor"]:
     """
     Evaluate the squared distance between the Cartesian product of nodes, preserving batch shape.
 
@@ -187,7 +193,6 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
 
     # Check that there are no cycles after removing self-loops.
     graph = edge_index_to_graph(edge_index)
-    import networkx as nx
     try:
         cycle = nx.find_cycle(graph)
         raise ValueError(f"edge index induces a graph with the cycle: {cycle}")
@@ -208,11 +213,16 @@ def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) 
     Returns:
         graph: Directed graph induced by the edge indices.
     """
-    try:
-        import networkx as nx
-    except ModuleNotFoundError as ex:  # pragma: no cover
-        raise RuntimeError("networkx must be installed to convert edge indices to a graph") from ex
-
     graph = nx.DiGraph()
     graph.add_edges_from((u, v) for u, v in edge_index.T if u != v and remove_self_loops)
     return graph
+
+
+def is_tensor(x: typing.Union[np.ndarray, "th.Tensor"]) -> bool:
+    """
+    Check if `x` is a torch tensor.
+    """
+    try:
+        return isinstance(x, th.Tensor)
+    except ModuleNotFoundError:
+        return False

@@ -1,8 +1,12 @@
 from graph_gaussian_process import kernels
+from graph_gaussian_process.missing_module import MissingModule
 import numpy as np
 import pytest
-import torch as th
 import typing
+try:
+    import torch as th
+except ModuleNotFoundError as ex:
+    th = MissingModule(ex)
 
 
 @pytest.mark.parametrize("kernel", [
@@ -13,7 +17,13 @@ import typing
 @pytest.mark.parametrize("shape", [(7,), (2, 3)])
 @pytest.mark.parametrize("torch", [False, True])
 def test_kernel(kernel: typing.Callable, p: int, shape: tuple, torch: bool) -> None:
-    X = th.randn(shape + (p,)) if torch else np.random.normal(0, 1, shape + (p,))
+    if torch:
+        try:
+            X = th.randn(shape + (p,))
+        except ModuleNotFoundError:
+            pytest.skip("torch is not installed")
+    else:
+        X = np.random.normal(0, 1, shape + (p,))
     cov = kernel(X)
     # Check the shape and that the kernel is positive definite.
     *batch_shape, n = shape
