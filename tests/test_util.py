@@ -1,16 +1,10 @@
 from graph_gaussian_process import util
 import numbers
 import numpy as np
-import pathlib
 import pytest
 import re
 from scipy.spatial.distance import cdist
 import typing
-
-
-def test_include() -> None:
-    include = pathlib.Path(util.get_include()) / "graph_gaussian_process.stan"
-    assert include.is_file()
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")

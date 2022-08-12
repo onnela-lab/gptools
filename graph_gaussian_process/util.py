@@ -3,17 +3,9 @@ from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 import numpy as np
-import os
 import typing
 if typing.TYPE_CHECKING:  # pragma: no cover
     import networkx as nx
-
-
-def get_include() -> str:
-    """
-    Get the include directory for the graph Gaussian process library.
-    """
-    return os.path.dirname(__file__)
 
 
 def evaluate_squared_distance(x: np.ndarray) -> np.ndarray:
