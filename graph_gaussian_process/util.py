@@ -77,17 +77,21 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
     return coords.reshape((-1, len(xs)))
 
 
-def spatial_neighborhoods(
-        shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool = True,
+def lattice_neighborhoods(
+        shape: tuple[int], k: typing.Union[int, tuple[int]], ravel: bool = True,
         bounds: typing.Literal["cuboid", "ellipsoid"] = "cuboid") -> np.ndarray:
     """
-    Evaluate parental neighborhoods for tensors with finite window size.
+    Evaluate predecessor neighborhoods for nodes on a lattice with given window size.
 
     Args:
         shape: Shape of the tensor with Gaussian process distribution.
-        ks: Sequence of window widths for each dimension. The same window width is used if `ks` is
-            an integer.
-        bounds: Whether to a hypercube or hyperellipsoid region of influence.
+        k: Half window width or sequence of half window widths for each dimension. Each node will
+            have a receptive field at most `k` to the "left" and "right" in each dimension.
+        bounds: Boundary shape for the receptive field. "cuboid" results in a cuboid with dimensions
+            `2 * k + 1`. "ellipsoid" results in a graph with ellipsoidal receptive field that is a
+            strict subset of the cuboid. Using an ellipsoidal receptive field can reduce
+            computational cost, especially in high dimensions. Ellipsoids can also attenuate
+            artefacts that may arise from the anisotropy of the cuboidal receptive field.
 
     Returns:
         neighborhoods: Mapping from each element of the tensor to its neighborhood. If `ravel`, the
@@ -98,20 +102,20 @@ def spatial_neighborhoods(
         raise ValueError(f"`bounds` must be one of {expected} but got {bounds}")
     # Convert shape and window widths to arrays and verify bounds.
     shape = np.asarray(shape)
-    ks = ks * np.ones_like(shape)
-    for i, (size, width) in enumerate(zip(shape, 2 * ks + 1)):
+    k = k * np.ones_like(shape)
+    for i, (size, width) in enumerate(zip(shape, 2 * k + 1)):
         if width > size:
             raise ValueError(f"window width {width} exceeds the tensor size {size} along dim {i}")
     # Get all possible combinations of indices and steps.
     coords = coordgrid(*[np.arange(p) for p in shape], ravel=True)
-    steps = coordgrid(*[np.roll(np.arange(- k, k + 1), - k) for k in ks], ravel=True)
+    steps = coordgrid(*[np.roll(np.arange(- s, s + 1), - s) for s in k], ravel=True)
     # Construct the vector neighborhoods and a mask that removes indices outside the tensor bounds.
     neighborhoods = coords[..., None, :] - steps
-    assert neighborhoods.shape == (shape.prod(), (2 * ks + 1).prod(), len(shape))
+    assert neighborhoods.shape == (shape.prod(), (2 * k + 1).prod(), len(shape))
     mask = ((neighborhoods >= 0) & (neighborhoods < shape)).all(axis=-1)
     # If we want an ellipsoidal neighborhood, we remove neighbors that are too far.
     if bounds == "ellipsoid":
-        t = np.square(steps / ks).sum(axis=-1)
+        t = np.square(steps / k).sum(axis=-1)
         mask &= t <= 1
     # Mask invalid indices, ravel the coordinate indices, and mask again after ravelling.
     neighborhoods = np.where(mask[..., None], neighborhoods, 0)
@@ -121,7 +125,7 @@ def spatial_neighborhoods(
     neighborhoods = np.where(mask, neighborhoods, -1)
     if ravel:
         return neighborhoods
-    return neighborhoods.reshape([*shape, (2 * ks + 1).prod()])
+    return neighborhoods.reshape([*shape, (2 * k + 1).prod()])
 
 
 def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal["numpy", "stan"]:

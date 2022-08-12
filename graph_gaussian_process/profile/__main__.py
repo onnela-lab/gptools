@@ -3,7 +3,7 @@ import logging
 import cmdstanpy
 from graph_gaussian_process.kernels import ExpQuadKernel
 from graph_gaussian_process.util import get_include, neighborhood_to_edge_index, \
-    spatial_neighborhoods
+    lattice_neighborhoods
 import numpy as np
 import pathlib
 import pickle
@@ -49,7 +49,7 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
     eta = np.random.multivariate_normal(np.zeros(args.num_nodes), cov)
     y = np.random.normal(eta, args.noise_scale)
 
-    neighborhoods = spatial_neighborhoods((args.num_nodes,), args.num_parents)
+    neighborhoods = lattice_neighborhoods((args.num_nodes,), args.num_parents)
     edge_index = neighborhood_to_edge_index(neighborhoods)
 
     # Compile the model and fit it.
