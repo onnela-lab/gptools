@@ -236,6 +236,8 @@ toml==0.10.2
     # via pytest
 tomli==1.2.1
     # via coverage
+torch==1.12.1
+    # via graph-gaussian-process
 tornado==6.2
     # via
     #   ipykernel
@@ -252,6 +254,8 @@ traitlets==5.3.0
     #   nbclient
     #   nbconvert
     #   nbformat
+typing-extensions==4.3.0
+    # via torch
 ujson==5.4.0
     # via cmdstanpy
 urllib3==1.26.7

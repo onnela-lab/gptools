@@ -453,6 +453,10 @@ tomli==1.2.1
     #   build
     #   coverage
     #   pep517
+torch==1.12.1
+    # via
+    #   -r test_requirements.txt
+    #   graph-gaussian-process
 tornado==6.2
     # via
     #   -r test_requirements.txt
@@ -479,6 +483,10 @@ traitlets==5.3.0
     #   nbformat
     #   notebook
     #   qtconsole
+typing-extensions==4.3.0
+    # via
+    #   -r test_requirements.txt
+    #   torch
 ujson==5.4.0
     # via
     #   -r test_requirements.txt

@@ -9,6 +9,7 @@ setup(
         "cmdstanpy",
         "matplotlib",
         "numpy",
+        "torch",
     ],
     extras_require={
         "tests": [
