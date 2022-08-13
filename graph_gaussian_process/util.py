@@ -23,10 +23,13 @@ class LatticeBounds(enum.Enum):
     """
     Boundary shape for the receptive field on a lattice.
 
-    - CUBE results in a hypercube with dimensions `2 * k + 1`.
-    - ELLIPSE results in an ellipsoidal receptive field that is a strict subset of the CUBE.
+    - CUBE results in a hypercuboid with dimensions `2 * k + 1`.
+    - DIAMOND results in the highest-volume hypercuboid whose vertices are axis-aligned that can fit
+        into CUBE.
+    - ELLIPSE results in the highest-volume ellipsoid that can fit into CUBE.
     """
     CUBE = "cube"
+    DIAMOND = "diamond"
     ELLIPSE = "ellipse"
 
 
@@ -129,8 +132,11 @@ def lattice_neighborhoods(
     assert neighborhoods.shape == (shape.prod(), (2 * k + 1).prod(), len(shape))
     mask = ((neighborhoods >= 0) & (neighborhoods < shape)).all(axis=-1)
     # If we want an ellipseal neighborhood, we remove neighbors that are too far.
-    if bounds == "ellipse":
+    if bounds == LatticeBounds.ELLIPSE:
         t = np.square(steps / k).sum(axis=-1)
+        mask &= t <= 1
+    elif bounds == LatticeBounds.DIAMOND:
+        t = np.abs(steps / k).sum(axis=-1)
         mask &= t <= 1
     # Mask invalid indices, ravel the coordinate indices, and mask again after ravelling.
     neighborhoods = np.where(mask[..., None], neighborhoods, 0)

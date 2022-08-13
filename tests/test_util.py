@@ -57,7 +57,7 @@ def test_lattice_neighborhoods(
 
 @pytest.mark.parametrize("shape, ks, bounds, match", [
     ((5, 6), (3, 7), "cube", "exceeds the tensor size"),
-    ((10, 6), 2, "invalid-shape", "`bounds` must be one of"),
+    ((10, 6), 2, "invalid-shape", "'invalid-shape' is not a valid LatticeBounds"),
 ])
 def test_lattice_neighborhoods_invalid(
         shape: tuple[int], ks: tuple[int], bounds: util.LatticeBounds, match: str) -> None:
