@@ -195,3 +195,12 @@ class VariationalModel(th.nn.Module):
         distributions = self.distributions()
         parameters = self.rsample(size)
         return self.elbo_estimate(parameters, *args, distributions=distributions, **kwargs)
+
+    def check_log_prob_shape(self, shape=(7, 11), *args, **kwargs) -> None:
+        """
+        Check that :meth:`log_prob` returns the correct batch shape.
+        """
+        parameters = self.rsample(shape)
+        log_prob = self.log_prob(parameters, *args, **kwargs)
+        if log_prob.shape != shape:
+            raise RuntimeError(f"expected batch shape {shape} but got {log_prob.shape}")

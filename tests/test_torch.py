@@ -1,5 +1,6 @@
 from graph_gaussian_process.kernels import ExpQuadKernel
-from graph_gaussian_process.torch import GraphGaussianProcess, ParametrizedDistribution
+from graph_gaussian_process.torch import GraphGaussianProcess, ParametrizedDistribution, \
+    VariationalModel
 from graph_gaussian_process.util import lattice_predecessors
 import itertools as it
 import pytest
@@ -88,3 +89,17 @@ def test_parametrized_distribution():
     assert scale.allclose(dist.scale)
     assert not dist.loc.grad_fn
     assert dist.scale.grad_fn
+
+
+def test_check_log_prob_shape():
+    class Model(VariationalModel):
+        def log_prob(self, parameters, reduce):
+            log_prob = parameters["x"].sum(axis=-1)
+            return log_prob.sum() if reduce else log_prob
+
+    model = Model({
+        "x": ParametrizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
+    })
+    model.check_log_prob_shape(reduce=False)
+    with pytest.raises(RuntimeError):
+        model.check_log_prob_shape(reduce=True)
