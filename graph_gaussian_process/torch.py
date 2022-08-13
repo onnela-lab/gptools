@@ -54,7 +54,7 @@ class GraphGaussianProcess(th.distributions.Distribution):
         self.indices = self.neighborhoods.maximum(self._ZERO)
 
         # Get all positions expanded to neighborhoods and evaluate the masked covariance function.
-        cov = kernel(coords[..., self.indices, :]) * (mask[..., None, :] & mask[..., None])
+        cov = kernel(self.coords[..., self.indices, :]) * (mask[..., None, :] & mask[..., None])
 
         # Precompute intermediate values for evaluating the conditional parameters. The weights
         # correspond to the contributions of neighboring points to the location parameter.
@@ -63,14 +63,14 @@ class GraphGaussianProcess(th.distributions.Distribution):
         cov_NN = cov[..., 1:, 1:]
         self.weights, *_ = th.linalg.lstsq(cov_NN, self.cov_iN, rcond=lstsq_rcond,
                                            driver=lstsq_driver)
+        self.scale = (self.cov_ii - (self.weights * self.cov_iN).sum(axis=-1)).sqrt()
 
         super().__init__(batch_shape, event_shape, validate_args)
 
     def log_prob(self, value: th.Tensor) -> th.Tensor:
         value = value - self.loc
         loc = (self.weights * value[..., self.indices[..., 1:]]).sum(axis=-1)
-        scale = (self.cov_ii - (self.weights * self.cov_iN).sum(axis=-1)).sqrt()
-        return th.distributions.Normal(loc, scale).log_prob(value).sum(axis=-1)
+        return th.distributions.Normal(loc, self.scale).log_prob(value).sum(axis=-1)
 
     def sample(self, size: typing.Optional[th.Size] = None) -> th.Tensor:
         # We sample elements sequentially. This isn't particularly efficient due to the python loop
@@ -78,9 +78,8 @@ class GraphGaussianProcess(th.distributions.Distribution):
         # solvers that could solve this problem in a batch. First, sample white noise which we will
         # transform to a Gaussian process sample.
         ys = th.randn(th.Size(size or ()) + (self.num_nodes,))
-        scale = (self.cov_ii - (self.weights * self.cov_iN).sum(axis=-1)).sqrt()
         for i in range(self.num_nodes):
             loc = (self.weights[i] * ys[..., self.indices[i, 1:]]).sum(axis=-1)
-            ys[..., i] = loc + scale[i] * ys[..., i]
+            ys[..., i] = loc + self.scale[i] * ys[..., i]
 
         return ys + self.loc
