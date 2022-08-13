@@ -204,3 +204,32 @@ class VariationalModel(th.nn.Module):
         log_prob = self.log_prob(parameters, *args, **kwargs)
         if log_prob.shape != shape:
             raise RuntimeError(f"expected batch shape {shape} but got {log_prob.shape}")
+
+
+class TerminateOnPlateau:
+    """
+    Terminate training if a metric plateaus for a given number of epochs.
+    """
+    def __init__(self, patience: int, max_num_steps: typing.Optional[int] = None) -> None:
+        self.patience = patience
+        self.best_value = float("inf")
+        self.elapsed = 0
+        self.num_steps = 0
+        self.max_num_steps = max_num_steps or float("inf")
+
+    def step(self, value: float):
+        if value < self.best_value:
+            self.best_value = value
+            self.elapsed = 0
+        else:
+            self.elapsed += 1
+        self.num_steps += 1
+        return self
+
+    def __bool__(self) -> bool:
+        return self.elapsed < self.patience and self.num_steps < self.max_num_steps
+
+    def __repr__(self) -> str:
+        return f"TerminateOnPlateau(patience={self.patience}, " \
+            f"max_num_steps={self.max_num_steps}, elapsed={self.elapsed}, " \
+            f"num_steps={self.num_steps}, best_value={self.best_value})"
