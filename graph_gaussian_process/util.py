@@ -101,26 +101,25 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
     return coords.reshape((-1, len(xs)))
 
 
-def lattice_neighborhoods(
+def lattice_predecessors(
         shape: tuple[int], k: typing.Union[int, tuple[int]],
         bounds: LatticeBounds = LatticeBounds.ELLIPSE, compress: bool = True
         ) -> np.ndarray:
     """
-    Evaluate predecessor neighborhoods for nodes on a lattice with given window size. Approximations
-    will generally be poor if the half window width is smaller than the correlation length of the
-    kernel.
+    Evaluate predecessors for nodes on a lattice with given window size. Approximations will
+    generally be poor if the half window width is smaller than the correlation length of the kernel.
 
     Args:
         shape: Shape of the tensor with Gaussian process distribution.
         k: Half window width or sequence of half window widths for each dimension. Each node will
             have a receptive field at most `k` to the "left" and "right" in each dimension.
         bounds: Bounds of the receptive field. See :class:`LatticeBounds` for details.
-        compress: Whether to compress neighborhoods such that the number of colums is equal to the
+        compress: Whether to compress predecessors such that the number of colums is equal to the
             maximum degree.
 
     Returns:
-        neighborhoods: Mapping from each element of the tensor to its neighborhood with shape
-            `(prod(shape), l)`, where `l` is the number of neighbors.
+        predecessors: Mapping from each element of the tensor to its predecessors with shape
+            `(prod(shape), l)`, where `l` is the number of predecessors.
     """
     bounds = LatticeBounds(bounds)
     # Convert shape and window widths to arrays and verify bounds.
@@ -132,11 +131,11 @@ def lattice_neighborhoods(
     # Get all possible combinations of indices and steps.
     coords = coordgrid(*[np.arange(p) for p in shape], ravel=True)
     steps = coordgrid(*[np.roll(np.arange(- s, s + 1), - s) for s in k], ravel=True)
-    # Construct the vector neighborhoods and a mask that removes indices outside the tensor bounds.
-    neighborhoods = coords[..., None, :] - steps
-    assert neighborhoods.shape == (shape.prod(), (2 * k + 1).prod(), len(shape))
-    mask = ((neighborhoods >= 0) & (neighborhoods < shape)).all(axis=-1)
-    # If we want an ellipseal neighborhood, we remove neighbors that are too far.
+    # Construct the vector predecessors and a mask that removes indices outside the tensor bounds.
+    predecessors = coords[..., None, :] - steps
+    assert predecessors.shape == (shape.prod(), (2 * k + 1).prod(), len(shape))
+    mask = ((predecessors >= 0) & (predecessors < shape)).all(axis=-1)
+    # If we want an ellipsoidal predecessors, we remove ones that are too far away.
     if bounds == LatticeBounds.ELLIPSE:
         t = np.square(steps / k).sum(axis=-1)
         mask &= t <= 1
@@ -144,17 +143,17 @@ def lattice_neighborhoods(
         t = np.abs(steps / k).sum(axis=-1)
         mask &= t <= 1
     # Mask invalid indices, ravel the coordinate indices, and mask again after ravelling.
-    neighborhoods = np.where(mask[..., None], neighborhoods, 0)
-    neighborhoods = np.ravel_multi_index(np.moveaxis(neighborhoods, -1, 0), shape)
-    # Ensure all neighbors are predecessors of each node.
-    mask &= neighborhoods <= np.arange(coords.shape[0])[:, None]
-    neighborhoods = np.where(mask, neighborhoods, -1)
+    predecessors = np.where(mask[..., None], predecessors, 0)
+    predecessors = np.ravel_multi_index(np.moveaxis(predecessors, -1, 0), shape)
+    # Ensure all nodes are predecessors so the graph is acyclic.
+    mask &= predecessors <= np.arange(coords.shape[0])[:, None]
+    predecessors = np.where(mask, predecessors, -1)
     if compress:
-        neighborhoods = compress_neighborhoods(neighborhoods)
-    return neighborhoods
+        predecessors = compress_predecessors(predecessors)
+    return predecessors
 
 
-def num_lattice_neighbors(k: int, bounds: LatticeBounds, p: int) -> int:
+def num_lattice_predecessors(k: int, bounds: LatticeBounds, p: int) -> int:
     """
     Evaluate the number of predecessors in a lattice graph.
     """
@@ -171,24 +170,24 @@ def num_lattice_neighbors(k: int, bounds: LatticeBounds, p: int) -> int:
         raise NotImplementedError(f"k = {k}; bounds = {bounds}; p = {p}")
 
 
-def compress_neighborhoods(neighborhoods: np.ndarray) -> np.ndarray:
+def compress_predecessors(predecessors: np.ndarray) -> np.ndarray:
     """
-    Compress a neighborhood matrix such that there is at least one neighborhood that does not
+    Compress a predecessors matrix such that there is at least one predecessors that does not
     contain invalid indices. In other words, we remove as many columns as possible without
     discarding any information.
 
     Args:
-        neighborhoods: Mapping from each element of the tensor to its neighborhood.
+        predecessors: Mapping from each element of the tensor to its predecessors.
 
     Returns:
-        compressed: Neighborhoods after removing as many columns as possible.
+        compressed: predecessors after removing as many columns as possible.
     """
-    if neighborhoods.ndim != 2:
-        raise ValueError("neighborhoods must be a matrix")
-    num_nodes, _ = neighborhoods.shape
-    max_degree = (neighborhoods >= 0).sum(axis=1).max()
-    compressed = - np.ones((num_nodes, max_degree), dtype=neighborhoods.dtype)
-    for i, neighbors in enumerate(neighborhoods):
+    if predecessors.ndim != 2:
+        raise ValueError("predecessors must be a matrix")
+    num_nodes, _ = predecessors.shape
+    max_degree = (predecessors >= 0).sum(axis=1).max()
+    compressed = - np.ones((num_nodes, max_degree), dtype=predecessors.dtype)
+    for i, neighbors in enumerate(predecessors):
         neighbors = neighbors[neighbors >= 0]
         compressed[i, :len(neighbors)] = neighbors
     return compressed
@@ -200,25 +199,25 @@ def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal
     return indexing
 
 
-def neighborhood_to_edge_index(neighborhoods: np.ndarray,
+def predecessors_to_edge_index(predecessors: np.ndarray,
                                indexing: typing.Literal["numpy", "stan"] = "stan") -> np.ndarray:
     """
-    Convert a tensor of neighborhoods to an edgelist with self loops.
+    Convert a tensor of predecessors to an edgelist with self loops.
 
     Args:
-        neighborhoods: Neighborhood matrix such that each row corresponds to the parental neighbors
-            of the associated node. Negative node labels are omitted
+        predecessors: Predecessor matrix such that each row corresponds to the predecessors of the
+            associated node. Negative node labels are omitted.
         indexing: Whether to use zero-based indexing (`numpy`) or one-based indexing (`stan`).
 
     Returns:
         edge_index: Tuple of parent and child node labels.
     """
-    if neighborhoods.ndim != 2:
-        raise ValueError("neighborhoods must be a matrix")
-    if (neighborhoods[:, 0] != np.arange(neighborhoods.shape[0])).any():
-        raise ValueError("first element in the neighborhood must be the corresponding node")
+    if predecessors.ndim != 2:
+        raise ValueError("predecessors must be a matrix")
+    if (predecessors[:, 0] != np.arange(predecessors.shape[0])).any():
+        raise ValueError("first element in the predecessors must be the corresponding node")
 
-    edge_index = np.transpose([(parent, child) for child, parents in enumerate(neighborhoods) for
+    edge_index = np.transpose([(parent, child) for child, parents in enumerate(predecessors) for
                                parent in parents if parent >= 0])
     if _check_indexing(indexing) == "stan":
         return edge_index + 1

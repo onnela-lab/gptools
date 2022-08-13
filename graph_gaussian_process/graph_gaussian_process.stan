@@ -36,17 +36,17 @@ array [] int in_degrees(int n, array [,] int edge_index) {
 * Evaluate the location and scale for a node given its parents.
 */
 vector conditional_loc_scale(vector y, array[] vector x, real alpha, real rho, real epsilon,
-                             array [] int neighborhood) {
+                             array [] int predecessors) {
     vector[2] loc_scale;
-    if (size(neighborhood) == 1) {
+    if (size(predecessors) == 1) {
         loc_scale[1] = 0;
         loc_scale[2] = sqrt(alpha ^ 2 + epsilon);
     } else {
         // Evaluate the local covariance.
-        matrix[size(neighborhood), size(neighborhood)] cov = add_diag(
-            gp_exp_quad_cov(x[neighborhood], alpha, rho), epsilon);
-        vector[size(neighborhood) - 1] v = mdivide_left_spd(cov[2:, 2:], cov[2:, 1]);
-        loc_scale[1] = dot_product(v, y[neighborhood[2:]]);
+        matrix[size(predecessors), size(predecessors)] cov = add_diag(
+            gp_exp_quad_cov(x[predecessors], alpha, rho), epsilon);
+        vector[size(predecessors) - 1] v = mdivide_left_spd(cov[2:, 2:], cov[2:, 1]);
+        loc_scale[1] = dot_product(v, y[predecessors[2:]]);
         loc_scale[2] = sqrt(cov[1, 1] - dot_product(v, cov[2:, 1]));
     }
     return loc_scale;

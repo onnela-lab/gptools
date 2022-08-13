@@ -10,8 +10,8 @@ class GraphGaussianProcess(th.distributions.Distribution):
     Args:
         loc: Mean of the distribution.
         coords: Coordinates of nodes.
-        neighborhoods: Matrix of node labels with shape `(num_nodes, max_degree)`. The row
-            `neighborhoods[i]` denotes the predecessors of node `i` in the graph. Any unused slots
+        predecessors: Matrix of node labels with shape `(num_nodes, max_degree)`. The row
+            `predecessors[i]` denotes the predecessors of node `i` in the graph. Any unused slots
             should be set to -1. The first predecessor of each node must be itself, i.e., a self
             loop.
         kernel: Callable to evaluate the covariance which takes node coordinates as the only
@@ -26,7 +26,7 @@ class GraphGaussianProcess(th.distributions.Distribution):
     arg_constraints = {
         "loc": constraints.real_vector,
         "coords": constraints.independent(constraints.real, 2),
-        "neighborhoods": constraints.independent(constraints.real, 2),
+        "predecessors": constraints.independent(constraints.real, 2),
     }
     support = constraints.real_vector
     has_rsample = False
@@ -34,7 +34,7 @@ class GraphGaussianProcess(th.distributions.Distribution):
     weights: th.Tensor
 
     def __init__(
-            self, loc: th.Tensor, coords: th.Tensor, neighborhoods: th.LongTensor,
+            self, loc: th.Tensor, coords: th.Tensor, predecessors: th.LongTensor,
             kernel: typing.Callable[..., th.Tensor], lstsq_rcond: typing.Optional[float] = None,
             lstsq_driver: typing.Literal["gels", "gelsy", "gelsd", "gelss"] = "gelsd",
             validate_args=None) -> None:
@@ -42,7 +42,7 @@ class GraphGaussianProcess(th.distributions.Distribution):
         self.num_nodes = loc.shape[-1]
         self.loc = th.as_tensor(loc)
         self.coords = th.as_tensor(coords)
-        self.neighborhoods = th.as_tensor(neighborhoods)
+        self.predecessors = th.as_tensor(predecessors)
         self.kernel = kernel
         batch_shape = loc.shape[:-1]
         event_shape = loc.shape[-1:]
@@ -50,14 +50,14 @@ class GraphGaussianProcess(th.distributions.Distribution):
         # Construct the indices (including the node itself), obtain the mask for valid parents, and
         # replace invalid parents with the first node. This could be any node because any associated
         # covariances will be masked out. But the first one does the trick.
-        mask = self.neighborhoods >= 0
-        self.indices = self.neighborhoods.maximum(self._ZERO)
+        mask = self.predecessors >= 0
+        self.indices = self.predecessors.maximum(self._ZERO)
 
-        # Get all positions expanded to neighborhoods and evaluate the masked covariance function.
+        # Get all positions expanded to predecessors and evaluate the masked covariance function.
         cov = kernel(self.coords[..., self.indices, :]) * (mask[..., None, :] & mask[..., None])
 
         # Precompute intermediate values for evaluating the conditional parameters. The weights
-        # correspond to the contributions of neighboring points to the location parameter.
+        # correspond to the contributions of preceeding points to the location parameter.
         self.cov_ii = cov[..., 0, 0]
         self.cov_iN = cov[..., 0, 1:]
         cov_NN = cov[..., 1:, 1:]
