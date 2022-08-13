@@ -38,11 +38,11 @@ def test_coord_grid(shape: tuple[int], ravel: bool) -> None:
     ((7, 9, 11), 3),
     ((7, 9, 11), (3, 4, 5)),
 ])
-@pytest.mark.parametrize("bounds", ["cuboid", "ellipsoid"])
+@pytest.mark.parametrize("bounds", util.LatticeBounds)
 @pytest.mark.parametrize("compress", [False, True])
 def test_lattice_neighborhoods(
-        shape: tuple[int], ks: typing.Union[int, tuple[int]],
-        bounds: typing.Literal["cuboid", "ellipsoid"], compress: bool) -> None:
+        shape: tuple[int], ks: typing.Union[int, tuple[int]], bounds: util.LatticeBounds,
+        compress: bool) -> None:
     neighborhoods = util.lattice_neighborhoods(shape, ks, bounds, compress)
     if isinstance(ks, numbers.Integral):
         ks = (ks,) * len(shape)
@@ -56,12 +56,11 @@ def test_lattice_neighborhoods(
 
 
 @pytest.mark.parametrize("shape, ks, bounds, match", [
-    ((5, 6), (3, 7), "cuboid", "exceeds the tensor size"),
+    ((5, 6), (3, 7), "cube", "exceeds the tensor size"),
     ((10, 6), 2, "invalid-shape", "`bounds` must be one of"),
 ])
 def test_lattice_neighborhoods_invalid(
-        shape: tuple[int], ks: tuple[int], bounds: typing.Literal["cuboid", "ellipsoid"],
-        match: str) -> None:
+        shape: tuple[int], ks: tuple[int], bounds: util.LatticeBounds, match: str) -> None:
     with pytest.raises(ValueError, match=re.escape(match)):
         util.lattice_neighborhoods(shape, ks, bounds=bounds)
 

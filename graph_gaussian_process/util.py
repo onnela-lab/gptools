@@ -1,3 +1,4 @@
+import enum
 import numpy as np
 import typing
 from .missing_module import MissingModule
@@ -16,6 +17,17 @@ try:
     import torch as th
 except ModuleNotFoundError as ex:
     th = MissingModule(ex)
+
+
+class LatticeBounds(enum.Enum):
+    """
+    Boundary shape for the receptive field on a lattice.
+
+    - CUBE results in a hypercube with dimensions `2 * k + 1`.
+    - ELLIPSE results in an ellipsoidal receptive field that is a strict subset of the CUBE.
+    """
+    CUBE = "cube"
+    ELLIPSE = "ellipse"
 
 
 def evaluate_squared_distance(x: typing.Union[np.ndarray, "th.Tensor"]) \
@@ -84,7 +96,7 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
 
 def lattice_neighborhoods(
         shape: tuple[int], k: typing.Union[int, tuple[int]],
-        bounds: typing.Literal["cuboid", "ellipsoid"] = "ellipsoid", compress: bool = True
+        bounds: LatticeBounds = LatticeBounds.ELLIPSE, compress: bool = True
         ) -> np.ndarray:
     """
     Evaluate predecessor neighborhoods for nodes on a lattice with given window size.
@@ -93,11 +105,7 @@ def lattice_neighborhoods(
         shape: Shape of the tensor with Gaussian process distribution.
         k: Half window width or sequence of half window widths for each dimension. Each node will
             have a receptive field at most `k` to the "left" and "right" in each dimension.
-        bounds: Boundary shape for the receptive field. "cuboid" results in a cuboid with dimensions
-            `2 * k + 1`. "ellipsoid" results in a graph with ellipsoidal receptive field that is a
-            strict subset of the cuboid. Using an ellipsoidal receptive field can reduce
-            computational cost, especially in high dimensions. Ellipsoids can also attenuate
-            artefacts that may arise from the anisotropy of the cuboidal receptive field.
+        bounds: Bounds of the receptive field. See :class:`LatticeBounds` for details.
         compress: Whether to compress neighborhoods such that the number of colums is equal to the
             maximum degree.
 
@@ -106,8 +114,7 @@ def lattice_neighborhoods(
             shape is `(prod(shape), prod(ks))`. If `not ravel`, the shape is
             `(*shape, prod(ks), len(shape))`.
     """
-    if bounds not in (expected := {"cuboid", "ellipsoid"}):
-        raise ValueError(f"`bounds` must be one of {expected} but got {bounds}")
+    bounds = LatticeBounds(bounds)
     # Convert shape and window widths to arrays and verify bounds.
     shape = np.asarray(shape)
     k = k * np.ones_like(shape)
@@ -121,8 +128,8 @@ def lattice_neighborhoods(
     neighborhoods = coords[..., None, :] - steps
     assert neighborhoods.shape == (shape.prod(), (2 * k + 1).prod(), len(shape))
     mask = ((neighborhoods >= 0) & (neighborhoods < shape)).all(axis=-1)
-    # If we want an ellipsoidal neighborhood, we remove neighbors that are too far.
-    if bounds == "ellipsoid":
+    # If we want an ellipseal neighborhood, we remove neighbors that are too far.
+    if bounds == "ellipse":
         t = np.square(steps / k).sum(axis=-1)
         mask &= t <= 1
     # Mask invalid indices, ravel the coordinate indices, and mask again after ravelling.
