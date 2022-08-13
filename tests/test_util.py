@@ -38,17 +38,21 @@ def test_coord_grid(shape: tuple[int], ravel: bool) -> None:
     ((7, 9, 11), 3),
     ((7, 9, 11), (3, 4, 5)),
 ])
-@pytest.mark.parametrize("ravel", [False, True])
 @pytest.mark.parametrize("bounds", ["cuboid", "ellipsoid"])
-def test_lattice_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool,
-                               bounds: typing.Literal["cuboid", "ellipsoid"]) -> None:
-    neighborhoods = util.lattice_neighborhoods(shape, ks, ravel, bounds)
+@pytest.mark.parametrize("compress", [False, True])
+def test_lattice_neighborhoods(
+        shape: tuple[int], ks: typing.Union[int, tuple[int]],
+        bounds: typing.Literal["cuboid", "ellipsoid"], compress: bool) -> None:
+    neighborhoods = util.lattice_neighborhoods(shape, ks, bounds, compress)
     if isinstance(ks, numbers.Integral):
         ks = (ks,) * len(shape)
-    if ravel:
-        neighborhoods.shape == (np.prod(shape), np.prod(ks))
+    rows, cols = neighborhoods.shape
+    assert rows == np.prod(shape)
+    expected_cols = np.prod(2 * np.asarray(ks) + 1)
+    if compress:
+        assert cols < expected_cols
     else:
-        neighborhoods.shape == shape + ks
+        assert cols == expected_cols
 
 
 @pytest.mark.parametrize("shape, ks, bounds, match", [
@@ -100,3 +104,8 @@ def test_check_edge_index_invalid(
         match: typing.Optional[str]) -> None:
     with pytest.raises(ValueError, match=re.escape(match)):
         util.check_edge_index(np.asarray(edge_index), indexing)
+
+
+def test_compress_neighborhood_invalid_shape():
+    with pytest.raises(ValueError):
+        util.compress_neighborhoods(np.zeros(2))

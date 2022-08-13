@@ -83,8 +83,9 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
 
 
 def lattice_neighborhoods(
-        shape: tuple[int], k: typing.Union[int, tuple[int]], ravel: bool = True,
-        bounds: typing.Literal["cuboid", "ellipsoid"] = "ellipsoid") -> np.ndarray:
+        shape: tuple[int], k: typing.Union[int, tuple[int]],
+        bounds: typing.Literal["cuboid", "ellipsoid"] = "ellipsoid", compress: bool = True
+        ) -> np.ndarray:
     """
     Evaluate predecessor neighborhoods for nodes on a lattice with given window size.
 
@@ -97,6 +98,8 @@ def lattice_neighborhoods(
             strict subset of the cuboid. Using an ellipsoidal receptive field can reduce
             computational cost, especially in high dimensions. Ellipsoids can also attenuate
             artefacts that may arise from the anisotropy of the cuboidal receptive field.
+        compress: Whether to compress neighborhoods such that the number of colums is equal to the
+            maximum degree.
 
     Returns:
         neighborhoods: Mapping from each element of the tensor to its neighborhood. If `ravel`, the
@@ -128,9 +131,32 @@ def lattice_neighborhoods(
     # Ensure all neighbors are predecessors of each node.
     mask &= neighborhoods <= np.arange(coords.shape[0])[:, None]
     neighborhoods = np.where(mask, neighborhoods, -1)
-    if ravel:
-        return neighborhoods
-    return neighborhoods.reshape([*shape, (2 * k + 1).prod()])
+    if compress:
+        neighborhoods = compress_neighborhoods(neighborhoods)
+    return neighborhoods
+
+
+def compress_neighborhoods(neighborhoods: np.ndarray) -> np.ndarray:
+    """
+    Compress a neighborhood matrix such that there is at least one neighborhood that does not
+    contain invalid indices. In other words, we remove as many columns as possible without
+    discarding any information.
+
+    Args:
+        neighborhoods: Mapping from each element of the tensor to its neighborhood.
+
+    Returns:
+        compressed: Neighborhoods after removing as many columns as possible.
+    """
+    if neighborhoods.ndim != 2:
+        raise ValueError("neighborhoods must be a matrix")
+    num_nodes, _ = neighborhoods.shape
+    max_degree = (neighborhoods >= 0).sum(axis=1).max()
+    compressed = - np.ones((num_nodes, max_degree), dtype=neighborhoods.dtype)
+    for i, neighbors in enumerate(neighborhoods):
+        neighbors = neighbors[neighbors >= 0]
+        compressed[i, :len(neighbors)] = neighbors
+    return compressed
 
 
 def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal["numpy", "stan"]:
