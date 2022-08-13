@@ -62,12 +62,11 @@ class GraphGaussianProcess(th.distributions.Distribution):
 
         # Precompute intermediate values for evaluating the conditional parameters. The weights
         # correspond to the contributions of preceeding points to the location parameter.
-        self.cov_ii = cov[..., 0, 0]
-        self.cov_iN = cov[..., 0, 1:]
+        cov_iN = cov[..., 0, 1:]
         cov_NN = cov[..., 1:, 1:]
-        self.weights, *_ = th.linalg.lstsq(cov_NN, self.cov_iN, rcond=lstsq_rcond,
+        self.weights, *_ = th.linalg.lstsq(cov_NN, cov_iN, rcond=lstsq_rcond,
                                            driver=lstsq_driver)
-        self.scale = (self.cov_ii - (self.weights * self.cov_iN).sum(axis=-1)).sqrt()
+        self.scale = (cov[..., 0, 0] - (self.weights * cov_iN).sum(axis=-1)).sqrt()
 
         super().__init__(batch_shape, event_shape, validate_args)
 
@@ -196,7 +195,7 @@ class VariationalModel(th.nn.Module):
         parameters = self.rsample(size)
         return self.elbo_estimate(parameters, *args, distributions=distributions, **kwargs)
 
-    def check_log_prob_shape(self, shape=(7, 11), *args, **kwargs) -> None:
+    def check_log_prob_shape(self, shape=(2, 3), *args, **kwargs) -> None:
         """
         Check that :meth:`log_prob` returns the correct batch shape.
         """
