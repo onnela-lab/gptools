@@ -172,15 +172,15 @@ def num_lattice_predecessors(k: int, bounds: LatticeBounds, p: int) -> int:
 
 def compress_predecessors(predecessors: np.ndarray) -> np.ndarray:
     """
-    Compress a predecessors matrix such that there is at least one predecessors that does not
-    contain invalid indices. In other words, we remove as many columns as possible without
-    discarding any information.
+    Compress a predecessor matrix such that there is at least one predecessors that does not contain
+    invalid indices. In other words, we remove as many columns as possible without discarding any
+    information.
 
     Args:
         predecessors: Mapping from each element of the tensor to its predecessors.
 
     Returns:
-        compressed: predecessors after removing as many columns as possible.
+        compressed: Predecessors after removing as many columns as possible.
     """
     if predecessors.ndim != 2:
         raise ValueError("predecessors must be a matrix")
@@ -202,7 +202,7 @@ def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal
 def predecessors_to_edge_index(predecessors: np.ndarray,
                                indexing: typing.Literal["numpy", "stan"] = "stan") -> np.ndarray:
     """
-    Convert a tensor of predecessors to an edgelist with self loops.
+    Convert a matrix of predecessors to an edgelist with self loops.
 
     Args:
         predecessors: Predecessor matrix such that each row corresponds to the predecessors of the
