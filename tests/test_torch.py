@@ -1,6 +1,6 @@
 from graph_gaussian_process.kernels import ExpQuadKernel
 from graph_gaussian_process.torch import GraphGaussianProcess
-from graph_gaussian_process.util import lattice_neighborhoods
+from graph_gaussian_process.util import lattice_predecessors
 import itertools as it
 import pytest
 import torch as th
@@ -19,7 +19,7 @@ def data() -> dict:
     ys = dist.sample([100])
 
     k = 10
-    neighborhoods = th.as_tensor(lattice_neighborhoods((n,), k))
+    predecessors = th.as_tensor(lattice_predecessors((n,), k))
 
     return {
         "n": n,
@@ -28,7 +28,7 @@ def data() -> dict:
         "kernel": kernel,
         "dist": dist,
         "ys": ys,
-        "neighborhoods": neighborhoods,
+        "predecessors": predecessors,
     }
 
 
@@ -42,7 +42,7 @@ def test_torch_evaluate_log_prob(data: dict, lstsq_driver: str) -> None:
     """
     from scipy import stats
 
-    gdist = GraphGaussianProcess(data["loc"], data["x"], data["neighborhoods"], data["kernel"],
+    gdist = GraphGaussianProcess(data["loc"], data["x"], data["predecessors"], data["kernel"],
                                  lstsq_driver=lstsq_driver)
     # Evaluate log probabilities and ensure they are correlated with the full log probabilities.
     corr, pval = stats.pearsonr(data["dist"].log_prob(data["ys"]), gdist.log_prob(data["ys"]))
@@ -57,7 +57,7 @@ def test_torch_evaluate_log_prob(data: dict, lstsq_driver: str) -> None:
 @pytest.mark.parametrize("lstsq_drivers", it.product(*[["gelsy", "gelsd", "gelss"]] * 2))
 def test_torch_evaluate_log_prob_drivers(data: dict, lstsq_drivers: str) -> None:
     a, b = [
-        GraphGaussianProcess(data["loc"], data["x"], data["neighborhoods"], data["kernel"],
+        GraphGaussianProcess(data["loc"], data["x"], data["predecessors"], data["kernel"],
                              lstsq_driver=driver).log_prob(data["ys"]) for driver in lstsq_drivers
     ]
     if "gelsy" in lstsq_drivers:
@@ -73,7 +73,7 @@ def test_torch_sample(size: th.Size) -> None:
     x = th.linspace(0, 1, num_nodes)
     X = x[:, None]
     kernel = ExpQuadKernel(1.4, 0.1, 1e-3)
-    neighborhoods = lattice_neighborhoods(x.shape, 7)
-    dist = GraphGaussianProcess(th.zeros_like(x), X, neighborhoods, kernel)
+    predecessors = lattice_predecessors(x.shape, 7)
+    dist = GraphGaussianProcess(th.zeros_like(x), X, predecessors, kernel)
     y = dist.sample(size)
     assert y.shape == th.Size(size or ()) + (num_nodes,)
