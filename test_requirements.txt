@@ -243,7 +243,9 @@ tornado==6.2
     #   ipykernel
     #   jupyter-client
 tqdm==4.64.0
-    # via cmdstanpy
+    # via
+    #   cmdstanpy
+    #   graph-gaussian-process
 traitlets==5.3.0
     # via
     #   ipykernel
