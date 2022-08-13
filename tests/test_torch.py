@@ -1,5 +1,5 @@
 from graph_gaussian_process.kernels import ExpQuadKernel
-from graph_gaussian_process.torch import GraphGaussianProcess
+from graph_gaussian_process.torch import GraphGaussianProcess, ParametrizedDistribution
 from graph_gaussian_process.util import lattice_predecessors
 import itertools as it
 import pytest
@@ -77,3 +77,14 @@ def test_torch_sample(size: th.Size) -> None:
     dist = GraphGaussianProcess(th.zeros_like(x), X, predecessors, kernel)
     y = dist.sample(size)
     assert y.shape == th.Size(size or ()) + (num_nodes,)
+
+
+def test_parametrized_distribution():
+    loc = - th.ones(3)
+    scale = 1.0 + th.arange(3)
+    pdist = ParametrizedDistribution(th.distributions.Normal, loc=loc, scale=scale, const={"loc"})
+    dist = pdist()
+    assert loc.allclose(dist.loc)
+    assert scale.allclose(dist.scale)
+    assert not dist.loc.grad_fn
+    assert dist.scale.grad_fn
