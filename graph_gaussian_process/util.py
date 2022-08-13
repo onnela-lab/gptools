@@ -19,6 +19,10 @@ except ModuleNotFoundError as ex:
     th = MissingModule(ex)
 
 
+# Solutions to the Gauss circle problem (https://en.wikipedia.org/wiki/Gauss_circle_problem).
+GAUSS_PROBLEM_SEQUENCE = np.asarray([1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441])
+
+
 class LatticeBounds(enum.Enum):
     """
     Boundary shape for the receptive field on a lattice.
@@ -102,7 +106,9 @@ def lattice_neighborhoods(
         bounds: LatticeBounds = LatticeBounds.ELLIPSE, compress: bool = True
         ) -> np.ndarray:
     """
-    Evaluate predecessor neighborhoods for nodes on a lattice with given window size.
+    Evaluate predecessor neighborhoods for nodes on a lattice with given window size. Approximations
+    will generally be poor if the half window width is smaller than the correlation length of the
+    kernel.
 
     Args:
         shape: Shape of the tensor with Gaussian process distribution.
@@ -113,9 +119,8 @@ def lattice_neighborhoods(
             maximum degree.
 
     Returns:
-        neighborhoods: Mapping from each element of the tensor to its neighborhood. If `ravel`, the
-            shape is `(prod(shape), prod(ks))`. If `not ravel`, the shape is
-            `(*shape, prod(ks), len(shape))`.
+        neighborhoods: Mapping from each element of the tensor to its neighborhood with shape
+            `(prod(shape), l)`, where `l` is the number of neighbors.
     """
     bounds = LatticeBounds(bounds)
     # Convert shape and window widths to arrays and verify bounds.
@@ -147,6 +152,23 @@ def lattice_neighborhoods(
     if compress:
         neighborhoods = compress_neighborhoods(neighborhoods)
     return neighborhoods
+
+
+def num_lattice_neighbors(k: int, bounds: LatticeBounds, p: int) -> int:
+    """
+    Evaluate the number of predecessors in a lattice graph.
+    """
+    bounds = LatticeBounds(bounds)
+    if p == 1:
+        return k + 1
+    elif p == 2 and bounds == LatticeBounds.CUBE:
+        return 2 * k * (k + 1) + 1
+    elif p == 2 and bounds == LatticeBounds.DIAMOND:
+        return k * (k + 1) + 1
+    elif p == 2 and bounds == LatticeBounds.ELLIPSE:
+        return (GAUSS_PROBLEM_SEQUENCE[k] - 1) // 2 + 1
+    else:
+        raise NotImplementedError(f"k = {k}; bounds = {bounds}; p = {p}")
 
 
 def compress_neighborhoods(neighborhoods: np.ndarray) -> np.ndarray:

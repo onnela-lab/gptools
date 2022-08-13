@@ -44,14 +44,19 @@ def test_lattice_neighborhoods(
         shape: tuple[int], ks: typing.Union[int, tuple[int]], bounds: util.LatticeBounds,
         compress: bool) -> None:
     neighborhoods = util.lattice_neighborhoods(shape, ks, bounds, compress)
-    if isinstance(ks, numbers.Integral):
-        ks = (ks,) * len(shape)
+
+    # General shape check.
     rows, cols = neighborhoods.shape
     assert rows == np.prod(shape)
-    expected_cols = np.prod(2 * np.asarray(ks) + 1)
+    expected_cols = np.prod(2 * np.asarray(ks) * np.ones_like(shape) + 1)
     if compress:
         assert cols < expected_cols
     else:
+        assert cols == expected_cols
+
+    # Shape check for up to two dimensions if `k` is a scalar and the neighborhoods are compressed.
+    if isinstance(ks, numbers.Number) and len(shape) < 3 and compress:
+        expected_cols = util.num_lattice_neighbors(ks, bounds, len(shape))
         assert cols == expected_cols
 
 
