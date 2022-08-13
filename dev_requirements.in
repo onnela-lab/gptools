@@ -2,5 +2,6 @@
 -r test_requirements.txt
 # Include additional packages we need for development.
 jupyter
+matplotlib
 pip-tools
 tqdm

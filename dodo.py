@@ -11,6 +11,8 @@ for name, file_dep in [("test", ["setup.py"]), ("dev", ["test_requirements.txt"]
         basename="requirements", name=name, targets=[target], file_dep=[requirements_in, *file_dep],
         actions=[f"pip-compile -v -o {target} {requirements_in}"],
     )
+manager(basename="requirements", name="sync", file_dep=["dev_requirements.txt"],
+        actions=["pip-sync dev_requirements.txt"])
 
 with di.defaults(basename="docs"):
     manager(name="html", actions=["sphinx-build . docs/_build"])

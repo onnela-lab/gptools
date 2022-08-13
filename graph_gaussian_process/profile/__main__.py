@@ -2,8 +2,8 @@ import argparse
 import logging
 import cmdstanpy
 from graph_gaussian_process.kernels import ExpQuadKernel
-from graph_gaussian_process.util import get_include, neighborhood_to_edge_index, \
-    lattice_neighborhoods
+from graph_gaussian_process.stan import get_include
+from graph_gaussian_process.util import lattice_neighborhoods, neighborhood_to_edge_index
 import numpy as np
 import pathlib
 import pickle

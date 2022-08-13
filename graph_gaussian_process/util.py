@@ -1,22 +1,44 @@
-from matplotlib import pyplot as plt
-from matplotlib.axes import Axes
-from matplotlib.collections import PolyCollection
-from matplotlib.lines import Line2D
+import enum
 import numpy as np
-import os
 import typing
-if typing.TYPE_CHECKING:  # pragma: no cover
+from .missing_module import MissingModule
+try:
+    import matplotlib.axes
+    import matplotlib.collections
+    import matplotlib.lines
+    from matplotlib import pyplot as plt
+except ModuleNotFoundError as ex:
+    matplotlib = plt = MissingModule(ex)
+try:
     import networkx as nx
+except ModuleNotFoundError as ex:
+    nx = MissingModule(ex)
+try:
+    import torch as th
+except ModuleNotFoundError as ex:
+    th = MissingModule(ex)
 
 
-def get_include() -> str:
+# Solutions to the Gauss circle problem (https://en.wikipedia.org/wiki/Gauss_circle_problem).
+GAUSS_PROBLEM_SEQUENCE = np.asarray([1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441])
+
+
+class LatticeBounds(enum.Enum):
     """
-    Get the include directory for the graph Gaussian process library.
+    Boundary shape for the receptive field on a lattice.
+
+    - CUBE results in a hypercuboid with dimensions `2 * k + 1`.
+    - DIAMOND results in the highest-volume hypercuboid whose vertices are axis-aligned that can fit
+        into CUBE.
+    - ELLIPSE results in the highest-volume ellipsoid that can fit into CUBE.
     """
-    return os.path.dirname(__file__)
+    CUBE = "cube"
+    DIAMOND = "diamond"
+    ELLIPSE = "ellipse"
 
 
-def evaluate_squared_distance(x: np.ndarray) -> np.ndarray:
+def evaluate_squared_distance(x: typing.Union[np.ndarray, "th.Tensor"]) \
+        -> typing.Union[np.ndarray, "th.Tensor"]:
     """
     Evaluate the squared distance between the Cartesian product of nodes, preserving batch shape.
 
@@ -27,11 +49,13 @@ def evaluate_squared_distance(x: np.ndarray) -> np.ndarray:
     Returns:
         dist2: Squared distance Cartesian product of nodes with shape `(..., n, n)`.
     """
-    return np.square(x[..., :, None, :] - x[..., None, :, :]).sum(axis=-1)
+    residuals = x[..., :, None, :] - x[..., None, :, :]
+    return (residuals * residuals).sum(axis=-1)
 
 
 def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha: float = 0.25,
-              ax: typing.Optional[Axes] = None, **kwargs) -> tuple[Line2D, PolyCollection]:
+              ax: typing.Optional[matplotlib.axes.Axes] = None, **kwargs) \
+        -> tuple[matplotlib.lines.Line2D, matplotlib.collections.PolyCollection]:
     """
     Plot a credible band given posterior samples.
 
@@ -78,28 +102,27 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
 
 
 def lattice_neighborhoods(
-        shape: tuple[int], k: typing.Union[int, tuple[int]], ravel: bool = True,
-        bounds: typing.Literal["cuboid", "ellipsoid"] = "ellipsoid") -> np.ndarray:
+        shape: tuple[int], k: typing.Union[int, tuple[int]],
+        bounds: LatticeBounds = LatticeBounds.ELLIPSE, compress: bool = True
+        ) -> np.ndarray:
     """
-    Evaluate predecessor neighborhoods for nodes on a lattice with given window size.
+    Evaluate predecessor neighborhoods for nodes on a lattice with given window size. Approximations
+    will generally be poor if the half window width is smaller than the correlation length of the
+    kernel.
 
     Args:
         shape: Shape of the tensor with Gaussian process distribution.
         k: Half window width or sequence of half window widths for each dimension. Each node will
             have a receptive field at most `k` to the "left" and "right" in each dimension.
-        bounds: Boundary shape for the receptive field. "cuboid" results in a cuboid with dimensions
-            `2 * k + 1`. "ellipsoid" results in a graph with ellipsoidal receptive field that is a
-            strict subset of the cuboid. Using an ellipsoidal receptive field can reduce
-            computational cost, especially in high dimensions. Ellipsoids can also attenuate
-            artefacts that may arise from the anisotropy of the cuboidal receptive field.
+        bounds: Bounds of the receptive field. See :class:`LatticeBounds` for details.
+        compress: Whether to compress neighborhoods such that the number of colums is equal to the
+            maximum degree.
 
     Returns:
-        neighborhoods: Mapping from each element of the tensor to its neighborhood. If `ravel`, the
-            shape is `(prod(shape), prod(ks))`. If `not ravel`, the shape is
-            `(*shape, prod(ks), len(shape))`.
+        neighborhoods: Mapping from each element of the tensor to its neighborhood with shape
+            `(prod(shape), l)`, where `l` is the number of neighbors.
     """
-    if bounds not in (expected := {"cuboid", "ellipsoid"}):
-        raise ValueError(f"`bounds` must be one of {expected} but got {bounds}")
+    bounds = LatticeBounds(bounds)
     # Convert shape and window widths to arrays and verify bounds.
     shape = np.asarray(shape)
     k = k * np.ones_like(shape)
@@ -113,9 +136,12 @@ def lattice_neighborhoods(
     neighborhoods = coords[..., None, :] - steps
     assert neighborhoods.shape == (shape.prod(), (2 * k + 1).prod(), len(shape))
     mask = ((neighborhoods >= 0) & (neighborhoods < shape)).all(axis=-1)
-    # If we want an ellipsoidal neighborhood, we remove neighbors that are too far.
-    if bounds == "ellipsoid":
+    # If we want an ellipseal neighborhood, we remove neighbors that are too far.
+    if bounds == LatticeBounds.ELLIPSE:
         t = np.square(steps / k).sum(axis=-1)
+        mask &= t <= 1
+    elif bounds == LatticeBounds.DIAMOND:
+        t = np.abs(steps / k).sum(axis=-1)
         mask &= t <= 1
     # Mask invalid indices, ravel the coordinate indices, and mask again after ravelling.
     neighborhoods = np.where(mask[..., None], neighborhoods, 0)
@@ -123,9 +149,49 @@ def lattice_neighborhoods(
     # Ensure all neighbors are predecessors of each node.
     mask &= neighborhoods <= np.arange(coords.shape[0])[:, None]
     neighborhoods = np.where(mask, neighborhoods, -1)
-    if ravel:
-        return neighborhoods
-    return neighborhoods.reshape([*shape, (2 * k + 1).prod()])
+    if compress:
+        neighborhoods = compress_neighborhoods(neighborhoods)
+    return neighborhoods
+
+
+def num_lattice_neighbors(k: int, bounds: LatticeBounds, p: int) -> int:
+    """
+    Evaluate the number of predecessors in a lattice graph.
+    """
+    bounds = LatticeBounds(bounds)
+    if p == 1:
+        return k + 1
+    elif p == 2 and bounds == LatticeBounds.CUBE:
+        return 2 * k * (k + 1) + 1
+    elif p == 2 and bounds == LatticeBounds.DIAMOND:
+        return k * (k + 1) + 1
+    elif p == 2 and bounds == LatticeBounds.ELLIPSE:
+        return (GAUSS_PROBLEM_SEQUENCE[k] - 1) // 2 + 1
+    else:
+        raise NotImplementedError(f"k = {k}; bounds = {bounds}; p = {p}")
+
+
+def compress_neighborhoods(neighborhoods: np.ndarray) -> np.ndarray:
+    """
+    Compress a neighborhood matrix such that there is at least one neighborhood that does not
+    contain invalid indices. In other words, we remove as many columns as possible without
+    discarding any information.
+
+    Args:
+        neighborhoods: Mapping from each element of the tensor to its neighborhood.
+
+    Returns:
+        compressed: Neighborhoods after removing as many columns as possible.
+    """
+    if neighborhoods.ndim != 2:
+        raise ValueError("neighborhoods must be a matrix")
+    num_nodes, _ = neighborhoods.shape
+    max_degree = (neighborhoods >= 0).sum(axis=1).max()
+    compressed = - np.ones((num_nodes, max_degree), dtype=neighborhoods.dtype)
+    for i, neighbors in enumerate(neighborhoods):
+        neighbors = neighbors[neighbors >= 0]
+        compressed[i, :len(neighbors)] = neighbors
+    return compressed
 
 
 def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal["numpy", "stan"]:
@@ -192,7 +258,6 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
 
     # Check that there are no cycles after removing self-loops.
     graph = edge_index_to_graph(edge_index)
-    import networkx as nx
     try:
         cycle = nx.find_cycle(graph)
         raise ValueError(f"edge index induces a graph with the cycle: {cycle}")
@@ -213,11 +278,16 @@ def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) 
     Returns:
         graph: Directed graph induced by the edge indices.
     """
-    try:
-        import networkx as nx
-    except ModuleNotFoundError as ex:  # pragma: no cover
-        raise RuntimeError("networkx must be installed to convert edge indices to a graph") from ex
-
     graph = nx.DiGraph()
     graph.add_edges_from((u, v) for u, v in edge_index.T if u != v and remove_self_loops)
     return graph
+
+
+def is_tensor(x: typing.Union[np.ndarray, "th.Tensor"]) -> bool:
+    """
+    Check if `x` is a torch tensor.
+    """
+    try:
+        return isinstance(x, th.Tensor)
+    except ModuleNotFoundError:
+        return False

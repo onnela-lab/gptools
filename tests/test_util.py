@@ -1,16 +1,10 @@
 from graph_gaussian_process import util
 import numbers
 import numpy as np
-import pathlib
 import pytest
 import re
 from scipy.spatial.distance import cdist
 import typing
-
-
-def test_include() -> None:
-    include = pathlib.Path(util.get_include()) / "graph_gaussian_process.stan"
-    assert include.is_file()
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
@@ -44,26 +38,34 @@ def test_coord_grid(shape: tuple[int], ravel: bool) -> None:
     ((7, 9, 11), 3),
     ((7, 9, 11), (3, 4, 5)),
 ])
-@pytest.mark.parametrize("ravel", [False, True])
-@pytest.mark.parametrize("bounds", ["cuboid", "ellipsoid"])
-def test_lattice_neighborhoods(shape: tuple[int], ks: typing.Union[int, tuple[int]], ravel: bool,
-                               bounds: typing.Literal["cuboid", "ellipsoid"]) -> None:
-    neighborhoods = util.lattice_neighborhoods(shape, ks, ravel, bounds)
-    if isinstance(ks, numbers.Integral):
-        ks = (ks,) * len(shape)
-    if ravel:
-        neighborhoods.shape == (np.prod(shape), np.prod(ks))
+@pytest.mark.parametrize("bounds", util.LatticeBounds)
+@pytest.mark.parametrize("compress", [False, True])
+def test_lattice_neighborhoods(
+        shape: tuple[int], ks: typing.Union[int, tuple[int]], bounds: util.LatticeBounds,
+        compress: bool) -> None:
+    neighborhoods = util.lattice_neighborhoods(shape, ks, bounds, compress)
+
+    # General shape check.
+    rows, cols = neighborhoods.shape
+    assert rows == np.prod(shape)
+    expected_cols = np.prod(2 * np.asarray(ks) * np.ones_like(shape) + 1)
+    if compress:
+        assert cols < expected_cols
     else:
-        neighborhoods.shape == shape + ks
+        assert cols == expected_cols
+
+    # Shape check for up to two dimensions if `k` is a scalar and the neighborhoods are compressed.
+    if isinstance(ks, numbers.Number) and len(shape) < 3 and compress:
+        expected_cols = util.num_lattice_neighbors(ks, bounds, len(shape))
+        assert cols == expected_cols
 
 
 @pytest.mark.parametrize("shape, ks, bounds, match", [
-    ((5, 6), (3, 7), "cuboid", "exceeds the tensor size"),
-    ((10, 6), 2, "invalid-shape", "`bounds` must be one of"),
+    ((5, 6), (3, 7), "cube", "exceeds the tensor size"),
+    ((10, 6), 2, "invalid-shape", "'invalid-shape' is not a valid LatticeBounds"),
 ])
 def test_lattice_neighborhoods_invalid(
-        shape: tuple[int], ks: tuple[int], bounds: typing.Literal["cuboid", "ellipsoid"],
-        match: str) -> None:
+        shape: tuple[int], ks: tuple[int], bounds: util.LatticeBounds, match: str) -> None:
     with pytest.raises(ValueError, match=re.escape(match)):
         util.lattice_neighborhoods(shape, ks, bounds=bounds)
 
@@ -106,3 +108,8 @@ def test_check_edge_index_invalid(
         match: typing.Optional[str]) -> None:
     with pytest.raises(ValueError, match=re.escape(match)):
         util.check_edge_index(np.asarray(edge_index), indexing)
+
+
+def test_compress_neighborhood_invalid_shape():
+    with pytest.raises(ValueError):
+        util.compress_neighborhoods(np.zeros(2))
