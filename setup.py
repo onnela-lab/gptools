@@ -12,9 +12,8 @@ setup(
         "tests": [
             "doit-interface",
             "flake8",
-            "ipykernel",
+            "jupyter",
             "matplotlib",
-            "nbconvert",
             "networkx",
             "pytest",
             "pytest-cov",
