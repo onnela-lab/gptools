@@ -1,5 +1,5 @@
-from graph_gaussian_process import kernels
-from graph_gaussian_process.missing_module import MissingModule
+from gptools import kernels
+from gptools.missing_module import MissingModule
 import numpy as np
 import pytest
 import typing

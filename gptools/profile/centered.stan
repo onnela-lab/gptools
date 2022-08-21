@@ -1,7 +1,7 @@
-// Graph gaussian process with log link for Poisson observations.
+// Graph gaussian process with normal noise and centered parametrization.
 
 functions {
-    #include graph_gaussian_process.stan
+    #include gptools.stan
 }
 
 #include data.stan
@@ -12,5 +12,5 @@ parameters {
 
 model {
     eta ~ graph_gp(X, alpha, rho, epsilon, edge_index, degrees);
-    y ~ poisson_log(eta);
+    y ~ normal(eta, noise_scale);
 }

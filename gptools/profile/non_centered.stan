@@ -1,7 +1,7 @@
 // Graph gaussian process with normal noise and non-centered parametrization.
 
 functions {
-    #include graph_gaussian_process.stan
+    #include gptools.stan
 }
 
 #include data.stan

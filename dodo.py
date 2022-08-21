@@ -19,11 +19,11 @@ with di.defaults(basename="docs"):
     manager(name="tests", actions=["sphinx-build -b doctest . docs/_build"])
 
 manager(basename="lint", actions=["flake8"])
-manager(basename="tests", actions=["pytest --cov-fail-under=100 --cov=graph_gaussian_process "
+manager(basename="tests", actions=["pytest --cov-fail-under=100 --cov=gptools "
                                    "--cov-report=term-missing --cov-report=html"])
 
 
-for path in pathlib.Path("graph_gaussian_process/examples").glob("*/*.ipynb"):
+for path in pathlib.Path("gptools/examples").glob("*/*.ipynb"):
     target = path.with_suffix(".html")
     manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
             targets=[target], actions=[f"jupyter nbconvert --execute --to=html {path}"])
@@ -39,13 +39,13 @@ profile_configurations = {
 }
 for name, (parametrization, noise_scale) in profile_configurations.items():
     target = f"workspace/{name}.pkl"
-    args = ["python", "-m", "graph_gaussian_process.profile", parametrization, noise_scale, target,
+    args = ["python", "-m", "gptools.profile", parametrization, noise_scale, target,
             "--iter_sampling=100"]
     file_dep = [
-        "graph_gaussian_process/graph_gaussian_process.stan",
-        "graph_gaussian_process/profile/__main__.py",
-        "graph_gaussian_process/profile/data.stan",
-        f"graph_gaussian_process/profile/{parametrization}.stan",
+        "gptools/gptools.stan",
+        "gptools/profile/__main__.py",
+        "gptools/profile/data.stan",
+        f"gptools/profile/{parametrization}.stan",
     ]
     manager(basename="profile", name=name, actions=[args], targets=[target],
             file_dep=file_dep)

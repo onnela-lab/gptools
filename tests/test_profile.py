@@ -1,4 +1,4 @@
-from graph_gaussian_process.profile.__main__ import __main__
+from gptools.profile.__main__ import __main__
 import pathlib
 import pickle
 import pytest

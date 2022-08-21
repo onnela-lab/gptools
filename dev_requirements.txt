@@ -272,7 +272,7 @@ numpy==1.22.1
     # via
     #   -r test_requirements.txt
     #   cmdstanpy
-    #   graph-gaussian-process
+    #   gptools
     #   matplotlib
     #   pandas
     #   scipy
