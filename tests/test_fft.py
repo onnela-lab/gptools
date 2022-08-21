@@ -22,19 +22,27 @@ def data(request: pytest.FixtureRequest) -> dict:
     }
 
 
-def test_log_prob_fft_normal(data: dict) -> None:
+@pytest.mark.parametrize("rfft", [False, True])
+def test_log_prob_fft_normal(data: dict, rfft: bool) -> None:
+    fft = np.fft.rfft if rfft else np.fft.fft
     # Evaluate the fft of the kernel and samples.
-    fftvar = np.fft.fft(data["cov"][0])
+    fftvar = fft(data["cov"][0])
     np.testing.assert_allclose(fftvar.imag, 0, atol=1e-9)
     fftvar = fftvar.real
-    ffts = np.fft.fft(data["ys"])
+    ffts = fft(data["ys"])
+
+    # Check shapes.
+    n = data["n"]
+    if rfft:
+        assert fftvar.shape == (n // 2 + 1,)
+    else:
+        assert fftvar.shape == (n,)
 
     # Scale the fourier transforms and evaluate the likelihood.
     scaled_ffts = ffts / np.sqrt(fftvar)
     scaled_ffts[:, 1:] *= np.sqrt(2)
-    n = data["n"]
-    rweight = np.ones(n)
-    iweight = np.ones(n)
+    rweight = np.ones_like(fftvar)
+    iweight = np.ones_like(fftvar)
     if n % 2:
         iweight[0] = 0
         rweight[n // 2 + 1:] = 0
@@ -45,32 +53,6 @@ def test_log_prob_fft_normal(data: dict) -> None:
         iweight[n // 2] = 0.5
         rweight[n // 2 + 1:] = 0
         iweight[n // 2 + 1:] = 0
-    log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
-        + stats.norm().logpdf(scaled_ffts.imag) @ iweight
-    # We don't test for equality because we don't evaluate the Jacobian of the Fourier transform.
-    pearsonr, _ = stats.pearsonr(log_prob, data["log_prob"])
-    np.testing.assert_allclose(pearsonr, 1)
-
-
-def test_log_prob_rfft_normal(data: dict) -> None:
-    # Evaluate the fft of the kernel and samples.
-    fftvar = np.fft.rfft(data["cov"][0])
-    np.testing.assert_allclose(fftvar.imag, 0, atol=1e-9)
-    fftvar = fftvar.real
-    ffts = np.fft.rfft(data["ys"])
-
-    # Scale the fourier transforms and evaluate the likelihood.
-    scaled_ffts = ffts / np.sqrt(fftvar)
-    scaled_ffts[:, 1:] *= np.sqrt(2)
-    n = data["n"]
-    rweight = np.ones(n // 2 + 1)
-    iweight = np.ones(n // 2 + 1)
-    if n % 2:
-        iweight[0] = 0
-    else:
-        iweight[0] = 0
-        rweight[n // 2] = 0.5
-        iweight[n // 2] = 0.5
     log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
         + stats.norm().logpdf(scaled_ffts.imag) @ iweight
     # We don't test for equality because we don't evaluate the Jacobian of the Fourier transform.
