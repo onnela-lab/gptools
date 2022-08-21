@@ -1,4 +1,4 @@
-from graph_gaussian_process.missing_module import MissingModule
+from gptools.missing_module import MissingModule
 import pytest
 
 

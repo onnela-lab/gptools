@@ -1,9 +1,9 @@
 import argparse
 import logging
 import cmdstanpy
-from graph_gaussian_process.kernels import ExpQuadKernel
-from graph_gaussian_process.stan import get_include
-from graph_gaussian_process.util import lattice_predecessors, predecessors_to_edge_index
+from gptools.kernels import ExpQuadKernel
+from gptools.stan import get_include
+from gptools.util import lattice_predecessors, predecessors_to_edge_index
 import numpy as np
 import pathlib
 import pickle

@@ -1,4 +1,4 @@
-from graph_gaussian_process import util
+from gptools import util
 import numbers
 import numpy as np
 import pytest
