@@ -79,7 +79,7 @@ def test_log_prob_fft_normal(data: dict, method: str, dist: str) -> None:
             iweight[n // 2] = 0
         log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
             + stats.norm().logpdf(scaled_ffts.imag) @ iweight \
-            - np.log(fft_scale) @ iweight - np.log(fft_scale) @ rweight \
+            - np.log(fft_scale) @ (iweight + rweight) \
             + np.log(2) / 2 * (1 - n) + n * np.log(n) / 2
     elif dist == "chi2":
         pytest.skip()
