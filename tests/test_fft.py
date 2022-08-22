@@ -6,55 +6,83 @@ from scipy import stats
 
 @pytest.fixture(params=[20, 21])
 def data(request: pytest.FixtureRequest) -> dict:
-    x = np.arange(request.param)
-    kernel = ExpQuadKernel(1, 3, 1e-2, x.size)
-    cov = kernel(x[:, None])
-    dist = stats.multivariate_normal(np.zeros_like(x), cov)
-    ys = dist.rvs(100)
+    n: int = request.param
+    x = np.arange(n)
+    ys = []
+    covs = []
+    log_probs = []
+    m = 17
+    for _ in range(m):
+        kernel = ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.1), 1e-2, x.size)
+        cov = kernel(x[:, None])
+        dist = stats.multivariate_normal(np.zeros_like(x), cov)
+        y = dist.rvs()
+        ys.append(y)
+        covs.append(cov)
+        log_probs.append(dist.logpdf(y))
+
+    covs = np.asarray(covs)
+    log_probs = np.asarray(log_probs)
+    ys = np.asarray(ys)
+
+    assert covs.shape == (m, n, n)
+    assert log_probs.shape == (m,)
+    assert ys.shape == (m, n)
+
     return {
-        "n": x.size,
+        "m": m,
+        "n": n,
         "x": x,
         "ys": ys,
-        "kernel": kernel,
-        "dist": dist,
-        "cov": cov,
-        "log_prob": dist.logpdf(ys),
+        "kernels": kernel,
+        "covs": covs,
+        "log_probs": log_probs,
     }
 
 
-@pytest.mark.parametrize("rfft", [False, True])
-def test_log_prob_fft_normal(data: dict, rfft: bool) -> None:
-    fft = np.fft.rfft if rfft else np.fft.fft
+@pytest.mark.parametrize("method", ["fft", "rfft"])
+@pytest.mark.parametrize("dist", ["norm", "chi2"])
+def test_log_prob_fft_normal(data: dict, method: str, dist: str) -> None:
+    m = data["m"]
+    n = data["n"]
+    fft = getattr(np.fft, method)
     # Evaluate the fft of the kernel and samples.
-    fftvar = fft(data["cov"][0])
+    fftvar = n * fft(data["covs"][:, 0])
     np.testing.assert_allclose(fftvar.imag, 0, atol=1e-9)
     fftvar = fftvar.real
     ffts = fft(data["ys"])
 
     # Check shapes.
-    n = data["n"]
-    if rfft:
-        assert fftvar.shape == (n // 2 + 1,)
+    if method == "rfft":
+        shape = (m, n // 2 + 1)
     else:
-        assert fftvar.shape == (n,)
+        shape = (m, n)
+    assert fftvar.shape == shape
+    assert ffts.shape == shape
+
+    # Get the scales.
+    fft_scale = np.sqrt(fftvar / 2)
+    fft_scale[:, 0] *= np.sqrt(2)
+
+    scaled_ffts = ffts / fft_scale
+    if n % 2 == 0:
+        scaled_ffts[:, n // 2] /= np.sqrt(2)
 
     # Scale the fourier transforms and evaluate the likelihood.
-    scaled_ffts = ffts / np.sqrt(fftvar)
-    scaled_ffts[:, 1:] *= np.sqrt(2)
-    rweight = np.ones_like(fftvar)
-    iweight = np.ones_like(fftvar)
-    if n % 2:
-        iweight[0] = 0
+    if dist == "norm":
+        rweight = np.ones(n // 2 + 1 if method == "rfft" else n)
+        iweight = np.ones_like(rweight)
         rweight[n // 2 + 1:] = 0
         iweight[n // 2 + 1:] = 0
+        iweight[0] = 0
+        if n % 2 == 0:
+            iweight[n // 2] = 0
+        log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
+            + stats.norm().logpdf(scaled_ffts.imag) @ iweight \
+            - np.log(fft_scale) @ iweight - np.log(fft_scale) @ rweight \
+            + np.log(2) / 2 * (1 - n) + n * np.log(n) / 2
+    elif dist == "chi2":
+        pytest.skip()
     else:
-        iweight[0] = 0
-        rweight[n // 2] = 0.5
-        iweight[n // 2] = 0.5
-        rweight[n // 2 + 1:] = 0
-        iweight[n // 2 + 1:] = 0
-    log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
-        + stats.norm().logpdf(scaled_ffts.imag) @ iweight
-    # We don't test for equality because we don't evaluate the Jacobian of the Fourier transform.
-    pearsonr, _ = stats.pearsonr(log_prob, data["log_prob"])
-    np.testing.assert_allclose(pearsonr, 1)
+        raise ValueError(dist)
+    np.testing.assert_allclose(log_prob, data["log_probs"])
