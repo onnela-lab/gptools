@@ -33,7 +33,6 @@ def data() -> dict:
     }
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 # We omit "gels" because masked covariances do not have full rank.
 @pytest.mark.parametrize("lstsq_driver", ["gelsy", "gelsd", "gelss"])
 def test_torch_evaluate_log_prob(data: dict, lstsq_driver: str) -> None:
