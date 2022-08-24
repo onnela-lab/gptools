@@ -41,8 +41,7 @@ def data(request: pytest.FixtureRequest) -> dict:
 
 
 @pytest.mark.parametrize("method", ["fft", "rfft"])
-@pytest.mark.parametrize("dist", ["norm", "chi2"])
-def test_log_prob_fft_normal(data: dict, method: str, dist: str) -> None:
+def test_log_prob_fft_normal(data: dict, method: str) -> None:
     m = data["m"]
     n = data["n"]
     fft = getattr(np.fft, method)
@@ -78,20 +77,15 @@ def test_log_prob_fft_normal(data: dict, method: str, dist: str) -> None:
     assert np.abs(np.std(scaled_ffts.imag[:, 1:idx], axis=0) - 1).max() < 0.1
 
     # Scale the fourier transforms and evaluate the likelihood.
-    if dist == "norm":
-        rweight = np.ones(n // 2 + 1 if method == "rfft" else n)
-        iweight = np.ones_like(rweight)
-        rweight[n // 2 + 1:] = 0
-        iweight[n // 2 + 1:] = 0
-        iweight[0] = 0
-        if n % 2 == 0:
-            iweight[n // 2] = 0
-        log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
-            + stats.norm().logpdf(scaled_ffts.imag) @ iweight \
-            - np.log(fft_scale) @ (iweight + rweight) \
-            - np.log(2) * ((n - 1) // 2) + n * np.log(n) / 2
-    elif dist == "chi2":
-        pytest.skip()
-    else:
-        raise ValueError(dist)
+    rweight = np.ones(n // 2 + 1 if method == "rfft" else n)
+    iweight = np.ones_like(rweight)
+    rweight[n // 2 + 1:] = 0
+    iweight[n // 2 + 1:] = 0
+    iweight[0] = 0
+    if n % 2 == 0:
+        iweight[n // 2] = 0
+    log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
+        + stats.norm().logpdf(scaled_ffts.imag) @ iweight \
+        - np.log(fft_scale) @ (iweight + rweight) \
+        - np.log(2) * ((n - 1) // 2) + n * np.log(n) / 2
     np.testing.assert_allclose(log_prob, data["log_probs"])
