@@ -1,3 +1,4 @@
+import cmdstanpy
 from gptools.kernels import ExpQuadKernel
 import numpy as np
 import pytest
@@ -89,3 +90,15 @@ def test_log_prob_fft_normal(data: dict, method: str) -> None:
         - np.log(fft_scale) @ (iweight + rweight) \
         - np.log(2) * ((n - 1) // 2) + n * np.log(n) / 2
     np.testing.assert_allclose(log_prob, data["log_probs"])
+
+
+@pytest.mark.parametrize("n", [3, 4])
+@pytest.mark.xfail(reason="https://bit.ly/3RaiR9o")
+def test_stan_numpy_fft_equivalence(n: int):
+    model = cmdstanpy.CmdStanModel(stan_file="tests/test_fft.stan")
+    x = np.random.normal(0, 1, n)
+    fit = model.sample({"n": n, "x": x}, fixed_param=True, iter_warmup=0, iter_sampling=1)
+    stan_fft, = fit.stan_variable("y")
+    np_fft = np.fft.fft(x)
+    np.testing.assert_allclose(stan_fft.real, np_fft.real)
+    np.testing.assert_allclose(stan_fft.imag, np_fft.imag)
