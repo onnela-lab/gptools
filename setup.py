@@ -25,7 +25,7 @@ setup(
             "sphinx",
         ],
         "cmdstanpy": [
-            "cmdstanpy",
+            "cmdstanpy>=1.0.7",
         ],
         "torch": [
             "torch",
