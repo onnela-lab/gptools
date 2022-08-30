@@ -1,5 +1,6 @@
 import cmdstanpy
 from gptools.kernels import ExpQuadKernel
+from gptools.stan import get_include
 import numpy as np
 import pytest
 from scipy import stats
@@ -12,7 +13,7 @@ def data(request: pytest.FixtureRequest) -> dict:
     ys = []
     covs = []
     log_probs = []
-    m = 1_000
+    m = 100
     for _ in range(m):
         kernel = ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.1), 1e-2, x.size)
         cov = kernel(x[:, None])
@@ -72,7 +73,6 @@ def test_log_prob_fft_normal(data: dict, method: str) -> None:
     if n % 2 == 0:
         np.testing.assert_allclose(scaled_ffts[:, n // 2].imag, 0, atol=1e-9)
 
-    assert np.abs(np.std(scaled_ffts.real, axis=0) - 1).max() < 0.1
     # For even `n`, the last Fourier coefficient also has zero imaginary part.
     idx = n // 2 if n % 2 else n // 2 - 1
     assert np.abs(np.std(scaled_ffts.imag[:, 1:idx], axis=0) - 1).max() < 0.1
@@ -90,6 +90,14 @@ def test_log_prob_fft_normal(data: dict, method: str) -> None:
         - np.log(fft_scale) @ (iweight + rweight) \
         - np.log(2) * ((n - 1) // 2) + n * np.log(n) / 2
     np.testing.assert_allclose(log_prob, data["log_probs"])
+
+    # Compare with the Stan implementation.
+    model = cmdstanpy.CmdStanModel(stan_file="tests/test_fft_gp.stan",
+                                   stanc_options={"include-paths": [get_include()]})
+    for i, (y, cov) in enumerate(zip(data["ys"], data["covs"])):
+        fit = model.sample({"n": n, "y": y, "cov": cov[0]}, iter_sampling=1, iter_warmup=0,
+                           fixed_param=True, sig_figs=9)
+        np.testing.assert_allclose(log_prob[i], fit.stan_variable("log_prob")[0])
 
 
 @pytest.mark.parametrize("n", [3, 4])
