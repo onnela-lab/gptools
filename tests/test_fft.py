@@ -73,10 +73,6 @@ def test_log_prob_fft_normal(data: dict, method: str) -> None:
     if n % 2 == 0:
         np.testing.assert_allclose(scaled_ffts[:, n // 2].imag, 0, atol=1e-9)
 
-    # For even `n`, the last Fourier coefficient also has zero imaginary part.
-    idx = n // 2 if n % 2 else n // 2 - 1
-    assert np.abs(np.std(scaled_ffts.imag[:, 1:idx], axis=0) - 1).max() < 0.1
-
     # Scale the fourier transforms and evaluate the likelihood.
     rweight = np.ones(n // 2 + 1 if method == "rfft" else n)
     iweight = np.ones_like(rweight)
