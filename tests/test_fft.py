@@ -42,8 +42,14 @@ def data(request: pytest.FixtureRequest) -> dict:
     }
 
 
+@pytest.fixture(scope="session")
+def fft_gp_model() -> cmdstanpy.CmdStanModel:
+    return cmdstanpy.CmdStanModel(stan_file="tests/test_fft_gp.stan", compile="force",
+                                  stanc_options={"include-paths": [get_include()]})
+
+
 @pytest.mark.parametrize("method", ["fft", "rfft"])
-def test_log_prob_fft_normal(data: dict, method: str) -> None:
+def test_log_prob_fft_normal(data: dict, method: str, fft_gp_model: cmdstanpy.CmdStanModel) -> None:
     m = data["m"]
     n = data["n"]
     fft = getattr(np.fft, method)
@@ -88,11 +94,9 @@ def test_log_prob_fft_normal(data: dict, method: str) -> None:
     np.testing.assert_allclose(log_prob, data["log_probs"])
 
     # Compare with the Stan implementation.
-    model = cmdstanpy.CmdStanModel(stan_file="tests/test_fft_gp.stan",
-                                   stanc_options={"include-paths": [get_include()]})
     for i, (y, cov) in enumerate(zip(data["ys"], data["covs"])):
-        fit = model.sample({"n": n, "y": y, "cov": cov[0]}, iter_sampling=1, iter_warmup=0,
-                           fixed_param=True, sig_figs=9)
+        fit = fft_gp_model.sample({"n": n, "y": y, "cov": cov[0]}, iter_sampling=1, iter_warmup=0,
+                                  fixed_param=True, sig_figs=9)
         np.testing.assert_allclose(log_prob[i], fit.stan_variable("log_prob")[0])
 
 
