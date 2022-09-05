@@ -7,7 +7,7 @@ from scipy import stats
 
 
 @pytest.fixture(params=[20, 21], scope="session")
-def data(request: pytest.FixtureRequest) -> dict:
+def data_1d(request: pytest.FixtureRequest) -> dict:
     n: int = request.param
     x = np.arange(n)
     ys = []
@@ -48,24 +48,25 @@ def fft_gp_model() -> cmdstanpy.CmdStanModel:
                                   stanc_options={"include-paths": [get_include()]})
 
 
-@pytest.mark.parametrize("method", ["fft", "rfft"])
-def test_log_prob_fft_normal(data: dict, method: str, fft_gp_model: cmdstanpy.CmdStanModel) -> None:
+def test_log_prob_fft_1d(data_1d: dict, fft_gp_model: cmdstanpy.CmdStanModel) -> None:
+    data = data_1d
     m = data["m"]
     n = data["n"]
-    fft = getattr(np.fft, method)
     # Evaluate the fft of the kernel and samples.
-    fftvar = n * fft(data["covs"][:, 0])
+    fftvar = n * np.fft.rfft(data["covs"][:, 0])
     np.testing.assert_allclose(fftvar.imag, 0, atol=1e-9)
     fftvar = fftvar.real
-    ffts = fft(data["ys"])
+    ffts = np.fft.rfft(data["ys"])
 
     # Check shapes.
-    if method == "rfft":
-        shape = (m, n // 2 + 1)
-    else:
-        shape = (m, n)
+    shape = (m, n // 2 + 1)
     assert fftvar.shape == shape
     assert ffts.shape == shape
+
+    # Ensure imaginary parts are zero where expected.
+    np.testing.assert_allclose(ffts[:, 0].imag, 0, atol=1e-9)
+    if n % 2 == 0:
+        np.testing.assert_allclose(ffts[:, n // 2].imag, 0, atol=1e-9)
 
     # Evaluate the scales and rescale the Fourier coefficients.
     fft_scale = np.sqrt(fftvar / 2)
@@ -73,22 +74,14 @@ def test_log_prob_fft_normal(data: dict, method: str, fft_gp_model: cmdstanpy.Cm
 
     if n % 2 == 0:
         fft_scale[:, n // 2] *= np.sqrt(2)
-    scaled_ffts = ffts / fft_scale
-
-    np.testing.assert_allclose(scaled_ffts[:, 0].imag, 0, atol=1e-9)
-    if n % 2 == 0:
-        np.testing.assert_allclose(scaled_ffts[:, n // 2].imag, 0, atol=1e-9)
 
     # Scale the fourier transforms and evaluate the likelihood.
-    rweight = np.ones(n // 2 + 1 if method == "rfft" else n)
-    iweight = np.ones_like(rweight)
-    rweight[n // 2 + 1:] = 0
-    iweight[n // 2 + 1:] = 0
+    iweight = np.ones(n // 2 + 1)
     iweight[0] = 0
     if n % 2 == 0:
         iweight[n // 2] = 0
 
-    log_prob = stats.norm(0, fft_scale).logpdf(ffts.real) @ rweight \
+    log_prob = stats.norm(0, fft_scale).logpdf(ffts.real).sum(axis=-1) \
         + stats.norm(0, fft_scale).logpdf(ffts.imag) @ iweight \
         - np.log(2) * ((n - 1) // 2) + n * np.log(n) / 2
     np.testing.assert_allclose(log_prob, data["log_probs"])
