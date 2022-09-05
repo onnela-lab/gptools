@@ -2,7 +2,7 @@ from matplotlib.axes import Axes
 from matplotlib import pyplot as plt
 import numpy as np
 import typing
-from ...kernels import ExpQuadKernel
+from ....kernels import ExpQuadKernel
 
 
 def simulate(X: np.ndarray, mu: float, kernel: ExpQuadKernel) -> dict:

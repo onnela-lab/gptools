@@ -44,7 +44,7 @@ def data_1d(request: pytest.FixtureRequest) -> dict:
 
 @pytest.fixture(scope="session")
 def fft_gp_model() -> cmdstanpy.CmdStanModel:
-    return cmdstanpy.CmdStanModel(stan_file="tests/test_fft_gp.stan", compile="force",
+    return cmdstanpy.CmdStanModel(stan_file="tests/stan/test_fft_gp.stan", compile="force",
                                   stanc_options={"include-paths": [get_include()]})
 
 
@@ -95,7 +95,7 @@ def test_log_prob_fft_1d(data_1d: dict, fft_gp_model: cmdstanpy.CmdStanModel) ->
 
 @pytest.mark.parametrize("n", [3, 4])
 def test_stan_numpy_fft_equivalence(n: int):
-    model = cmdstanpy.CmdStanModel(stan_file="tests/test_fft.stan")
+    model = cmdstanpy.CmdStanModel(stan_file="tests/stan/test_fft.stan")
     x = np.random.normal(0, 1, n)
     fit = model.sample({"n": n, "x": x}, fixed_param=True, iter_warmup=0, iter_sampling=1,
                        sig_figs=9)

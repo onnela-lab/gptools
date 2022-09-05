@@ -1,11 +1,6 @@
 from gptools import kernels
-from gptools.missing_module import MissingModule
 import numpy as np
 import pytest
-try:
-    import torch as th
-except ModuleNotFoundError as ex:
-    th = MissingModule(ex)
 
 
 @pytest.mark.parametrize("kernel", [
@@ -18,6 +13,7 @@ except ModuleNotFoundError as ex:
 def test_kernel(kernel: kernels.ExpQuadKernel, p: int, shape: tuple, torch: bool) -> None:
     if torch:
         try:
+            import torch as th
             X = th.randn(shape + (p,))
         except ModuleNotFoundError:
             pytest.skip("torch is not installed")

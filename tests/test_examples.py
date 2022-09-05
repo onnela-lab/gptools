@@ -6,8 +6,13 @@ import pytest
 from unittest import mock
 
 
-@pytest.mark.parametrize("filename", glob.glob("gptools/examples/*/*.ipynb"))
+filenames = glob.glob("gptools/*/examples/*/*.ipynb") + glob.glob("gptools/*/examples/*.ipynb")
+
+
+@pytest.mark.parametrize("filename", filenames)
 def test_example(filename: str) -> None:
+    _, module, *_ = filename.split(os.path.sep)
+    pytest.importorskip(module)
     with open(filename) as fp:
         notebook = nbformat.read(fp, as_version=4)
     preprocessor = ExecutePreprocessor(timeout=60)
