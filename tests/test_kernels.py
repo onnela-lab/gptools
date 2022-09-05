@@ -15,7 +15,7 @@ def test_kernel(kernel: kernels.ExpQuadKernel, p: int, shape: tuple, torch: bool
         try:
             import torch as th
             X = th.randn(shape + (p,))
-        except ModuleNotFoundError:
+        except (AttributeError, ModuleNotFoundError):
             pytest.skip("torch is not installed")
     else:
         X = np.random.normal(0, 1, shape + (p,))

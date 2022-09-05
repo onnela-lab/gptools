@@ -294,5 +294,5 @@ def is_tensor(x: typing.Union[np.ndarray, "th.Tensor"]) -> bool:
     try:
         import torch as th
         return isinstance(x, th.Tensor)
-    except ModuleNotFoundError:
+    except (AttributeError, ModuleNotFoundError):
         return False
