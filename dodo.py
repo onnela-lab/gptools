@@ -4,39 +4,47 @@ import pathlib
 
 manager = di.Manager.get_instance()
 
-requirement_configs = [
-    ("test_stan", ["setup.py"]),
-    ("test_torch", ["setup.py"]),
-    ("dev", ["test_stan_requirements.txt", "test_torch_requirements.txt"]),
-]
-for name, file_dep in requirement_configs:
-    requirements_in = f"{name}_requirements.in"
-    target = f"{name}_requirements.txt"
+modules = ["stan", "torch", "util"]
+requirements_txt = []
+for module in modules:
+    # Generate requirement files.
+    prefix = pathlib.Path(f"gptools-{module}")
+    target = prefix / "test_requirements.txt"
+    requirements_in = prefix / "test_requirements.in"
     manager(
-        basename="requirements", name=name, targets=[target], file_dep=[requirements_in, *file_dep],
-        actions=[f"pip-compile -v -o {target} {requirements_in}"],
+        basename="requirements", name=module, targets=[target],
+        file_dep=[prefix / "setup.py", requirements_in],
+        actions=[f"pip-compile -v -o {target} {requirements_in}"]
     )
-manager(basename="requirements", name="sync", file_dep=["dev_requirements.txt"],
-        actions=["pip-sync dev_requirements.txt"])
+    requirements_txt.append(target)
 
+    # Tasks for linting and tests.
+    manager(basename="lint", name=module, actions=[["flake8", prefix]])
+    action = ["pytest", "-v", f"--cov=gptools.{module}", "--cov-report=term-missing",
+              "--cov-fail-under=100", prefix]
+    manager(basename="tests", name=module, actions=[action])
+
+# Generate dev requirements.
+target = "dev_requirements.txt"
+requirements_in = "dev_requirements.in"
+manager(
+    basename="requirements", name="dev", targets=[target],
+    file_dep=[prefix / "setup.py", requirements_in, *requirements_txt],
+    actions=[f"pip-compile -v -o {target} {requirements_in}"]
+)
+
+# Build documentation at the root level (we don't have namespace-package-level documentation).
 with di.defaults(basename="docs"):
     manager(name="html", actions=["sphinx-build . docs/_build"])
     manager(name="tests", actions=["sphinx-build -b doctest . docs/_build"])
 
-manager(basename="lint", actions=["flake8"])
-for module in ["stan", "torch"]:
-    action = [
-        "pytest", "--cov=gptools", "--cov-report=term-missing", "--cov-report=html",
-        f"--ignore=tests/{'stan' if module == 'torch' else 'torch'}",
-    ]
-    manager(basename="tests", name=module, actions=[action])
-
-
-for path in pathlib.Path("gptools/examples").glob("*/*.ipynb"):
+# Compile example notebooks to create html reports.
+for path in pathlib.Path.cwd().glob("gptools-*/**/*.ipynb"):
+    if ".ipynb_checkpoints" in path.parts:
+        continue
     target = path.with_suffix(".html")
     manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
             targets=[target], actions=[f"jupyter nbconvert --execute --to=html {path}"])
-
 
 # Run different profiling configurations. We expect the centered parametrization to be better for
 # strong data and the non-centered parametrization to be better for weak data.

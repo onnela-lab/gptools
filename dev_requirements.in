@@ -1,6 +1,7 @@
 # Include all requirements that are also used in CI.
--r test_stan_requirements.txt
--r test_torch_requirements.txt
+-r gptools-stan/test_requirements.txt
+-r gptools-torch/test_requirements.txt
+-r gptools-util/test_requirements.txt
 # Include additional packages we need for development.
 jupyter
 matplotlib
