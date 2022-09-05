@@ -1,22 +1,18 @@
 import enum
 import numpy as np
 import typing
-from .missing_module import MissingModule
-try:
+import os
+
+
+# This tricks pylance into thinking that the imports *could* happen for type checking.
+FALSE = os.environ.get("f1571823-5638-473a-adb5-6f5efb0cb773")
+if FALSE:
+    import matplotlib
     import matplotlib.axes
     import matplotlib.collections
     import matplotlib.lines
-    from matplotlib import pyplot as plt
-except ModuleNotFoundError as ex:
-    matplotlib = plt = MissingModule(ex)
-try:
     import networkx as nx
-except ModuleNotFoundError as ex:
-    nx = MissingModule(ex)
-try:
     import torch as th
-except ModuleNotFoundError as ex:
-    th = MissingModule(ex)
 
 
 # Solutions to the Gauss circle problem (https://en.wikipedia.org/wiki/Gauss_circle_problem).
@@ -60,8 +56,8 @@ def evaluate_squared_distance(x: ArrayOrTensor, y: ArrayOrTensor = None,
 
 
 def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha: float = 0.25,
-              ax: typing.Optional[matplotlib.axes.Axes] = None, **kwargs) \
-        -> tuple[matplotlib.lines.Line2D, matplotlib.collections.PolyCollection]:
+              ax: typing.Optional["matplotlib.axes.Axes"] = None, **kwargs) \
+        -> tuple["matplotlib.lines.Line2D", "matplotlib.collections.PolyCollection"]:
     """
     Plot a credible band given posterior samples.
 
@@ -78,6 +74,7 @@ def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha:
         line: Median line.
         band: Credible band spanning the quantiles `[p / 2, 1 - p / 2]`.
     """
+    from matplotlib import pyplot as plt
     ax = ax or plt.gca()
     l, m, u = np.quantile(ys, [p / 2, 0.5, 1.0 - p / 2], axis=0)
     line, = ax.plot(x, m, **kwargs)
@@ -263,6 +260,7 @@ def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "
 
     # Check that there are no cycles after removing self-loops.
     graph = edge_index_to_graph(edge_index)
+    import networkx as nx
     try:
         cycle = nx.find_cycle(graph)
         raise ValueError(f"edge index induces a graph with the cycle: {cycle}")
@@ -283,6 +281,7 @@ def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) 
     Returns:
         graph: Directed graph induced by the edge indices.
     """
+    import networkx as nx
     graph = nx.DiGraph()
     graph.add_edges_from((u, v) for u, v in edge_index.T if u != v and remove_self_loops)
     return graph
@@ -293,6 +292,7 @@ def is_tensor(x: typing.Union[np.ndarray, "th.Tensor"]) -> bool:
     Check if `x` is a torch tensor.
     """
     try:
+        import torch as th
         return isinstance(x, th.Tensor)
-    except ModuleNotFoundError:
+    except (AttributeError, ModuleNotFoundError):
         return False

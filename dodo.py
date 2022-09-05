@@ -4,7 +4,12 @@ import pathlib
 
 manager = di.Manager.get_instance()
 
-for name, file_dep in [("test", ["setup.py"]), ("dev", ["test_requirements.txt"])]:
+requirement_configs = [
+    ("test_stan", ["setup.py"]),
+    ("test_torch", ["setup.py"]),
+    ("dev", ["test_stan_requirements.txt", "test_torch_requirements.txt"]),
+]
+for name, file_dep in requirement_configs:
     requirements_in = f"{name}_requirements.in"
     target = f"{name}_requirements.txt"
     manager(
@@ -19,8 +24,12 @@ with di.defaults(basename="docs"):
     manager(name="tests", actions=["sphinx-build -b doctest . docs/_build"])
 
 manager(basename="lint", actions=["flake8"])
-manager(basename="tests", actions=["pytest --cov-fail-under=100 --cov=gptools "
-                                   "--cov-report=term-missing --cov-report=html"])
+for module in ["stan", "torch"]:
+    action = [
+        "pytest", "--cov=gptools", "--cov-report=term-missing", "--cov-report=html",
+        f"--ignore=tests/{'stan' if module == 'torch' else 'torch'}",
+    ]
+    manager(basename="tests", name=module, actions=[action])
 
 
 for path in pathlib.Path("gptools/examples").glob("*/*.ipynb"):
@@ -39,13 +48,13 @@ profile_configurations = {
 }
 for name, (parametrization, noise_scale) in profile_configurations.items():
     target = f"workspace/{name}.pkl"
-    args = ["python", "-m", "gptools.profile", parametrization, noise_scale, target,
+    args = ["python", "-m", "gptools.stan.profile", parametrization, noise_scale, target,
             "--iter_sampling=100"]
     file_dep = [
-        "gptools/gptools.stan",
-        "gptools/profile/__main__.py",
-        "gptools/profile/data.stan",
-        f"gptools/profile/{parametrization}.stan",
+        "gptools/stan/gptools.stan",
+        "gptools/stan/profile/__main__.py",
+        "gptools/stan/profile/data.stan",
+        f"gptools/stan/profile/{parametrization}.stan",
     ]
     manager(basename="profile", name=name, actions=[args], targets=[target],
             file_dep=file_dep)

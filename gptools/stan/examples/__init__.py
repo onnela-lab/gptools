@@ -2,7 +2,7 @@ import cmdstanpy
 import os
 import pathlib
 import typing
-from ..stan import get_include
+from .. import get_include
 
 
 def sample_kwargs_from_env(**kwargs):
