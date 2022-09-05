@@ -44,3 +44,4 @@ jobs:
         run: doit docs
       - name: Run Stan profiling scripts
         run: doit profile
+        if: matrix.module == 'stan'
