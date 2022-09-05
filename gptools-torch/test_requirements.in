@@ -1,0 +1,2 @@
+-e file:gptools-torch[docs,tests]
+-e file:gptools-util

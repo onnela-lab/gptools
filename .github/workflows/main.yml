@@ -17,7 +17,7 @@ jobs:
   build:
     strategy:
       matrix:
-        module: ["stan", "torch"]
+        module: ["stan", "torch", "util"]
     name: Continuous Integration
     runs-on: "ubuntu-latest"
     steps:
@@ -30,18 +30,15 @@ jobs:
           path: |
             ${{ env.pythonLocation }}
             /home/runner/.cmdstan
-          key: ${{ env.pythonLocation }}-${{ hashFiles('test_${{ matrix.module }}_requirements.txt') }}-${{ env.cmdstanVersion }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('gptools-${{ matrix.module }}/test_requirements.txt') }}-${{ env.cmdstanVersion }}
       - name: Install python dependencies
-        run: pip install -r test_${{ matrix.module }}_requirements.txt
+        run: pip install -r gptools-${{ matrix.module }}/test_requirements.txt
       - name: Install cmdstanpy
         run: python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
         if: matrix.module == 'stan'
       - name: Run the tests
         run: doit tests:${{ matrix.module }}
       - name: Lint the code
-        run: doit lint
+        run: doit lint:${{ matrix.module }}
       - name: Build the documentation
         run: doit docs
-      - name: Run Stan profiling scripts
-        run: doit profile
-        if: matrix.module == 'stan'
