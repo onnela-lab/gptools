@@ -18,5 +18,8 @@ setup(
             "pytest",
             "pytest-cov",
         ],
+        "docs": [
+            "sphinx",
+        ],
     }
 )

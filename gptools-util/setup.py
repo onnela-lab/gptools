@@ -16,5 +16,8 @@ setup(
             "pytest-cov",
             "torch",
         ],
+        "docs": [
+            "sphinx",
+        ],
     }
 )
