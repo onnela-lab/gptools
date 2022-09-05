@@ -48,13 +48,13 @@ profile_configurations = {
 }
 for name, (parametrization, noise_scale) in profile_configurations.items():
     target = f"workspace/{name}.pkl"
-    args = ["python", "-m", "gptools.profile", parametrization, noise_scale, target,
+    args = ["python", "-m", "gptools.stan.profile", parametrization, noise_scale, target,
             "--iter_sampling=100"]
     file_dep = [
-        "gptools/gptools.stan",
-        "gptools/profile/__main__.py",
-        "gptools/profile/data.stan",
-        f"gptools/profile/{parametrization}.stan",
+        "gptools/stan/gptools.stan",
+        "gptools/stan/profile/__main__.py",
+        "gptools/stan/profile/data.stan",
+        f"gptools/stan/profile/{parametrization}.stan",
     ]
     manager(basename="profile", name=name, actions=[args], targets=[target],
             file_dep=file_dep)
