@@ -4,7 +4,12 @@ import pathlib
 
 manager = di.Manager.get_instance()
 
-for name, file_dep in [("test", ["setup.py"]), ("dev", ["test_requirements.txt"])]:
+requirement_configs = [
+    ("test_stan", ["setup.py"]),
+    ("test_torch", ["setup.py"]),
+    ("dev", ["test_stan_requirements.txt", "test_torch_requirements.txt"]),
+]
+for name, file_dep in requirement_configs:
     requirements_in = f"{name}_requirements.in"
     target = f"{name}_requirements.txt"
     manager(
