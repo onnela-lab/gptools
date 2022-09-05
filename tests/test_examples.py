@@ -6,7 +6,6 @@ import pytest
 from unittest import mock
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("filename", glob.glob("gptools/examples/*/*.ipynb"))
 def test_example(filename: str) -> None:
     with open(filename) as fp:

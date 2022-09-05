@@ -68,7 +68,7 @@ cloudpickle==2.1.0
     # via
     #   -r test_requirements.txt
     #   doit
-cmdstanpy==1.0.4
+cmdstanpy==1.0.7
     # via -r test_requirements.txt
 colorama==0.4.5
     # via

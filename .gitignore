@@ -137,3 +137,4 @@ workspace/
 *.hpp
 *.html
 *.tmp
+*.o

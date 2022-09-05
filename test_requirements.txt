@@ -38,7 +38,7 @@ charset-normalizer==2.0.7
     # via requests
 cloudpickle==2.1.0
     # via doit
-cmdstanpy==1.0.4
+cmdstanpy==1.0.7
     # via gptools
 colorama==0.4.5
     # via doit-interface

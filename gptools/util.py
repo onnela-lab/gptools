@@ -21,6 +21,7 @@ except ModuleNotFoundError as ex:
 
 # Solutions to the Gauss circle problem (https://en.wikipedia.org/wiki/Gauss_circle_problem).
 GAUSS_PROBLEM_SEQUENCE = np.asarray([1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441])
+ArrayOrTensor = typing.Union[np.ndarray, "th.Tensor"]
 
 
 class LatticeBounds(enum.Enum):
@@ -37,8 +38,8 @@ class LatticeBounds(enum.Enum):
     ELLIPSE = "ellipse"
 
 
-def evaluate_squared_distance(x: typing.Union[np.ndarray, "th.Tensor"]) \
-        -> typing.Union[np.ndarray, "th.Tensor"]:
+def evaluate_squared_distance(x: ArrayOrTensor, y: ArrayOrTensor = None,
+                              period: ArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the squared distance between the Cartesian product of nodes, preserving batch shape.
 
@@ -49,7 +50,12 @@ def evaluate_squared_distance(x: typing.Union[np.ndarray, "th.Tensor"]) \
     Returns:
         dist2: Squared distance Cartesian product of nodes with shape `(..., n, n)`.
     """
-    residuals = x[..., :, None, :] - x[..., None, :, :]
+    y = x if y is None else y
+    residuals = x[..., :, None, :] - y[..., None, :, :]
+    if period is not None:
+        residuals = residuals % period
+        minimum = th.minimum if is_tensor(x) else np.minimum
+        residuals = minimum(residuals, period - residuals)
     return (residuals * residuals).sum(axis=-1)
 
 

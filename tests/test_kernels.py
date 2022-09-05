@@ -2,7 +2,6 @@ from gptools import kernels
 from gptools.missing_module import MissingModule
 import numpy as np
 import pytest
-import typing
 try:
     import torch as th
 except ModuleNotFoundError as ex:
@@ -16,7 +15,7 @@ except ModuleNotFoundError as ex:
 @pytest.mark.parametrize("p", [1, 5])
 @pytest.mark.parametrize("shape", [(7,), (2, 3)])
 @pytest.mark.parametrize("torch", [False, True])
-def test_kernel(kernel: typing.Callable, p: int, shape: tuple, torch: bool) -> None:
+def test_kernel(kernel: kernels.ExpQuadKernel, p: int, shape: tuple, torch: bool) -> None:
     if torch:
         try:
             X = th.randn(shape + (p,))
@@ -28,4 +27,5 @@ def test_kernel(kernel: typing.Callable, p: int, shape: tuple, torch: bool) -> N
     # Check the shape and that the kernel is positive definite.
     *batch_shape, n = shape
     assert cov.shape == tuple(batch_shape) + (n, n)
-    np.linalg.cholesky(cov)
+    if kernel.epsilon:
+        np.linalg.cholesky(cov)
