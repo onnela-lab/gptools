@@ -12,7 +12,7 @@ filenames = glob.glob("gptools/*/examples/*/*.ipynb") + glob.glob("gptools/*/exa
 @pytest.mark.parametrize("filename", filenames)
 def test_example(filename: str) -> None:
     _, module, *_ = filename.split(os.path.sep)
-    pytest.importorskip(module)
+    pytest.importorskip("cmdstanpy" if module == "stan" else module)
     with open(filename) as fp:
         notebook = nbformat.read(fp, as_version=4)
     preprocessor = ExecutePreprocessor(timeout=60)
