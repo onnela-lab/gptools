@@ -37,7 +37,7 @@ jobs:
         run: python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
         if: matrix.module == 'stan'
       - name: Run the tests
-        run: doit tests
+        run: doit tests:${{ matrix.module }}
       - name: Lint the code
         run: doit lint
       - name: Build the documentation
