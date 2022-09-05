@@ -136,9 +136,8 @@ real fft_gp_lpdf(vector y, vector cov) {
     } else {
         idx = m;
     }
-    // Obtain the scaled Fourier coefficients. They should all have unit variance.
-    complex_vector[m] scaled_fft = fft(y)[:m] ./ fft_scale;
-    return normal_lpdf(get_real(scaled_fft) | 0, 1) - sum(log(fft_scale))
-        + normal_lpdf(get_imag(scaled_fft[2:idx]) | 0, 1) - sum(log(fft_scale[2:idx]))
+    complex_vector[m] fft = fft(y)[:m];
+    return normal_lpdf(get_real(fft) | 0, fft_scale)
+        + normal_lpdf(get_imag(fft[2:idx]) | 0, fft_scale[2:idx])
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }

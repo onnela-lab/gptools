@@ -87,9 +87,9 @@ def test_log_prob_fft_normal(data: dict, method: str, fft_gp_model: cmdstanpy.Cm
     iweight[0] = 0
     if n % 2 == 0:
         iweight[n // 2] = 0
-    log_prob = stats.norm().logpdf(scaled_ffts.real) @ rweight \
-        + stats.norm().logpdf(scaled_ffts.imag) @ iweight \
-        - np.log(fft_scale) @ (iweight + rweight) \
+
+    log_prob = stats.norm(0, fft_scale).logpdf(ffts.real) @ rweight \
+        + stats.norm(0, fft_scale).logpdf(ffts.imag) @ iweight \
         - np.log(2) * ((n - 1) // 2) + n * np.log(n) / 2
     np.testing.assert_allclose(log_prob, data["log_probs"])
 
