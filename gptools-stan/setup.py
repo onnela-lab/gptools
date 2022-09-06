@@ -18,6 +18,7 @@ setup(
             "pytest",
             "pytest-cov",
             "scipy",
+            "tabulate",
         ],
         "docs": [
             "sphinx",
