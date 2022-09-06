@@ -714,6 +714,7 @@ tornado==6.2
 tqdm==4.64.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
     #   cmdstanpy
 traitlets==5.3.0
     # via

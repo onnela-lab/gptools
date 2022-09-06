@@ -21,6 +21,7 @@ setup(
             "pytest-cov",
             "scipy",
             "tabulate",
+            "tqdm",
         ],
         "docs": [
             "sphinx",
