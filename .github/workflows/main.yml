@@ -30,7 +30,7 @@ jobs:
           path: |
             ${{ env.pythonLocation }}
             /home/runner/.cmdstan
-          key: ${{ env.pythonLocation }}-${{ hashFiles('gptools-${{ matrix.module }}/test_requirements.txt') }}-${{ env.cmdstanVersion }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles(format('gptools-{0}/test_requirements.txt', matrix.module)) }}-${{ env.cmdstanVersion }}
       - name: Install python dependencies
         run: pip install -r gptools-${{ matrix.module }}/test_requirements.txt
       - name: Install cmdstanpy
