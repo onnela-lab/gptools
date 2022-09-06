@@ -15,6 +15,7 @@ setup(
             "doit-interface",
             "flake8",
             "jupyter",
+            "matplotlib",
             "pytest",
             "pytest-cov",
             "scipy",
