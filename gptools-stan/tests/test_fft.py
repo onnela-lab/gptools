@@ -95,14 +95,20 @@ def test_log_prob_fft_1d(data_1d: dict, fft_gp_model: cmdstanpy.CmdStanModel) ->
         np.testing.assert_allclose(log_prob[i], fit.stan_variable("log_prob")[0])
 
 
-@pytest.mark.parametrize("n", [3, 4])
-def test_stan_numpy_fft_equivalence(n: int):
-    stan_file = pathlib.Path(__file__).parent / "test_fft.stan"
+@pytest.mark.parametrize("shape", [(3,), (4,), (3, 5), (3, 6), (4, 5), (4, 6)])
+def test_stan_numpy_fft_identity(shape: tuple[int]):
+    x = np.random.normal(0, 1, shape)
+    stan_file = pathlib.Path(__file__).parent / f"test_fft_identity_{x.ndim}d.stan"
     model = cmdstanpy.CmdStanModel(stan_file=stan_file)
-    x = np.random.normal(0, 1, n)
-    fit = model.sample({"n": n, "x": x}, fixed_param=True, iter_warmup=0, iter_sampling=1,
-                       sig_figs=9)
+    data = {"x": x, "n": shape[0]}
+    if x.ndim == 1:
+        np_fft = np.fft.fft(x)
+    elif x.ndim == 2:
+        data["m"] = shape[1]
+        np_fft = np.fft.fft2(x)
+    else:
+        raise NotImplementedError
+    fit = model.sample(data, fixed_param=True, iter_warmup=0, iter_sampling=1, sig_figs=9)
     stan_fft, = fit.stan_variable("y")
-    np_fft = np.fft.fft(x)
-    np.testing.assert_allclose(stan_fft.real, np_fft.real)
-    np.testing.assert_allclose(stan_fft.imag, np_fft.imag)
+    np.testing.assert_allclose(stan_fft.real, np_fft.real, atol=1e-6)
+    np.testing.assert_allclose(stan_fft.imag, np_fft.imag, atol=1e-6)
