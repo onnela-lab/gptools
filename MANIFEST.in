@@ -1,1 +1,2 @@
-include gptools/gptools.stan
+include gptools/gptools_fft.stan
+include gptools/gptools_graph.stan

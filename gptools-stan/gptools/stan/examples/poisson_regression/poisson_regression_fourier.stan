@@ -1,7 +1,7 @@
 // Graph gaussian process with log link for Poisson observations.
 
 functions {
-    #include gptools.stan
+    #include gptools_fft.stan
 
     real sqdist(vector x, vector y, vector period) {
         vector[size(x)] residual = abs(x - y);
@@ -27,7 +27,16 @@ functions {
     }
 }
 
-#include data.stan
+data {
+    // Information about nodes.
+    int num_nodes;
+    int num_dims;
+    array [num_nodes] int y;
+    array [num_nodes] vector[num_dims] X;
+
+    // Kernel parameters.
+    real<lower=0> alpha, rho, epsilon;
+}
 
 parameters {
     vector[num_nodes] eta;
