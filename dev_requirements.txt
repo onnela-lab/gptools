@@ -122,7 +122,9 @@ coverage[toml]==6.4.4
     #   -r gptools-util/test_requirements.txt
     #   pytest-cov
 cycler==0.11.0
-    # via matplotlib
+    # via
+    #   -r gptools-util/test_requirements.txt
+    #   matplotlib
 debugpy==1.6.3
     # via
     #   -r gptools-stan/test_requirements.txt
@@ -182,7 +184,9 @@ flake8==5.0.4
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
 fonttools==4.37.1
-    # via matplotlib
+    # via
+    #   -r gptools-util/test_requirements.txt
+    #   matplotlib
 idna==3.3
     # via
     #   -r gptools-stan/test_requirements.txt
@@ -303,7 +307,9 @@ jupyterlab-widgets==3.0.3
     #   -r gptools-util/test_requirements.txt
     #   ipywidgets
 kiwisolver==1.4.4
-    # via matplotlib
+    # via
+    #   -r gptools-util/test_requirements.txt
+    #   matplotlib
 lxml==4.9.1
     # via
     #   -r gptools-stan/test_requirements.txt
@@ -318,7 +324,9 @@ markupsafe==2.1.1
     #   jinja2
     #   nbconvert
 matplotlib==3.5.3
-    # via -r dev_requirements.in
+    # via
+    #   -r dev_requirements.in
+    #   -r gptools-util/test_requirements.txt
 matplotlib-inline==0.1.6
     # via
     #   -r gptools-stan/test_requirements.txt
@@ -429,7 +437,9 @@ pickleshare==0.7.5
     #   -r gptools-util/test_requirements.txt
     #   ipython
 pillow==9.2.0
-    # via matplotlib
+    # via
+    #   -r gptools-util/test_requirements.txt
+    #   matplotlib
 pip-tools==6.8.0
     # via -r dev_requirements.in
 pluggy==1.0.0
