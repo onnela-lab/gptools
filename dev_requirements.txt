@@ -673,7 +673,9 @@ stack-data==0.5.0
     #   -r gptools-util/test_requirements.txt
     #   ipython
 tabulate==0.8.10
-    # via -r gptools-stan/test_requirements.txt
+    # via
+    #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
 terminado==0.15.0
     # via
     #   -r gptools-stan/test_requirements.txt
