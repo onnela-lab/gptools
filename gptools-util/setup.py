@@ -14,6 +14,7 @@ setup(
             "flake8",
             "jupyter",
             "matplotlib",
+            "networkx",
             "pytest",
             "pytest-cov",
             "scipy",
