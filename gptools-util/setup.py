@@ -12,6 +12,7 @@ setup(
         "tests": [
             "doit-interface",
             "flake8",
+            "jupyter",
             "pytest",
             "pytest-cov",
             "torch",

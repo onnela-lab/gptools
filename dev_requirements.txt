@@ -24,19 +24,27 @@ alabaster==0.7.12
 appnope==0.1.3
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   ipython
 argon2-cffi==21.3.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   notebook
 argon2-cffi-bindings==21.2.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   argon2-cffi
 asttokens==2.0.8
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   stack-data
 attrs==22.1.0
     # via
@@ -54,14 +62,20 @@ babel==2.10.3
 backcall==0.2.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipython
 beautifulsoup4==4.11.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 bleach==5.0.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 build==0.8.0
     # via pip-tools
@@ -74,6 +88,8 @@ certifi==2022.6.15
 cffi==1.15.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   argon2-cffi-bindings
 charset-normalizer==2.1.1
     # via
@@ -110,14 +126,20 @@ cycler==0.11.0
 debugpy==1.6.3
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
 decorator==5.1.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipython
 defusedxml==0.7.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 docutils==0.19
     # via
@@ -139,14 +161,20 @@ doit-interface==0.1.8
 entrypoints==0.4
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter-client
 executing==1.0.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   stack-data
 fastjsonschema==2.16.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbformat
 flake8==5.0.4
     # via
@@ -182,29 +210,39 @@ iniconfig==1.1.1
 ipykernel==6.15.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipywidgets
     #   jupyter
     #   jupyter-console
     #   notebook
     #   qtconsole
-ipython==8.4.0
+ipython==8.5.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   ipywidgets
     #   jupyter-console
 ipython-genutils==0.2.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   notebook
     #   qtconsole
 ipywidgets==8.0.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter
 jedi==0.18.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipython
 jinja2==3.1.2
     # via
@@ -217,14 +255,20 @@ jinja2==3.1.2
 jsonschema==4.15.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbformat
 jupyter==1.0.0
     # via
     #   -r dev_requirements.in
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
 jupyter-client==7.3.5
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   jupyter-console
     #   nbclient
@@ -233,10 +277,14 @@ jupyter-client==7.3.5
 jupyter-console==6.4.4
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter
 jupyter-core==4.11.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter-client
     #   nbconvert
     #   nbformat
@@ -245,16 +293,22 @@ jupyter-core==4.11.1
 jupyterlab-pygments==0.2.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 jupyterlab-widgets==3.0.3
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipywidgets
 kiwisolver==1.4.4
     # via matplotlib
 lxml==4.9.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 markupsafe==2.1.1
     # via
@@ -268,6 +322,8 @@ matplotlib==3.5.3
 matplotlib-inline==0.1.6
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   ipython
 mccabe==0.7.0
@@ -279,25 +335,35 @@ mccabe==0.7.0
 mistune==2.0.4
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 nbclient==0.6.7
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 nbconvert==7.0.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter
     #   notebook
 nbformat==5.4.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbclient
     #   nbconvert
     #   notebook
 nest-asyncio==1.5.5
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   jupyter-client
     #   nbclient
@@ -305,6 +371,8 @@ nest-asyncio==1.5.5
 notebook==6.4.12
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter
 numpy==1.23.2
     # via
@@ -336,20 +404,28 @@ pandas==1.4.4
 pandocfilters==1.5.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 parso==0.8.3
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jedi
 pep517==0.13.0
     # via build
 pexpect==4.8.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipython
 pickleshare==0.7.5
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipython
 pillow==9.2.0
     # via matplotlib
@@ -364,24 +440,34 @@ pluggy==1.0.0
 prometheus-client==0.14.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   notebook
 prompt-toolkit==3.0.31
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipython
     #   jupyter-console
 psutil==5.9.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
 ptyprocess==0.7.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   pexpect
     #   terminado
 pure-eval==0.2.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   stack-data
 py==1.11.0
     # via
@@ -398,6 +484,8 @@ pycodestyle==2.9.1
 pycparser==2.21
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   cffi
 pyflakes==2.5.0
     # via
@@ -425,6 +513,8 @@ pyparsing==3.0.9
 pyrsistent==0.18.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jsonschema
 pytest==7.1.3
     # via
@@ -440,6 +530,8 @@ pytest-cov==3.0.0
 python-dateutil==2.8.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter-client
     #   matplotlib
     #   pandas
@@ -453,6 +545,8 @@ pytz==2022.2.1
 pyzmq==23.2.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   jupyter-client
     #   notebook
@@ -460,10 +554,14 @@ pyzmq==23.2.1
 qtconsole==5.3.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   jupyter
 qtpy==2.2.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   qtconsole
 requests==2.28.1
     # via
@@ -474,10 +572,14 @@ requests==2.28.1
 send2trash==1.8.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   notebook
 six==1.16.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   asttokens
     #   bleach
     #   python-dateutil
@@ -490,6 +592,8 @@ snowballstemmer==2.2.0
 soupsieve==2.3.2.post1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   beautifulsoup4
 sphinx==5.1.1
     # via
@@ -535,14 +639,20 @@ sphinxcontrib-serializinghtml==1.1.5
 stack-data==0.5.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipython
 terminado==0.15.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   notebook
 tinycss2==1.1.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   nbconvert
 tomli==2.0.1
     # via
@@ -561,6 +671,8 @@ torch==1.12.1
 tornado==6.2
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   jupyter-client
     #   notebook
@@ -572,6 +684,8 @@ tqdm==4.64.1
 traitlets==5.3.0
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipykernel
     #   ipython
     #   ipywidgets
@@ -601,10 +715,14 @@ urllib3==1.26.12
 wcwidth==0.2.5
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   prompt-toolkit
 webencodings==0.5.1
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   bleach
     #   tinycss2
 wheel==0.37.1
@@ -612,6 +730,8 @@ wheel==0.37.1
 widgetsnbextension==4.0.3
     # via
     #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
     #   ipywidgets
 zipp==3.8.1
     # via
