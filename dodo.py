@@ -59,7 +59,7 @@ for name, (parametrization, noise_scale) in profile_configurations.items():
     args = ["python", "-m", "gptools.stan.profile", parametrization, noise_scale, target,
             "--iter_sampling=100"]
     file_dep = [
-        "gptools/stan/gptools.stan",
+        "gptools/stan/gptools_graph.stan",
         "gptools/stan/profile/__main__.py",
         "gptools/stan/profile/data.stan",
         f"gptools/stan/profile/{parametrization}.stan",

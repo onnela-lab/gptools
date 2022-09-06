@@ -1,7 +1,7 @@
 // Graph gaussian process with log link for Poisson observations.
 
 functions {
-    #include gptools.stan
+    #include gptools_graph.stan
 }
 
 #include data.stan
