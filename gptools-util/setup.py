@@ -12,8 +12,12 @@ setup(
         "tests": [
             "doit-interface",
             "flake8",
+            "jupyter",
+            "matplotlib",
+            "networkx",
             "pytest",
             "pytest-cov",
+            "scipy",
             "torch",
         ],
         "docs": [
