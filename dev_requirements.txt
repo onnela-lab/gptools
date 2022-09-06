@@ -385,6 +385,7 @@ numpy==1.23.2
     #   gptools-util
     #   matplotlib
     #   pandas
+    #   scipy
 packaging==21.3
     # via
     #   -r gptools-stan/test_requirements.txt
@@ -569,6 +570,11 @@ requests==2.28.1
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   sphinx
+scipy==1.9.1
+    # via
+    #   -r gptools-stan/test_requirements.txt
+    #   -r gptools-torch/test_requirements.txt
+    #   -r gptools-util/test_requirements.txt
 send2trash==1.8.0
     # via
     #   -r gptools-stan/test_requirements.txt

@@ -15,6 +15,7 @@ setup(
             "jupyter",
             "pytest",
             "pytest-cov",
+            "scipy",
             "torch",
         ],
         "docs": [

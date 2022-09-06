@@ -17,6 +17,7 @@ setup(
             "jupyter",
             "pytest",
             "pytest-cov",
+            "scipy",
         ],
         "docs": [
             "sphinx",
