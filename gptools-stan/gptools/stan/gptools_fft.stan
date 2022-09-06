@@ -90,7 +90,7 @@ real fft2_gp_lpdf(matrix y, matrix cov) {
     }
     log_prob += - log2() * nterms + n * log(n) / 2;
 
-    return log_prob ;
+    return log_prob;
 }
 
 /**
