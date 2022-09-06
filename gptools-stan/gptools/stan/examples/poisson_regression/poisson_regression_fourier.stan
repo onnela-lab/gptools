@@ -2,29 +2,6 @@
 
 functions {
     #include gptools_fft.stan
-
-    real sqdist(vector x, vector y, vector period) {
-        vector[size(x)] residual = abs(x - y);
-        residual = fmin(residual, period - residual);
-        return residual' * residual;
-    }
-
-
-    matrix sqdist(array [] vector x, array [] vector y, vector period) {
-        matrix[size(x), size(y)] result;
-        for (i in 1:size(x)) {
-            for (j in 1:size(y)) {
-                result[i, j] = sqdist(x[i], y[j], period);
-            }
-        }
-        return result;
-    }
-
-
-    matrix gp_exp_quad_cov(array [] vector x, array [] vector y, real alpha, real rho, vector period) {
-        // TODO: should return cov_matrix instead of matrix.
-        return alpha ^ 2 * exp(- sqdist(x, y, period) / (2 * rho ^ 2));
-    }
 }
 
 data {
