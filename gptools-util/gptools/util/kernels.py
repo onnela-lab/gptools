@@ -23,22 +23,60 @@ def evaluate_residuals(x: ArrayOrTensor, y: ArrayOrTensor = None, period: ArrayO
 
     Returns:
         dist2: Squared distance between `x` and `y`.
+
+    Example:
+      .. plot::
+
+        from gptools.util.kernels import evaluate_residuals
+        from matplotlib import pyplot as plt
+        import numpy as np
+
+        width = 3  # Width of the domain.
+        step_seq = [6, 7]  # Number of grid points in the domain.
+        boundary_color = "silver"  # Color for domain boundaries.
+
+        fig, axes = plt.subplots(2, 1, sharex=True, sharey=True)
+
+        for ax, steps in zip(axes, step_seq):
+            # Plot distances for two locations.
+            x = np.linspace(-width, 2 * width, 3 * steps + 1, endpoint=True)
+            ys = [x[steps + 2], x[2 * steps - 1]]
+            for y in ys:
+                line, = ax.plot(x, evaluate_residuals(x, y, width), marker=".")
+                ax.scatter(y, 0, color=line.get_color(), label=f"$y={y:.1f}$")
+
+            # Plot boundary indicators.
+            for i in range(-1, 3):
+                ax.axvline(i * width, color=boundary_color, ls="--")
+            ax.axhline(width / 2, color=boundary_color, ls="--")
+            ax.axhline(-width / 2, color=boundary_color, ls="--", label="domain boundaries")
+            ax.axhline(0, color="silver", ls=":")
+
+            ax.set_aspect("equal")
+            ax.set_ylabel(r"residual $x - y$")
+            ax.set_title(fr"$n={steps}$")
+
+        axes[1].set_xlabel("position $x$")
+
+        # Adjust boundaries.
+        factor = 0.2
+        ax.set_ylim(-(1 + factor) * width / 2, (1 + factor) * width / 2)
+        ax.set_xlim(-(1 + factor / 2) * width, (2 + factor / 2) * width)
+        fig.tight_layout()
     """
     # Expand the shape so we get the Cartesian product of elements in x (while keeping the batch
     # shape).
     if y is None:
         x, y = x[..., :, None, :], x[..., None, :, :]
-    if period is None:
-        return x - y
-    residuals = (x % period) - (y % period)
-    residuals = dispatch.where(residuals > period / 2, residuals - period, residuals)
-    residuals = dispatch.where(residuals < - period / 2, residuals + period, residuals)
+    residuals = x - y
+    if period is not None:
+        residuals = residuals - period * dispatch.round(residuals / period)
     return residuals
 
 
 def evaluate_squared_distance(x: ArrayOrTensor, y: ArrayOrTensor = None,
                               period: ArrayOrTensor = None) -> ArrayOrTensor:
-    """
+    r"""
     Evaluate the squared distance between points respecting periodic boundary conditions.
 
     Args:
@@ -50,6 +88,42 @@ def evaluate_squared_distance(x: ArrayOrTensor, y: ArrayOrTensor = None,
 
     Returns:
         dist2: Squared distance between `x` and `y`.
+
+    Example:
+      .. plot::
+
+        from gptools.util import coordgrid
+        from gptools.util.kernels import evaluate_squared_distance
+        from matplotlib import pyplot as plt
+        import numpy as np
+
+        fig, axes = plt.subplots(1, 2, sharex=True, sharey=True)
+        height = 40
+        width = 50
+        shape = (height, width)
+        xs = coordgrid(np.arange(height), np.arange(width))
+
+        idx = len(xs) // 4 + width // 4
+        periods = [None, shape]
+        dists = [np.sqrt(evaluate_squared_distance(xs[idx], xs, period=period))
+                for period in periods]
+
+        vmax = np.sqrt(width ** 2 + height ** 2)
+        for ax, period, dist in zip(axes, periods, dists):
+            dist = dist.reshape(shape)
+            im = ax.imshow(dist, vmax=vmax, origin="lower")
+            colorbar = fig.colorbar(im, ax=ax, location="top")
+            label = r"distance $d\left(x,y\right)$"
+            if period:
+                label += " (periodic boundaries)"
+            colorbar.set_label(label)
+            cs = ax.contour(dist, colors="w", levels=[10, 20, 30], linestyles=["-", "--", ":"])
+            plt.clabel(cs)
+            ax.scatter(*np.unravel_index(idx, shape)[::-1], color="C1").set_edgecolor("w")
+            ax.set_xlabel("position $x$")
+
+        axes[0].set_ylabel("position $y$")
+        fig.tight_layout()
     """
     residuals = evaluate_residuals(x, y, period)
     return (residuals * residuals).sum(axis=-1)
@@ -58,6 +132,10 @@ def evaluate_squared_distance(x: ArrayOrTensor, y: ArrayOrTensor = None,
 class Kernel:
     """
     Base class for covariance kernels.
+
+    Args:
+        epsilon: Diagonal "nugget" variance.
+        period: Period for circular boundary conditions.
     """
     def __init__(self, epsilon: float = 0, period: ArrayOrTensor = None):
         self.epsilon = epsilon
@@ -84,11 +162,12 @@ class ExpQuadKernel(Kernel):
     .. math::
 
         \text{cov}\left(x, y\right) = \alpha^2 \exp\left(-\frac{\left(x-y\right)^2}{2\rho^2}\right)
+        + \delta\left(x - y\right)
 
     Args:
         alpha: Scale of the covariance.
         rho: Correlation length.
-        epsilon: Additional diagonal variance.
+        epsilon: Diagonal "nugget" variance.
         period: Period for circular boundary conditions.
     """
     def __init__(self, alpha: float, rho: float, epsilon: float = 0, period: ArrayOrTensor = None) \
