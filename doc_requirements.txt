@@ -21,16 +21,26 @@ certifi==2022.6.15.1
     # via requests
 charset-normalizer==2.1.1
     # via requests
+cloudpickle==2.2.0
+    # via doit
 cmdstanpy==1.0.7
     # via gptools-stan
+colorama==0.4.5
+    # via doit-interface
 docutils==0.17.1
     # via
     #   sphinx
     #   sphinx-rtd-theme
+doit==0.36.0
+    # via doit-interface
+doit-interface==0.1.8
+    # via -r doc_requirements.in
 idna==3.3
     # via requests
 imagesize==1.4.1
     # via sphinx
+importlib-metadata==4.12.0
+    # via doit
 jinja2==3.1.2
     # via sphinx
 markupsafe==2.1.1
@@ -95,3 +105,5 @@ ujson==5.4.0
     # via cmdstanpy
 urllib3==1.26.12
     # via requests
+zipp==3.8.1
+    # via importlib-metadata

@@ -1,3 +1,4 @@
 -e file:gptools-stan[docs]
 -e file:gptools-torch[docs]
 -e file:gptools-util[docs]
+doit_interface
