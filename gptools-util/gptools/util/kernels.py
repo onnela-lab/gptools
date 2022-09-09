@@ -177,5 +177,6 @@ class ExpQuadKernel(Kernel):
         self.rho = rho
 
     def _evaluate(self, x: ArrayOrTensor, y: ArrayOrTensor = None) -> ArrayOrTensor:
-        exponent = - evaluate_squared_distance(x, y, self.period) / (2 * self.rho ** 2)
+        residuals = evaluate_residuals(x, y, self.period) / self.rho
+        exponent = - dispatch.square(residuals).sum(axis=-1) / 2
         return self.alpha * self.alpha * dispatch.exp(exponent)

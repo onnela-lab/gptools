@@ -11,6 +11,7 @@ import torch as th
     (kernels.ExpQuadKernel, (1.2, 0.7, 0), 1),
     (kernels.ExpQuadKernel, (4, 0.2, 0.1, 2), 2),
     (kernels.ExpQuadKernel, (4, 0.2, 0.1, 2), 1),
+    (kernels.ExpQuadKernel, (4, np.asarray([0.1, 0.15, 0.2]), 0.1, 2), 3),
 ])
 def kernel_and_dim(request: pytest.FixtureRequest, use_torch: bool) -> tuple[kernels.Kernel, int]:
     cls, args, dim = request.param
