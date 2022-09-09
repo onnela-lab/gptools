@@ -23,9 +23,5 @@ setup(
             "tabulate",
             "tqdm",
         ],
-        "docs": [
-            "sphinx",
-            "sphinx_rtd_theme",
-        ],
     }
 )

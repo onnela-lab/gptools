@@ -20,9 +20,5 @@ setup(
             "scipy",
             "torch",
         ],
-        "docs": [
-            "sphinx",
-            "sphinx_rtd_theme",
-        ],
     }
 )

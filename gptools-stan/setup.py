@@ -21,9 +21,5 @@ setup(
             "scipy",
             "tabulate",
         ],
-        "docs": [
-            "sphinx",
-            "sphinx_rtd_theme",
-        ],
     }
 )
