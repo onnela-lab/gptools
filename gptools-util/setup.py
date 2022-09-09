@@ -20,8 +20,5 @@ setup(
             "scipy",
             "torch",
         ],
-        "docs": [
-            "sphinx",
-        ],
     }
 )

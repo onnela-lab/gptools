@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         module: ["stan", "torch", "util"]
-    name: Continuous Integration
+    name: Package tests and linting
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v2"
@@ -41,5 +41,19 @@ jobs:
         run: doit tests:${{ matrix.module }}
       - name: Lint the code
         run: doit lint:${{ matrix.module }}
+  docs:
+    name: Documentation
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.10"
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles(format('doc_requirements.txt', matrix.module)) }}-v1
+      - name: Install python dependencies
+        run: pip install -r doc_requirements.txt
       - name: Build the documentation
         run: doit docs

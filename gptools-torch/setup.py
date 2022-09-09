@@ -23,8 +23,5 @@ setup(
             "tabulate",
             "tqdm",
         ],
-        "docs": [
-            "sphinx",
-        ],
     }
 )

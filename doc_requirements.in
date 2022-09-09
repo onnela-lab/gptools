@@ -1,0 +1,9 @@
+-e file:gptools-stan
+-e file:gptools-torch
+-e file:gptools-util
+# In contrast to test requirements, we define documentation requirements centrally because we only
+# ever build the documentation as a monolith.
+doit_interface
+matplotlib
+sphinx
+sphinx_rtd_theme

@@ -1,2 +1,2 @@
--e file:gptools-stan[docs,tests]
+-e file:gptools-stan[tests]
 -e file:gptools-util
