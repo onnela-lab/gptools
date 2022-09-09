@@ -11,7 +11,8 @@ napoleon_custom_sections = [("Returns", "params_style")]
 plot_formats = [
     ("png", 144),
 ]
-html_theme = "nature"
+html_theme = "sphinx_rtd_theme"
+html_sidebars = {}
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False

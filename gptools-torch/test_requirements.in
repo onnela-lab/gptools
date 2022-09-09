@@ -1,2 +1,2 @@
--e file:gptools-torch[docs,tests]
+-e file:gptools-torch[tests]
 -e file:gptools-util
