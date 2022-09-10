@@ -1,7 +1,7 @@
 from gptools.util.kernels import ExpQuadKernel
 from gptools.torch import GraphGaussianProcess, ParametrizedDistribution, \
     TerminateOnPlateau, VariationalModel
-from gptools.util import lattice_predecessors
+from gptools.util.graph import lattice_predecessors
 import itertools as it
 import pytest
 import torch as th

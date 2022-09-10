@@ -3,7 +3,7 @@ import logging
 import cmdstanpy
 from gptools.util.kernels import ExpQuadKernel
 from gptools.stan import get_include
-from gptools.util import lattice_predecessors, predecessors_to_edge_index
+from gptools.util.graph import lattice_predecessors, predecessors_to_edge_index
 import numpy as np
 import pathlib
 import pickle
