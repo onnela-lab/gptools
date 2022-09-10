@@ -2,6 +2,7 @@ import cmdstanpy
 import os
 import pathlib
 import typing
+from gptools.util import Timer
 from .. import get_include
 
 
@@ -18,8 +19,8 @@ def sample_kwargs_from_env(**kwargs):
 
 
 def compile(stan_file: pathlib.Path, stanc_options: typing.Optional[dict] = None,
-            compile: typing.Optional[typing.Union[bool, str]] = None, **kwargs) \
-        -> cmdstanpy.CmdStanModel:
+            compile: typing.Optional[typing.Union[bool, str]] = None,
+            print_compile_duration: bool = True, **kwargs) -> cmdstanpy.CmdStanModel:
     """
     Compile a :class:`cmstanpy.CmdStanModel` model for examples.
 
@@ -38,5 +39,6 @@ def compile(stan_file: pathlib.Path, stanc_options: typing.Optional[dict] = None
         compile_options = {"true": True, "false": False, "force": "force"}
         compile = compile_options[os.environ.get("STAN_COMPILE", "true")]
     # Compile the model.
-    return cmdstanpy.CmdStanModel(stan_file=stan_file, stanc_options=stanc_options, compile=compile,
-                                  **kwargs)
+    with Timer(f"compiled {stan_file}" if print_compile_duration else None):
+        return cmdstanpy.CmdStanModel(stan_file=stan_file, stanc_options=stanc_options,
+                                      compile=compile, **kwargs)
