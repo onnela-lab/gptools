@@ -1,7 +1,9 @@
+from __future__ import annotations
 import functools as ft
 import numpy as np
-import typing
 import os
+import time
+import typing
 
 
 # This tricks pylance into thinking that the imports *could* happen for type checking.
@@ -53,3 +55,44 @@ def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
     if not ravel:
         return coords
     return coords.reshape((-1, len(xs)))
+
+
+class Timer:
+    """
+    Time the duration of code execution in a context.
+
+    Args:
+        message: Message to print when the context becomes inactive.
+    """
+    def __init__(self, message: str = None):
+        self.start = None
+        self.end = None
+        self.message = message
+
+    def __enter__(self) -> Timer:
+        if self.start is not None:
+            raise RuntimeError("timers can only be used once")
+        self.start = time.time()
+        return self
+
+    def __exit__(self, *args) -> None:
+        self.end = time.time()
+        if self.message:
+            print(f"{self.message} in {self.duration:.3f} seconds")
+
+    @property
+    def duration(self) -> float:
+        """
+        The duration between the start and end of the context. Returns the time since the start if
+        the context is still active.
+        """
+        if self.start is None:
+            raise RuntimeError("timer has not yet been started")
+        end = self.end or time.time()
+        return end - self.start
+
+    def __repr__(self) -> str:
+        try:
+            return f"Timer(duration={self.duration:.3f})"
+        except RuntimeError:
+            return "Timer(not started)"
