@@ -68,18 +68,18 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
         "edge_index": edge_index,
         "noise_scale": args.noise_scale,
     }
-    start = time.time()
+    with Timer() as timer:
     fit = model.sample(
-        data, seed=args.seed, iter_sampling=args.iter_sampling, show_progress=args.show_progress,
-        iter_warmup=args.iter_warmup or args.iter_sampling,
+            data, seed=args.seed, iter_sampling=args.iter_sampling,
+            show_progress=args.show_progress, iter_warmup=args.iter_warmup or args.iter_sampling,
     )
-    end = time.time()
 
     # Save the result.
     result = {
         "args": vars(args),
-        "start": start,
-        "end": end,
+        "start": timer.start,
+        "end": timer.end,
+        "duration": timer.duration,
         "fit": fit,
     }
     if args.output:
@@ -88,7 +88,7 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
 
     # Report the results.
     values = vars(args) | {
-        "duration": f"{end - start:.3f}",
+        "duration": f"{timer.duration:.3f}",
         "divergences": f"{fit.divergences.sum()} / {fit.num_draws_sampling} "
             f"({100 * fit.divergences.sum() / fit.num_draws_sampling:.1f}%)",  # noqa: E131
         "max_treedepths": f"{fit.max_treedepths.sum()} / {fit.num_draws_sampling} "
