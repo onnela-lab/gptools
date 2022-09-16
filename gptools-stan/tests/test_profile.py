@@ -16,8 +16,7 @@ def test_profile(parametrization: typing.Literal["centered", "non_centered"]) ->
         filename = pathlib.Path(tempdir, "result.pkl")
         __main__([
             parametrization, "1.0", str(filename), f"--iter_sampling={iter_sampling}",
-            f"--num_nodes={num_nodes}", "--show_diagnostics", "--compile=force",
-            f"--num_parents={num_parents}",
+            f"--num_nodes={num_nodes}", "--show_diagnostics", f"--num_parents={num_parents}",
         ])
         with filename.open("rb") as fp:
             result = pickle.load(fp)

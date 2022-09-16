@@ -1,2 +1,3 @@
 test_fft_gp_?d
 test_fft_identity_?d
+test_gp_period_exp_quad_cov
