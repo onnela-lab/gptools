@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.mark.parametrize("parametrization", ["graph_centered", "graph_non_centered",
-                                             "fourier_centered"])
+                                             "fourier_centered", "centered", "non_centered"])
 def test_profile(parametrization: str, tmp_path: pathlib.Path) -> None:
     iter_sampling = 2
     chains = 4  # cmdstanpy default.
