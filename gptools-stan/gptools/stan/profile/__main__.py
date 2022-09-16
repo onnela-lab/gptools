@@ -2,7 +2,7 @@ import argparse
 import logging
 import cmdstanpy
 from gptools.util.kernels import ExpQuadKernel
-from gptools.stan import get_include
+from gptools.stan import compile_model
 from gptools.util.graph import lattice_predecessors, predecessors_to_edge_index
 import numpy as np
 import pathlib
@@ -54,10 +54,8 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
 
     # Compile the model and fit it.
     compile = {"false": False, "true": True, "force": "force"}[args.compile]
-    model = cmdstanpy.CmdStanModel(
-        stan_file=pathlib.Path(__file__).parent / f"{args.parametrization}.stan",
-        stanc_options={"include-paths": [get_include()]}, compile=compile,
-    )
+    model = compile_model(stan_file=pathlib.Path(__file__).parent / f"{args.parametrization}.stan",
+                          compile=compile)
     data = {
         "num_nodes": args.num_nodes,
         "num_dims": 1,

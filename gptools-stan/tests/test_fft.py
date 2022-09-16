@@ -1,7 +1,6 @@
-import cmdstanpy
 from gptools.util.kernels import ExpQuadKernel
 from gptools.util import coordgrid
-from gptools.stan import get_include
+from gptools.stan import compile_model
 import numpy as np
 import pathlib
 import pytest
@@ -32,14 +31,9 @@ def data(request: pytest.FixtureRequest) -> dict:
     }
 
 
-@pytest.fixture(scope="session")
-def fft_gp_model(data: dict) -> cmdstanpy.CmdStanModel:
+def test_log_prob_fft(data: dict) -> None:
     stan_file = pathlib.Path(__file__).parent / f"test_fft_gp_{data['ndim']}d.stan"
-    return cmdstanpy.CmdStanModel(stan_file=stan_file,
-                                  stanc_options={"include-paths": [get_include()]})
-
-
-def test_log_prob_fft(data: dict, fft_gp_model: cmdstanpy.CmdStanModel) -> None:
+    fft_gp_model = compile_model(stan_file=stan_file)
     stan_data = {"n": data["shape"][0], "y": data["y"], "cov": data["cov"]}
     if data["ndim"] == 2:
         stan_data["m"] = data["shape"][1]
@@ -52,7 +46,7 @@ def test_log_prob_fft(data: dict, fft_gp_model: cmdstanpy.CmdStanModel) -> None:
 def test_stan_numpy_fft_identity(shape: tuple[int]):
     x = np.random.normal(0, 1, shape)
     stan_file = pathlib.Path(__file__).parent / f"test_fft_identity_{x.ndim}d.stan"
-    model = cmdstanpy.CmdStanModel(stan_file=stan_file)
+    model = compile_model(stan_file=stan_file)
     data = {"x": x, "n": shape[0]}
     if x.ndim == 1:
         np_fft = np.fft.fft(x)
