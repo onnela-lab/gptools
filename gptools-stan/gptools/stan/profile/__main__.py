@@ -1,21 +1,21 @@
 import argparse
 import logging
 import cmdstanpy
-from gptools.util.kernels import ExpQuadKernel
 from gptools.stan import compile_model
+from gptools.util import Timer
+from gptools.util.kernels import ExpQuadKernel
 from gptools.util.graph import lattice_predecessors, predecessors_to_edge_index
 import numpy as np
 import pathlib
 import pickle
 import tabulate
-import time
 import typing
 
 
 def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("parametrization", help="parametrization of the model",
-                        choices={"graph_centered", "graph_non_centered"})
+                        choices={"graph_centered", "graph_non_centered", "fourier_centered"})
     parser.add_argument("noise_scale", help="scale of observation noise", type=float)
     parser.add_argument("output", help="output path", nargs="?")
     parser.add_argument("--num_nodes", help="number of nodes", type=int, default=100)
@@ -69,10 +69,10 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
         "noise_scale": args.noise_scale,
     }
     with Timer() as timer:
-    fit = model.sample(
+        fit = model.sample(
             data, seed=args.seed, iter_sampling=args.iter_sampling,
             show_progress=args.show_progress, iter_warmup=args.iter_warmup or args.iter_sampling,
-    )
+        )
 
     # Save the result.
     result = {

@@ -2,12 +2,11 @@ from gptools.stan.profile.__main__ import __main__
 import pathlib
 import pickle
 import pytest
-import typing
 
 
-@pytest.mark.parametrize("parametrization", ["graph_centered", "graph_non_centered"])
-def test_profile(parametrization: typing.Literal["graph_centered", "graph_non_centered"],
-                 tmp_path: pathlib.Path) -> None:
+@pytest.mark.parametrize("parametrization", ["graph_centered", "graph_non_centered",
+                                             "fourier_centered"])
+def test_profile(parametrization: str, tmp_path: pathlib.Path) -> None:
     iter_sampling = 2
     chains = 4  # cmdstanpy default.
     num_nodes = 7

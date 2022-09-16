@@ -6,6 +6,10 @@ functions {
 
 #include data.stan
 
+transformed data {
+    array [num_nodes] int degrees = in_degrees(num_nodes, edge_index);
+}
+
 parameters {
     vector[num_nodes] eta_;
 }

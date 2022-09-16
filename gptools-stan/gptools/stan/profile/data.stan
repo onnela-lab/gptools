@@ -7,7 +7,3 @@ data {
     int num_edges;
     array [2, num_edges] int edge_index;
 }
-
-transformed data {
-    array [num_nodes] int degrees = in_degrees(num_nodes, edge_index);
-}
