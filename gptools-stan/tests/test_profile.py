@@ -6,7 +6,7 @@ import tempfile
 import typing
 
 
-@pytest.mark.parametrize("parametrization", ["centered", "non_centered"])
+@pytest.mark.parametrize("parametrization", ["graph_centered", "graph_non_centered"])
 def test_profile(parametrization: typing.Literal["centered", "non_centered"]) -> None:
     iter_sampling = 2
     chains = 4  # cmdstanpy default.

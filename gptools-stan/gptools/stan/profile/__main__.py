@@ -15,7 +15,7 @@ import typing
 def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("parametrization", help="parametrization of the model",
-                        choices={"centered", "non_centered"})
+                        choices={"graph_centered", "graph_non_centered"})
     parser.add_argument("noise_scale", help="scale of observation noise", type=float)
     parser.add_argument("output", help="output path", nargs="?")
     parser.add_argument("--num_nodes", help="number of nodes", type=int, default=100)
