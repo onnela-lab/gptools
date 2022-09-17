@@ -4,16 +4,7 @@ functions {
     #include gptools_kernels.stan
 }
 
-data {
-    // Information about nodes.
-    int num_nodes;
-    int num_dims;
-    array [num_nodes] int y;
-    array [num_nodes] vector[num_dims] X;
-
-    // Kernel parameters.
-    real<lower=0> alpha, rho, epsilon;
-}
+#include data.stan
 
 parameters {
     vector[num_nodes] eta_;
