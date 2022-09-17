@@ -3,6 +3,23 @@
 // at least have been exclusive on the right...
 
 /**
+* Evaluate the scale of Fourier coefficients.
+*/
+vector evaluate_fft_scale(vector cov) {
+    int n = size(cov);
+    vector[n] result = sqrt(n * get_real(fft(cov)) / 2);
+    // The first element has larger scale because it only has a real part but must still have the
+    // right variance. The same applies to the last element if the number of elements is even
+    // (Nyqvist frequency).
+    result[1] *= sqrt2();
+    if (n % 2 == 0) {
+        result[n %/% 2 + 1] *= sqrt2();
+    }
+    return result;
+}
+
+
+/**
 * Evaluate the log probability of a one-dimensional Gaussian process in Fourier space.
 *
 * @param y Random variable whose likelihood to evaluate.
@@ -15,21 +32,11 @@ real fft_gp_lpdf(vector y, vector cov) {
     int m = n %/% 2 + 1;
     // The last index of imaginary components to consider. This is necessary to distinguish between
     // the odd case (without Nyqvist frequency) and even (with Nyqvist frequency).
-    int idx;
-    // Evaluate the scale of Fourier coefficients.
-    vector[m] fft_scale = sqrt(n * get_real(fft(cov)[:m]) / 2);
-    // The first element has larger scale because it only has a real part but must still have the
-    // right variance. The same applies to the last element if the number of elements is even
-    // (Nyqvist frequency).
-    fft_scale[1] *= sqrt2();
-    if (n % 2 == 0) {
-        fft_scale[m] *= sqrt2();
-        idx = m - 1;
-    } else {
-        idx = m;
-    }
+    int idx = (n + 1) %/% 2;
+
+    vector[n] fft_scale = evaluate_fft_scale(cov);
     complex_vector[m] fft = fft(y)[:m];
-    return normal_lpdf(get_real(fft) | 0, fft_scale)
+    return normal_lpdf(get_real(fft) | 0, fft_scale[:m])
         + normal_lpdf(get_imag(fft[2:idx]) | 0, fft_scale[2:idx])
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }
@@ -40,7 +47,7 @@ real fft_gp_lpdf(vector y, vector cov) {
 *
 * The Fourier domain white noise vector is structured as
 *
-* [zero-frequency term, m real parts of coefficients, m imag parts of coefficients, Nyqvist freq]
+* [zero-frequency term, m real parts of coefficients, Nyqvist freq, m imag parts of coefficients]
 *
 * where the Nyqvist frequency is only present for even numbers of observations and m = (n - 1) %/% 2
 * is the number of complex coefficients. The total number of independent parameters is thus n. For
@@ -53,39 +60,20 @@ real fft_gp_lpdf(vector y, vector cov) {
 * @return Realization of the Gaussian process.
 */
 vector fft_gp_transform(vector z, vector cov) {
-    // Number of data points.
+    // Assemble the terms to the form required for the inverse Fourier transform.
     int n = size(z);
-    // Number of complex frequency terms.
-    int m = (n - 1) %/% 2;
-    // Scaled Fourier coefficients to transform that we need to assemble.
+    int m = n %/% 2 + 1;
+    int imagidx = (n + 1) %/% 2;
     complex_vector[n] fft;
-    // Negative frequency offset depending on Nyqvist frequency.
-    int neg_offset;
+    // Zero frequency term, real parts of the complex coefficients, and Nyqvist frequency (if
+    // applicable).
+    fft[:m] = z[:m];
+    fft[2:imagidx] = z[m + 1:];
 
-    // Evaluate the scale of Fourier coefficients.
-    vector[n] fft_scale = sqrt(n * get_real(fft(cov)) / 2);
+    // Negative frequency terms.
+    fft[m + 1:] = to_complex(z[2:imagidx], -z[m + 1:]);
 
-    // Zero frequency term.
-    fft[1] = z[1];
-    fft_scale[1] *= sqrt2();
-
-    // Positive frequencies (m - 1 because of R indexing).
-    fft[2:2 + m - 1] = to_complex(z[2:2 + m - 1], z[2 + m: 2 + m + m - 1]);
-
-    // Nyqvist frequency if the number of observations is even.
-    if (n % 2 == 0) {
-        fft[2 + m] = z[n];
-        fft_scale[2 + m] *= sqrt2();
-        neg_offset = 3 + m;
-    } else {
-        neg_offset = 2 + m;
-    }
-    
-    // Negative frequencies (we can get rid of this once rfft is supported).
-    fft[neg_offset:neg_offset + m - 1] = to_complex(z[2:2 + m - 1], -z[2 + m: 2 + m + m - 1]);
-
-    // Transform to the real domain.
-    return get_real(inv_fft(fft_scale .* fft));
+    return get_real(inv_fft(evaluate_fft_scale(cov) .* fft));
 }
 
 
