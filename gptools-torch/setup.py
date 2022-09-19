@@ -26,6 +26,7 @@ setup(
             "scipy",
             "tabulate",
             "tqdm",
+            "twine",
         ],
     }
 )

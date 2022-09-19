@@ -29,13 +29,23 @@ backcall==0.2.0
 beautifulsoup4==4.11.1
     # via nbconvert
 bleach==5.0.1
-    # via nbconvert
+    # via
+    #   nbconvert
+    #   readme-renderer
+certifi==2022.9.14
+    # via requests
 cffi==1.15.1
     # via argon2-cffi-bindings
+charset-normalizer==2.1.1
+    # via requests
 cloudpickle==2.2.0
     # via doit
 colorama==0.4.5
     # via doit-interface
+commonmark==0.9.1
+    # via rich
+contourpy==1.0.5
+    # via matplotlib
 coverage[toml]==6.4.4
     # via pytest-cov
 cycler==0.11.0
@@ -46,6 +56,10 @@ decorator==5.1.1
     # via ipython
 defusedxml==0.7.1
     # via nbconvert
+docutils==0.17.1
+    # via
+    #   -r gptools-torch/test_requirements.in
+    #   readme-renderer
 doit==0.36.0
     # via doit-interface
 doit-interface==0.1.8
@@ -58,13 +72,17 @@ fastjsonschema==2.16.1
     # via nbformat
 flake8==5.0.4
     # via gp-tools-torch
-fonttools==4.37.1
+fonttools==4.37.2
     # via matplotlib
+idna==3.4
+    # via requests
 importlib-metadata==4.12.0
-    # via doit
+    # via
+    #   doit
+    #   twine
 iniconfig==1.1.1
     # via pytest
-ipykernel==6.15.2
+ipykernel==6.15.3
     # via
     #   ipywidgets
     #   jupyter
@@ -82,6 +100,8 @@ ipython-genutils==0.2.0
     #   qtconsole
 ipywidgets==8.0.2
     # via jupyter
+jaraco-classes==3.2.2
+    # via keyring
 jedi==0.18.1
     # via ipython
 jinja2==3.1.2
@@ -112,6 +132,8 @@ jupyterlab-pygments==0.2.2
     # via nbconvert
 jupyterlab-widgets==3.0.3
     # via ipywidgets
+keyring==23.9.3
+    # via twine
 kiwisolver==1.4.4
     # via matplotlib
 lxml==4.9.1
@@ -120,7 +142,7 @@ markupsafe==2.1.1
     # via
     #   jinja2
     #   nbconvert
-matplotlib==3.5.3
+matplotlib==3.6.0
     # via gp-tools-torch
 matplotlib-inline==0.1.6
     # via
@@ -130,13 +152,15 @@ mccabe==0.7.0
     # via flake8
 mistune==2.0.4
     # via nbconvert
+more-itertools==8.14.0
+    # via jaraco-classes
 nbclient==0.6.8
     # via nbconvert
 nbconvert==7.0.0
     # via
     #   jupyter
     #   notebook
-nbformat==5.4.0
+nbformat==5.5.0
     # via
     #   nbclient
     #   nbconvert
@@ -153,6 +177,7 @@ notebook==6.4.12
     # via jupyter
 numpy==1.23.3
     # via
+    #   contourpy
     #   gp-tools-torch
     #   gp-tools-util
     #   matplotlib
@@ -174,6 +199,8 @@ pickleshare==0.7.5
     # via ipython
 pillow==9.2.0
     # via matplotlib
+pkginfo==1.8.3
+    # via twine
 pluggy==1.0.0
     # via pytest
 prometheus-client==0.14.1
@@ -204,6 +231,8 @@ pygments==2.13.0
     #   jupyter-console
     #   nbconvert
     #   qtconsole
+    #   readme-renderer
+    #   rich
 pyparsing==3.0.9
     # via
     #   matplotlib
@@ -220,7 +249,7 @@ python-dateutil==2.8.2
     # via
     #   jupyter-client
     #   matplotlib
-pyzmq==23.2.1
+pyzmq==24.0.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -230,6 +259,18 @@ qtconsole==5.3.2
     # via jupyter
 qtpy==2.2.0
     # via qtconsole
+readme-renderer==37.1
+    # via twine
+requests==2.28.1
+    # via
+    #   requests-toolbelt
+    #   twine
+requests-toolbelt==0.9.1
+    # via twine
+rfc3986==2.0.0
+    # via twine
+rich==12.5.1
+    # via twine
 scipy==1.9.1
     # via gp-tools-torch
 send2trash==1.8.0
@@ -263,7 +304,7 @@ tornado==6.2
     #   terminado
 tqdm==4.64.1
     # via gp-tools-torch
-traitlets==5.3.0
+traitlets==5.4.0
     # via
     #   ipykernel
     #   ipython
@@ -276,8 +317,14 @@ traitlets==5.3.0
     #   nbformat
     #   notebook
     #   qtconsole
+twine==4.0.1
+    # via gp-tools-torch
 typing-extensions==4.3.0
     # via torch
+urllib3==1.26.12
+    # via
+    #   requests
+    #   twine
 wcwidth==0.2.5
     # via prompt-toolkit
 webencodings==0.5.1

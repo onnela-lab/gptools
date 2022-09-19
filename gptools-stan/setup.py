@@ -26,6 +26,7 @@ setup(
             "pytest-cov",
             "scipy",
             "tabulate",
+            "twine",
         ],
     }
 )
