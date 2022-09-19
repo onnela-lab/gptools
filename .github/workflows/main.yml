@@ -47,14 +47,14 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          packages_dir: ${{ matrix.module }}/dist
+          packages_dir: gptools-${{ matrix.module }}/dist
           repository_url: https://test.pypi.org/legacy/
       - name: Upload the package to pypi on `main` only
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
-          packages_dir: ${{ matrix.module }}/dist
+          packages_dir: gptools-${{ matrix.module }}/dist
           skip_existing: true
   docs:
     name: Documentation
