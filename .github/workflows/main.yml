@@ -41,6 +41,8 @@ jobs:
         run: doit tests:${{ matrix.module }}
       - name: Lint the code
         run: doit lint:${{ matrix.module }}
+      - name: Build the package
+        run: doit package:${{ matrix.module }}
   docs:
     name: Documentation
     runs-on: "ubuntu-latest"
