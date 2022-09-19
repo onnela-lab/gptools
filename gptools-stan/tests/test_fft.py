@@ -1,5 +1,6 @@
 from gptools.util.kernels import ExpQuadKernel
 from gptools.util import coordgrid
+from gptools.util.fft import transform_rfft
 from gptools.stan import compile_model
 import numpy as np
 import pathlib
@@ -33,13 +34,24 @@ def data(request: pytest.FixtureRequest) -> dict:
 
 def test_log_prob_fft(data: dict) -> None:
     stan_file = pathlib.Path(__file__).parent / f"test_fft_gp_{data['ndim']}d.stan"
-    fft_gp_model = compile_model(stan_file=stan_file)
+    model = compile_model(stan_file=stan_file)
     stan_data = {"n": data["shape"][0], "y": data["y"], "cov": data["cov"]}
     if data["ndim"] == 2:
         stan_data["m"] = data["shape"][1]
-    fit = fft_gp_model.sample(stan_data, iter_sampling=1, iter_warmup=0, fixed_param=True,
-                              sig_figs=9)
+    fit = model.sample(stan_data, iter_sampling=1, iter_warmup=0, fixed_param=True, sig_figs=9)
     np.testing.assert_allclose(data["log_prob"], fit.stan_variable("log_prob")[0])
+
+
+@pytest.mark.parametrize("n", [7, 8])
+def test_fft_gp_transform_identity(n: int) -> None:
+    stan_file = pathlib.Path(__file__).parent / "test_fft_gp_transform_1d.stan"
+    model = compile_model(stan_file=stan_file)
+    z = np.random.normal(0, 1, n)
+    kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), 0.1, n)
+    cov = kernel(np.arange(n)[:, None])[0]
+    stan_data = {"n": n, "z": z, "cov": cov}
+    fit = model.sample(stan_data, iter_sampling=1, iter_warmup=1, fixed_param=True, sig_figs=9)
+    np.testing.assert_allclose(fit.stan_variable("y")[0], transform_rfft(z, cov))
 
 
 @pytest.mark.parametrize("shape", [(3,), (4,), (3, 5), (3, 6), (4, 5), (4, 6)])
@@ -57,5 +69,8 @@ def test_stan_numpy_fft_identity(shape: tuple[int]):
         raise NotImplementedError
     fit = model.sample(data, fixed_param=True, iter_warmup=0, iter_sampling=1, sig_figs=9)
     stan_fft, = fit.stan_variable("y")
+    stan_inv_fft, = fit.stan_variable("z")
     np.testing.assert_allclose(stan_fft.real, np_fft.real, atol=1e-6)
     np.testing.assert_allclose(stan_fft.imag, np_fft.imag, atol=1e-6)
+    np.testing.assert_allclose(stan_inv_fft.imag, 0, atol=1e-6)
+    np.testing.assert_allclose(stan_inv_fft.real, x, atol=1e-6)

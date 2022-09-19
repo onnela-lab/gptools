@@ -5,4 +5,5 @@ data {
 
 generated quantities {
    complex_vector[n] y = fft(x);
+   complex_vector[n] z = inv_fft(y);
 }

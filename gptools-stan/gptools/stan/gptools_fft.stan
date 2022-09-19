@@ -1,3 +1,24 @@
+// IMPORTANT: stan uses the questionable R indexing which is one-based and inclusive on both ends.
+// I.e., x[1:3] includes x[1] to x[3]. More generally, x[i:j] comprises j - i + 1 elements. It could
+// at least have been exclusive on the right...
+
+/**
+* Evaluate the scale of Fourier coefficients.
+*/
+vector evaluate_fft_scale(vector cov) {
+    int n = size(cov);
+    vector[n] result = sqrt(n * get_real(fft(cov)) / 2);
+    // The first element has larger scale because it only has a real part but must still have the
+    // right variance. The same applies to the last element if the number of elements is even
+    // (Nyqvist frequency).
+    result[1] *= sqrt2();
+    if (n % 2 == 0) {
+        result[n %/% 2 + 1] *= sqrt2();
+    }
+    return result;
+}
+
+
 /**
 * Evaluate the log probability of a one-dimensional Gaussian process in Fourier space.
 *
@@ -11,24 +32,49 @@ real fft_gp_lpdf(vector y, vector cov) {
     int m = n %/% 2 + 1;
     // The last index of imaginary components to consider. This is necessary to distinguish between
     // the odd case (without Nyqvist frequency) and even (with Nyqvist frequency).
-    int idx;
-    // Evaluate the scale of Fourier coefficients.
-    vector[m] fft_scale = sqrt(n * get_real(fft(cov)[:m]) / 2);
-    // The first element has larger scale because it only has a real part but must still have the
-    // right variance. The same applies to the last element if the number of elements is even
-    // (Nyqvist frequency).
-    fft_scale[1] *= sqrt(2);
-    if (n % 2 == 0) {
-        fft_scale[m] *= sqrt(2);
-        idx = m - 1;
-    } else {
-        idx = m;
-    }
+    int idx = (n + 1) %/% 2;
+
+    vector[n] fft_scale = evaluate_fft_scale(cov);
     complex_vector[m] fft = fft(y)[:m];
-    return normal_lpdf(get_real(fft) | 0, fft_scale)
+    return normal_lpdf(get_real(fft) | 0, fft_scale[:m])
         + normal_lpdf(get_imag(fft[2:idx]) | 0, fft_scale[2:idx])
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }
+
+
+/**
+* Transform white noise in the Fourier domain to a Gaussian process realization.
+*
+* The Fourier domain white noise vector is structured as
+*
+* [zero-frequency term, m real parts of coefficients, Nyqvist freq, m imag parts of coefficients]
+*
+* where the Nyqvist frequency is only present for even numbers of observations and m = (n - 1) %/% 2
+* is the number of complex coefficients. The total number of independent parameters is thus n. For
+* odd n, we have 1 + 2 * (n - 1) / 2 = n terms. For even n we have 1 + 2 * (n - 2) / 2 + 1 = n
+* terms.
+*
+* @param z Fourier-domain white noise.
+* @param cov First row of the covariance matrix.
+*
+* @return Realization of the Gaussian process.
+*/
+vector fft_gp_transform(vector z, vector cov) {
+    int n = size(z);  // Number of observations.
+    int ncomplex = (n - 1) %/% 2;  // Number of complex Fourier coefficients.
+    int nrfft = n %/% 2 + 1;  // Number of elements in the real FFT.
+    int neg_offset = (n + 1) %/% 2;  // Offset at which the negative frequencies start.
+    complex_vector[n] fft;
+
+    // Zero frequency, real part of positive frequency coefficients, and Nyqvist frequency.
+    fft[1:nrfft] = z[1:nrfft];
+    // Imaginary part of positive frequency coefficients.
+    fft[2:ncomplex + 1] += 1.0i * z[nrfft + 1:n];
+    // Negative frequency coefficients.
+    fft[nrfft + 1:n] = reverse(to_complex(z[2:ncomplex + 1], -z[nrfft + 1:n]));
+    return get_real(inv_fft(evaluate_fft_scale(cov) .* fft));
+}
+
 
 /**
 * Evaluate the log probability of a two-dimensional Gaussian process in Fourier space.

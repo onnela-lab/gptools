@@ -14,7 +14,3 @@ data {
     // Kernel parameters.
     real<lower=0> alpha, rho, epsilon;
 }
-
-transformed data {
-    array [num_nodes] int degrees = in_degrees(num_nodes, edge_index);
-}

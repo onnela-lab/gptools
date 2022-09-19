@@ -35,6 +35,17 @@ def test_evaluate_log_prob_rfft(batch_shape: tuple[int], n: int, use_torch: bool
     np.testing.assert_allclose(log_prob, log_prob_rfft)
 
 
+@pytest.mark.parametrize("n", [4, 5, 9, 10])
+def test_transform_rfft(batch_shape: tuple[int], n: int, use_torch: bool) -> None:
+    x = np.linspace(0, 1, n, endpoint=False)
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
+    cov = kernel(x[:, None])
+    z = np.random.normal(0, 1, n)
+    # TODO: test functionality rather than just checking for errors.
+    _ = fft.transform_rfft(th.as_tensor(z) if use_torch else z,
+                           th.as_tensor(cov[0]) if use_torch else cov[0])
+
+
 @pytest.mark.parametrize("shape", rfft2_shapes,
                          ids=["-".join(map(str, shape)) for shape in rfft2_shapes])
 def test_evaluate_log_prob_rfft2(batch_shape: tuple[int], shape: int, use_torch: bool) -> None:

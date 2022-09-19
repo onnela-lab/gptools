@@ -1,3 +1,6 @@
-poisson_regression_fourier
+poisson_regression_centered
+poisson_regression_fourier_centered
+poisson_regression_fourier_non_centered
 poisson_regression_graph_centered
 poisson_regression_graph_non_centered
+poisson_regression_non_centered
