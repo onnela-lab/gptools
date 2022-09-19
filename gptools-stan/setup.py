@@ -3,8 +3,6 @@ from setuptools import find_namespace_packages, setup
 with open("README.rst") as fp:
     long_description = fp.read()
 
-print(long_description)
-
 setup(
     name="gp-tools-stan",
     long_description=long_description,
