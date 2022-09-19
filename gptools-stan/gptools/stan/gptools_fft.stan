@@ -60,19 +60,18 @@ real fft_gp_lpdf(vector y, vector cov) {
 * @return Realization of the Gaussian process.
 */
 vector fft_gp_transform(vector z, vector cov) {
-    // Assemble the terms to the form required for the inverse Fourier transform.
-    int n = size(z);
-    int m = n %/% 2 + 1;
-    int imagidx = (n + 1) %/% 2;
+    int n = size(z);  // Number of observations.
+    int ncomplex = (n - 1) %/% 2;  // Number of complex Fourier coefficients.
+    int nrfft = n %/% 2 + 1;  // Number of elements in the real FFT.
+    int neg_offset = (n + 1) %/% 2;  // Offset at which the negative frequencies start.
     complex_vector[n] fft;
-    // Zero frequency term, real parts of the complex coefficients, and Nyqvist frequency (if
-    // applicable).
-    fft[:m] = z[:m];
-    fft[2:imagidx] = z[m + 1:];
 
-    // Negative frequency terms.
-    fft[m + 1:] = to_complex(z[2:imagidx], -z[m + 1:]);
-
+    // Zero frequency, real part of positive frequency coefficients, and Nyqvist frequency.
+    fft[1:nrfft] = z[1:nrfft];
+    // Imaginary part of positive frequency coefficients.
+    fft[2:ncomplex + 1] += 1.0i * z[nrfft + 1:n];
+    // Negative frequency coefficients.
+    fft[nrfft + 1:n] = reverse(to_complex(z[2:ncomplex + 1], -z[nrfft + 1:n]));
     return get_real(inv_fft(evaluate_fft_scale(cov) .* fft));
 }
 
