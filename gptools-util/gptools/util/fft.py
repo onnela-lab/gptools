@@ -60,7 +60,28 @@ def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTenso
         - log2 * ((size - 1) // 2) + size * math.log(size) / 2
 
 
-def evaluate_log_prob_rfft2(y, cov) -> ArrayOrTensor:
+def transform_rfft(z: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
+    """
+    Transform white noise to a Gaussian process realization.
+
+    Args:
+        y: Fourier-domain white noise.
+        cov: First row of the covariance matrix.
+
+    Returns:
+        y: Realization of the Gaussian process.
+    """
+    *_, size = z.shape
+    fftsize = size // 2 + 1
+    ncomplex = (size - 1) // 2
+    # Zero frequency term, real parts of complex coefficients and possible Nyqvist frequency.
+    fft = z[..., :fftsize] * (1 + 0j)
+    # Imaginary parts of complex coefficients.
+    fft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
+    return dispatch[z].fft.irfft(evaluate_rfft_scale(cov) * fft, size)
+
+
+def evaluate_log_prob_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     """
     Evaluate the log probability of a two-dimensional Gaussian process realization in Fourier space.
 
