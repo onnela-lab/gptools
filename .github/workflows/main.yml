@@ -41,6 +41,21 @@ jobs:
         run: doit tests:${{ matrix.module }}
       - name: Lint the code
         run: doit lint:${{ matrix.module }}
+      - name: Build the package
+        run: doit package:${{ matrix.module }}
+      - name: Upload the package to test pypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          packages_dir: gptools-${{ matrix.module }}/dist
+          repository_url: https://test.pypi.org/legacy/
+      - name: Upload the package to pypi on `main` only
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages_dir: gptools-${{ matrix.module }}/dist
+          skip_existing: true
   docs:
     name: Documentation
     runs-on: "ubuntu-latest"
