@@ -21,9 +21,3 @@ model {
     eta ~ fft_gp(cov);
     y ~ poisson_log(eta);
 }
-
-generated quantities {
-    matrix[num_nodes, num_nodes] full_cov = add_diag(gp_periodic_exp_quad_cov(X, alpha, rep_vector(rho, 1), rep_vector(num_nodes, 1)), epsilon);
-    real lpdf_fft = fft_gp_lpdf(eta | cov);
-    real lpdf_multi_normal = multi_normal_lpdf(eta | rep_vector(0, num_nodes), full_cov);
-}
