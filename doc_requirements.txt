@@ -11,8 +11,8 @@
 -e file:gptools-util
     # via
     #   -r doc_requirements.in
-    #   gptools-stan
-    #   gptools-torch
+    #   gp-tools-stan
+    #   gp-tools-torch
 alabaster==0.7.12
     # via sphinx
 babel==2.10.3
@@ -24,7 +24,7 @@ charset-normalizer==2.1.1
 cloudpickle==2.2.0
     # via doit
 cmdstanpy==1.0.7
-    # via gptools-stan
+    # via gp-tools-stan
 colorama==0.4.5
     # via doit-interface
 cycler==0.11.0
@@ -56,9 +56,9 @@ matplotlib==3.5.3
 numpy==1.23.3
     # via
     #   cmdstanpy
-    #   gptools-stan
-    #   gptools-torch
-    #   gptools-util
+    #   gp-tools-stan
+    #   gp-tools-torch
+    #   gp-tools-util
     #   matplotlib
     #   pandas
 packaging==21.3
@@ -108,7 +108,7 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 torch==1.12.1
-    # via gptools-torch
+    # via gp-tools-torch
 tqdm==4.64.1
     # via cmdstanpy
 typing-extensions==4.3.0

@@ -18,8 +18,8 @@
     #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
-    #   gptools-stan
-    #   gptools-torch
+    #   gp-tools-stan
+    #   gp-tools-torch
 alabaster==0.7.12
     # via
     #   -r doc_requirements.txt
@@ -107,7 +107,7 @@ cmdstanpy==1.0.7
     # via
     #   -r doc_requirements.txt
     #   -r gptools-stan/test_requirements.txt
-    #   gptools-stan
+    #   gp-tools-stan
 colorama==0.4.5
     # via
     #   -r doc_requirements.txt
@@ -403,9 +403,9 @@ numpy==1.23.3
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   cmdstanpy
-    #   gptools-stan
-    #   gptools-torch
-    #   gptools-util
+    #   gp-tools-stan
+    #   gp-tools-torch
+    #   gp-tools-util
     #   matplotlib
     #   pandas
     #   scipy
@@ -696,7 +696,7 @@ torch==1.12.1
     #   -r doc_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
-    #   gptools-torch
+    #   gp-tools-torch
 tornado==6.2
     # via
     #   -r gptools-stan/test_requirements.txt
