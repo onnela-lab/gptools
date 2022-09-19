@@ -16,6 +16,27 @@ def log_prob_norm(y: ArrayOrTensor, loc: ArrayOrTensor, scale: ArrayOrTensor) ->
     return - dispatch.log(scale) - (log2pi + residual * residual) / 2
 
 
+def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
+    """
+    Evaluate the scale of Fourier coefficients.
+
+    Args:
+        cov: Covariance between the first grid point and the remainder of the grid with shape
+            `(..., n)`.
+
+    Returns:
+        scale: Scale of Fourier coefficients with shape `(..., n // 2 + 1)`.
+    """
+    *_, size = cov.shape
+    scale: ArrayOrTensor = dispatch.sqrt(size * dispatch[cov].fft.rfft(cov).real / 2)
+    # Rescale for the real-only zero frequency term.
+    scale[0] *= sqrt2
+    if size % 2 == 0:
+        # Rescale for the real-only Nyqvist frequency term.
+        scale[..., -1] *= sqrt2
+    return scale
+
+
 def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     """
     Evaluate the log probability of a one-dimensional Gaussian process realization in Fourier space.
@@ -30,18 +51,9 @@ def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTenso
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
     *_, size = y.shape
-    fftsize = size // 2 + 1
     y = dispatch[y].fft.rfft(y)
-    scale: ArrayOrTensor = dispatch.sqrt(size * dispatch[cov].fft.rfft(cov).real / 2)
-    # Rescale for the real-only zero frequency term.
-    scale[0] *= sqrt2
-    if size % 2 == 0:
-        # Rescale for the real-only Nyqvist frequency term and ignore out the imaginary component of
-        # the term.
-        scale[..., -1] *= sqrt2
-        imagidx = fftsize - 1
-    else:
-        imagidx = fftsize
+    scale = evaluate_rfft_scale(cov)
+    imagidx = (size + 1) // 2
 
     return log_prob_norm(y.real, 0, scale).sum(axis=-1) \
         + log_prob_norm(y.imag[..., 1:imagidx], 0, scale[..., 1:imagidx]).sum(axis=-1) \
