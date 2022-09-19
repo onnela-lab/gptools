@@ -57,5 +57,8 @@ def test_stan_numpy_fft_identity(shape: tuple[int]):
         raise NotImplementedError
     fit = model.sample(data, fixed_param=True, iter_warmup=0, iter_sampling=1, sig_figs=9)
     stan_fft, = fit.stan_variable("y")
+    stan_inv_fft, = fit.stan_variable("z")
     np.testing.assert_allclose(stan_fft.real, np_fft.real, atol=1e-6)
     np.testing.assert_allclose(stan_fft.imag, np_fft.imag, atol=1e-6)
+    np.testing.assert_allclose(stan_inv_fft.imag, 0, atol=1e-6)
+    np.testing.assert_allclose(stan_inv_fft.real, x, atol=1e-6)
