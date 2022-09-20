@@ -3,7 +3,12 @@
 // at least have been exclusive on the right...
 
 /**
-* Evaluate the scale of Fourier coefficients.
+Evaluate the scale of Fourier coefficients.
+
+The Fourier coefficients of a zero-mean Gaussian process with even covariance function are
+uncorrelated Gaussian random variables with zero mean. This function evaluates their scale.
+
+:param cov: Covariance between the origin and the rest of the domain.
 */
 vector evaluate_fft_scale(vector cov) {
     int n = size(cov);
@@ -20,12 +25,20 @@ vector evaluate_fft_scale(vector cov) {
 
 
 /**
-* Evaluate the log probability of a one-dimensional Gaussian process in Fourier space.
-*
-* @param y Random variable whose likelihood to evaluate.
-* @param cov First row of the covariance matrix.
-*
-* @return Log probability of the Gaussian process.
+Evaluate the log probability of a one-dimensional Gaussian process with zero mean in Fourier
+space.
+
+.. warning::
+
+    If a non-zero mean is required, it should be subtracted from the node states :math:`y`. This
+    implementation mixes *centered* and *non-centered* parameterizations--an issue that should be
+    fixed.
+
+:param y: Random variable whose likelihood to evaluate.
+:param cov: Covariance between the origin and the rest of the domain
+   (see :cpp:func:`evaluate_fft_scale` for details).
+
+:returns: Log probability of the Gaussian process.
 */
 real fft_gp_lpdf(vector y, vector cov) {
     int n = size(y);
@@ -43,21 +56,22 @@ real fft_gp_lpdf(vector y, vector cov) {
 
 
 /**
-* Transform white noise in the Fourier domain to a Gaussian process realization.
-*
-* The Fourier domain white noise vector is structured as
-*
-* [zero-frequency term, m real parts of coefficients, Nyqvist freq, m imag parts of coefficients]
-*
-* where the Nyqvist frequency is only present for even numbers of observations and m = (n - 1) %/% 2
-* is the number of complex coefficients. The total number of independent parameters is thus n. For
-* odd n, we have 1 + 2 * (n - 1) / 2 = n terms. For even n we have 1 + 2 * (n - 2) / 2 + 1 = n
-* terms.
-*
-* @param z Fourier-domain white noise.
-* @param cov First row of the covariance matrix.
-*
-* @return Realization of the Gaussian process.
+Transform white noise in the Fourier domain to a Gaussian process realization, i.e., a
+*non-centered* parametrization in the Fourier domain.
+
+The :math:`n` real white noise variables must be assembled into a length-:math:`n` complex vector
+with structure expected by the fast Fourier transform. The input vector :math:`z` comprises
+
+- the real zero frequency term,
+- :math:`\text{floor}\left(\frac{n - 1}{2}\right)` real parts of positive frequency terms,
+- the real Nyqvist frequency term if :math:`n` is even,
+- and :math:`\text{floor}\left(\frac{n - 1}{2}\right)` imaginary parts of positive frequency terms.
+
+:param z: Fourier-domain white noise comprising :math:`n` elements.
+:param cov: Covariance between the origin and the rest of the domain (see
+    :cpp:func:`evaluate_fft_scale` for details).
+
+:returns: Realization of the Gaussian process with :math:`n` elements.
 */
 vector fft_gp_transform(vector z, vector cov) {
     int n = size(z);  // Number of observations.
@@ -77,12 +91,18 @@ vector fft_gp_transform(vector z, vector cov) {
 
 
 /**
-* Evaluate the log probability of a two-dimensional Gaussian process in Fourier space.
-*
-* @param y Random variable whose likelihood to evaluate.
-* @param cov First row of the covariance matrix.
-*
-* @return Log probability of the Gaussian process.
+Evaluate the log probability of a two-dimensional Gaussian process with zero mean in Fourier space.
+
+.. warning::
+
+    If a non-zero mean is required, it should be subtracted from the node states :math:`y`. This
+    implementation mixes *centered* and *non-centered* parameterizations--an issue that should be
+    fixed.
+
+:param y: Random variable whose likelihood to evaluate.
+:param cov: First row of the covariance matrix.
+
+:returns: Log probability of the Gaussian process.
 */
 real fft2_gp_lpdf(matrix y, matrix cov) {
     array [2] int ydims = dims(y);
