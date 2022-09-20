@@ -25,4 +25,4 @@ The collection includes three packages:
 ▶️ Installation
 ---------------
 
-Each package can be installed using pip by running :code:`pip install gptools-[package name]` from the command line.
+Each package can be installed using pip by running :code:`pip install gp-tools-[package name]` from the command line.

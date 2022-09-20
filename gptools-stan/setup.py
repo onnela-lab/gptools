@@ -2,6 +2,7 @@ from setuptools import find_namespace_packages, setup
 
 with open("README.rst") as fp:
     long_description = fp.read()
+long_description = long_description.replace(".. standoc:: ", ".. ")
 
 setup(
     name="gp-tools-stan",

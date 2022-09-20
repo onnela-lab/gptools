@@ -1,10 +1,32 @@
 // Scalars -----------------------------------------------------------------------------------------
+
+/**
+Assert that two integers are equal.
+
+:param actual: Actual value.
+:param desired: Desired value.
+*/
 void assert_equal(int actual, int desired) {
     if (actual != desired) {
         reject(actual, " is not equal to ", desired);
     }
 }
 
+
+/**
+Check whether two values are close.
+
+The actual value :math:`x` and desired value :math:`y` may differ by at most :math:`\theta=r y + a`,
+where :math:`r` is the relative tolerance, and :math:`a` is the absolute tolerance. The tolerance
+:math:`\theta` is clipped below at :math:`10^{-15}` to avoid rejection due to rounding errors.
+
+:param actual: Actual value :math:`x`.
+:param desired: Desired value :math:`y`.
+:param rtol: Relative tolerance :math:`r`.
+:param atol: Absolute tolerance :math:`a`.
+:retval 1: If the values are close.
+:retval 0: If the values are not close.
+*/
 int is_close(real actual, real desired, real rtol, real atol) {
     // We always allow a tolerance of at least 1e-15 in case there are rounding errors.
     real tol = fmax(atol + rtol * abs(desired), 1e-15);
@@ -14,18 +36,27 @@ int is_close(real actual, real desired, real rtol, real atol) {
     return 0;
 }
 
+/**
+Assert that two values are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(real actual, real desired, real rtol, real atol) {
     if (!is_close(actual, desired, rtol, atol)) {
         reject(actual, " is not close to ", desired);
     }
 }
 
+/**
+Assert that two values are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(real actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
 // Vectors -----------------------------------------------------------------------------------------
 
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(vector actual, vector desired, real rtol, real atol) {
     int n = size(desired);
     int m = size(actual);
@@ -39,20 +70,32 @@ void assert_close(vector actual, vector desired, real rtol, real atol) {
     }
 }
 
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(vector actual, vector desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(vector actual, real desired, real rtol, real atol) {
     assert_close(actual, rep_vector(desired, size(actual)), rtol, atol);
 }
 
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(vector actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
 // Matrices ----------------------------------------------------------------------------------------
 
+/**
+Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(matrix actual, matrix desired, real rtol, real atol) {
     array [2] int nshape = dims(desired);
     array [2] int mshape = dims(actual);
@@ -74,15 +117,24 @@ void assert_close(matrix actual, matrix desired, real rtol, real atol) {
     }
 }
 
+/**
+Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(matrix actual, matrix desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
+/**
+Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(matrix actual, real desired, real rtol, real atol) {
     array [2] int shape = dims(actual);
     assert_close(actual, rep_matrix(desired, shape[1], shape[2]), rtol, atol);
 }
 
+/**
+Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+*/
 void assert_close(matrix actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
