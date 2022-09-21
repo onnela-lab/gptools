@@ -110,7 +110,7 @@ cloudpickle==2.2.0
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   doit
-cmdstanpy==1.0.7
+cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@develop
     # via
     #   -r doc_requirements.txt
     #   -r gptools-stan/test_requirements.txt
