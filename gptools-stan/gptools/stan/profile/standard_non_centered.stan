@@ -3,13 +3,13 @@
 #include data.stan
 
 parameters {
-    vector[num_nodes] eta_;
+    vector[n] eta_;
 }
 
 transformed parameters {
-    vector[num_nodes] eta;
+    vector[n] eta;
     {
-        matrix[num_nodes, num_nodes] chol = cholesky_decompose(gp_exp_quad_cov(X, alpha, rho));
+        matrix[n, n] chol = cholesky_decompose(gp_exp_quad_cov(X, alpha, rho));
         eta = chol * eta_;
     }
 }

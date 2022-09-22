@@ -3,11 +3,11 @@
 #include data.stan
 
 parameters {
-    vector[num_nodes] eta;
+    vector[n] eta;
 }
 
 model {
-    matrix[num_nodes, num_nodes] cov = gp_exp_quad_cov(X, alpha, rho);
-    eta ~ multi_normal(rep_vector(0, num_nodes), cov);
+    matrix[n, n] cov = gp_exp_quad_cov(X, alpha, rho);
+    eta ~ multi_normal(rep_vector(0, n), cov);
     y ~ normal(eta, noise_scale);
 }

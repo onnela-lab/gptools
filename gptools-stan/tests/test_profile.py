@@ -1,4 +1,5 @@
 from doit_interface import dict2args
+from gptools.stan.profile import PARAMETERIZATIONS
 from gptools.stan.profile.__main__ import __main__
 import pathlib
 import pickle
@@ -9,7 +10,7 @@ def _run_main(tmp_path: pathlib.Path, parameterization: str, noise_scale: float 
     """
     Run the main process.
     """
-    kwargs = {"iter_sampling": 2, "num_nodes": 7, "num_parents": 2} | kwargs
+    kwargs = {"iter_sampling": 2, "n": 7, "num_parents": 2} | kwargs
     path = tmp_path / "result.pkl"
     __main__([parameterization, str(noise_scale), str(path), "--show_diagnostics",
               *dict2args(**kwargs)])
@@ -17,14 +18,12 @@ def _run_main(tmp_path: pathlib.Path, parameterization: str, noise_scale: float 
         return pickle.load(fp), kwargs
 
 
-@pytest.mark.parametrize("parameterization", [
-    "graph_centered", "graph_non_centered", "fourier_centered", "fourier_non_centered",
-    "standard_centered", "standard_non_centered"])
+@pytest.mark.parametrize("parameterization", PARAMETERIZATIONS)
 def test_profile(parameterization: str, tmp_path: pathlib.Path) -> None:
     result, kwargs = _run_main(tmp_path, parameterization)
 
     variables = result["fits"][0].stan_variables()
-    assert variables["eta"].shape == (kwargs["iter_sampling"], kwargs["num_nodes"])
+    assert variables["eta"].shape == (kwargs["iter_sampling"], kwargs["n"])
 
 
 def test_profile_timeout(tmp_path: pathlib.Path) -> None:

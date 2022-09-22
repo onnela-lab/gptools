@@ -7,15 +7,15 @@ functions {
 #include data.stan
 
 transformed data {
-    array [num_nodes] int degrees = in_degrees(num_nodes, edge_index);
+    array [n] int degrees = in_degrees(n, edge_index);
 }
 
 parameters {
-    vector[num_nodes] eta_;
+    vector[n] eta_;
 }
 
 transformed parameters {
-   vector[num_nodes] eta = graph_gp_transform(eta_, X, alpha, rho, epsilon, edge_index, degrees);
+   vector[n] eta = graph_gp_transform(eta_, X, alpha, rho, epsilon, edge_index, degrees);
 }
 
 model {

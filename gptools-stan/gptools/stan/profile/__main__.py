@@ -20,8 +20,9 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
                         choices=PARAMETERIZATIONS)
     parser.add_argument("noise_scale", help="scale of observation noise", type=float)
     parser.add_argument("output", help="output path", nargs="?")
-    parser.add_argument("--num_nodes", help="number of nodes", type=int, default=100)
-    parser.add_argument("--num_parents", help="number of parents", type=int, default=5)
+    parser.add_argument("--n", help="number of observations", type=int, default=100)
+    parser.add_argument("--num_parents", help="number of parents for GP on graphs", type=int,
+                        default=5)
     parser.add_argument("--alpha", help="scale of Gaussian process covariance", type=float,
                         default=1.0)
     parser.add_argument("--rho", help="correlation length of Gaussian process covariance",
@@ -65,18 +66,18 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
         while (args.max_chains == -1 or i < args.max_chains) \
                 and (args.timeout is None or total_timer.duration < args.timeout):
             # Generate data from a Gaussian process with normal observation noise.
-            X = np.arange(args.num_nodes)[:, None]
+            X = np.arange(args.n)[:, None]
             kernel = ExpQuadKernel(args.alpha, args.rho, args.epsilon)
             cov = kernel(X)
-            eta = np.random.multivariate_normal(np.zeros(args.num_nodes), cov)
+            eta = np.random.multivariate_normal(np.zeros(args.n), cov)
             y = np.random.normal(eta, args.noise_scale)
 
-            predecessors = lattice_predecessors((args.num_nodes,), args.num_parents)
+            predecessors = lattice_predecessors((args.n,), args.num_parents)
             edge_index = predecessors_to_edge_index(predecessors)
 
             # Fit the model.
             data = {
-                "num_nodes": args.num_nodes,
+                "n": args.n,
                 "num_dims": 1,
                 "X": X,
                 "y": y,
