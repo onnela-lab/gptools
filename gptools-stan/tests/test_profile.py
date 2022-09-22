@@ -1,24 +1,39 @@
+from doit_interface import dict2args
 from gptools.stan.profile.__main__ import __main__
 import pathlib
 import pickle
 import pytest
 
 
-@pytest.mark.parametrize("parametrization", [
-    "graph_centered", "graph_non_centered", "fourier_centered", "fourier_non_centered", "centered",
-    "non_centered"])
-def test_profile(parametrization: str, tmp_path: pathlib.Path) -> None:
-    iter_sampling = 2
-    chains = 4  # cmdstanpy default.
-    num_nodes = 7
-    num_parents = 2
-    filename = tmp_path / "result.pkl"
-    __main__([
-        parametrization, "1.0", str(filename), f"--iter_sampling={iter_sampling}",
-        f"--num_nodes={num_nodes}", "--show_diagnostics", f"--num_parents={num_parents}",
-    ])
-    with filename.open("rb") as fp:
-        result = pickle.load(fp)
+def _run_main(tmp_path: pathlib.Path, parameterization: str, noise_scale: float = 1.0, **kwargs):
+    """
+    Run the main process.
+    """
+    kwargs = {"iter_sampling": 2, "num_nodes": 7, "num_parents": 2} | kwargs
+    path = tmp_path / "result.pkl"
+    __main__([parameterization, str(noise_scale), str(path), "--show_diagnostics",
+              *dict2args(**kwargs)])
+    with path.open("rb") as fp:
+        return pickle.load(fp), kwargs
 
-    variables = result["fit"].stan_variables()
-    assert variables["eta"].shape == (chains * iter_sampling, num_nodes)
+
+@pytest.mark.parametrize("parameterization", [
+    "graph_centered", "graph_non_centered", "fourier_centered", "fourier_non_centered",
+    "standard_centered", "standard_non_centered"])
+def test_profile(parameterization: str, tmp_path: pathlib.Path) -> None:
+    result, kwargs = _run_main(tmp_path, parameterization)
+
+    variables = result["fits"][0].stan_variables()
+    assert variables["eta"].shape == (kwargs["iter_sampling"], kwargs["num_nodes"])
+
+
+def test_profile_timeout(tmp_path: pathlib.Path) -> None:
+    result, kwargs = _run_main(tmp_path, "standard_centered", iter_sampling=100_000, timeout=0.7)
+
+    assert result["fits"][0] is None
+    assert abs(result["durations"] - kwargs["timeout"]) < 0.1
+
+
+def test_profile_max_chains(tmp_path: pathlib.Path) -> None:
+    result, kwargs = _run_main(tmp_path, "standard_centered", max_chains=7)
+    assert len(result["fits"]) == kwargs["max_chains"]

@@ -9,14 +9,15 @@ import numpy as np
 import pathlib
 import pickle
 import tabulate
+from tqdm import tqdm
 import typing
+from . import PARAMETERIZATIONS
 
 
 def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("parametrization", help="parametrization of the model",
-                        choices={"graph_centered", "graph_non_centered", "fourier_centered",
-                                 "fourier_non_centered", "centered", "non_centered"})
+    parser.add_argument("parameterization", help="parameterization of the model",
+                        choices=PARAMETERIZATIONS)
     parser.add_argument("noise_scale", help="scale of observation noise", type=float)
     parser.add_argument("output", help="output path", nargs="?")
     parser.add_argument("--num_nodes", help="number of nodes", type=int, default=100)
@@ -24,7 +25,7 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser.add_argument("--alpha", help="scale of Gaussian process covariance", type=float,
                         default=1.0)
     parser.add_argument("--rho", help="correlation length of Gaussian process covariance",
-                        type=float, default=0.1)
+                        type=float, default=1.0)
     parser.add_argument("--epsilon", help="diagonal contribution to Gaussian process covariance",
                         type=float, default=1e-3)
     parser.add_argument("--seed", help="random number generator seed", type=int, default=42)
@@ -36,58 +37,91 @@ def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser.add_argument("--compile", help="whether to compile the model", default="true",
                         choices={"false", "true", "force"})
     parser.add_argument("--iter_warmup", help="number of warmup samples", type=int)
+    parser.add_argument("--timeout", help="timeout in seconds", type=float, default=60)
+    parser.add_argument("--max_chains", type=int, default=1, help="maximum number of chains to "
+                        "run; use -1 for an unlimited number of chains")
     args = parser.parse_args(args)
 
+    # Make cmdstanpy less verbose.
     cmdstanpy_logger = cmdstanpy.utils.get_logger()
     for handler in cmdstanpy_logger.handlers:
         handler.setLevel(logging.WARNING)
 
-    # Generate data from a Gaussian process with normal observation noise.
-    np.random.seed(args.seed)
-    X = np.linspace(0, 1, args.num_nodes)[:, None]
-    kernel = ExpQuadKernel(args.alpha, args.rho, args.epsilon)
-    cov = kernel(X)
-    eta = np.random.multivariate_normal(np.zeros(args.num_nodes), cov)
-    y = np.random.normal(eta, args.noise_scale)
-
-    predecessors = lattice_predecessors((args.num_nodes,), args.num_parents)
-    edge_index = predecessors_to_edge_index(predecessors)
-
-    # Compile the model and fit it.
+    # Compile the model.
     compile = {"false": False, "true": True, "force": "force"}[args.compile]
-    model = compile_model(stan_file=pathlib.Path(__file__).parent / f"{args.parametrization}.stan",
-                          compile=compile)
-    data = {
-        "num_nodes": args.num_nodes,
-        "num_dims": 1,
-        "X": X,
-        "y": y,
-        "alpha": kernel.alpha,
-        "rho": kernel.rho,
-        "epsilon": kernel.epsilon,
-        "num_edges": edge_index.shape[1],
-        "edge_index": edge_index,
-        "noise_scale": args.noise_scale,
-    }
-    with Timer() as timer:
-        fit = model.sample(
-            data, seed=args.seed, iter_sampling=args.iter_sampling,
-            show_progress=args.show_progress, iter_warmup=args.iter_warmup or args.iter_sampling,
-        )
+    model = compile_model(
+        stan_file=pathlib.Path(__file__).parent / f"{args.parameterization}.stan",
+        compile=compile,
+    )
 
-    # Save the result.
+    # Prepare the results container.
     result = {
         "args": vars(args),
-        "start": timer.start,
-        "end": timer.end,
-        "duration": timer.duration,
-        "fit": fit,
     }
+
+    np.random.seed(args.seed)
+    i = 0
+    with Timer() as total_timer, tqdm() as progress:
+        while (args.max_chains == -1 or i < args.max_chains) \
+                and (args.timeout is None or total_timer.duration < args.timeout):
+            # Generate data from a Gaussian process with normal observation noise.
+            X = np.arange(args.num_nodes)[:, None]
+            kernel = ExpQuadKernel(args.alpha, args.rho, args.epsilon)
+            cov = kernel(X)
+            eta = np.random.multivariate_normal(np.zeros(args.num_nodes), cov)
+            y = np.random.normal(eta, args.noise_scale)
+
+            predecessors = lattice_predecessors((args.num_nodes,), args.num_parents)
+            edge_index = predecessors_to_edge_index(predecessors)
+
+            # Fit the model.
+            data = {
+                "num_nodes": args.num_nodes,
+                "num_dims": 1,
+                "X": X,
+                "y": y,
+                "alpha": kernel.alpha,
+                "rho": kernel.rho,
+                "epsilon": kernel.epsilon,
+                "num_edges": edge_index.shape[1],
+                "edge_index": edge_index,
+                "noise_scale": args.noise_scale,
+            }
+
+            with Timer() as timer:
+                try:
+                    fit = model.sample(
+                        data, seed=args.seed, iter_sampling=args.iter_sampling, chains=1,
+                        show_progress=args.show_progress, threads_per_chain=1,
+                        iter_warmup=args.iter_warmup or args.iter_sampling, timeout=args.timeout,
+                    )
+                    timeout = False
+                except TimeoutError:
+                    fit = None
+                    timeout = True
+
+            result.setdefault("durations", []).append(timer.duration)
+            result.setdefault("timeouts", []).append(timeout)
+            result.setdefault("fits", []).append(fit)
+            progress.update()
+            i += 1
+
+    for key in ["durations", "timeouts"]:
+        result[key] = np.asarray(result[key])
+
     if args.output:
         with open(args.output, "wb") as fp:
             pickle.dump(result, fp)
 
     # Report the results.
+    if all(result["timeouts"]):
+        print(f"all chains timed out after {args.timeout:.3f} seconds")
+        return
+
+    # Show results on the first fit that didn't time out.
+    for fit, timeout in zip(result["fits"], result["timeouts"]):
+        if not timeout:
+            break
     values = vars(args) | {
         "duration": f"{timer.duration:.3f}",
         "divergences": f"{fit.divergences.sum()} / {fit.num_draws_sampling} "

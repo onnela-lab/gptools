@@ -57,7 +57,7 @@ real fft_gp_lpdf(vector y, vector cov) {
 
 /**
 Transform white noise in the Fourier domain to a Gaussian process realization, i.e., a
-*non-centered* parametrization in the Fourier domain.
+*non-centered* parameterization in the Fourier domain.
 
 The :math:`n` real white noise variables must be assembled into a length-:math:`n` complex vector
 with structure expected by the fast Fourier transform. The input vector :math:`z` comprises

@@ -1,8 +1,18 @@
 import doit_interface as di
+import itertools as it
+import numpy as np
 import pathlib
 
 
 manager = di.Manager.get_instance()
+
+# Prevent each process from parallelizing which can lead to competition across processes.
+di.SubprocessAction.set_global_env({
+    "NUMEXPR_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "OMP_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1,
+})
 
 modules = ["stan", "torch", "util"]
 requirements_txt = []
@@ -58,23 +68,26 @@ for path in pathlib.Path.cwd().glob("gptools-*/**/*.ipynb"):
     manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
             targets=[target], actions=[f"jupyter nbconvert --execute --to=html {path}"])
 
-# Run different profiling configurations. We expect the centered parametrization to be better for
-# strong data and the non-centered parametrization to be better for weak data.
-profile_configurations = {
-    "centered-weak": ("centered", 1.0),
-    "centered-strong": ("centered", 0.1),
-    "non_centered-weak": ("non_centered", 1.0),
-    "non_centered-strong": ("non_centered", 0.1),
-}
-for name, (parametrization, noise_scale) in profile_configurations.items():
-    target = f"workspace/{name}.pkl"
-    args = ["python", "-m", "gptools.stan.profile", parametrization, noise_scale, target,
-            "--iter_sampling=100"]
-    file_dep = [
-        "gptools/stan/gptools_graph.stan",
-        "gptools/stan/profile/__main__.py",
-        "gptools/stan/profile/data.stan",
-        f"gptools/stan/profile/{parametrization}.stan",
-    ]
-    manager(basename="profile", name=name, actions=[args], targets=[target],
-            file_dep=file_dep)
+# Run different profiling configurations. We expect the centered parameterization to be better for
+# strong data and the non-centered parameterization to be better for weak data.
+try:
+    from gptools.stan.profile import LOG_NOISE_SCALES, PARAMETERIZATIONS, SIZES
+    for parameterization, log_sigma, size in it.product(PARAMETERIZATIONS, LOG_NOISE_SCALES, SIZES):
+        name = f"log_noise_scale-{log_sigma:.3f}_size-{size}"
+        target = f"workspace/profile/{parameterization}/{name}.pkl"
+        args = ["python", "-m", "gptools.stan.profile", parameterization, np.exp(log_sigma), target,
+                "--iter_sampling=100", f"--num_nodes={size}", "--max_chains=-1", "--timeout=30"]
+        file_dep = [
+            "profile/__main__.py",
+            "gptools_fft.stan",
+            "gptools_graph.stan",
+            "gptools_kernels.stan",
+            "gptools_util.stan",
+            "profile/data.stan",
+            f"profile/{parameterization}.stan",
+        ]
+        prefix = pathlib.Path("gptools-stan/gptools/stan")
+        manager(basename=f"profile/{parameterization}", name=name, actions=[args], targets=[target],
+                file_dep=[prefix / x for x in file_dep])
+except ModuleNotFoundError:
+    pass

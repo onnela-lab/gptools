@@ -1,4 +1,4 @@
-// Graph gaussian process with normal noise and non-centered parametrization.
+// Graph gaussian process with normal noise and non-centered parameterization.
 
 functions {
     #include gptools_graph.stan
