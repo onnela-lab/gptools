@@ -11,14 +11,13 @@ import pickle
 import tabulate
 from tqdm import tqdm
 import typing
+from . import PARAMETERIZATIONS
 
 
 def __main__(args: typing.Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("parameterization", help="parameterization of the model",
-                        choices={"graph_centered", "graph_non_centered", "fourier_centered",
-                                 "fourier_non_centered", "standard_centered",
-                                 "standard_non_centered"})
+                        choices=PARAMETERIZATIONS)
     parser.add_argument("noise_scale", help="scale of observation noise", type=float)
     parser.add_argument("output", help="output path", nargs="?")
     parser.add_argument("--num_nodes", help="number of nodes", type=int, default=100)

@@ -2,9 +2,18 @@ import doit_interface as di
 import itertools as it
 import numpy as np
 import pathlib
+from gptools.stan.profile import LOG_NOISE_SCALES, PARAMETERIZATIONS, SIZES
 
 
 manager = di.Manager.get_instance()
+
+# Prevent each process from parallelizing which can lead to competition across processes.
+di.SubprocessAction.set_global_env({
+    "NUMEXPR_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "OMP_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1,
+})
 
 modules = ["stan", "torch", "util"]
 requirements_txt = []
@@ -62,13 +71,8 @@ for path in pathlib.Path.cwd().glob("gptools-*/**/*.ipynb"):
 
 # Run different profiling configurations. We expect the centered parameterization to be better for
 # strong data and the non-centered parameterization to be better for weak data.
-log_sigmas = np.linspace(-3, 3, 11)
-parameterizations = ["standard_centered", "standard_non_centered", "graph_centered",
-                     "graph_non_centered", "fourier_centered", "fourier_non_centered"]
-sizes = np.logspace(1.5, 3.5, 13).astype(int)
-
-for parameterization, log_sigma, size in it.product(parameterizations, log_sigmas, sizes):
-    name = f"log_sigma-{log_sigma:.3f}_size-{size}"
+for parameterization, log_sigma, size in it.product(PARAMETERIZATIONS, LOG_NOISE_SCALES, SIZES):
+    name = f"log_noise_scale-{log_sigma:.3f}_size-{size}"
     target = f"workspace/profile/{parameterization}/{name}.pkl"
     args = ["python", "-m", "gptools.stan.profile", parameterization, np.exp(log_sigma), target,
             "--iter_sampling=100", f"--num_nodes={size}", "--max_chains=-1", "--timeout=30"]
