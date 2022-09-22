@@ -7,11 +7,11 @@ functions {
 #include data.stan
 
 parameters {
-    vector[num_nodes] eta;
+    vector[n] eta;
 }
 
 model {
-    matrix[num_nodes, num_nodes] cov = add_diag(gp_periodic_exp_quad_cov(X, alpha, rep_vector(rho, 1), rep_vector(num_nodes, 1)), epsilon);
-    eta ~ multi_normal(rep_vector(0, num_nodes), cov);
+    matrix[n, n] cov = add_diag(gp_periodic_exp_quad_cov(X, alpha, rho, n), epsilon);
+    eta ~ multi_normal(rep_vector(0, n), cov);
     y ~ poisson_log(eta);
 }

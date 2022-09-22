@@ -7,11 +7,11 @@ functions {
 #include data.stan
 
 transformed data {
-    array [num_nodes] int degrees = in_degrees(num_nodes, edge_index);
+    array [n] int degrees = in_degrees(n, edge_index);
 }
 
 parameters {
-    vector[num_nodes] eta;
+    vector[n] eta;
 }
 
 model {

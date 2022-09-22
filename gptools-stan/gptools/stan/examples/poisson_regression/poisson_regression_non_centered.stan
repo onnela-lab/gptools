@@ -7,13 +7,13 @@ functions {
 #include data.stan
 
 parameters {
-    vector[num_nodes] eta_;
+    vector[n] eta_;
 }
 
 transformed parameters {
-    vector[num_nodes] eta;
+    vector[n] eta;
     {
-        matrix[num_nodes, num_nodes] cov = add_diag(gp_periodic_exp_quad_cov(X, alpha, rep_vector(rho, 1), rep_vector(num_nodes, 1)), epsilon);
+        matrix[n, n] cov = add_diag(gp_periodic_exp_quad_cov(X, alpha, rho, n), epsilon);
         eta = cholesky_decompose(cov) * eta_;
     }
 }

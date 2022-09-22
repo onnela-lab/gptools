@@ -28,7 +28,7 @@ def simulate(X: np.ndarray, mu: float, kernel: ExpQuadKernel) -> dict:
     return {
         "X": X,
         "mu": mu,
-        "num_nodes": X.shape[0],
+        "n": X.shape[0],
         "num_dims": X.shape[1],
         "eta": eta,
         "lam": lam,

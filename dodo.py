@@ -76,7 +76,7 @@ try:
         name = f"log_noise_scale-{log_sigma:.3f}_size-{size}"
         target = f"workspace/profile/{parameterization}/{name}.pkl"
         args = ["python", "-m", "gptools.stan.profile", parameterization, np.exp(log_sigma), target,
-                "--iter_sampling=100", f"--num_nodes={size}", "--max_chains=-1", "--timeout=30"]
+                "--iter_sampling=100", f"--n={size}", "--max_chains=-1", "--timeout=30"]
         file_dep = [
             "profile/__main__.py",
             "gptools_fft.stan",

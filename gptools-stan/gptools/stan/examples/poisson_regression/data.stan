@@ -2,10 +2,10 @@
 
 data {
     // Information about nodes.
-    int num_nodes;
+    int n;
     int num_dims;
-    array [num_nodes] int y;
-    array [num_nodes] vector[num_dims] X;
+    array [n] int y;
+    array [n] vector[num_dims] X;
 
     // Information about the graph.
     int num_edges;
