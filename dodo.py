@@ -2,7 +2,6 @@ import doit_interface as di
 import itertools as it
 import numpy as np
 import pathlib
-from gptools.stan.profile import LOG_NOISE_SCALES, PARAMETERIZATIONS, SIZES
 
 
 manager = di.Manager.get_instance()
@@ -71,20 +70,24 @@ for path in pathlib.Path.cwd().glob("gptools-*/**/*.ipynb"):
 
 # Run different profiling configurations. We expect the centered parameterization to be better for
 # strong data and the non-centered parameterization to be better for weak data.
-for parameterization, log_sigma, size in it.product(PARAMETERIZATIONS, LOG_NOISE_SCALES, SIZES):
-    name = f"log_noise_scale-{log_sigma:.3f}_size-{size}"
-    target = f"workspace/profile/{parameterization}/{name}.pkl"
-    args = ["python", "-m", "gptools.stan.profile", parameterization, np.exp(log_sigma), target,
-            "--iter_sampling=100", f"--num_nodes={size}", "--max_chains=-1", "--timeout=30"]
-    file_dep = [
-        "profile/__main__.py",
-        "gptools_fft.stan",
-        "gptools_graph.stan",
-        "gptools_kernels.stan",
-        "gptools_util.stan",
-        "profile/data.stan",
-        f"profile/{parameterization}.stan",
-    ]
-    prefix = pathlib.Path("gptools-stan/gptools/stan")
-    manager(basename=f"profile/{parameterization}", name=name, actions=[args], targets=[target],
-            file_dep=[prefix / x for x in file_dep])
+try:
+    from gptools.stan.profile import LOG_NOISE_SCALES, PARAMETERIZATIONS, SIZES
+    for parameterization, log_sigma, size in it.product(PARAMETERIZATIONS, LOG_NOISE_SCALES, SIZES):
+        name = f"log_noise_scale-{log_sigma:.3f}_size-{size}"
+        target = f"workspace/profile/{parameterization}/{name}.pkl"
+        args = ["python", "-m", "gptools.stan.profile", parameterization, np.exp(log_sigma), target,
+                "--iter_sampling=100", f"--num_nodes={size}", "--max_chains=-1", "--timeout=30"]
+        file_dep = [
+            "profile/__main__.py",
+            "gptools_fft.stan",
+            "gptools_graph.stan",
+            "gptools_kernels.stan",
+            "gptools_util.stan",
+            "profile/data.stan",
+            f"profile/{parameterization}.stan",
+        ]
+        prefix = pathlib.Path("gptools-stan/gptools/stan")
+        manager(basename=f"profile/{parameterization}", name=name, actions=[args], targets=[target],
+                file_dep=[prefix / x for x in file_dep])
+except ModuleNotFoundError:
+    pass
