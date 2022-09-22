@@ -1,5 +1,9 @@
 // Standard centered Gaussian process.
 
+functions {
+    #include gptools_util.stan
+}
+
 #include data.stan
 
 parameters {

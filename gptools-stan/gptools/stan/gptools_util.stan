@@ -138,3 +138,13 @@ Assert that two matrices are close. See :cpp:func:`is_close` for description of 
 void assert_close(matrix actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
+
+// Shorthand for creating containers ---------------------------------------------------------------
+
+vector zeros(int n) {
+    return rep_vector(0, n);
+}
+
+vector ones(int n) {
+    return rep_vector(0, n);
+}

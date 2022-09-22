@@ -1,5 +1,9 @@
 // Standard centered Gaussian process.
 
+functions {
+    #include gptools_util.stan
+}
+
 #include data.stan
 
 parameters {
@@ -8,6 +12,6 @@ parameters {
 
 model {
     matrix[n, n] cov = gp_exp_quad_cov(X, alpha, rho);
-    eta ~ multi_normal(rep_vector(0, n), cov);
+    eta ~ multi_normal(zeros(n), cov);
     y ~ normal(eta, noise_scale);
 }

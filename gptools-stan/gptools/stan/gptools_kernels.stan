@@ -76,7 +76,7 @@ periodic boundary conditions (see :cpp:func:`dist2` for details).
 :param x1: First matrix with :math:`n` rows and :math:`p` columns.
 :param x2: Second matrix with :math:`m` rows and :math:`p` columns.
 :param sigma: Amplitude of the covariance matrix :math:`\sigma`.
-:param length_scale: Correlation scale of the covariance matrix :math:`\ell`.
+:param length_scale: Correlation scale of the covariance matrix :math:`\ell` for each dimension.
 :param period: Period of circular boundary conditions for each dimension.
 
 :returns: Cartesian product of squared distances with :math:`n` rows and :math:`m` columns.
@@ -87,11 +87,50 @@ matrix gp_periodic_exp_quad_cov(array [] vector x1, array [] vector x2, real sig
 }
 
 /**
+Evaluate the squared exponential kernel with periodic boundary conditions (see
+:cpp:func:`gp_periodic_exp_quad_cov` for details).
+
+:param x1: First matrix with :math:`n` rows and :math:`p` columns.
+:param x2: Second matrix with :math:`m` rows and :math:`p` columns.
+:param sigma: Amplitude of the covariance matrix :math:`\sigma`.
+:param length_scale: Correlation scale of the covariance matrix :math:`\ell`.
+:param period: Period of circular boundary conditions.
+
+:returns: Cartesian product of squared distances with :math:`n` rows and :math:`m` columns.
+*/
+matrix gp_periodic_exp_quad_cov(array [] vector x1, array [] vector x2, real sigma,
+                                real length_scale, real period) {
+    int p = dims(x1)[2];
+    return sigma * sigma
+        * exp(- dist2(x1, x2, rep_vector(period, p), rep_vector(length_scale, p)) / 2);
+}
+
+/**
+Evaluate the squared exponential kernel with periodic boundary conditions (see
+:cpp:func:`gp_periodic_exp_quad_cov` for details).
+
+:param x1: Length-:math:`p` vector of reference coordinates.
+:param x2: Second matrix with :math:`m` rows and :math:`p` columns.
+:param sigma: Amplitude of the covariance matrix :math:`\sigma`.
+:param length_scale: Correlation scale of the covariance matrix :math:`\ell`.
+:param period: Period of circular boundary conditions.
+
+:returns: Length-:math:`m` vector of squared distances between reference coordinates :math:`x_1` and
+    coordinates :math:`x_2`.
+*/
+vector gp_periodic_exp_quad_cov(vector x1, array [] vector x2, real sigma,
+                                real length_scale, real period) {
+    int p = size(x1);
+    return sigma * sigma * exp(- dist2(rep_array(x1, 1), x2, rep_vector(period, p),
+                               rep_vector(length_scale, p))[1]' / 2);
+}
+
+/**
 Evaluate the squared exponential kernel with periodic boundary conditions.
 
 :param x: Matrix with :math:`n` rows and :math:`p` columns.
 :param sigma: Amplitude of the covariance matrix.
-:param length_scale: Correlation scale of the covariance matrix.
+:param length_scale: Correlation scale of the covariance matrix for each dimension.
 :param period: Period of circular boundary conditions for each dimension.
 
 :returns: Cartesian product of squared distances with :math:`n` rows and :math:`n` columns.
@@ -99,4 +138,19 @@ Evaluate the squared exponential kernel with periodic boundary conditions.
 matrix gp_periodic_exp_quad_cov(array [] vector x1, real sigma, vector length_scale,
                                 vector period) {
     return sigma * sigma * exp(- dist2(x1, period, length_scale) / 2);
+}
+
+/**
+Evaluate the squared exponential kernel with periodic boundary conditions.
+
+:param x: Matrix with :math:`n` rows and :math:`p` columns.
+:param sigma: Amplitude of the covariance matrix.
+:param length_scale: Correlation scale of the covariance matrix.
+:param period: Period of circular boundary conditions.
+
+:returns: Cartesian product of squared distances with :math:`n` rows and :math:`n` columns.
+*/
+matrix gp_periodic_exp_quad_cov(array [] vector x1, real sigma, real length_scale, real period) {
+    int p = dims(x1)[2];
+    return sigma * sigma * exp(- dist2(x1, rep_vector(period, p), rep_vector(length_scale, p)) / 2);
 }
