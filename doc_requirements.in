@@ -4,6 +4,7 @@
 # In contrast to test requirements, we define documentation requirements centrally because we only
 # ever build the documentation as a monolith.
 doit_interface
+jupyter
 matplotlib
 nbsphinx
 sphinx

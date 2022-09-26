@@ -82,7 +82,7 @@ importlib-metadata==4.12.0
     #   twine
 iniconfig==1.1.1
     # via pytest
-ipykernel==6.15.3
+ipykernel==6.16.0
     # via
     #   ipywidgets
     #   jupyter
