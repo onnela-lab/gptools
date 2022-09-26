@@ -1,7 +1,7 @@
 from setuptools import find_namespace_packages, setup
 
 with open("README.rst") as fp:
-    long_description = fp.read()
+    long_description = fp.read().replace(".. toctree::", "..").replace(":doc:", ":code:")
 
 setup(
     name="gp-tools-torch",
