@@ -1,6 +1,6 @@
--e file:gptools-stan
--e file:gptools-torch
--e file:gptools-util
+-e file:gptools-stan[tests]
+-e file:gptools-torch[tests]
+-e file:gptools-util[tests]
 # In contrast to test requirements, we define documentation requirements centrally because we only
 # ever build the documentation as a monolith.
 doit_interface

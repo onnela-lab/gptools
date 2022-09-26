@@ -1,4 +1,8 @@
 🔥 gptools-torch
 ================
 
-[placeholder content]
+.. toctree::
+
+    docs/lattice_neighborhoods
+    docs/variational_coin
+    docs/variational_poisson

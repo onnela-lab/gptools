@@ -25,7 +25,7 @@ plot_formats = [
 ]
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
-exclude_patterns = ["docs/_build", "**/examples", "playground"]
+exclude_patterns = ["docs/_build", "playground"]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
