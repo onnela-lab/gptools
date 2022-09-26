@@ -192,7 +192,7 @@ class VariationalModel(th.nn.Module):
         from the variational approximation.
         """
         distributions = self.distributions()
-        parameters = self.rsample(size)
+        parameters = self.rsample([] if size is None else size)
         return self.elbo_estimate(parameters, *args, distributions=distributions, **kwargs)
 
     def check_log_prob_shape(self, shape=(2, 3), *args, **kwargs) -> None:

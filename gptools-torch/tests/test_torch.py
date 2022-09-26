@@ -104,6 +104,17 @@ def test_check_log_prob_shape() -> None:
         model.check_log_prob_shape(reduce=True)
 
 
+def test_batch_elbo_estimate() -> None:
+    class Model(VariationalModel):
+        def log_prob(self, parameters):
+            return parameters["x"].sum(axis=-1)
+
+    model = Model({
+        "x": ParametrizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
+    })
+    assert model.batch_elbo_estimate((2, 3)).shape == (2, 3)
+
+
 @pytest.mark.parametrize("init, sequence, cont", [
     ({"patience": 3}, [3, 3, 2], True),
     ({"patience": 3}, [3, 3, 3], True),
