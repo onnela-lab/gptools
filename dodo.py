@@ -31,7 +31,7 @@ for module in modules:
     # Tasks for linting, tests, and building a distribution.
     manager(basename="lint", name=module, actions=[["flake8", prefix]])
     action = ["pytest", "-v", f"--cov=gptools.{module}", "--cov-report=term-missing",
-              "--cov-fail-under=100", "--durations=5", prefix]
+              "--cov-report=html", "--cov-fail-under=100", "--durations=5", prefix]
     manager(basename="tests", name=module, actions=[action])
     manager(basename="package", name=module, actions=[
         di.actions.SubprocessAction("python setup.py sdist", cwd=prefix),
