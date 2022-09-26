@@ -71,6 +71,8 @@ jobs:
             ${{ env.pythonLocation }}
             /home/runner/.cmdstan
           key: ${{ env.pythonLocation }}-${{ hashFiles(format('doc_requirements.txt', matrix.module)) }}-v1
+      - name: Install pandoc
+        run: sudo apt-get install pandoc
       - name: Install python dependencies
         run: pip install -r doc_requirements.txt
       - name: Install cmdstanpy
