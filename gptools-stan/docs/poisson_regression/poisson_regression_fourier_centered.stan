@@ -6,7 +6,9 @@ functions {
     #include gptools_util.stan
 }
 
-#include data.stan
+data {
+    #include data.stan
+}
 
 parameters {
     vector[n] eta;
@@ -14,11 +16,12 @@ parameters {
 
 transformed parameters {
     // Evaluate covariance of the point at zero with everything else.
-    vector[n] cov = gp_periodic_exp_quad_cov(zeros(1), X, alpha, rho, n);
+    vector[n] cov = gp_periodic_exp_quad_cov(zeros(1), X, sigma, length_scale, n);
     cov[1] += epsilon;
 }
 
 model {
+    // Fourier Gaussian process and observation model.
     eta ~ fft_gp(cov);
     y ~ poisson_log(eta);
 }
