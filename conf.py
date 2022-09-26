@@ -1,5 +1,7 @@
+import cmdstanpy
 from docutils import nodes
 from docutils.statemachine import ViewList
+import logging
 import pathlib
 import re
 from sphinx.application import Sphinx
@@ -36,6 +38,11 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
 }
+
+
+cmdstanpy_logger = cmdstanpy.utils.get_logger()
+for handler in cmdstanpy_logger.handlers:
+    handler.setLevel(logging.WARNING)
 
 
 class StanDocDirective(SphinxDirective):
