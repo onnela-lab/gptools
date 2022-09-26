@@ -1,5 +1,7 @@
+import cmdstanpy
 from docutils import nodes
 from docutils.statemachine import ViewList
+import logging
 import pathlib
 import re
 from sphinx.application import Sphinx
@@ -10,6 +12,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 master_doc = "README"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
+    "nbsphinx",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
@@ -22,6 +25,7 @@ plot_formats = [
 ]
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
+exclude_patterns = ["docs/_build", "**/examples", "playground"]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
@@ -34,6 +38,11 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
 }
+
+
+cmdstanpy_logger = cmdstanpy.utils.get_logger()
+for handler in cmdstanpy_logger.handlers:
+    handler.setLevel(logging.WARNING)
 
 
 class StanDocDirective(SphinxDirective):

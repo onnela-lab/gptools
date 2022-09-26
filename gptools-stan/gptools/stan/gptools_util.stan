@@ -52,6 +52,20 @@ void assert_close(real actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
+/**
+Check whether a value is finite.
+
+:param x: Value to check.
+:retval 1: If the values are close.
+:retval 0: If the values are not close.
+*/
+int is_finite(real x) {
+    if (is_nan(x) || is_inf(x)) {
+        return 0;
+    }
+    return 1;
+}
+
 // Vectors -----------------------------------------------------------------------------------------
 
 /**
@@ -89,6 +103,22 @@ Assert that two vectors are close. See :cpp:func:`is_close` for description of p
 */
 void assert_close(vector actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
+}
+
+/**
+Check whether all elements of a vector are finite.
+
+:param x: Vector to check.
+:retval 1: If the values are close.
+:retval 0: If the values are not close.
+*/
+int is_finite(vector x) {
+    for (i in 1:size(x)) {
+        if(!is_finite(x[i])) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 // Matrices ----------------------------------------------------------------------------------------

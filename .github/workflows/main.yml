@@ -67,9 +67,15 @@ jobs:
           python-version: "3.10"
       - uses: actions/cache@v3
         with:
-          path: ${{ env.pythonLocation }}
+          path: |
+            ${{ env.pythonLocation }}
+            /home/runner/.cmdstan
           key: ${{ env.pythonLocation }}-${{ hashFiles(format('doc_requirements.txt', matrix.module)) }}-v1
+      - name: Install pandoc
+        run: sudo apt-get install pandoc
       - name: Install python dependencies
         run: pip install -r doc_requirements.txt
+      - name: Install cmdstanpy
+        run: python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
       - name: Build the documentation
         run: doit docs

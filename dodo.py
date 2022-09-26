@@ -23,7 +23,7 @@ for module in modules:
     requirements_in = prefix / "test_requirements.in"
     manager(
         basename="requirements", name=module, targets=[target],
-        file_dep=[prefix / "setup.py", requirements_in],
+        file_dep=[prefix / "setup.py", requirements_in, "shared_requirements.in"],
         actions=[f"pip-compile -v -o {target} {requirements_in}"]
     )
     requirements_txt.append(target)
