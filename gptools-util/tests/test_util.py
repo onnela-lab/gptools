@@ -28,7 +28,7 @@ def test_timer(capsys: pytest.CaptureFixture):
 
 def test_timer_errors():
     with util.Timer() as timer:
-        pass
+        time.sleep(1e-6)
     assert timer.duration > 0
     with pytest.raises(RuntimeError, match="timers can only"), timer:
         pass
