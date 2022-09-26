@@ -15,9 +15,15 @@
     #   gp-tools-torch
 alabaster==0.7.12
     # via sphinx
+attrs==22.1.0
+    # via jsonschema
 babel==2.10.3
     # via sphinx
-certifi==2022.9.14
+beautifulsoup4==4.11.1
+    # via nbconvert
+bleach==5.0.1
+    # via nbconvert
+certifi==2022.9.24
     # via requests
 charset-normalizer==2.1.1
     # via requests
@@ -31,15 +37,22 @@ contourpy==1.0.5
     # via matplotlib
 cycler==0.11.0
     # via matplotlib
+defusedxml==0.7.1
+    # via nbconvert
 docutils==0.17.1
     # via
+    #   nbsphinx
     #   sphinx
     #   sphinx-rtd-theme
 doit==0.36.0
     # via doit-interface
 doit-interface==0.1.8
     # via -r doc_requirements.in
-fonttools==4.37.2
+entrypoints==0.4
+    # via jupyter-client
+fastjsonschema==2.16.2
+    # via nbformat
+fonttools==4.37.3
     # via matplotlib
 idna==3.4
     # via requests
@@ -48,13 +61,48 @@ imagesize==1.4.1
 importlib-metadata==4.12.0
     # via doit
 jinja2==3.1.2
-    # via sphinx
+    # via
+    #   nbconvert
+    #   nbsphinx
+    #   sphinx
+jsonschema==4.16.0
+    # via nbformat
+jupyter-client==7.3.5
+    # via nbclient
+jupyter-core==4.11.1
+    # via
+    #   jupyter-client
+    #   nbconvert
+    #   nbformat
+jupyterlab-pygments==0.2.2
+    # via nbconvert
 kiwisolver==1.4.4
     # via matplotlib
+lxml==4.9.1
+    # via nbconvert
 markupsafe==2.1.1
-    # via jinja2
+    # via
+    #   jinja2
+    #   nbconvert
 matplotlib==3.6.0
     # via -r doc_requirements.in
+mistune==2.0.4
+    # via nbconvert
+nbclient==0.6.8
+    # via nbconvert
+nbconvert==7.0.0
+    # via nbsphinx
+nbformat==5.6.1
+    # via
+    #   nbclient
+    #   nbconvert
+    #   nbsphinx
+nbsphinx==0.8.9
+    # via -r doc_requirements.in
+nest-asyncio==1.5.5
+    # via
+    #   jupyter-client
+    #   nbclient
 numpy==1.23.3
     # via
     #   cmdstanpy
@@ -67,34 +115,49 @@ numpy==1.23.3
 packaging==21.3
     # via
     #   matplotlib
+    #   nbconvert
     #   sphinx
-pandas==1.4.4
+pandas==1.5.0
     # via cmdstanpy
+pandocfilters==1.5.0
+    # via nbconvert
 pillow==9.2.0
     # via matplotlib
 pygments==2.13.0
-    # via sphinx
+    # via
+    #   nbconvert
+    #   sphinx
 pyparsing==3.0.9
     # via
     #   matplotlib
     #   packaging
+pyrsistent==0.18.1
+    # via jsonschema
 python-dateutil==2.8.2
     # via
+    #   jupyter-client
     #   matplotlib
     #   pandas
 pytz==2022.2.1
     # via
     #   babel
     #   pandas
+pyzmq==24.0.1
+    # via jupyter-client
 requests==2.28.1
     # via sphinx
 six==1.16.0
-    # via python-dateutil
+    # via
+    #   bleach
+    #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==5.1.1
+soupsieve==2.3.2.post1
+    # via beautifulsoup4
+sphinx==5.2.1
     # via
     #   -r doc_requirements.in
+    #   nbsphinx
     #   sphinx-rtd-theme
 sphinx-rtd-theme==1.0.0
     # via -r doc_requirements.in
@@ -110,15 +173,31 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+tinycss2==1.1.1
+    # via nbconvert
 torch==1.12.1
     # via gp-tools-torch
+tornado==6.2
+    # via jupyter-client
 tqdm==4.64.1
     # via cmdstanpy
+traitlets==5.4.0
+    # via
+    #   jupyter-client
+    #   jupyter-core
+    #   nbclient
+    #   nbconvert
+    #   nbformat
+    #   nbsphinx
 typing-extensions==4.3.0
     # via torch
 ujson==5.5.0
     # via cmdstanpy
 urllib3==1.26.12
     # via requests
+webencodings==0.5.1
+    # via
+    #   bleach
+    #   tinycss2
 zipp==3.8.1
     # via importlib-metadata

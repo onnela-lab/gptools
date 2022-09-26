@@ -32,7 +32,7 @@ bleach==5.0.1
     # via
     #   nbconvert
     #   readme-renderer
-certifi==2022.9.14
+certifi==2022.9.24
     # via requests
 cffi==1.15.1
     # via argon2-cffi-bindings
@@ -58,7 +58,7 @@ defusedxml==0.7.1
     # via nbconvert
 docutils==0.17.1
     # via
-    #   -r gptools-torch/test_requirements.in
+    #   -r gptools-torch/../shared_requirements.in
     #   readme-renderer
 doit==0.36.0
     # via doit-interface
@@ -66,13 +66,13 @@ doit-interface==0.1.8
     # via gp-tools-torch
 entrypoints==0.4
     # via jupyter-client
-executing==1.0.0
+executing==1.1.0
     # via stack-data
-fastjsonschema==2.16.1
+fastjsonschema==2.16.2
     # via nbformat
 flake8==5.0.4
     # via gp-tools-torch
-fonttools==4.37.2
+fonttools==4.37.3
     # via matplotlib
 idna==3.4
     # via requests
@@ -160,7 +160,7 @@ nbconvert==7.0.0
     # via
     #   jupyter
     #   notebook
-nbformat==5.5.0
+nbformat==5.6.1
     # via
     #   nbclient
     #   nbconvert
@@ -249,7 +249,7 @@ python-dateutil==2.8.2
     # via
     #   jupyter-client
     #   matplotlib
-pyzmq==24.0.0
+pyzmq==24.0.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -259,7 +259,7 @@ qtconsole==5.3.2
     # via jupyter
 qtpy==2.2.0
     # via qtconsole
-readme-renderer==37.1
+readme-renderer==37.2
     # via twine
 requests==2.28.1
     # via
@@ -282,7 +282,7 @@ six==1.16.0
     #   python-dateutil
 soupsieve==2.3.2.post1
     # via beautifulsoup4
-stack-data==0.5.0
+stack-data==0.5.1
     # via ipython
 tabulate==0.8.10
     # via gp-tools-torch
