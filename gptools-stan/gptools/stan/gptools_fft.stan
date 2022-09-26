@@ -12,15 +12,18 @@ uncorrelated Gaussian random variables with zero mean. This function evaluates t
 */
 vector evaluate_fft_scale(vector cov) {
     int n = size(cov);
-    vector[n] result = sqrt(n * get_real(fft(cov)) / 2);
+    vector[n] result = n * get_real(fft(cov)) / 2;
+    if (min(result) < 0){
+        reject("kernel is not positive definite");
+    }
     // The first element has larger scale because it only has a real part but must still have the
     // right variance. The same applies to the last element if the number of elements is even
     // (Nyqvist frequency).
-    result[1] *= sqrt2();
+    result[1] *= 2;
     if (n % 2 == 0) {
-        result[n %/% 2 + 1] *= sqrt2();
+        result[n %/% 2 + 1] *= 2;
     }
-    return result;
+    return sqrt(result);
 }
 
 
