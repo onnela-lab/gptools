@@ -10,6 +10,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 master_doc = "README"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
+    "nbsphinx",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
@@ -22,6 +23,7 @@ plot_formats = [
 ]
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
+exclude_patterns = ["playground"]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
