@@ -18,9 +18,15 @@ for periodic boundary conditions on the domain of size :math:`u_i`.
 :returns: Squared distance between :math:`x` and :math:`y`.
 */
 real dist2(vector x, vector y, vector period, vector scale) {
-        vector[size(x)] residual = abs(x - y);
-        residual = fmin(residual, period - residual) ./ scale;
-        return residual' * residual;
+    if (min(scale) <= 0) {
+        reject("distance scale factor must be positive");
+    }
+    if (min(period) <= 0) {
+        reject("period for circular boundary conditions must be positive");
+    }
+    vector[size(x)] residual = abs(x - y);
+    residual = fmin(residual, period - residual) ./ scale;
+    return residual' * residual;
 }
 
 /**
