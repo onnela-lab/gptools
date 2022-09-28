@@ -26,13 +26,29 @@ class ArrayOrTensorDispatch:
         return getattr(self[x], name)(x, *args, **kwargs)
 
     def __getitem__(self, x: ArrayOrTensor) -> typing.Any:
+        if self.is_tensor(x):
+            import torch
+            return torch
+        else:
+            return np
+
+    def is_tensor(self, x: ArrayOrTensor) -> bool:
+        """
+        Check if an object is a tensor.
+
+        Args:
+            x: Object to check.
+
+        Returns:
+            is_tensor: `True` if `x` is a tensor; `False` otherwise.
+        """
         try:
             import torch as th
             if isinstance(x, th.Tensor):
-                return th
+                return True
         except ModuleNotFoundError:  # pragma: no cover
             pass
-        return np
+        return False
 
 
 def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
