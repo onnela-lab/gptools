@@ -22,33 +22,42 @@ class ArrayOrTensorDispatch:
     def __getattr__(self, name: str) -> typing.Callable:
         return ft.partial(self, name)
 
-    def __call__(self, name, x: ArrayOrTensor, *args, **kwargs) -> typing.Any:
-        return getattr(self[x], name)(x, *args, **kwargs)
+    def __call__(self, name, *args, **kwargs) -> typing.Any:
+        module = self[args + tuple(kwargs.values())]
+        return getattr(module, name)(*args, **kwargs)
 
     def __getitem__(self, x: ArrayOrTensor) -> typing.Any:
-        if self.is_tensor(x):
+        if self.is_tensor(*x) if isinstance(x, tuple) else self.is_tensor(x):
             import torch
             return torch
         else:
             return np
 
-    def is_tensor(self, x: ArrayOrTensor) -> bool:
+    def is_tensor(self, *xs: typing.Iterable[ArrayOrTensor]) -> bool:
         """
-        Check if an object is a tensor.
+        Check if objects are tensors.
 
         Args:
-            x: Object to check.
+            xs: Objects to check.
 
         Returns:
             is_tensor: `True` if `x` is a tensor; `False` otherwise.
+
+        Raises:
+            ValueError: If the objects are a mixture of torch tensors and numpy arrays.
         """
+        #
         try:
             import torch as th
-            if isinstance(x, th.Tensor):
-                return True
-        except ModuleNotFoundError:  # pragma: no cover
-            pass
-        return False
+        except ModuleNotFoundError:
+            return False
+        # None of the arguments are tensors.
+        if not any(isinstance(x, th.Tensor) for x in xs):
+            return False
+        # At least one is a tensor. If another is an array, we're in trouble.
+        if any(isinstance(x, np.ndarray) for x in xs):
+            raise ValueError("arguments are a mixture of torch tensors and numpy arrays")
+        return True
 
 
 def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,

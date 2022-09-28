@@ -81,7 +81,8 @@ def transform_rfft(z: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     fft = z[..., :fftsize] * (1 + 0j)
     # Imaginary parts of complex coefficients.
     fft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
-    return dispatch[z].fft.irfft(evaluate_rfft_scale(cov) * fft, size)
+    fft = evaluate_rfft_scale(cov) * fft
+    return dispatch[fft].fft.irfft(fft, size)
 
 
 def transform_irfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
