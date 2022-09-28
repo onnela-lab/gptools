@@ -1,6 +1,5 @@
+from gptools.torch.graph import GraphGaussianProcess
 from gptools.util.kernels import ExpQuadKernel
-from gptools.torch import GraphGaussianProcess, ParametrizedDistribution, \
-    TerminateOnPlateau, VariationalModel
 from gptools.util.graph import lattice_predecessors
 import itertools as it
 import pytest
@@ -77,54 +76,3 @@ def test_torch_sample(size: th.Size) -> None:
     dist = GraphGaussianProcess(th.zeros_like(x), X, predecessors, kernel)
     y = dist.sample(size)
     assert y.shape == th.Size(size or ()) + (num_nodes,)
-
-
-def test_parametrized_distribution() -> None:
-    loc = - th.ones(3)
-    scale = 1.0 + th.arange(3)
-    pdist = ParametrizedDistribution(th.distributions.Normal, loc=loc, scale=scale, const={"loc"})
-    dist = pdist()
-    assert loc.allclose(dist.loc)
-    assert scale.allclose(dist.scale)
-    assert not dist.loc.grad_fn
-    assert dist.scale.grad_fn
-
-
-def test_check_log_prob_shape() -> None:
-    class Model(VariationalModel):
-        def log_prob(self, parameters, reduce):
-            log_prob = parameters["x"].sum(axis=-1)
-            return log_prob.sum() if reduce else log_prob
-
-    model = Model({
-        "x": ParametrizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
-    })
-    model.check_log_prob_shape(reduce=False)
-    with pytest.raises(RuntimeError):
-        model.check_log_prob_shape(reduce=True)
-
-
-def test_batch_elbo_estimate() -> None:
-    class Model(VariationalModel):
-        def log_prob(self, parameters):
-            return parameters["x"].sum(axis=-1)
-
-    model = Model({
-        "x": ParametrizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
-    })
-    assert model.batch_elbo_estimate((2, 3)).shape == (2, 3)
-
-
-@pytest.mark.parametrize("init, sequence, cont", [
-    ({"patience": 3}, [3, 3, 2], True),
-    ({"patience": 3}, [3, 3, 3], True),
-    ({"patience": 3}, [3, 3, 3, 3], False),
-    ({"patience": 10, "max_num_steps": 3}, [1, 2], True),
-    ({"patience": 10, "max_num_steps": 3}, [1, 2, 3], False),
-])
-def test_terminate_on_plateau(init: dict, sequence: list, cont: bool) -> None:
-    terminator = TerminateOnPlateau(**init)
-    for x in sequence:
-        if not terminator.step(x):
-            break
-    assert bool(terminator) == cont
