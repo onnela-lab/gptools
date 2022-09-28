@@ -19,11 +19,11 @@ def test_timer(capsys: pytest.CaptureFixture):
     with util.Timer("timer test") as timer:
         time.sleep(0.1)
         assert 0.09 < timer.duration < 0.11
-        time.sleep(0.2)
+        time.sleep(0.05)
     time.sleep(0.1)
-    assert 0.29 < timer.duration < 0.31
+    assert 0.14 < timer.duration < 0.16
     out, _ = capsys.readouterr()
-    assert out.startswith("timer test in 0.3")
+    assert out.startswith("timer test in 0.15")
 
 
 def test_timer_errors():
