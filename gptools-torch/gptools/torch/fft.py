@@ -26,13 +26,13 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
         """
         Transform white noise to a Gaussian process realization.
         """
-        return transform_rfft(x, self.cov) + self.loc
+        return transform_irfft(x, self.cov) + self.loc
 
     def _inv_call(self, y: th.Tensor) -> th.Tensor:
         """
         Transform a Gaussian process realization to white noise.
         """
-        return transform_irfft(y - self.loc, self.cov)
+        return transform_rfft(y - self.loc, self.cov)
 
     def log_abs_det_jacobian(self, x: th.Tensor, y: th.Tensor) -> th.Tensor:
         *_, size = x.shape
