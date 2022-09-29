@@ -36,14 +36,17 @@ def test_evaluate_log_prob_rfft(batch_shape: tuple[int], n: int, use_torch: bool
 
 
 @pytest.mark.parametrize("n", [4, 5, 9, 10])
-def test_transform_rfft(batch_shape: tuple[int], n: int, use_torch: bool) -> None:
+def test_transform_rfft_roundtrip(batch_shape: tuple[int], n: int, use_torch: bool) -> None:
     x = np.linspace(0, 1, n, endpoint=False)
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
-    cov = kernel(x[:, None])
+    cov = kernel(x[:, None])[0]
     z = np.random.normal(0, 1, n)
-    # TODO: test functionality rather than just checking for errors.
-    _ = fft.transform_rfft(th.as_tensor(z) if use_torch else z,
-                           th.as_tensor(cov[0]) if use_torch else cov[0])
+    z = th.as_tensor(z) if use_torch else z
+    cov = th.as_tensor(cov) if use_torch else cov
+    y = fft.transform_rfft(z, cov)
+    x = fft.transform_irfft(y, cov)
+    # Verify that the inverse of the transform is the input.
+    np.testing.assert_allclose(z, x)
 
 
 @pytest.mark.parametrize("shape", rfft2_shapes,

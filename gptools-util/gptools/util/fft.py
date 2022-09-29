@@ -65,8 +65,11 @@ def transform_rfft(z: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     Transform white noise to a Gaussian process realization.
 
     Args:
-        y: Fourier-domain white noise.
-        cov: First row of the covariance matrix.
+        z: Fourier-domain white noise with shape `(..., size)`. The elements of the white noise
+            comprise the `size // 2 + 1` real parts of the zero frequency term, complex terms, and
+            Nyqvist frequency term (for even `size`). The subsequent elements are the imaginary
+            parts of complex coefficients.
+        cov: First row of the covariance matrix with shape `(..., size)`.
 
     Returns:
         y: Realization of the Gaussian process.
@@ -78,7 +81,29 @@ def transform_rfft(z: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     fft = z[..., :fftsize] * (1 + 0j)
     # Imaginary parts of complex coefficients.
     fft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
-    return dispatch[z].fft.irfft(evaluate_rfft_scale(cov) * fft, size)
+    fft = evaluate_rfft_scale(cov) * fft
+    return dispatch[fft].fft.irfft(fft, size)
+
+
+def transform_irfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
+    """
+    Transform a Gaussian process realization to white noise.
+
+    Args:
+        y: Realization of the Gaussian process.
+        cov: First row of the covariance matrix.
+
+    Returns:
+        z: Fourier-domain white noise.
+    """
+    # Take the Fourier transform and rescale.
+    fft: ArrayOrTensor = dispatch[y].fft.rfft(y) / evaluate_rfft_scale(cov)
+    ncomplex = (y.shape[-1] - 1) // 2
+    parts = [fft.real, fft.imag[1: ncomplex + 1]]
+    if dispatch.is_tensor(y):
+        return dispatch[y].concat(parts, axis=-1)
+    else:
+        return dispatch[y].concatenate(parts, axis=-1)
 
 
 def evaluate_log_prob_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
