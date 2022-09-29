@@ -1,42 +1,13 @@
-from gptools.util.fft import evaluate_log_prob_rfft, transform_rfft, transform_irfft, \
-    evaluate_rfft_scale
+from gptools.util.fft import transform_rfft, transform_irfft, evaluate_rfft_scale
 import math
 import torch as th
 from torch.distributions import constraints
 import typing
 
 
-class FourierGaussianProcess1D(th.distributions.Distribution):
-    """
-    Fourier-based Gaussian process in one dimension.
-
-    Args:
-        loc: Mean of the distribution.
-        cov: Covariance between a point of the origin with the rest of the space.
-    """
-    arg_constraints = {
-        "loc": constraints.real_vector,
-        "cov": constraints.real_vector,
-    }
-    support = constraints.real_vector
-    has_rsample = True
-
-    def __init__(self, loc: th.Tensor, cov: th.Tensor, validate_args=None) -> None:
-        *batch_shape, size = th.broadcast_shapes(loc.shape, cov.shape)
-        self.loc = loc
-        self.cov = cov
-        super().__init__(batch_shape, (size,), validate_args)
-
-    def log_prob(self, value: th.Tensor) -> th.Tensor:
-        return evaluate_log_prob_rfft(value - self.loc, self.cov)
-
-    def rsample(self, sample_shape: typing.Optional[th.Size] = None):
-        raise NotImplementedError
-
-
 class FourierGaussianProcess1DTransform(th.distributions.Transform):
     """
-    Transform white noise to a Gaussian process realization.
+    Transform white noise in the Fourier domain to a Gaussian process realization.
 
     Args:
         loc: Mean of the distribution.
@@ -45,6 +16,7 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
     bijective = True
     domain = constraints.real_vector
     codomain = constraints.real_vector
+    _log2 = math.log(2)
 
     def __init__(self, loc: th.Tensor, cov: th.Tensor, cache_size: int = 0) -> None:
         super().__init__(cache_size)
@@ -68,4 +40,37 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
         imagidx = (size + 1) // 2
         rfft_scale = evaluate_rfft_scale(self.cov)
         return rfft_scale.log().sum() + rfft_scale[1:imagidx].log().sum() \
-            + math.log(2) * ((size - 1) // 2) - size * math.log(size) / 2
+            + self._log2 * ((size - 1) // 2) - size * math.log(size) / 2
+
+
+class FourierGaussianProcess1D(th.distributions.TransformedDistribution):
+    """
+    Fourier-based Gaussian process in one dimension.
+
+    Args:
+        loc: Mean of the distribution.
+        cov: Covariance between a point of the origin with the rest of the space.
+    """
+    arg_constraints = {
+        "loc": constraints.real_vector,
+        "cov": constraints.real_vector,
+    }
+    support = constraints.real_vector
+    has_rsample = True
+
+    def __init__(self, loc: th.Tensor, cov: th.Tensor, validate_args=None) -> None:
+        *_, size = th.broadcast_shapes(loc.shape, cov.shape)
+        base_distribution = th.distributions.Normal(th.zeros(size), th.ones(size))
+        transform = FourierGaussianProcess1DTransform(loc, cov)
+        super().__init__(base_distribution, transform, validate_args=validate_args)
+
+    @property
+    def loc(self):
+        return self.transforms[0].loc
+
+    @property
+    def cov(self):
+        return self.transforms[0].cov
+
+    def rsample(self, sample_shape: typing.Optional[th.Size] = None):
+        raise NotImplementedError
