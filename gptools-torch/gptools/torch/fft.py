@@ -2,7 +2,6 @@ from gptools.util.fft import transform_rfft, transform_irfft, evaluate_rfft_scal
 import math
 import torch as th
 from torch.distributions import constraints
-import typing
 
 
 class FourierGaussianProcess1DTransform(th.distributions.Transform):
@@ -71,6 +70,3 @@ class FourierGaussianProcess1D(th.distributions.TransformedDistribution):
     @property
     def cov(self):
         return self.transforms[0].cov
-
-    def rsample(self, sample_shape: typing.Optional[th.Size] = None):
-        raise NotImplementedError

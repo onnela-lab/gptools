@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from scipy import stats
 import torch as th
+import typing
 
 
 shapes = [(20,), (21,), (7, 9), (8, 9), (7, 8), (8, 6)]
@@ -60,3 +61,10 @@ def test_fft_gp_transform_log_prob(data: dict) -> None:
     bdist = th.distributions.Normal(0, th.ones(data["size"]))
     tdist = th.distributions.TransformedDistribution(bdist, transform)
     np.testing.assert_allclose(data["log_prob"], tdist.log_prob(data["y"]))
+
+
+@pytest.mark.parametrize("sample_shape", [(), (2,), (3, 4)])
+def test_fft_gp_sample(data: dict, sample_shape: typing.Optional[th.Size]) -> None:
+    dist = FourierGaussianProcess1D(data["loc"], data["cov"])
+    assert dist.has_rsample
+    assert dist.rsample(sample_shape).shape == sample_shape + (data["size"],)
