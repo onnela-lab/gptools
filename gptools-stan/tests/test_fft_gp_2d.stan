@@ -9,5 +9,5 @@ data {
 }
 
 generated quantities {
-    real log_prob = fft2_gp_lpdf(y | cov);
+    real log_prob = gp_fft2_lpdf(y | cov);
 }

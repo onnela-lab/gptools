@@ -22,6 +22,6 @@ transformed parameters {
 
 model {
     // Fourier Gaussian process and observation model.
-    eta ~ fft_gp(cov);
+    eta ~ gp_fft(cov);
     y ~ poisson_log(eta);
 }

@@ -22,12 +22,12 @@ transformed parameters {
         // the output CSV files, and we don't need to store the entire covariance matrix.
         vector[n] cov = gp_periodic_exp_quad_cov(zeros(1), X, sigma, length_scale, n);
         cov[1] += epsilon;
-        eta = fft_gp_transform(z, cov);
+        eta = gp_transform_irfft(z, cov);
     }
 }
 
 model {
-    // White noise prior (implies eta ~ fft_gp(...) and observation model.
+    // White noise prior (implies eta ~ gp_fft(...) and observation model.
     z ~ normal(0, 1);
     y ~ poisson_log(eta);
 }
