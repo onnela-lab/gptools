@@ -13,6 +13,7 @@ if FALSE:
 
 
 ArrayOrTensor = typing.Union[np.ndarray, "th.Tensor"]
+OptionalArrayOrTensor = typing.Optional[ArrayOrTensor]
 
 
 class ArrayOrTensorDispatch:

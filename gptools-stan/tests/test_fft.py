@@ -1,6 +1,6 @@
 from gptools.util.kernels import ExpQuadKernel
 from gptools.util import coordgrid
-from gptools.util.fft import transform_rfft
+from gptools.util.fft import transform_irfft
 from gptools.stan import compile_model
 import numpy as np
 import pathlib
@@ -51,7 +51,7 @@ def test_fft_gp_transform_identity(n: int) -> None:
     cov = kernel(np.arange(n)[:, None])[0]
     stan_data = {"n": n, "z": z, "cov": cov}
     fit = model.sample(stan_data, iter_sampling=1, iter_warmup=1, fixed_param=True, sig_figs=9)
-    np.testing.assert_allclose(fit.stan_variable("y")[0], transform_rfft(z, cov))
+    np.testing.assert_allclose(fit.stan_variable("y")[0], transform_irfft(z, cov))
 
 
 @pytest.mark.parametrize("shape", [(3,), (4,), (3, 5), (3, 6), (4, 5), (4, 6)])

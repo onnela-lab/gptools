@@ -43,8 +43,8 @@ def test_transform_rfft_roundtrip(batch_shape: tuple[int], n: int, use_torch: bo
     z = np.random.normal(0, 1, n)
     z = th.as_tensor(z) if use_torch else z
     cov = th.as_tensor(cov) if use_torch else cov
-    y = fft.transform_rfft(z, cov)
-    x = fft.transform_irfft(y, cov)
+    y = fft.transform_irfft(z, cov)
+    x = fft.transform_rfft(y, cov)
     # Verify that the inverse of the transform is the input.
     np.testing.assert_allclose(z, x)
 
