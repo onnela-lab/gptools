@@ -1,4 +1,6 @@
-from gptools.util.fft import evaluate_log_prob_rfft, transform_rfft, transform_irfft
+from gptools.util.fft import evaluate_log_prob_rfft, transform_rfft, transform_irfft, \
+    evaluate_rfft_scale
+import math
 import torch as th
 from torch.distributions import constraints
 import typing
@@ -41,8 +43,8 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
         cov: Covariance between a point of the origin with the rest of the space.
     """
     bijective = True
-    domain: constraints.real_vector
-    codomain: constraints.real_vector
+    domain = constraints.real_vector
+    codomain = constraints.real_vector
 
     def __init__(self, loc: th.Tensor, cov: th.Tensor, cache_size: int = 0) -> None:
         super().__init__(cache_size)
@@ -60,3 +62,10 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
         Transform a Gaussian process realization to white noise.
         """
         return transform_irfft(y - self.loc, self.cov)
+
+    def log_abs_det_jacobian(self, x: th.Tensor, y: th.Tensor) -> th.Tensor:
+        *_, size = x.shape
+        imagidx = (size + 1) // 2
+        rfft_scale = evaluate_rfft_scale(self.cov)
+        return rfft_scale.log().sum() + rfft_scale[1:imagidx].log().sum() \
+            + math.log(2) * ((size - 1) // 2) - size * math.log(size) / 2

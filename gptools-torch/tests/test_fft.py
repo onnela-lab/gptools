@@ -48,7 +48,15 @@ def test_log_prob_fft(data: dict) -> None:
 
 def test_fft_gp_transform_roundtrip(data: dict) -> None:
     z = th.randn(data["size"])
-    transform = FourierGaussianProcess1DTransform(th.zeros_like(data["loc"]), data["cov"])
+    transform = FourierGaussianProcess1DTransform(data["loc"], data["cov"])
     y = transform(z)
     x = transform.inv(y)
     np.testing.assert_allclose(z, x)
+
+
+def test_fft_gp_transform_log_prob(data: dict) -> None:
+    # Distribution that maps from Fourier to the real domain.
+    transform = FourierGaussianProcess1DTransform(data["loc"], data["cov"])
+    bdist = th.distributions.Normal(0, th.ones(data["size"]))
+    tdist = th.distributions.TransformedDistribution(bdist, transform)
+    np.testing.assert_allclose(data["log_prob"], tdist.log_prob(data["y"]))
