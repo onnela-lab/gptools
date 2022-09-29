@@ -8,9 +8,9 @@ DistributionDict = dict[str, th.distributions.Distribution]
 TensorDict = dict[str, th.Tensor]
 
 
-class ParametrizedDistribution(th.nn.Module):
+class ParameterizedDistribution(th.nn.Module):
     """
-    Parametrized distribution with initial conditions. Parameters are transformed to an
+    Parameterized distribution with initial conditions. Parameters are transformed to an
     unconstrained space for optimization, and the distribution is constructed by transforming back
     to the constrained space in the forward pass.
 
@@ -51,7 +51,7 @@ class VariationalModel(th.nn.Module):
     Args:
         approximations: Variational factors approximating the posterior.
     """
-    def __init__(self, approximations: dict[str, ParametrizedDistribution]) -> None:
+    def __init__(self, approximations: dict[str, ParameterizedDistribution]) -> None:
         super().__init__()
         self.approximations = th.nn.ModuleDict(approximations)
 
@@ -76,7 +76,7 @@ class VariationalModel(th.nn.Module):
     def rsample(self, size: typing.Optional[th.Size] = None,
                 distributions: typing.Optional[DistributionDict] = None) -> TensorDict:
         """
-        Draw reparametrized samples from the variational approximations.
+        Draw reparameterized samples from the variational approximations.
         """
         distributions = distributions or self.distributions()
         size = () if size is None else size
