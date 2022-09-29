@@ -58,15 +58,13 @@ def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTenso
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
     fft = transform_rfft(y, cov)
-    return log_prob_stdnorm(fft).sum(axis=-1) - evaluate_log_abs_det_jacobian(cov)
+    return log_prob_stdnorm(fft).sum(axis=-1) + evaluate_log_abs_det_jacobian(cov)
 
 
 def evaluate_log_abs_det_jacobian(cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
         -> ArrayOrTensor:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
-
-    TODO: check which way round the transform is.
 
     Args:
         cov: First row of the covariance matrix with shape `(..., size)`.
@@ -81,9 +79,9 @@ def evaluate_log_abs_det_jacobian(cov: ArrayOrTensor, rfft_scale: OptionalArrayO
     imagidx = (size + 1) // 2
     if rfft_scale is None:
         rfft_scale = evaluate_rfft_scale(cov)
-    return dispatch.log(rfft_scale).sum(axis=-1) \
-        + dispatch.log(rfft_scale[1:imagidx]).sum(axis=-1) + log2 * ((size - 1) // 2) - \
-        size * math.log(size) / 2
+    return - dispatch.log(rfft_scale).sum(axis=-1) \
+        - dispatch.log(rfft_scale[1:imagidx]).sum(axis=-1) - log2 * ((size - 1) // 2) \
+        + size * math.log(size) / 2
 
 
 def transform_irfft(z: ArrayOrTensor, cov: ArrayOrTensor,

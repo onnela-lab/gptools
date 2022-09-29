@@ -37,7 +37,7 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
         return transform_irfft(y, self.cov, self._rfft_scale) + self.loc
 
     def log_abs_det_jacobian(self, x: th.Tensor, y: th.Tensor) -> th.Tensor:
-        return - evaluate_log_abs_det_jacobian(self.cov, self._rfft_scale)
+        return evaluate_log_abs_det_jacobian(self.cov, self._rfft_scale)
 
 
 class FourierGaussianProcess1D(th.distributions.TransformedDistribution):
