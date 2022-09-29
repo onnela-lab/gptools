@@ -79,6 +79,7 @@ class VariationalModel(th.nn.Module):
         Draw reparametrized samples from the variational approximations.
         """
         distributions = distributions or self.distributions()
+        size = () if size is None else size
         return {key: distribution.rsample(size) for key, distribution in distributions.items()}
 
     def entropies(self, distributions: typing.Optional[DistributionDict] = None) -> TensorDict:
@@ -144,7 +145,7 @@ class VariationalModel(th.nn.Module):
                 variational posterior approximation.
         """
         distributions = self.distributions()
-        size = [] if size is None else size
+        size = () if size is None else size
         parameters = self.rsample(size, distributions)
         elbo_estimate = self.elbo_estimate(parameters, *args, distributions=distributions, **kwargs)
         assert elbo_estimate.shape == size
