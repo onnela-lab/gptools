@@ -10,7 +10,7 @@ uncorrelated Gaussian random variables with zero mean. This function evaluates t
 
 :param cov: Covariance between the origin and the rest of the domain.
 */
-vector evaluate_fft_scale(vector cov) {
+vector evaluate_rfft_scale(vector cov) {
     int n = size(cov);
     vector[n] result = n * get_real(fft(cov)) / 2;
     if (min(result) < 0){
@@ -38,8 +38,8 @@ space.
     fixed.
 
 :param y: Random variable whose likelihood to evaluate.
-:param cov: Covariance between the origin and the rest of the domain
-   (see :cpp:func:`evaluate_fft_scale` for details).
+:param cov: Covariance between the origin and the rest of the domain (see
+    :cpp:func:`evaluate_rfft_scale` for details).
 
 :returns: Log probability of the Gaussian process.
 */
@@ -50,10 +50,10 @@ real fft_gp_lpdf(vector y, vector cov) {
     // the odd case (without Nyqvist frequency) and even (with Nyqvist frequency).
     int idx = (n + 1) %/% 2;
 
-    vector[n] fft_scale = evaluate_fft_scale(cov);
+    vector[n] rfft_scale = evaluate_rfft_scale(cov);
     complex_vector[m] fft = fft(y)[:m];
-    return normal_lpdf(get_real(fft) | 0, fft_scale[:m])
-        + normal_lpdf(get_imag(fft[2:idx]) | 0, fft_scale[2:idx])
+    return normal_lpdf(get_real(fft) | 0, rfft_scale[:m])
+        + normal_lpdf(get_imag(fft[2:idx]) | 0, rfft_scale[2:idx])
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }
 
@@ -72,7 +72,7 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 
 :param z: Fourier-domain white noise comprising :math:`n` elements.
 :param cov: Covariance between the origin and the rest of the domain (see
-    :cpp:func:`evaluate_fft_scale` for details).
+    :cpp:func:`evaluate_rfft_scale` for details).
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
@@ -89,7 +89,7 @@ vector fft_gp_transform(vector z, vector cov) {
     fft[2:ncomplex + 1] += 1.0i * z[nrfft + 1:n];
     // Negative frequency coefficients.
     fft[nrfft + 1:n] = reverse(to_complex(z[2:ncomplex + 1], -z[nrfft + 1:n]));
-    return get_real(inv_fft(evaluate_fft_scale(cov) .* fft));
+    return get_real(inv_fft(evaluate_rfft_scale(cov) .* fft));
 }
 
 
