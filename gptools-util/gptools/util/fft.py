@@ -60,10 +60,7 @@ def unpack_rfft(rfft: ArrayOrTensor, size: int) -> ArrayOrTensor:
     """
     ncomplex = (size - 1) // 2
     parts = [rfft.real, rfft.imag[..., 1: ncomplex + 1]]
-    if dispatch.is_tensor(rfft):
-        return dispatch[rfft].concat(parts, axis=-1)
-    else:
-        return dispatch[rfft].concatenate(parts, axis=-1)
+    return dispatch.concatenate(parts, axis=-1)
 
 
 def pack_rfft(z: ArrayOrTensor, full_fft: bool = False) -> ArrayOrTensor:
@@ -240,10 +237,7 @@ def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     ]
     if width % 2 == 0:  # Nyqvist frequency terms if the number of columns is even.
         parts.append(unpack_rfft(rfft2[..., :height // 2 + 1, width // 2], height)[..., None])
-    if dispatch.is_tensor(rfft2):
-        return dispatch[rfft2].concat(parts, axis=-1)
-    else:
-        return dispatch[rfft2].concatenate(parts, axis=-1)
+    return dispatch.concatenate(parts, axis=-1)
 
 
 def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
