@@ -44,6 +44,47 @@ def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return scale
 
 
+def unpack_rfft(rfft: ArrayOrTensor, size: int) -> ArrayOrTensor:
+    """
+    Unpack the Fourier coefficients of a real Fourier transform with `size // 2 + 1` elements to a
+    vector of `size` elements.
+
+    Args:
+        rfft: Real Fourier transform coefficients.
+        size: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
+
+    Returns:
+        z: Unpacked vector of `size` elements.
+    """
+    ncomplex = (size - 1) // 2
+    parts = [rfft.real, rfft.imag[..., 1: ncomplex + 1]]
+    if dispatch.is_tensor(rfft):
+        return dispatch[rfft].concat(parts, axis=-1)
+    else:
+        return dispatch[rfft].concatenate(parts, axis=-1)
+
+
+def pack_rfft(z: ArrayOrTensor) -> ArrayOrTensor:
+    """
+    Transform a real vector to complex Fourier coefficients ready for inverse real fast Fourier
+    transformation.
+
+    Args:
+        z:
+
+    Returns:
+        rfft:
+    """
+    *_, size = z.shape
+    fftsize = size // 2 + 1
+    ncomplex = (size - 1) // 2
+    # Zero frequency term, real parts of complex coefficients and possible Nyqvist frequency.
+    rfft = z[..., :fftsize] * (1 + 0j)
+    # Imaginary parts of complex coefficients.
+    rfft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
+    return rfft
+
+
 def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     """
     Evaluate the log probability of a one-dimensional Gaussian process realization in Fourier space.
