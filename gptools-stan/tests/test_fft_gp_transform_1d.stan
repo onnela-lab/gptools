@@ -9,5 +9,5 @@ data {
 }
 
 generated quantities {
-    vector[n] y = fft_gp_transform(z, cov);
+    vector[n] y = gp_transform_irfft(z, cov);
 }

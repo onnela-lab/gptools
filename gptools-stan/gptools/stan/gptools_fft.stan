@@ -10,7 +10,7 @@ uncorrelated Gaussian random variables with zero mean. This function evaluates t
 
 :param cov: Covariance between the origin and the rest of the domain.
 */
-vector evaluate_fft_scale(vector cov) {
+vector gp_evaluate_rfft_scale(vector cov) {
     int n = size(cov);
     vector[n] result = n * get_real(fft(cov)) / 2;
     if (min(result) < 0){
@@ -38,22 +38,22 @@ space.
     fixed.
 
 :param y: Random variable whose likelihood to evaluate.
-:param cov: Covariance between the origin and the rest of the domain
-   (see :cpp:func:`evaluate_fft_scale` for details).
+:param cov: Covariance between the origin and the rest of the domain (see
+    :cpp:func:`gp_evaluate_rfft_scale` for details).
 
 :returns: Log probability of the Gaussian process.
 */
-real fft_gp_lpdf(vector y, vector cov) {
+real gp_fft_lpdf(vector y, vector cov) {
     int n = size(y);
     int m = n %/% 2 + 1;
     // The last index of imaginary components to consider. This is necessary to distinguish between
     // the odd case (without Nyqvist frequency) and even (with Nyqvist frequency).
     int idx = (n + 1) %/% 2;
 
-    vector[n] fft_scale = evaluate_fft_scale(cov);
+    vector[n] rfft_scale = gp_evaluate_rfft_scale(cov);
     complex_vector[m] fft = fft(y)[:m];
-    return normal_lpdf(get_real(fft) | 0, fft_scale[:m])
-        + normal_lpdf(get_imag(fft[2:idx]) | 0, fft_scale[2:idx])
+    return normal_lpdf(get_real(fft) | 0, rfft_scale[:m])
+        + normal_lpdf(get_imag(fft[2:idx]) | 0, rfft_scale[2:idx])
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }
 
@@ -72,11 +72,11 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 
 :param z: Fourier-domain white noise comprising :math:`n` elements.
 :param cov: Covariance between the origin and the rest of the domain (see
-    :cpp:func:`evaluate_fft_scale` for details).
+    :cpp:func:`gp_evaluate_rfft_scale` for details).
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
-vector fft_gp_transform(vector z, vector cov) {
+vector gp_transform_irfft(vector z, vector cov) {
     int n = size(z);  // Number of observations.
     int ncomplex = (n - 1) %/% 2;  // Number of complex Fourier coefficients.
     int nrfft = n %/% 2 + 1;  // Number of elements in the real FFT.
@@ -89,7 +89,7 @@ vector fft_gp_transform(vector z, vector cov) {
     fft[2:ncomplex + 1] += 1.0i * z[nrfft + 1:n];
     // Negative frequency coefficients.
     fft[nrfft + 1:n] = reverse(to_complex(z[2:ncomplex + 1], -z[nrfft + 1:n]));
-    return get_real(inv_fft(evaluate_fft_scale(cov) .* fft));
+    return get_real(inv_fft(gp_evaluate_rfft_scale(cov) .* fft));
 }
 
 
@@ -107,7 +107,7 @@ Evaluate the log probability of a two-dimensional Gaussian process with zero mea
 
 :returns: Log probability of the Gaussian process.
 */
-real fft2_gp_lpdf(matrix y, matrix cov) {
+real gp_fft2_lpdf(matrix y, matrix cov) {
     array [2] int ydims = dims(y);
     int height = ydims[1];
     int width = ydims[2];

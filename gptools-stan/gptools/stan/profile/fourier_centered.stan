@@ -14,6 +14,6 @@ parameters {
 
 model {
     vector[n] cov = gp_periodic_exp_quad_cov(zeros(1), X, alpha, rho, n);
-    eta ~ fft_gp(cov);
+    eta ~ gp_fft(cov);
     y ~ normal(eta, noise_scale);
 }

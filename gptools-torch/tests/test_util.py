@@ -1,12 +1,12 @@
-from gptools.torch.util import ParametrizedDistribution, TerminateOnPlateau, VariationalModel
+from gptools.torch.util import ParameterizedDistribution, TerminateOnPlateau, VariationalModel
 import pytest
 import torch as th
 
 
-def test_parametrized_distribution() -> None:
+def test_parameterized_distribution() -> None:
     loc = - th.ones(3)
     scale = 1.0 + th.arange(3)
-    pdist = ParametrizedDistribution(th.distributions.Normal, loc=loc, scale=scale, const={"loc"})
+    pdist = ParameterizedDistribution(th.distributions.Normal, loc=loc, scale=scale, const={"loc"})
     dist = pdist()
     assert loc.allclose(dist.loc)
     assert scale.allclose(dist.scale)
@@ -21,7 +21,7 @@ def test_check_log_prob_shape() -> None:
             return log_prob.sum() if reduce else log_prob
 
     model = Model({
-        "x": ParametrizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
+        "x": ParameterizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
     })
     model.check_log_prob_shape(reduce=False)
     with pytest.raises(RuntimeError):
@@ -34,7 +34,7 @@ def test_batch_elbo_estimate() -> None:
             return parameters["x"].sum(axis=-1)
 
     model = Model({
-        "x": ParametrizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
+        "x": ParameterizedDistribution(th.distributions.Normal, loc=th.zeros(3), scale=th.ones(3)),
     })
     assert model.batch_elbo_estimate((2, 3)).shape == (2, 3)
 

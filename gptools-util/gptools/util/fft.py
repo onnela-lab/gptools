@@ -1,5 +1,5 @@
 import math
-from . import ArrayOrTensor, ArrayOrTensorDispatch
+from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
 
 
 dispatch = ArrayOrTensorDispatch()
@@ -14,6 +14,13 @@ def log_prob_norm(y: ArrayOrTensor, loc: ArrayOrTensor, scale: ArrayOrTensor) ->
     """
     residual = (y - loc) / scale
     return - dispatch.log(scale) - (log2pi + residual * residual) / 2
+
+
+def log_prob_stdnorm(y: ArrayOrTensor) -> ArrayOrTensor:
+    """
+    Evaluate the log probability of a standard normal random variable.
+    """
+    return - (log2pi + y * y) / 2
 
 
 def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
@@ -50,19 +57,37 @@ def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTenso
     Returns:
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
-    *_, size = y.shape
-    y = dispatch[y].fft.rfft(y)
-    scale = evaluate_rfft_scale(cov)
-    imagidx = (size + 1) // 2
-
-    return log_prob_norm(y.real, 0, scale).sum(axis=-1) \
-        + log_prob_norm(y.imag[..., 1:imagidx], 0, scale[..., 1:imagidx]).sum(axis=-1) \
-        - log2 * ((size - 1) // 2) + size * math.log(size) / 2
+    fft = transform_rfft(y, cov)
+    return log_prob_stdnorm(fft).sum(axis=-1) + evaluate_log_abs_det_jacobian(cov)
 
 
-def transform_rfft(z: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
+def evaluate_log_abs_det_jacobian(cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
+        -> ArrayOrTensor:
     """
-    Transform white noise to a Gaussian process realization.
+    Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
+
+    Args:
+        cov: First row of the covariance matrix with shape `(..., size)`.
+        rfft_scale: Optional precomputed scale of Fourier coefficients with shape
+            `(..., size // 2 + 1)`.
+
+    Returns:
+        log_abs_det_jacobian
+    """
+
+    *_, size = cov.shape
+    imagidx = (size + 1) // 2
+    if rfft_scale is None:
+        rfft_scale = evaluate_rfft_scale(cov)
+    return - dispatch.log(rfft_scale).sum(axis=-1) \
+        - dispatch.log(rfft_scale[1:imagidx]).sum(axis=-1) - log2 * ((size - 1) // 2) \
+        + size * math.log(size) / 2
+
+
+def transform_irfft(z: ArrayOrTensor, cov: ArrayOrTensor,
+                    rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    """
+    Transform white noise in the Fourier domain to a Gaussian process realization.
 
     Args:
         z: Fourier-domain white noise with shape `(..., size)`. The elements of the white noise
@@ -81,25 +106,30 @@ def transform_rfft(z: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     fft = z[..., :fftsize] * (1 + 0j)
     # Imaginary parts of complex coefficients.
     fft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
-    fft = evaluate_rfft_scale(cov) * fft
+    if rfft_scale is None:
+        rfft_scale = evaluate_rfft_scale(cov)
+    fft = rfft_scale * fft
     return dispatch[fft].fft.irfft(fft, size)
 
 
-def transform_irfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
+def transform_rfft(y: ArrayOrTensor, cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
+        -> ArrayOrTensor:
     """
-    Transform a Gaussian process realization to white noise.
+    Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
         y: Realization of the Gaussian process.
         cov: First row of the covariance matrix.
 
     Returns:
-        z: Fourier-domain white noise.
+        z: Fourier-domain white noise (see :func:`transform_irrft` for details).
     """
     # Take the Fourier transform and rescale.
-    fft: ArrayOrTensor = dispatch[y].fft.rfft(y) / evaluate_rfft_scale(cov)
+    if rfft_scale is None:
+        rfft_scale = evaluate_rfft_scale(cov)
+    fft: ArrayOrTensor = dispatch[y].fft.rfft(y) / rfft_scale
     ncomplex = (y.shape[-1] - 1) // 2
-    parts = [fft.real, fft.imag[1: ncomplex + 1]]
+    parts = [fft.real, fft.imag[..., 1: ncomplex + 1]]
     if dispatch.is_tensor(y):
         return dispatch[y].concat(parts, axis=-1)
     else:
