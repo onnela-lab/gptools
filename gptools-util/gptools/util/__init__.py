@@ -66,6 +66,15 @@ class ArrayOrTensorDispatch:
         """
         return (1j * self[x].empty(0, dtype=x.dtype)).dtype
 
+    @ft.wraps(np.concatenate)
+    def concatenate(self, arrays: typing.Iterable[ArrayOrTensor],
+                    axis: typing.Optional[typing.Union[int, tuple[int]]] = None) -> ArrayOrTensor:
+        if self.is_tensor(*arrays):
+            import torch as th
+            return th.concat(arrays, dim=axis)
+        else:
+            return np.concatenate(arrays, axis=axis)
+
 
 def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
               indexing: typing.Literal["ij", "xy"] = "ij") -> np.ndarray:
