@@ -40,7 +40,7 @@ def test_transform_rfft_roundtrip(batch_shape: tuple[int], n: int, use_torch: bo
     x = np.linspace(0, 1, n, endpoint=False)
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
     cov = kernel(x[:, None])[0]
-    z = np.random.normal(0, 1, n)
+    z = np.random.normal(0, 1, (*batch_shape, n))
     z = th.as_tensor(z) if use_torch else z
     cov = th.as_tensor(cov) if use_torch else cov
     y = fft.transform_irfft(z, cov)
