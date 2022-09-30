@@ -27,9 +27,7 @@ def test_log_prob_norm(use_torch: bool) -> None:
         x = th.randn([])
     else:
         x = np.random.normal()
-    loc = np.random.normal()
-    scale = np.random.gamma(2)
-    np.testing.assert_allclose(stats.norm(loc, scale).logpdf(x), fft.log_prob_norm(x, loc, scale))
+    np.testing.assert_allclose(stats.norm(0, 1).logpdf(x), fft.log_prob_stdnorm(x))
 
 
 def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torch: bool) -> None:
