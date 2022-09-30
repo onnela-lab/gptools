@@ -115,7 +115,6 @@ def evaluate_log_abs_det_jacobian(cov: ArrayOrTensor, rfft_scale: OptionalArrayO
     Returns:
         log_abs_det_jacobian
     """
-
     *_, size = cov.shape
     imagidx = (size + 1) // 2
     if rfft_scale is None:
@@ -140,17 +139,10 @@ def transform_irfft(z: ArrayOrTensor, cov: ArrayOrTensor,
     Returns:
         y: Realization of the Gaussian process.
     """
-    *_, size = z.shape
-    fftsize = size // 2 + 1
-    ncomplex = (size - 1) // 2
-    # Zero frequency term, real parts of complex coefficients and possible Nyqvist frequency.
-    fft = z[..., :fftsize] * (1 + 0j)
-    # Imaginary parts of complex coefficients.
-    fft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
     if rfft_scale is None:
         rfft_scale = evaluate_rfft_scale(cov)
-    fft = rfft_scale * fft
-    return dispatch[fft].fft.irfft(fft, size)
+    rfft = pack_rfft(z) * rfft_scale
+    return dispatch[rfft].fft.irfft(rfft, z.shape[-1])
 
 
 def transform_rfft(y: ArrayOrTensor, cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
@@ -168,13 +160,7 @@ def transform_rfft(y: ArrayOrTensor, cov: ArrayOrTensor, rfft_scale: OptionalArr
     # Take the Fourier transform and rescale.
     if rfft_scale is None:
         rfft_scale = evaluate_rfft_scale(cov)
-    fft: ArrayOrTensor = dispatch[y].fft.rfft(y) / rfft_scale
-    ncomplex = (y.shape[-1] - 1) // 2
-    parts = [fft.real, fft.imag[..., 1: ncomplex + 1]]
-    if dispatch.is_tensor(y):
-        return dispatch[y].concat(parts, axis=-1)
-    else:
-        return dispatch[y].concatenate(parts, axis=-1)
+    return unpack_rfft(dispatch[y].fft.rfft(y) / rfft_scale, y.shape[-1])
 
 
 def evaluate_rfft2_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
