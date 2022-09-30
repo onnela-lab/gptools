@@ -60,6 +60,12 @@ class ArrayOrTensorDispatch:
             raise ValueError("arguments are a mixture of torch tensors and numpy arrays")
         return True
 
+    def get_complex_dtype(self, x: ArrayOrTensor) -> typing.Any:
+        """
+        Get the complex dtype matching `x` in precision.
+        """
+        return (1j * self[x].empty(0, dtype=x.dtype)).dtype
+
 
 def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
               indexing: typing.Literal["ij", "xy"] = "ij") -> np.ndarray:
