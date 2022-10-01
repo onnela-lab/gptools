@@ -56,3 +56,15 @@ def test_dispatch():
         dispatch[tensor, array]
     with pytest.raises(ValueError):
         dispatch.add(array, tensor)
+
+
+@pytest.mark.parametrize("float_, complex_", [
+    (np.float32, np.complex64),
+    (np.float64, np.complex128),
+    (th.float32, th.complex64),
+    (th.float64, th.complex128),
+])
+def test_get_complex_dtype(float_, complex_) -> None:
+    dispatch = util.ArrayOrTensorDispatch()
+    x = (th if float_.__module__ == "torch" else np).ones(3, dtype=float_)
+    assert dispatch.get_complex_dtype(x) == complex_

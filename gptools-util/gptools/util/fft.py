@@ -8,14 +8,6 @@ log2 = 0.6931471805599453
 log2pi = 1.8378770664093453
 
 
-def log_prob_norm(y: ArrayOrTensor, loc: ArrayOrTensor, scale: ArrayOrTensor) -> ArrayOrTensor:
-    """
-    Evaluate the log probability of a normal random variable.
-    """
-    residual = (y - loc) / scale
-    return - dispatch.log(scale) - (log2pi + residual * residual) / 2
-
-
 def log_prob_stdnorm(y: ArrayOrTensor) -> ArrayOrTensor:
     """
     Evaluate the log probability of a standard normal random variable.
@@ -44,25 +36,109 @@ def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return scale
 
 
+def unpack_rfft(rfft: ArrayOrTensor, size: int) -> ArrayOrTensor:
+    """
+    Unpack the Fourier coefficients of a real Fourier transform with `size // 2 + 1` elements to a
+    vector of `size` elements.
+
+    Args:
+        rfft: Real Fourier transform coefficients.
+        size: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
+
+    Returns:
+        z: Unpacked vector of `size` elements comprising the `size // 2 + 1` real parts of the zero
+            frequency term, complex terms, and Nyqvist frequency term (for even `size`). The
+            subsequent `(size - 1) // 2` elements are the imaginary parts of complex coefficients.
+    """
+    ncomplex = (size - 1) // 2
+    parts = [rfft.real, rfft.imag[..., 1: ncomplex + 1]]
+    return dispatch.concatenate(parts, axis=-1)
+
+
+def pack_rfft(z: ArrayOrTensor, full_fft: bool = False) -> ArrayOrTensor:
+    """
+    Transform a real vector with `size` elements to a vector of complex Fourier coefficients with
+    `size // 2 + 1` elements ready for inverse real fast Fourier transformation.
+
+    Args:
+        z: Unpacked vector of `size` elements. See :func:`unpack_rfft` for details.
+        full_fft: Whether to return the full set of Fourier coefficients rather than just the
+            reduced representation for the real fast Fourier transform. The full representation is
+            required for :func:`pack_rfft2`.
+
+    Returns:
+        rfft: Real Fourier transform coefficients.
+    """
+    *_, size = z.shape
+    fftsize = size // 2 + 1
+    ncomplex = (size - 1) // 2
+    # Zero frequency term, real parts of complex coefficients and possible Nyqvist frequency.
+    rfft = z[..., :fftsize] * (1 + 0j)
+    # Imaginary parts of complex coefficients.
+    rfft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
+    if not full_fft:
+        return rfft
+    # Add the redundant complex coefficients (use `flip` because torch does not support negative
+    # strides).
+    return dispatch.concatenate([rfft, dispatch.flip(rfft[..., 1:ncomplex + 1].conj(), (-1,))], -1)
+
+
+def transform_irfft(z: ArrayOrTensor, cov: ArrayOrTensor,
+                    rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    """
+    Transform white noise in the Fourier domain to a Gaussian process realization.
+
+    Args:
+        z: Fourier-domain white noise with shape `(..., size)`. See :func:`unpack_rfft` for details.
+        cov: First row of the covariance matrix with shape `(..., size)`.
+
+    Returns:
+        y: Realization of the Gaussian process with shape `(..., size)`.
+    """
+    if rfft_scale is None:
+        rfft_scale = evaluate_rfft_scale(cov)
+    rfft = pack_rfft(z) * rfft_scale
+    return dispatch[rfft].fft.irfft(rfft, z.shape[-1])
+
+
+def transform_rfft(y: ArrayOrTensor, cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
+        -> ArrayOrTensor:
+    """
+    Transform a Gaussian process realization to white noise in the Fourier domain.
+
+    Args:
+        y: Realization of the Gaussian process with shape `(..., size)`.
+        cov: First row of the covariance matrix with shape `(..., size)`.
+
+    Returns:
+        z: Fourier-domain white noise with shape `(..., size)`.. See :func:`transform_irrft` for
+            details.
+    """
+    # Take the Fourier transform and rescale.
+    if rfft_scale is None:
+        rfft_scale = evaluate_rfft_scale(cov)
+    return unpack_rfft(dispatch[y].fft.rfft(y) / rfft_scale, y.shape[-1])
+
+
 def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
     """
     Evaluate the log probability of a one-dimensional Gaussian process realization in Fourier space.
 
     Args:
-        y: Realization of a Gaussian process with shape `(..., n)`, where `...` is the batch shape
-            and `n` is the number of grid points.
+        y: Realization of a Gaussian process with shape `(..., size)`, where `...` is the batch
+            shape and `size` is the number of grid points.
         cov: Covariance between the first grid point and the remainder of the grid with shape
-            `(..., n)`.
+            `(..., size)`.
 
     Returns:
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
-    fft = transform_rfft(y, cov)
-    return log_prob_stdnorm(fft).sum(axis=-1) + evaluate_log_abs_det_jacobian(cov)
+    rfft = transform_rfft(y, cov)
+    return log_prob_stdnorm(rfft).sum(axis=-1) + evaluate_rfft_log_abs_det_jacobian(cov)
 
 
-def evaluate_log_abs_det_jacobian(cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
-        -> ArrayOrTensor:
+def evaluate_rfft_log_abs_det_jacobian(
+        cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
 
@@ -74,7 +150,6 @@ def evaluate_log_abs_det_jacobian(cov: ArrayOrTensor, rfft_scale: OptionalArrayO
     Returns:
         log_abs_det_jacobian
     """
-
     *_, size = cov.shape
     imagidx = (size + 1) // 2
     if rfft_scale is None:
@@ -84,56 +159,187 @@ def evaluate_log_abs_det_jacobian(cov: ArrayOrTensor, rfft_scale: OptionalArrayO
         + size * math.log(size) / 2
 
 
-def transform_irfft(z: ArrayOrTensor, cov: ArrayOrTensor,
-                    rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def evaluate_rfft2_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
+    """
+    Evaluate the scale of Fourier coefficients.
+
+    Args:
+        cov: Covariance between the first grid point and the remainder of the grid with shape
+            `(..., height, width)`.
+
+    Returns:
+        scale: Scale of Fourier coefficients with shape `(..., height, width // 2 + 1)`.
+    """
+    *_, height, width = cov.shape
+    size = width * height
+    rfft2_scale = size * dispatch[cov].fft.rfft2(cov).real / 2
+
+    # Recall how the two-dimensional RFFT is computed. We first take an RFFT of rows of the matrix.
+    # This leaves us with a real first column (zero frequency term) and a real last column if the
+    # number of columns is even (Nyqvist frequency term). Second, we take a *full* FFT of the
+    # columns. The first column will have a real coefficient in the first row (zero frequency in the
+    # "row-dimension"). All elements in rows beyond n // 2 + 1 are irrelevant because the column was
+    # real. The same applies to the last column if there is a Nyqvist frequency term. Finally, we
+    # will also have a real-only Nyqvist frequency term in the first and last column if the number
+    # of rows is even.
+
+    # The zero-frequency term in both dimensions which must always be real.
+    rfft2_scale[..., 0, 0] *= 2
+
+    # If the number of colums is even, the last row will be real after the row-wise RFFT.
+    # Consequently, the first element is real after the column-wise FFT.
+    if width % 2 == 0:
+        rfft2_scale[..., 0, width // 2] *= 2
+
+    # If the number of rows is even, we have a Nyqvist frequency term in the first column.
+    if height % 2 == 0:
+        rfft2_scale[..., height // 2, 0] *= 2
+
+    # If the number of rows and columns is even, we also have a Nyqvist frequency term in the last
+    # column.
+    if height % 2 == 0 and width % 2 == 0:
+        rfft2_scale[..., height // 2, width // 2] *= 2
+
+    return dispatch.sqrt(rfft2_scale)
+
+
+def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
+    """
+    Unpack the Fourier coefficients of a two-dimensional real Fourier transform with shape
+    `(..., height, width // 2 + 1)` to a batch of matrices with shape `(..., height, width)`.
+
+    TODO: add details on packing structure.
+
+    Args:
+        rfft: Two-dimensional real Fourier transform coefficients.
+        shape: Shape of the real signal. Necessary because the number of columns cannot be inferred
+            from `rfft2`.
+
+    Returns:
+        z: Unpacked matrices with shape `(..., height, width)`.
+    """
+    *_, height, width = shape
+    ncomplex = (width - 1) // 2
+    parts = [
+        # First column is always real.
+        unpack_rfft(rfft2[..., :height // 2 + 1, 0], height)[..., None],
+        # Real and imaginary parts of complex coefficients.
+        rfft2[..., 1:ncomplex + 1].real,
+        rfft2[..., 1:ncomplex + 1].imag,
+    ]
+    if width % 2 == 0:  # Nyqvist frequency terms if the number of columns is even.
+        parts.append(unpack_rfft(rfft2[..., :height // 2 + 1, width // 2], height)[..., None])
+    return dispatch.concatenate(parts, axis=-1)
+
+
+def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
+    """
+    Transform a batch of real matrices with shape `(..., height, width)` to a batch of complex
+    Fourier coefficients with shape `(..., height, width // 2 + 1)` ready for inverse real fast
+    Fourier transformation in two dimensions.
+
+    Args:
+        z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
+            details.
+
+    Returns:
+        rfft: Two-dimensional real Fourier transform coefficients.
+    """
+    *batch_shape, height, width = z.shape
+    ncomplex = (width - 1) // 2
+    rfft2 = dispatch[z].empty((*batch_shape, height, width // 2 + 1),
+                              dtype=dispatch.get_complex_dtype(z))
+    # Real FFT in the first column due to zero-frequency terms for the row-wise Fourier transform.
+    rfft2[..., 0] = pack_rfft(z[..., 0], full_fft=True)
+    # Complex Fourier coefficients.
+    rfft2[..., 1:ncomplex + 1] = z[..., 1:ncomplex + 1] + 1j * z[..., ncomplex + 1:2 * ncomplex + 1]
+    # Real FFT in the last column due to the Nyqvist frequency terms for the row-wise Fourier
+    # transform if the number of columns is even.
+    if width % 2 == 0:
+        rfft2[..., width // 2] = pack_rfft(z[..., width - 1], full_fft=True)
+    return rfft2
+
+
+def transform_irfft2(z: ArrayOrTensor, cov: ArrayOrTensor,
+                     rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
 
     Args:
-        z: Fourier-domain white noise with shape `(..., size)`. The elements of the white noise
-            comprise the `size // 2 + 1` real parts of the zero frequency term, complex terms, and
-            Nyqvist frequency term (for even `size`). The subsequent elements are the imaginary
-            parts of complex coefficients.
-        cov: First row of the covariance matrix with shape `(..., size)`.
+        z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
+            details.
+        cov: Covariance between the first grid point and the remainder of the grid with shape
+            `(..., n, m)`.
 
     Returns:
         y: Realization of the Gaussian process.
     """
-    *_, size = z.shape
-    fftsize = size // 2 + 1
-    ncomplex = (size - 1) // 2
-    # Zero frequency term, real parts of complex coefficients and possible Nyqvist frequency.
-    fft = z[..., :fftsize] * (1 + 0j)
-    # Imaginary parts of complex coefficients.
-    fft[..., 1:ncomplex + 1] += 1j * z[..., fftsize:]
-    if rfft_scale is None:
-        rfft_scale = evaluate_rfft_scale(cov)
-    fft = rfft_scale * fft
-    return dispatch[fft].fft.irfft(fft, size)
+    if rfft2_scale is None:
+        rfft2_scale = evaluate_rfft2_scale(cov)
+    rfft2 = pack_rfft2(z) * rfft2_scale
+    return dispatch[rfft2].fft.irfft2(rfft2, z.shape[-2:])
 
 
-def transform_rfft(y: ArrayOrTensor, cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
-        -> ArrayOrTensor:
+def transform_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor,
+                    rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
         y: Realization of the Gaussian process.
-        cov: First row of the covariance matrix.
+        cov: Covariance between the first grid point and the remainder of the grid with shape
+            `(..., n, m)`.
 
     Returns:
-        z: Fourier-domain white noise (see :func:`transform_irrft` for details).
+        z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
+            details.
     """
     # Take the Fourier transform and rescale.
-    if rfft_scale is None:
-        rfft_scale = evaluate_rfft_scale(cov)
-    fft: ArrayOrTensor = dispatch[y].fft.rfft(y) / rfft_scale
-    ncomplex = (y.shape[-1] - 1) // 2
-    parts = [fft.real, fft.imag[..., 1: ncomplex + 1]]
-    if dispatch.is_tensor(y):
-        return dispatch[y].concat(parts, axis=-1)
-    else:
-        return dispatch[y].concatenate(parts, axis=-1)
+    if rfft2_scale is None:
+        rfft2_scale = evaluate_rfft2_scale(cov)
+    return unpack_rfft2(dispatch[y].fft.rfft2(y) / rfft2_scale, y.shape)
+
+
+def evaluate_rfft2_log_abs_det_jacobian(
+        cov: ArrayOrTensor, rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    """
+    Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
+
+    Args:
+        cov: Covariance between the first grid point and the remainder of the grid with shape
+            `(..., height, width)`.
+        rfft_scale: Optional precomputed scale of Fourier coefficients with shape
+            `(..., height, width // 2 + 1)`.
+
+    Returns:
+        log_abs_det_jacobian
+    """
+    *_, height, width = cov.shape
+    if rfft2_scale is None:
+        rfft2_scale = evaluate_rfft2_scale(cov)
+    ncomplex_horizontal = (width - 1) // 2
+    ncomplex_vertical = (height - 1) // 2
+    parts = [
+        # Real part of the first-column RFFT.
+        - dispatch.log(rfft2_scale[..., :height // 2 + 1, 0]).sum(axis=-1),
+        # Imaginary part of the first-column RFFT.
+        - dispatch.log(rfft2_scale[..., 1:ncomplex_vertical + 1, 0]).sum(axis=-1),
+        # Complex coefficients in subsequent columns.
+        - 2 * dispatch.log(rfft2_scale[..., 1:1 + ncomplex_horizontal]).sum(axis=(-2, -1))
+    ]
+    # Account for Nyqvist frequencies in the last column if the number of columns is even.
+    if width % 2 == 0:
+        parts.extend([
+            # Real part of the last-column RFFT.
+            - dispatch.log(rfft2_scale[..., :height // 2 + 1, width // 2]).sum(axis=-1),
+            # Imaginary part of the last-column RFFT.
+            - dispatch.log(rfft2_scale[..., 1:ncomplex_vertical + 1, width // 2]).sum(axis=-1),
+        ])
+    size = width * height
+    nterms = (size - 1) // 2
+    if height % 2 == 0 and width % 2 == 0:
+        nterms -= 1
+    return sum(parts) - log2 * nterms + size * math.log(size) / 2
 
 
 def evaluate_log_prob_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
@@ -149,59 +355,5 @@ def evaluate_log_prob_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTens
     Returns:
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
-    *_, height, width = y.shape
-    size = height * width
-
-    # Evaluate the scales Fourier coefficients and their scales. The division by two accounts for
-    # half of the variance going to real and imaginary terms each. We subsequently make adjustments
-    # based on which elements are purely real.
-    ffts = dispatch[y].fft.rfft2(y)
-    fftscale = dispatch.sqrt(size * dispatch[cov].fft.rfft2(cov).real / 2)
-
-    # We also construct a binary mask for which elements should be
-    # included in the likelihood evaluation.
-    fftshape = (height, width // 2 + 1)
-    imask = dispatch[y].ones(fftshape)
-    rmask = dispatch[y].ones(fftshape)
-
-    # Recall how the two-dimensional RFFT is computed. We first take an RFFT of rows of the matrix.
-    # This leaves us with a real first column (zero frequency term) and a real last column if the
-    # number of columns is even (Nyqvist frequency term). Second, we take a *full* FFT of the
-    # columns. The first column will have a real coefficient in the first row (zero frequency in the
-    # "row-dimension"). All elements in rows beyond n // 2 + 1 are irrelevant because the column was
-    # real. The same applies to the last column if there is a Nyqvist frequency term. Finally, we
-    # will also have a real-only Nyqvist frequency term in the first and last column if the number
-    # of rows is even.
-
-    # The first is the zero-frequency term in both dimensions which must always be real. We mask out
-    # the last elements of the first column because they are redundant (because the first column is
-    # real after the column FFT).
-    fftscale[..., 0, 0] *= sqrt2
-    imask[0, 0] = 0
-    imask[height // 2 + 1:, 0] = 0
-    rmask[height // 2 + 1:, 0] = 0
-
-    # If the width is even, we get a real last column after the first transform due to the Nyqvist
-    # frequency.
-    if width % 2 == 0:
-        fftscale[..., 0, -1] *= sqrt2
-        imask[0, -1] = 0
-        imask[height // 2 + 1:, -1] = 0
-        rmask[height // 2 + 1:, -1] = 0
-
-    # If the height is even, we get an extra Nyqvist frequency term in the first column.
-    if height % 2 == 0:
-        fftscale[..., height // 2, 0] *= sqrt2
-        imask[height // 2, 0] = 0
-
-    # If the height and width are even, the Nyqvist frequencies in the last column must be real.
-    if width % 2 == 0 and height % 2 == 0:
-        fftscale[..., height // 2, -1] *= sqrt2
-        imask[height // 2, -1] = 0
-
-    nterms = (size - 1) // 2
-    if height % 2 == 0 and width % 2 == 0:
-        nterms -= 1
-    return (log_prob_norm(ffts.real, 0, fftscale) * rmask).sum(axis=(-1, -2)) + \
-        (log_prob_norm(ffts.imag, 0, fftscale) * imask).sum(axis=(-1, -2)) \
-        - log2 * nterms + size * math.log(size) / 2
+    rfft = transform_rfft2(y, cov)
+    return log_prob_stdnorm(rfft).sum(axis=(-2, -1)) + evaluate_rfft2_log_abs_det_jacobian(cov)
