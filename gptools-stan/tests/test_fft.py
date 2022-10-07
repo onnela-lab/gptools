@@ -18,7 +18,9 @@ def data(request: pytest.FixtureRequest) -> dict:
     assert xs.shape == (size, len(shape))
     kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), 0.1, shape)
     cov = kernel(xs)
-    dist = stats.multivariate_normal(np.zeros(xs.shape[0]), cov)
+    # loc = np.zeros(xs.shape[0])
+    loc = np.random.normal(0, 1, xs.shape[0])
+    dist = stats.multivariate_normal(loc, cov)
     y = dist.rvs()
 
     return {
@@ -27,6 +29,7 @@ def data(request: pytest.FixtureRequest) -> dict:
         "xs": xs,
         "y": y.reshape(shape),
         "kernels": kernel,
+        "loc": loc.reshape(shape),
         "cov": cov[0].reshape(shape),
         "log_prob": dist.logpdf(y),
     }
@@ -35,7 +38,7 @@ def data(request: pytest.FixtureRequest) -> dict:
 def test_log_prob_fft(data: dict) -> None:
     stan_file = pathlib.Path(__file__).parent / f"test_fft_gp_{data['ndim']}d.stan"
     model = compile_model(stan_file=stan_file)
-    stan_data = {"n": data["shape"][0], "y": data["y"], "cov": data["cov"]}
+    stan_data = {"n": data["shape"][0], "y": data["y"], "cov": data["cov"], "loc": data["loc"]}
     if data["ndim"] == 2:
         stan_data["m"] = data["shape"][1]
     fit = model.sample(stan_data, iter_sampling=1, iter_warmup=0, fixed_param=True, sig_figs=9)
@@ -47,11 +50,12 @@ def test_fft_gp_transform_identity(n: int) -> None:
     stan_file = pathlib.Path(__file__).parent / "test_fft_gp_transform_1d.stan"
     model = compile_model(stan_file=stan_file)
     z = np.random.normal(0, 1, n)
+    loc = np.random.normal(0, 1, n)
     kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), 0.1, n)
     cov = kernel(np.arange(n)[:, None])[0]
-    stan_data = {"n": n, "z": z, "cov": cov}
+    stan_data = {"n": n, "z": z, "cov": cov, "loc": loc}
     fit = model.sample(stan_data, iter_sampling=1, iter_warmup=1, fixed_param=True, sig_figs=9)
-    np.testing.assert_allclose(fit.stan_variable("y")[0], transform_irfft(z, cov))
+    np.testing.assert_allclose(fit.stan_variable("y")[0], transform_irfft(z, loc, cov))
 
 
 @pytest.mark.parametrize("shape", [(3,), (4,), (3, 5), (3, 6), (4, 5), (4, 6)])
