@@ -175,6 +175,51 @@ matrix gp_evaluate_rfft2_scale(matrix cov) {
 
 
 /**
+Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
+*/
+real gp_fft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
+    array [2] int ydims = dims(cov);
+    int height = ydims[1];
+    int width = ydims[2];
+    int n = width * height;
+    int fftwidth = width %/% 2 + 1;
+    int fftheight = height %/% 2 + 1;
+    real ladj = 0;
+
+    // For the real part, we always use the full height of the non-redundant part. For the imaginary
+    // part, we discard the last element if the number of rows is even because it's the real Nyqvist
+    // frequency.
+    int idx = (height % 2) ? fftheight : fftheight - 1;
+    ladj += - sum(log(fftscale[:fftheight, 1])) - sum(log(fftscale[2:idx, 1]));
+
+    // Evaluate the "bulk" likelihood that needs no adjustment.
+    ladj += - 2 * sum(log(to_vector(fftscale[:, 2:fftwidth - 1])));
+
+    if (width % 2) {
+        // If the width is odd, the last column comprises all-independent terms.
+        ladj += -sum(log(fftscale[:, fftwidth])) - sum(log(fftscale[:, fftwidth]));
+    } else {
+        ladj += -sum(log(fftscale[:fftheight, fftwidth])) - sum(log(fftscale[2:idx, fftwidth]));
+    }
+    // Correction terms from the transform that only depend on the shape.
+    int nterms = (n - 1) %/% 2;
+    if (height % 2 == 0 && width % 2 == 0) {
+        nterms -=1;
+    }
+    ladj += - log2() * nterms + n * log(n) / 2;
+    return ladj;
+}
+
+
+/**
+Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
+*/
+real gp_fft2_log_abs_det_jacobian(matrix cov) {
+    return gp_fft2_log_abs_det_jacobian(cov, gp_evaluate_rfft2_scale(cov));
+}
+
+
+/**
 Evaluate the log probability of a two-dimensional Gaussian process with zero mean in Fourier space.
 
 :param y: Random variable whose likelihood to evaluate.
@@ -193,36 +238,31 @@ real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
 
     // Evaluate the Fourier coefficients and their scale. We divide the latter by two to account for
     // real and imaginary parts.
-    complex_matrix[height, fftwidth] ffty = fft2(y - loc)[:, :fftwidth];
+    matrix[height, fftwidth] fftscale = gp_evaluate_rfft2_scale(cov);
+    complex_matrix[height, fftwidth] ffty = fft2(y - loc)[:, :fftwidth] ./ fftscale;
     matrix[height, fftwidth] fftreal = get_real(ffty);
     matrix[height, fftwidth] fftimag = get_imag(ffty);
-    matrix[height, fftwidth] fftscale = gp_evaluate_rfft2_scale(cov);
+
 
     // For the real part, we always use the full height of the non-redundant part. For the imaginary
     // part, we discard the last element if the number of rows is even because it's the real Nyqvist
     // frequency.
     int idx = (height % 2) ? fftheight : fftheight - 1;
-    real log_prob = normal_lpdf(fftreal[:fftheight, 1] | 0, fftscale[:fftheight, 1])
-        + normal_lpdf(fftimag[2:idx, 1] | 0, fftscale[2:idx, 1]);
+    real log_prob = normal_lpdf(fftreal[:fftheight, 1] | 0, 1)
+        + normal_lpdf(fftimag[2:idx, 1] | 0, 1);
 
     // Evaluate the "bulk" likelihood that needs no adjustment.
-    log_prob += normal_lpdf(to_vector(fftreal[:, 2:fftwidth - 1]) | 0, to_vector(fftscale[:, 2:fftwidth - 1]))
-        + normal_lpdf(to_vector(fftimag[:, 2:fftwidth - 1]) | 0, to_vector(fftscale[:, 2:fftwidth - 1]));
+    log_prob += std_normal_lpdf(to_vector(fftreal[:, 2:fftwidth - 1]))
+        + std_normal_lpdf(to_vector(fftimag[:, 2:fftwidth - 1]));
 
     if (width % 2) {
         // If the width is odd, the last column comprises all-independent terms.
-        log_prob += normal_lpdf(fftreal[:, fftwidth] | 0, fftscale[:, fftwidth])
-            + normal_lpdf(fftimag[:, fftwidth] | 0, fftscale[:, fftwidth]);
+        log_prob += std_normal_lpdf(fftreal[:, fftwidth])
+            + std_normal_lpdf(fftimag[:, fftwidth]);
     } else {
-        log_prob += normal_lpdf(fftreal[:fftheight, fftwidth] | 0, fftscale[:fftheight, fftwidth])
-            + normal_lpdf(fftimag[2:idx, fftwidth] | 0, fftscale[2:idx, fftwidth]);
+        log_prob += std_normal_lpdf(fftreal[:fftheight, fftwidth])
+            + std_normal_lpdf(fftimag[2:idx, fftwidth]);
     }
 
-    // Correction terms from the transform that only depend on the shape.
-    int nterms = (n - 1) %/% 2;
-    if (height % 2 == 0 && width % 2 == 0) {
-        nterms -=1;
-    }
-    log_prob += - log2() * nterms + n * log(n) / 2;
-    return log_prob;
+    return log_prob + gp_fft2_log_abs_det_jacobian(cov, fftscale);
 }
