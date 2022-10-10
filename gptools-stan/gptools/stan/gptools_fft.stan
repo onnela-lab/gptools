@@ -28,6 +28,47 @@ vector gp_evaluate_rfft_scale(vector cov) {
 
 
 /**
+Transform a Gaussian process realization to white noise in the Fourier domain.
+*/
+vector gp_transform_rfft(vector y, vector loc, vector cov, vector rfft_scale) {
+    int n = size(y);
+    vector[n] z;
+    int ncomplex = (n - 1) %/% 2;
+    int nrfft = n %/% 2 + 1;
+    complex_vector[n] fft = fft(y - loc) ./ rfft_scale;
+    z[1:nrfft] = get_real(fft[1:nrfft]);
+    z[1 + nrfft:n] = get_imag(fft[2:1 + ncomplex]);
+    return z;
+}
+
+
+/**
+Transform a Gaussian process realization to white noise in the Fourier domain.
+*/
+vector gp_transform_rfft(vector y, vector loc, vector cov) {
+    return gp_transform_rfft(y, loc, cov, gp_evaluate_rfft_scale(cov));
+}
+
+
+/**
+Evaluate the log absolute determinant of the Jacobian associated with :func:`gp_transform_rfft`.
+*/
+real gp_fft_log_abs_det_jacobian(vector cov, vector rfft_scale) {
+    int n = size(rfft_scale);
+    return - sum(log(rfft_scale[1:n %/% 2 + 1])) -sum(log(rfft_scale[2:(n + 1) %/% 2]))
+        - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
+}
+
+
+/**
+Evaluate the log absolute determinant of the Jacobian associated with :func:`gp_transform_rfft`.
+*/
+real gp_fft_log_abs_det_jacobian(vector cov) {
+    return gp_fft_log_abs_det_jacobian(cov, gp_evaluate_rfft_scale(cov));
+}
+
+
+/**
 Evaluate the log probability of a one-dimensional Gaussian process with zero mean in Fourier
 space.
 
@@ -40,16 +81,9 @@ space.
 */
 real gp_fft_lpdf(vector y, vector loc, vector cov) {
     int n = size(y);
-    int m = n %/% 2 + 1;
-    // The last index of imaginary components to consider. This is necessary to distinguish between
-    // the odd case (without Nyqvist frequency) and even (with Nyqvist frequency).
-    int idx = (n + 1) %/% 2;
-
     vector[n] rfft_scale = gp_evaluate_rfft_scale(cov);
-    complex_vector[m] fft = fft(y - loc)[:m];
-    return normal_lpdf(get_real(fft) | 0, rfft_scale[:m])
-        + normal_lpdf(get_imag(fft[2:idx]) | 0, rfft_scale[2:idx])
-        - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
+    vector[n] z = gp_transform_rfft(y, loc, cov, rfft_scale);
+    return std_normal_lpdf(z) + gp_fft_log_abs_det_jacobian(cov, rfft_scale);
 }
 
 
@@ -149,6 +183,5 @@ real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
         nterms -=1;
     }
     log_prob += - log2() * nterms + n * log(n) / 2;
-
     return log_prob;
 }
