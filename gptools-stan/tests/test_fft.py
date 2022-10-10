@@ -56,25 +56,3 @@ def test_fft_gp_transform_identity(n: int) -> None:
     stan_data = {"n": n, "z": z, "cov": cov, "loc": loc}
     fit = model.sample(stan_data, iter_sampling=1, iter_warmup=1, fixed_param=True, sig_figs=9)
     np.testing.assert_allclose(fit.stan_variable("y")[0], transform_irfft(z, loc, cov))
-
-
-@pytest.mark.parametrize("shape", [(3,), (4,), (3, 5), (3, 6), (4, 5), (4, 6)])
-def test_stan_numpy_fft_identity(shape: tuple[int]):
-    x = np.random.normal(0, 1, shape)
-    stan_file = pathlib.Path(__file__).parent / f"test_fft_identity_{x.ndim}d.stan"
-    model = compile_model(stan_file=stan_file)
-    data = {"x": x, "n": shape[0]}
-    if x.ndim == 1:
-        np_fft = np.fft.fft(x)
-    elif x.ndim == 2:
-        data["m"] = shape[1]
-        np_fft = np.fft.fft2(x)
-    else:
-        raise NotImplementedError
-    fit = model.sample(data, fixed_param=True, iter_warmup=0, iter_sampling=1, sig_figs=9)
-    stan_fft, = fit.stan_variable("y")
-    stan_inv_fft, = fit.stan_variable("z")
-    np.testing.assert_allclose(stan_fft.real, np_fft.real, atol=1e-6)
-    np.testing.assert_allclose(stan_fft.imag, np_fft.imag, atol=1e-6)
-    np.testing.assert_allclose(stan_inv_fft.imag, 0, atol=1e-6)
-    np.testing.assert_allclose(stan_inv_fft.real, x, atol=1e-6)

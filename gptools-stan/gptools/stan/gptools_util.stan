@@ -53,18 +53,21 @@ void assert_close(real actual, real desired) {
 }
 
 /**
-Check whether a value is finite.
+Check whether a possibly complex value is finite.
 
 :param x: Value to check.
 :retval 1: If the values are close.
 :retval 0: If the values are not close.
 */
-int is_finite(real x) {
-    if (is_nan(x) || is_inf(x)) {
+int is_finite(complex x) {
+    real rx = get_real(x);
+    real ix = get_imag(x);
+    if (is_nan(rx) || is_nan(ix) || is_inf(rx) || is_inf(ix)) {
         return 0;
     }
     return 1;
 }
+
 
 // Vectors -----------------------------------------------------------------------------------------
 
@@ -119,6 +122,20 @@ int is_finite(vector x) {
         }
     }
     return 1;
+}
+
+/**
+Assert that all elements of a vector are finite.
+
+:param: Vector to check.
+*/
+void assert_finite(vector x) {
+    int n = size(x);
+    for (i in 1:n) {
+        if (!is_finite(x[i])) {
+            reject(x[i], " at index ", i, " is not finite");
+        }
+    }
 }
 
 // Matrices ----------------------------------------------------------------------------------------
@@ -206,6 +223,21 @@ void assert_close(complex_vector actual, complex desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
+
+/**
+Assert that all elements of a complex vector are finite.
+
+:param: Vector to check.
+*/
+void assert_finite(complex_vector x) {
+    int n = size(x);
+    for (i in 1:n) {
+        if (!is_finite(x[i])) {
+            reject(x[i], " at index ", i, " is not finite");
+        }
+    }
+}
+
 // Shorthand for creating containers ---------------------------------------------------------------
 
 vector zeros(int n) {
@@ -214,4 +246,47 @@ vector zeros(int n) {
 
 vector ones(int n) {
     return rep_vector(0, n);
+}
+
+// Real Fourier transforms -------------------------------------------------------------------------
+
+/**
+Evaluate the complex conjugate.
+*/
+complex conjugate(complex x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
+Evaluate the complex conjugate.
+*/
+complex_vector conjugate(complex_vector x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
+Compute the one-dimensional discrete Fourier transform for real input.
+
+:param y: Real signal with `n` elements to transform.
+:returns: Truncated vector of Fourier coefficients with `n %/% 2 + 1` elements.
+*/
+complex_vector rfft(vector y) {
+    return fft(y)[:size(y) %/% 2 + 1];
+}
+
+/**
+Compute the one-dimensional inverse discrete fourier transform for real output.
+
+:param z: Truncated vector of Fourier coefficents with `n %/% 2 + 1` elements.
+:param n: Length of the signal (required because the length of the signal cannot be determined from
+    `z` alone).
+:returns: Real signal with `n` elements.
+*/
+vector inv_rfft(complex_vector z, int n) {
+    complex_vector[n] x;
+    int nrfft = n %/% 2 + 1;
+    int ncomplex = (n - 1) %/% 2;
+    x[1:nrfft] = z[1:nrfft];
+    x[nrfft + 1:n] = conjugate(reverse(z[2:1 + ncomplex]));
+    return get_real(inv_fft(x));
 }
