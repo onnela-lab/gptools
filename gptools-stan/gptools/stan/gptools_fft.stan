@@ -140,13 +140,12 @@ vector gp_transform_irfft(vector z, vector loc, vector cov) {
 Evaluate the scale of Fourier coefficients.
 */
 matrix gp_evaluate_rfft2_scale(matrix cov) {
-    array [2] int covdims = dims(cov);
-    int height = covdims[1];
-    int width = covdims[2];
+    int height = rows(cov);
+    int width = cols(cov);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
-    matrix[height, fftwidth] fftscale = n * get_real(fft2(cov)[:, :fftwidth]) / 2;
+    matrix[height, fftwidth] fftscale = n * get_real(rfft2(cov)) / 2;
 
     // Adjust the scale for the zero-frequency (and Nyqvist) terms in the first column.
     fftscale[1, 1] *= 2;
@@ -173,9 +172,8 @@ matrix gp_evaluate_rfft2_scale(matrix cov) {
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
 real gp_fft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
-    array [2] int ydims = dims(cov);
-    int height = ydims[1];
-    int width = ydims[2];
+    int height = rows(cov);
+    int width = cols(cov);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
@@ -186,16 +184,16 @@ real gp_fft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
     // part, we discard the last element if the number of rows is even because it's the real Nyqvist
     // frequency.
     int idx = (height % 2) ? fftheight : fftheight - 1;
-    ladj += - sum(logfftscale[:fftheight, 1]) - sum(logfftscale[2:idx, 1]);
+    ladj -= sum(logfftscale[:fftheight, 1]) + sum(logfftscale[2:idx, 1]);
 
     // Evaluate the "bulk" likelihood that needs no adjustment.
-    ladj += - 2 * sum(to_vector(logfftscale[:, 2:fftwidth - 1]));
+    ladj -= 2 * sum(to_vector(logfftscale[:, 2:fftwidth - 1]));
 
     if (width % 2) {
         // If the width is odd, the last column comprises all-independent terms.
-        ladj += -sum(logfftscale[:, fftwidth]) - sum(logfftscale[:, fftwidth]);
+        ladj -= 2 * sum(logfftscale[:, fftwidth]);
     } else {
-        ladj += -sum(logfftscale[:fftheight, fftwidth]) - sum(logfftscale[2:idx, fftwidth]);
+        ladj -= sum(logfftscale[:fftheight, fftwidth]) + sum(logfftscale[2:idx, fftwidth]);
     }
     // Correction terms from the transform that only depend on the shape.
     int nterms = (n - 1) %/% 2;
@@ -225,9 +223,8 @@ Evaluate the log probability of a two-dimensional Gaussian process with zero mea
 :returns: Log probability of the Gaussian process.
 */
 real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
-    array [2] int ydims = dims(y);
-    int height = ydims[1];
-    int width = ydims[2];
+    int height = rows(y);
+    int width = cols(y);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
@@ -235,7 +232,7 @@ real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
     // Evaluate the Fourier coefficients and their scale. We divide the latter by two to account for
     // real and imaginary parts.
     matrix[height, fftwidth] fftscale = gp_evaluate_rfft2_scale(cov);
-    complex_matrix[height, fftwidth] ffty = fft2(y - loc)[:, :fftwidth] ./ fftscale;
+    complex_matrix[height, fftwidth] ffty = rfft2(y - loc) ./ fftscale;
     matrix[height, fftwidth] fftreal = get_real(ffty);
     matrix[height, fftwidth] fftimag = get_imag(ffty);
 
@@ -244,8 +241,7 @@ real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
     // part, we discard the last element if the number of rows is even because it's the real Nyqvist
     // frequency.
     int idx = (height % 2) ? fftheight : fftheight - 1;
-    real log_prob = normal_lpdf(fftreal[:fftheight, 1] | 0, 1)
-        + normal_lpdf(fftimag[2:idx, 1] | 0, 1);
+    real log_prob = std_normal_lpdf(fftreal[:fftheight, 1]) + std_normal_lpdf(fftimag[2:idx, 1]);
 
     // Evaluate the "bulk" likelihood that needs no adjustment.
     log_prob += std_normal_lpdf(to_vector(fftreal[:, 2:fftwidth - 1]))
@@ -253,8 +249,7 @@ real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
 
     if (width % 2) {
         // If the width is odd, the last column comprises all-independent terms.
-        log_prob += std_normal_lpdf(fftreal[:, fftwidth])
-            + std_normal_lpdf(fftimag[:, fftwidth]);
+        log_prob += std_normal_lpdf(fftreal[:, fftwidth]) + std_normal_lpdf(fftimag[:, fftwidth]);
     } else {
         log_prob += std_normal_lpdf(fftreal[:fftheight, fftwidth])
             + std_normal_lpdf(fftimag[2:idx, fftwidth]);
