@@ -96,6 +96,27 @@ real gp_fft_lpdf(vector y, vector loc, vector cov) {
 }
 
 
+/*
+Transform a real vector with `n` elements to a vector of complex Fourier coefficients with `n`
+elements ready for inverse real fast Fourier transformation.
+*/
+complex_vector gp_pack_rfft(vector z) {
+    int n = size(z);  // Number of observations.
+    int ncomplex = (n - 1) %/% 2;  // Number of complex Fourier coefficients.
+    int nrfft = n %/% 2 + 1;  // Number of elements in the real FFT.
+    int neg_offset = (n + 1) %/% 2;  // Offset at which the negative frequencies start.
+    complex_vector[n] fft;
+
+    // Zero frequency, real part of positive frequency coefficients, and Nyqvist frequency.
+    fft[1:nrfft] = z[1:nrfft];
+    // Imaginary part of positive frequency coefficients.
+    fft[2:ncomplex + 1] += 1.0i * z[nrfft + 1:n];
+    // Negative frequency coefficients.
+    fft[nrfft + 1:n] = reverse(to_complex(z[2:ncomplex + 1], -z[nrfft + 1:n]));
+    return fft;
+}
+
+
 /**
 Transform white noise in the Fourier domain to a Gaussian process realization, i.e., a
 *non-centered* parameterization in the Fourier domain.
@@ -116,19 +137,7 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
 vector gp_transform_irfft(vector z, vector loc, vector cov) {
-    int n = size(z);  // Number of observations.
-    int ncomplex = (n - 1) %/% 2;  // Number of complex Fourier coefficients.
-    int nrfft = n %/% 2 + 1;  // Number of elements in the real FFT.
-    int neg_offset = (n + 1) %/% 2;  // Offset at which the negative frequencies start.
-    complex_vector[n] fft;
-
-    // Zero frequency, real part of positive frequency coefficients, and Nyqvist frequency.
-    fft[1:nrfft] = z[1:nrfft];
-    // Imaginary part of positive frequency coefficients.
-    fft[2:ncomplex + 1] += 1.0i * z[nrfft + 1:n];
-    // Negative frequency coefficients.
-    fft[nrfft + 1:n] = reverse(to_complex(z[2:ncomplex + 1], -z[nrfft + 1:n]));
-    return get_real(inv_fft(gp_evaluate_rfft_scale(cov) .* fft)) + loc;
+    return get_real(inv_fft(gp_evaluate_rfft_scale(cov) .* gp_pack_rfft(z))) + loc;
 }
 
 
