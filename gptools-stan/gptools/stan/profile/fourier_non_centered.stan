@@ -1,9 +1,9 @@
 // Fourier gaussian process with normal noise and non-centered parameterization.
 
 functions {
+    #include gptools_util.stan
     #include gptools_fft.stan
     #include gptools_kernels.stan
-    #include gptools_util.stan
 }
 
 #include data.stan
