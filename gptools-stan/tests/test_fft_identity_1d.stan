@@ -20,7 +20,6 @@ generated quantities {
 
     // Real Fourier transform.
     complex_vector[nrfft] ry = rfft(x);
-    assert_finite(ry);
     vector[n] rz = inv_rfft(ry, n);
-    assert_close(get_real(rz), x);
+    assert_close(rz, x);
 }

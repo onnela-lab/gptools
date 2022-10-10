@@ -141,6 +141,16 @@ void assert_finite(vector x) {
 // Matrices ----------------------------------------------------------------------------------------
 
 /**
+Pretty-print a matrix.
+*/
+void print_matrix(complex_matrix x) {
+    print("matrix with ", rows(x), " rows and ", cols(x), " columns");
+    for (i in 1:rows(x)) {
+        print(x[i]);
+    }
+}
+
+/**
 Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
 */
 void assert_close(matrix actual, matrix desired, real rtol, real atol) {
@@ -265,6 +275,20 @@ complex_vector conjugate(complex_vector x) {
 }
 
 /**
+Evaluate the complex conjugate.
+*/
+complex_row_vector conjugate(complex_row_vector x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
+Evaluate the complex conjugate.
+*/
+complex_matrix conjugate(complex_matrix x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
 Compute the one-dimensional discrete Fourier transform for real input.
 
 :param y: Real signal with `n` elements to transform.
@@ -275,7 +299,7 @@ complex_vector rfft(vector y) {
 }
 
 /**
-Compute the one-dimensional inverse discrete fourier transform for real output.
+Compute the one-dimensional inverse discrete Fourier transform for real output.
 
 :param z: Truncated vector of Fourier coefficents with `n %/% 2 + 1` elements.
 :param n: Length of the signal (required because the length of the signal cannot be determined from
@@ -289,4 +313,39 @@ vector inv_rfft(complex_vector z, int n) {
     x[1:nrfft] = z[1:nrfft];
     x[nrfft + 1:n] = conjugate(reverse(z[2:1 + ncomplex]));
     return get_real(inv_fft(x));
+}
+
+/**
+Compute the two-dimensional discrete Fourier transform for real input.
+
+:param y: Real signal with `n` rows and `m` columns to transform.
+:returns: Truncated vector of Fourier coefficients with `n` rows and `m %/% 2 + 1` elements.
+*/
+complex_matrix rfft2(matrix y) {
+    return fft2(y)[:, :cols(y) %/% 2 + 1];
+}
+
+/**
+Compute the two-dimensional inverse discrete Fourier transform for real output.
+
+:param z: Truncated vector of Fourier coefficients with `n` rows and `m %/% 2 + 1` elements.
+:param m: Number of columns of the signal (required because the number of columns cannot be
+    determined from `z` alone).
+:returns: Real signal with `n` rows and `m` columns.
+*/
+matrix inv_rfft2(complex_matrix z, int m) {
+    int n = rows(z);
+    complex_matrix[n, m] x;
+    int mrfft = m %/% 2 + 1;
+    int mcomplex = (m - 1) %/% 2;
+    x[:, 1:mrfft] = z[:, 1:mrfft];
+    // Fill redundant values.
+    for (i in 1:n) {
+        x[i, mrfft + 1:m] = conjugate(reverse(z[i, 2:1 + mcomplex]));
+    }
+    // Reverse the order to account for negative frequencies.
+    for (i in mrfft + 1:mrfft + mcomplex) {
+        x[2:, i] = reverse(x[2:, i]);
+    }
+    return get_real(inv_fft2(x));
 }

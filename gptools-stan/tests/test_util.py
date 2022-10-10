@@ -22,6 +22,8 @@ def test_stan_numpy_fft_identity(shape: tuple[int]):
     else:
         raise NotImplementedError
     fit = model.sample(data, fixed_param=True, iter_warmup=0, iter_sampling=1, sig_figs=9)
+
+    # Verify the full Fourier transform.
     stan_fft, = fit.stan_variable("y")
     stan_inv_fft, = fit.stan_variable("z")
     np.testing.assert_allclose(stan_fft.real, np_fft.real, atol=1e-6)
@@ -29,10 +31,10 @@ def test_stan_numpy_fft_identity(shape: tuple[int]):
     np.testing.assert_allclose(stan_inv_fft.imag, 0, atol=1e-6)
     np.testing.assert_allclose(stan_inv_fft.real, x, atol=1e-6)
 
-    if x.ndim == 1:
-        stan_rfft, = fit.stan_variable("ry")
-        stan_inv_rfft, = fit.stan_variable("rz")
-        np.testing.assert_allclose(stan_rfft.real, np_rfft.real, atol=1e-6)
-        np.testing.assert_allclose(stan_rfft.imag, np_rfft.imag, atol=1e-6)
-        np.testing.assert_allclose(stan_inv_rfft.imag, 0, atol=1e-6)
-        np.testing.assert_allclose(stan_inv_rfft.real, x, atol=1e-6)
+    # Verify the real Fourier transform.
+    stan_rfft, = fit.stan_variable("ry")
+    stan_inv_rfft, = fit.stan_variable("rz")
+    np.testing.assert_allclose(stan_rfft.real, np_rfft.real, atol=1e-6)
+    np.testing.assert_allclose(stan_rfft.imag, np_rfft.imag, atol=1e-6)
+    np.testing.assert_allclose(stan_inv_rfft.imag, 0, atol=1e-6)
+    np.testing.assert_allclose(stan_inv_rfft.real, x, atol=1e-6)
