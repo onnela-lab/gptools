@@ -349,3 +349,9 @@ matrix inv_rfft2(complex_matrix z, int m) {
     }
     return get_real(inv_fft2(x));
 }
+
+// Custom likelihoods ------------------------------------------------------------------------------
+
+real std_normal_lpdf(complex_vector z) {
+    return std_normal_lpdf(get_real(z)) + std_normal_lpdf(get_imag(z));
+}

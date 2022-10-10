@@ -110,12 +110,11 @@ real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
     real log_prob = std_normal_lpdf(fftreal[:fftheight, 1]) + std_normal_lpdf(fftimag[2:idx, 1]);
 
     // Evaluate the "bulk" likelihood that needs no adjustment.
-    log_prob += std_normal_lpdf(to_vector(fftreal[:, 2:fftwidth - 1]))
-        + std_normal_lpdf(to_vector(fftimag[:, 2:fftwidth - 1]));
+    log_prob += std_normal_lpdf(to_vector(ffty[:, 2:fftwidth - 1]));
 
     if (width % 2) {
         // If the width is odd, the last column comprises all-independent terms.
-        log_prob += std_normal_lpdf(fftreal[:, fftwidth]) + std_normal_lpdf(fftimag[:, fftwidth]);
+        log_prob += std_normal_lpdf(ffty[:, fftwidth]);
     } else {
         log_prob += std_normal_lpdf(fftreal[:fftheight, fftwidth])
             + std_normal_lpdf(fftimag[2:idx, fftwidth]);
