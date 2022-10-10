@@ -37,7 +37,7 @@ matrix gp_evaluate_rfft2_scale(matrix cov) {
 /**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
-real gp_fft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
+real gp_rfft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
     int height = rows(cov);
     int width = cols(cov);
     int n = width * height;
@@ -74,8 +74,8 @@ real gp_fft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
 /**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
-real gp_fft2_log_abs_det_jacobian(matrix cov) {
-    return gp_fft2_log_abs_det_jacobian(cov, gp_evaluate_rfft2_scale(cov));
+real gp_rfft2_log_abs_det_jacobian(matrix cov) {
+    return gp_rfft2_log_abs_det_jacobian(cov, gp_evaluate_rfft2_scale(cov));
 }
 
 
@@ -88,7 +88,7 @@ Evaluate the log probability of a two-dimensional Gaussian process with zero mea
 
 :returns: Log probability of the Gaussian process.
 */
-real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
+real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov) {
     int height = rows(y);
     int width = cols(y);
     int n = width * height;
@@ -120,5 +120,5 @@ real gp_fft2_lpdf(matrix y, matrix loc, matrix cov) {
             + std_normal_lpdf(fftimag[2:idx, fftwidth]);
     }
 
-    return log_prob + gp_fft2_log_abs_det_jacobian(cov, fftscale);
+    return log_prob + gp_rfft2_log_abs_det_jacobian(cov, fftscale);
 }

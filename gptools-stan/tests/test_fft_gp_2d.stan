@@ -11,5 +11,5 @@ data {
 }
 
 generated quantities {
-    real log_prob = gp_fft2_lpdf(y | loc, cov);
+    real log_prob = gp_rfft2_lpdf(y | loc, cov);
 }

@@ -27,7 +27,7 @@ transformed parameters {
 }
 
 model {
-    // White noise prior (implies eta ~ gp_fft(...) and observation model.
+    // White noise prior (implies eta ~ gp_rfft(...) and observation model.
     z ~ normal(0, 1);
     y ~ poisson_log(eta);
 }
