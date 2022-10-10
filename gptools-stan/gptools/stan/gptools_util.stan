@@ -169,6 +169,43 @@ void assert_close(matrix actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
+// Complex vectors ---------------------------------------------------------------------------------
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex_vector desired, real rtol, real atol) {
+    int n = size(desired);
+    int m = size(actual);
+    if (m != n) {
+        reject("number of elements are not equal: size(desired)=", n, "; size(actual)=", m);
+    }
+    assert_close(get_real(actual), get_real(desired), rtol, atol);
+    assert_close(get_imag(actual), get_imag(desired), rtol, atol);
+}
+
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex_vector desired) {
+    assert_close(actual, desired, 1e-6, 0);
+}
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex desired, real rtol, real atol) {
+    assert_close(actual, rep_vector(desired, size(actual)), rtol, atol);
+}
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex desired) {
+    assert_close(actual, desired, 1e-6, 0);
+}
+
 // Shorthand for creating containers ---------------------------------------------------------------
 
 vector zeros(int n) {
