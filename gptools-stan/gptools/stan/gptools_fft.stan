@@ -27,18 +27,27 @@ vector gp_evaluate_rfft_scale(vector cov) {
 }
 
 
+/*
+Unpack the complex Fourier coefficients of a real Fourier transform with `n` elements to a vector of
+`n` elements.
+*/
+vector gp_unpack_rfft(complex_vector rfft) {
+    int n = size(rfft);
+    vector[n] z;
+    int ncomplex = (n - 1) %/% 2;
+    int nrfft = n %/% 2 + 1;
+    z[1:nrfft] = get_real(rfft[1:nrfft]);
+    z[1 + nrfft:n] = get_imag(rfft[2:1 + ncomplex]);
+    return z;
+}
+
+
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */
 vector gp_transform_rfft(vector y, vector loc, vector cov, vector rfft_scale) {
-    int n = size(y);
-    vector[n] z;
-    int ncomplex = (n - 1) %/% 2;
-    int nrfft = n %/% 2 + 1;
-    complex_vector[n] fft = fft(y - loc) ./ rfft_scale;
-    z[1:nrfft] = get_real(fft[1:nrfft]);
-    z[1 + nrfft:n] = get_imag(fft[2:1 + ncomplex]);
-    return z;
+    return gp_unpack_rfft(fft(y - loc) ./ rfft_scale);
+
 }
 
 
@@ -51,7 +60,7 @@ vector gp_transform_rfft(vector y, vector loc, vector cov) {
 
 
 /**
-Evaluate the log absolute determinant of the Jacobian associated with :func:`gp_transform_rfft`.
+Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
 real gp_fft_log_abs_det_jacobian(vector cov, vector rfft_scale) {
     int n = size(rfft_scale);
@@ -61,7 +70,7 @@ real gp_fft_log_abs_det_jacobian(vector cov, vector rfft_scale) {
 
 
 /**
-Evaluate the log absolute determinant of the Jacobian associated with :func:`gp_transform_rfft`.
+Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
 real gp_fft_log_abs_det_jacobian(vector cov) {
     return gp_fft_log_abs_det_jacobian(cov, gp_evaluate_rfft_scale(cov));
