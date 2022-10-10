@@ -12,7 +12,8 @@ uncorrelated Gaussian random variables with zero mean. This function evaluates t
 */
 vector gp_evaluate_rfft_scale(vector cov) {
     int n = size(cov);
-    vector[n] result = n * get_real(fft(cov)) / 2;
+    int nrfft = n %/% 2 + 1;
+    vector[nrfft] result = n * get_real(fft(cov)[:nrfft]) / 2;
     if (min(result) < 0){
         reject("kernel is not positive definite");
     }
@@ -21,7 +22,7 @@ vector gp_evaluate_rfft_scale(vector cov) {
     // (Nyqvist frequency).
     result[1] *= 2;
     if (n % 2 == 0) {
-        result[n %/% 2 + 1] *= 2;
+        result[nrfft] *= 2;
     }
     return sqrt(result);
 }
@@ -31,13 +32,12 @@ vector gp_evaluate_rfft_scale(vector cov) {
 Unpack the complex Fourier coefficients of a real Fourier transform with `n` elements to a vector of
 `n` elements.
 */
-vector gp_unpack_rfft(complex_vector rfft) {
-    int n = size(rfft);
+vector gp_unpack_rfft(complex_vector x, int n) {
     vector[n] z;
     int ncomplex = (n - 1) %/% 2;
     int nrfft = n %/% 2 + 1;
-    z[1:nrfft] = get_real(rfft[1:nrfft]);
-    z[1 + nrfft:n] = get_imag(rfft[2:1 + ncomplex]);
+    z[1:nrfft] = get_real(x);
+    z[1 + nrfft:n] = get_imag(x[2:1 + ncomplex]);
     return z;
 }
 
@@ -46,8 +46,7 @@ vector gp_unpack_rfft(complex_vector rfft) {
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */
 vector gp_transform_rfft(vector y, vector loc, vector cov, vector rfft_scale) {
-    return gp_unpack_rfft(fft(y - loc) ./ rfft_scale);
-
+    return gp_unpack_rfft(rfft(y - loc) ./ rfft_scale, size(y));
 }
 
 
@@ -62,8 +61,7 @@ vector gp_transform_rfft(vector y, vector loc, vector cov) {
 /**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
-real gp_fft_log_abs_det_jacobian(vector cov, vector rfft_scale) {
-    int n = size(rfft_scale);
+real gp_fft_log_abs_det_jacobian(vector cov, vector rfft_scale, int n) {
     return - sum(log(rfft_scale[1:n %/% 2 + 1])) -sum(log(rfft_scale[2:(n + 1) %/% 2]))
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }
@@ -72,8 +70,8 @@ real gp_fft_log_abs_det_jacobian(vector cov, vector rfft_scale) {
 /**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
-real gp_fft_log_abs_det_jacobian(vector cov) {
-    return gp_fft_log_abs_det_jacobian(cov, gp_evaluate_rfft_scale(cov));
+real gp_fft_log_abs_det_jacobian(vector cov, int n) {
+    return gp_fft_log_abs_det_jacobian(cov, gp_evaluate_rfft_scale(cov), n);
 }
 
 
@@ -90,9 +88,10 @@ space.
 */
 real gp_fft_lpdf(vector y, vector loc, vector cov) {
     int n = size(y);
-    vector[n] rfft_scale = gp_evaluate_rfft_scale(cov);
+    int nrfft = n %/% 2 + 1;
+    vector[nrfft] rfft_scale = gp_evaluate_rfft_scale(cov);
     vector[n] z = gp_transform_rfft(y, loc, cov, rfft_scale);
-    return std_normal_lpdf(z) + gp_fft_log_abs_det_jacobian(cov, rfft_scale);
+    return std_normal_lpdf(z) + gp_fft_log_abs_det_jacobian(cov, rfft_scale, n);
 }
 
 
@@ -105,14 +104,10 @@ complex_vector gp_pack_rfft(vector z) {
     int ncomplex = (n - 1) %/% 2;  // Number of complex Fourier coefficients.
     int nrfft = n %/% 2 + 1;  // Number of elements in the real FFT.
     int neg_offset = (n + 1) %/% 2;  // Offset at which the negative frequencies start.
-    complex_vector[n] fft;
-
     // Zero frequency, real part of positive frequency coefficients, and Nyqvist frequency.
-    fft[1:nrfft] = z[1:nrfft];
+    complex_vector[nrfft] fft = z[1:nrfft];
     // Imaginary part of positive frequency coefficients.
     fft[2:ncomplex + 1] += 1.0i * z[nrfft + 1:n];
-    // Negative frequency coefficients.
-    fft[nrfft + 1:n] = reverse(to_complex(z[2:ncomplex + 1], -z[nrfft + 1:n]));
     return fft;
 }
 
@@ -137,7 +132,7 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
 vector gp_transform_irfft(vector z, vector loc, vector cov) {
-    return get_real(inv_fft(gp_evaluate_rfft_scale(cov) .* gp_pack_rfft(z))) + loc;
+    return get_real(inv_rfft(gp_evaluate_rfft_scale(cov) .* gp_pack_rfft(z), size(z))) + loc;
 }
 
 

@@ -1,4 +1,5 @@
 functions {
+    #include gptools_util.stan
     #include gptools_fft.stan
 }
 
