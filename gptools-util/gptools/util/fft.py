@@ -207,7 +207,7 @@ def evaluate_rfft2_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return dispatch.sqrt(rfft2_scale)
 
 
-def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
+def unpack_rfft2(z: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     """
     Unpack the Fourier coefficients of a two-dimensional real Fourier transform with shape
     `(..., height, width // 2 + 1)` to a batch of matrices with shape `(..., height, width)`.
@@ -215,7 +215,7 @@ def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     TODO: add details on packing structure.
 
     Args:
-        rfft: Two-dimensional real Fourier transform coefficients.
+        z: Two-dimensional real Fourier transform coefficients.
         shape: Shape of the real signal. Necessary because the number of columns cannot be inferred
             from `rfft2`.
 
@@ -226,13 +226,13 @@ def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     ncomplex = (width - 1) // 2
     parts = [
         # First column is always real.
-        unpack_rfft(rfft2[..., :height // 2 + 1, 0], height)[..., None],
+        unpack_rfft(z[..., :height // 2 + 1, 0], height)[..., None],
         # Real and imaginary parts of complex coefficients.
-        rfft2[..., 1:ncomplex + 1].real,
-        rfft2[..., 1:ncomplex + 1].imag,
+        z[..., 1:ncomplex + 1].real,
+        z[..., 1:ncomplex + 1].imag,
     ]
     if width % 2 == 0:  # Nyqvist frequency terms if the number of columns is even.
-        parts.append(unpack_rfft(rfft2[..., :height // 2 + 1, width // 2], height)[..., None])
+        parts.append(unpack_rfft(z[..., :height // 2 + 1, width // 2], height)[..., None])
     return dispatch.concatenate(parts, axis=-1)
 
 

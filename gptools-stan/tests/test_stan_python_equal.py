@@ -176,6 +176,16 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": y,
     })
 
+    # Unpack truncated Fourier coefficients to a real vector ...
+    configs.append({
+        "stan_function": "gp_unpack_rfft2",
+        "python_function": lambda z, m: fft.unpack_rfft2(z, (z.shape[0], m)),
+        "arg_types": {"n_": "int", "m": "int", "z": "complex_matrix[n_, m %/% 2 + 1]"},
+        "arg_values": {"z": z, "n_": n, "m": m},
+        "result_type": "matrix[n_, m]",
+        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+    })
+
     # Transforming to whitened Fourier coefficients ...
     loc = np.random.normal(0, 1, (n, m))
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)

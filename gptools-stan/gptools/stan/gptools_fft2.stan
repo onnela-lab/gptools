@@ -31,30 +31,33 @@ matrix gp_evaluate_rfft2_scale(matrix cov) {
 }
 
 
+matrix gp_unpack_rfft2(complex_matrix z, int m) {
+    int height = rows(z);
+    int n = m * height;
+    int fftwidth = m %/% 2 + 1;
+    int fftheight = height %/% 2 + 1;
+    int wcomplex = (m - 1) %/% 2;
+
+    matrix[height, m] result;
+
+    // First column is always real.
+    result[:, 1] = gp_unpack_rfft(z[:fftheight, 1], height);
+    // Real and imaginary parts of complex coefficients.
+    result[:, 2:wcomplex + 1] = get_real(z[:, 2:wcomplex + 1]);
+    result[:, 2 + wcomplex:2 * wcomplex + 1] = get_imag(z[:, 2:wcomplex + 1]);
+    // Nyqvist frequency if the number of columns is even.
+    if (m % 2 == 0) {
+        result[:, m] = gp_unpack_rfft(z[:fftheight, fftwidth], height);
+    }
+    return result;
+}
+
+
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */
 matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov, matrix rfft2_scale) {
-    int height = rows(y);
-    int width = cols(y);
-    int n = width * height;
-    int fftwidth = width %/% 2 + 1;
-    int fftheight = height %/% 2 + 1;
-    int wcomplex = (width - 1) %/% 2;
-
-    complex_matrix[height, fftwidth] ffty = rfft2(y - loc) ./ rfft2_scale;
-    matrix[height, width] z;
-
-    // First column is always real.
-    z[:, 1] = gp_unpack_rfft(ffty[:fftheight, 1], height);
-    // Real and imaginary parts of complex coefficients.
-    z[:, 2:wcomplex + 1] = get_real(ffty[:, 2:wcomplex + 1]);
-    z[:, 2 + wcomplex:2 * wcomplex + 1] = get_imag(ffty[:, 2:wcomplex + 1]);
-    // Nyqvist frequency if the number of columns is even.
-    if (width % 2 == 0) {
-        z[:, width] = gp_unpack_rfft(ffty[:fftheight, fftwidth], height);
-    }
-    return z;
+    return gp_unpack_rfft2(rfft2(y - loc) ./ rfft2_scale, cols(y));
 }
 
 
