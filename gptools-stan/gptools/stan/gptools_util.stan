@@ -304,8 +304,11 @@ Fourier coefficients.
 */
 complex_vector expand_rfft(complex_vector y, int n) {
     complex_vector[n] result;
-    int ncomplex = (n - 1) %/% 2;
     int nrfft = n %/% 2 + 1;
+    if (size(y) != nrfft) {
+        reject("expected complex vector with ", nrfft, " elements but got ", size(y));
+    }
+    int ncomplex = (n - 1) %/% 2;
     result[:nrfft] = y;
     result[nrfft + 1:n] = conjugate(reverse(y[2:1 + ncomplex]));
     return result;
