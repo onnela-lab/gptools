@@ -1,9 +1,10 @@
 from gptools.stan import compile_model
-from gptools.util import fft, kernels
+from gptools.util import coordgrid, fft, kernels
 import hashlib
 import numpy as np
 import pathlib
 import pytest
+from scipy import stats
 import typing
 
 
@@ -17,8 +18,12 @@ def assert_stan_python_allclose(
     # Assemble the stan code we seek to build.
     functions = "\n".join(f"#include {include}" for include in includes)
     data = "\n".join(f"{type} {name};" for name, type in arg_types.items())
-    generated_quantities = f"{result_type} result = {stan_function}(" \
-        + ", ".join(arg for arg in arg_values if not arg.endswith("_")) + ");"
+    args = [arg for arg in arg_values if not arg.endswith("_")]
+    if stan_function.endswith("_lpdf"):
+        x, *args = args
+        generated_quantities = f"{result_type} result = {stan_function}({x} | {', '.join(args)});"
+    else:
+        generated_quantities = f"{result_type} result = {stan_function}({', '.join(args)});"
     code = "\n".join([
         "functions {", functions, "}",
         "data {", data, "}",
@@ -65,7 +70,7 @@ def assert_stan_python_allclose(
 configs = []
 
 for n in [7, 8]:
-    # One-dimensional real Fourier transforms ...
+    # One-dimensional real Fourier transform ...
     y = np.random.normal(0, 1, n)
     configs.append({
         "stan_function": "rfft",
@@ -112,32 +117,43 @@ for n in [7, 8]:
 
     # Transforming to whitened Fourier coefficients ...
     loc = np.random.normal(0, 1, n)
-    y = np.linspace(0, 1, n, endpoint=False)
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
-    cov = kernel(np.arange(n)[:, None])[0]
+    cov = kernel(np.arange(n)[:, None])
+    lincov = cov[0]
     configs.append({
         "stan_function": "gp_transform_rfft",
         "python_function": fft.transform_rfft,
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "cov": cov},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "cov": lincov},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
     })
 
     # ... and back again.
-    z = fft.transform_rfft(y, loc, cov)
+    z = fft.transform_rfft(y, loc, lincov)
     configs.append({
         "stan_function": "gp_transform_irfft",
         "python_function": fft.transform_irfft,
         "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "z": z, "loc": loc, "cov": cov},
+        "arg_values": {"n_": n, "z": z, "loc": loc, "cov": lincov},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": y,
     })
 
+    # Evaluate the likelihood.
+    configs.append({
+        "stan_function": "gp_rfft_lpdf",
+        "python_function": fft.evaluate_log_prob_rfft,
+        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "cov": lincov},
+        "result_type": "real",
+        "includes": ["gptools_util.stan", "gptools_fft1.stan"],
+        "desired": stats.multivariate_normal(loc, cov).logpdf(y),
+    })
+
 for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
-    # Two-dimensional real Fourier transforms.
+    # Two-dimensional real Fourier transform ...
     y = np.random.normal(0, 1, (n, m))
     configs.append({
         "stan_function": "rfft2",
@@ -148,6 +164,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "includes": ["gptools_util.stan"],
     })
 
+    # ... and its inverse.
     z = np.fft.rfft2(y)
     configs.append({
         "stan_function": "inv_rfft2",
@@ -157,6 +174,34 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "result_type": "matrix[n_, m]",
         "includes": ["gptools_util.stan"],
         "desired": y,
+    })
+
+    # Transforming to whitened Fourier coefficients ...
+    loc = np.random.normal(0, 1, (n, m))
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
+    xs = coordgrid(np.arange(n), np.arange(m))
+    cov = kernel(xs)
+    lincov = cov[0].reshape((n, m))
+    configs.append({
+        "stan_function": "gp_transform_rfft2",
+        "python_function": fft.transform_rfft2,
+        "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
+                      "cov": "matrix[n_, m_]"},
+        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov": lincov},
+        "result_type": "matrix[n_, m_]",
+        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+    })
+
+    # Evaluate the likelihood.
+    configs.append({
+        "stan_function": "gp_rfft2_lpdf",
+        "python_function": fft.evaluate_log_prob_rfft2,
+        "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
+                      "cov": "matrix[n_, m_]"},
+        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov": lincov},
+        "result_type": "real",
+        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "desired": stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
     })
 
 
