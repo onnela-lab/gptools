@@ -214,6 +214,19 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
     })
 
+    # ... and back again.
+    z = fft.transform_rfft2(y, loc, lincov)
+    configs.append({
+        "stan_function": "gp_transform_irfft2",
+        "python_function": fft.transform_irfft2,
+        "arg_types": {"n_": "int", "m_": "int", "z": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
+                      "cov": "matrix[n_, m_]"},
+        "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "cov": lincov},
+        "result_type": "matrix[n_, m_]",
+        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "desired": y,
+    })
+
     # Evaluate the likelihood.
     configs.append({
         "stan_function": "gp_rfft2_lpdf",

@@ -88,6 +88,27 @@ matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov) {
 
 
 /**
+Transform white noise in the Fourier domain to a Gaussian process realization.
+*/
+matrix gp_transform_irfft2(matrix z, matrix loc, matrix cov, matrix rfft2_scale) {
+    print("z: ", dims(z));
+    print("loc: ", dims(loc));
+    print("cov: ", dims(cov));
+    print("rfft2_scale: ", dims(rfft2_scale));
+    complex_matrix[rows(z), cols(z) %/% 2 + 1] y = gp_pack_rfft2(z) .* rfft2_scale;
+    return inv_rfft2(y, cols(z)) + loc;
+}
+
+
+/**
+Transform white noise in the Fourier domain to a Gaussian process realization.
+*/
+matrix gp_transform_irfft2(matrix z, matrix loc, matrix cov) {
+    return gp_transform_irfft2(z, loc, cov, gp_evaluate_rfft2_scale(cov));
+}
+
+
+/**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
 real gp_rfft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
