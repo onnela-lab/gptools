@@ -1,6 +1,6 @@
 functions {
     #include gptools_util.stan
-    #include gptools_fft2.stan
+    #include gptools_fft.stan
 }
 
 data {

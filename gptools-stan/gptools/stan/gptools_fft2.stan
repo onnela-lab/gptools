@@ -18,19 +18,51 @@ matrix gp_evaluate_rfft2_scale(matrix cov) {
     if (height % 2 == 0) {
         fftscale[fftheight, 1] *= 2;
     }
-    // For the real part, we always use the full height of the non-redundant part. For the imaginary
-    // part, we discard the last element if the number of rows is even because it's the real Nyqvist
-    // frequency.
-    int idx = (height % 2) ? fftheight : fftheight - 1;
-
+    // If the width is even, the last column has the same structure as the first column.
     if (width % 2 == 0) {
-        // If the width is even, the last column has the same structure as the first column.
         fftscale[1, fftwidth] *= 2;
-        if (height % 2 == 0) {
-            fftscale[fftheight, fftwidth] *= 2;
-        }
+    }
+    // If the number of rows and columns is even, we also have a Nyqvist frequency term in the last
+    // column.
+    if (width % 2 == 0 && height % 2 == 0) {
+        fftscale[fftheight, fftwidth] *= 2;
     }
     return sqrt(fftscale);
+}
+
+
+/**
+Transform a Gaussian process realization to white noise in the Fourier domain.
+*/
+matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov, matrix rfft2_scale) {
+    int height = rows(y);
+    int width = cols(y);
+    int n = width * height;
+    int fftwidth = width %/% 2 + 1;
+    int fftheight = height %/% 2 + 1;
+    int wcomplex = (width - 1) %/% 2;
+
+    complex_matrix[height, fftwidth] ffty = rfft2(y - loc) ./ rfft2_scale;
+    matrix[height, width] z;
+
+    // First column is always real.
+    z[:, 1] = gp_unpack_rfft(ffty[:fftheight, 1], height);
+    // Real and imaginary parts of complex coefficients.
+    z[:, 2:wcomplex + 1] = get_real(ffty[:, 2:wcomplex + 1]);
+    z[:, 2 + wcomplex:2 * wcomplex + 1] = get_imag(ffty[:, 2:wcomplex + 1]);
+    // Nyqvist frequency if the number of columns is even.
+    if (width % 2 == 0) {
+        z[:, width] = gp_unpack_rfft(ffty[:fftheight, fftwidth], height);
+    }
+    return z;
+}
+
+
+/**
+Transform a Gaussian process realization to white noise in the Fourier domain.
+*/
+matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov) {
+    return gp_transform_rfft2(y, loc, cov, gp_evaluate_rfft2_scale(cov));
 }
 
 
@@ -89,36 +121,7 @@ Evaluate the log probability of a two-dimensional Gaussian process with zero mea
 :returns: Log probability of the Gaussian process.
 */
 real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov) {
-    int height = rows(y);
-    int width = cols(y);
-    int n = width * height;
-    int fftwidth = width %/% 2 + 1;
-    int fftheight = height %/% 2 + 1;
-
-    // Evaluate the Fourier coefficients and their scale. We divide the latter by two to account for
-    // real and imaginary parts.
-    matrix[height, fftwidth] fftscale = gp_evaluate_rfft2_scale(cov);
-    complex_matrix[height, fftwidth] ffty = rfft2(y - loc) ./ fftscale;
-    matrix[height, fftwidth] fftreal = get_real(ffty);
-    matrix[height, fftwidth] fftimag = get_imag(ffty);
-
-
-    // For the real part, we always use the full height of the non-redundant part. For the imaginary
-    // part, we discard the last element if the number of rows is even because it's the real Nyqvist
-    // frequency.
-    int idx = (height % 2) ? fftheight : fftheight - 1;
-    real log_prob = std_normal_lpdf(fftreal[:fftheight, 1]) + std_normal_lpdf(fftimag[2:idx, 1]);
-
-    // Evaluate the "bulk" likelihood that needs no adjustment.
-    log_prob += std_normal_lpdf(to_vector(ffty[:, 2:fftwidth - 1]));
-
-    if (width % 2) {
-        // If the width is odd, the last column comprises all-independent terms.
-        log_prob += std_normal_lpdf(ffty[:, fftwidth]);
-    } else {
-        log_prob += std_normal_lpdf(fftreal[:fftheight, fftwidth])
-            + std_normal_lpdf(fftimag[2:idx, fftwidth]);
-    }
-
-    return log_prob + gp_rfft2_log_abs_det_jacobian(cov, fftscale);
+    matrix[rows(cov), cols(cov) %/% 2 + 1] rfft2_scale = gp_evaluate_rfft2_scale(cov);
+    return std_normal_lpdf(gp_transform_rfft2(y, loc, cov, rfft2_scale))
+        + gp_rfft2_log_abs_det_jacobian(cov, rfft2_scale);
 }

@@ -355,3 +355,7 @@ matrix inv_rfft2(complex_matrix z, int m) {
 real std_normal_lpdf(complex_vector z) {
     return std_normal_lpdf(get_real(z)) + std_normal_lpdf(get_imag(z));
 }
+
+real std_normal_lpdf(matrix z) {
+    return std_normal_lpdf(to_vector(z));
+}
