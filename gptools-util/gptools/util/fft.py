@@ -36,13 +36,13 @@ def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return scale
 
 
-def unpack_rfft(rfft: ArrayOrTensor, size: int) -> ArrayOrTensor:
+def unpack_rfft(z: ArrayOrTensor, size: int) -> ArrayOrTensor:
     """
     Unpack the Fourier coefficients of a real Fourier transform with `size // 2 + 1` elements to a
     vector of `size` elements.
 
     Args:
-        rfft: Real Fourier transform coefficients.
+        z: Real Fourier transform coefficients.
         size: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
 
     Returns:
@@ -51,7 +51,7 @@ def unpack_rfft(rfft: ArrayOrTensor, size: int) -> ArrayOrTensor:
             subsequent `(size - 1) // 2` elements are the imaginary parts of complex coefficients.
     """
     ncomplex = (size - 1) // 2
-    parts = [rfft.real, rfft.imag[..., 1: ncomplex + 1]]
+    parts = [z.real, z.imag[..., 1: ncomplex + 1]]
     return dispatch.concatenate(parts, axis=-1)
 
 
