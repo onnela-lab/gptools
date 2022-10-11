@@ -53,6 +53,24 @@ matrix gp_unpack_rfft2(complex_matrix z, int m) {
 }
 
 
+complex_matrix gp_pack_rfft2(matrix z) {
+    int height = rows(z);
+    int width = cols(z);
+    int ncomplex = (width - 1) %/% 2;
+    complex_matrix[height, width %/% 2 + 1] result;
+    // Real FFT in the first column due to zero-frequency terms for the row-wise Fourier transform.
+    result[:, 1] = expand_rfft(gp_pack_rfft(z[:, 1]), height);
+    # Complex Fourier coefficients.
+    result[:, 2:ncomplex + 1] = z[:, 2:ncomplex + 1] + 1.0i * z[:, ncomplex + 2:2 * ncomplex + 1];
+    // Real FFT in the last column due to the Nyqvist frequency terms for the row-wise Fourier
+    // transform if the number of columns is even.
+    if (width % 2 == 0) {
+        result[:, width %/% 2 + 1] = expand_rfft(gp_pack_rfft(z[:, width]), height);
+    }
+    return result;
+}
+
+
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */

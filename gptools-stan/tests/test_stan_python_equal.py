@@ -186,6 +186,18 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
     })
 
+    # ... and pack them up again.
+    unpacked_z = fft.unpack_rfft2(z, (n, m))
+    configs.append({
+        "stan_function": "gp_pack_rfft2",
+        "python_function": fft.pack_rfft2,
+        "arg_types": {"n_": "int", "m_": "int", "z": "matrix[n_, m_]"},
+        "arg_values": {"n_": n, "m_": m, "z": unpacked_z},
+        "result_type": "complex_matrix[n_, m_ %/% 2 + 1]",
+        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "desired": z,
+    })
+
     # Transforming to whitened Fourier coefficients ...
     loc = np.random.normal(0, 1, (n, m))
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
