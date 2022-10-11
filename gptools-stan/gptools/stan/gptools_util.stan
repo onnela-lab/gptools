@@ -299,6 +299,19 @@ complex_vector rfft(vector y) {
 }
 
 /**
+Expand truncated one-dimensional discrete Fourier transform coefficients for real input to full
+Fourier coefficients.
+*/
+complex_vector expand_rfft(complex_vector y, int n) {
+    complex_vector[n] result;
+    int ncomplex = (n - 1) %/% 2;
+    int nrfft = n %/% 2 + 1;
+    result[:nrfft] = y;
+    result[nrfft + 1:n] = conjugate(reverse(y[2:1 + ncomplex]));
+    return result;
+}
+
+/**
 Compute the one-dimensional inverse discrete Fourier transform for real output.
 
 :param z: Truncated vector of Fourier coefficents with `n %/% 2 + 1` elements.
@@ -307,12 +320,7 @@ Compute the one-dimensional inverse discrete Fourier transform for real output.
 :returns: Real signal with `n` elements.
 */
 vector inv_rfft(complex_vector z, int n) {
-    complex_vector[n] x;
-    int nrfft = n %/% 2 + 1;
-    int ncomplex = (n - 1) %/% 2;
-    x[1:nrfft] = z[1:nrfft];
-    x[nrfft + 1:n] = conjugate(reverse(z[2:1 + ncomplex]));
-    return get_real(inv_fft(x));
+    return get_real(inv_fft(expand_rfft(z, n)));
 }
 
 /**
