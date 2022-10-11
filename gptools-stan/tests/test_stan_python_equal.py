@@ -21,14 +21,14 @@ def add_configuration(configuration: dict) -> dict:
 
 def assert_stan_python_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
-        result_type: str, includes: typing.Iterable[str],
-        desired: typing.Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
+        result_type: str, desired: typing.Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
+        includes: typing.Optional[typing.Iterable[str]] = None,
         line_info: typing.Optional[str] = "???") -> None:
     """
     Assert that a Stan and Python function return the same result up to numerical inaccuracies.
     """
     # Assemble the stan code we seek to build.
-    functions = "\n".join(f"#include {include}" for include in includes)
+    functions = "\n".join(f"#include {include}" for include in includes or [])
     data = "\n".join(f"{type} {name};" for name, type in arg_types.items())
     args = [arg for arg in arg_values if not arg.endswith("_")]
     if stan_function.endswith("_lpdf"):
@@ -148,6 +148,17 @@ for n in [7, 8]:
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
 
+    # Containers.
+    for x in [np.zeros, np.ones]:
+        add_configuration({
+            "stan_function": x.__name__,
+            "arg_types": {"n": "int"},
+            "arg_values": {"n": n},
+            "result_type": "vector[n]",
+            "includes": ["gptools_util.stan"],
+            "desired": x(n),
+        })
+
 for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     # Two-dimensional real Fourier transform ...
     y = np.random.normal(0, 1, (n, m))
@@ -231,6 +242,17 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
                     fft.evaluate_log_prob_rfft2(y, loc, lincov)],
     })
+
+    # Containers.
+    for x in [np.zeros, np.ones]:
+        add_configuration({
+            "stan_function": x.__name__,
+            "arg_types": {"n": "int", "m": "int"},
+            "arg_values": {"n": n, "m": m},
+            "result_type": "matrix[n, m]",
+            "includes": ["gptools_util.stan"],
+            "desired": x((n, m)),
+        })
 
 for ndim in [1, 2, 3]:
     n = 1 + np.random.poisson(50)

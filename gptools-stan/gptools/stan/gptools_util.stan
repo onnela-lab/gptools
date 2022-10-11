@@ -254,8 +254,16 @@ vector zeros(int n) {
     return rep_vector(0, n);
 }
 
+matrix zeros(int n, int m) {
+    return rep_matrix(0, n, m);
+}
+
 vector ones(int n) {
-    return rep_vector(0, n);
+    return rep_vector(1, n);
+}
+
+matrix ones(int n, int m) {
+    return rep_matrix(1, n, m);
 }
 
 // Real Fourier transforms -------------------------------------------------------------------------
