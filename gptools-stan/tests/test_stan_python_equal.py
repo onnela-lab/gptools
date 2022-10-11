@@ -204,6 +204,27 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
     })
 
+for ndim in [1, 2, 3]:
+    n = 1 + np.random.poisson(50)
+    m = 1 + np.random.poisson(50)
+    sigma = np.random.gamma(10, 0.1)
+    length_scale = np.random.gamma(10, 0.1, ndim)
+    period = np.random.gamma(100, 0.1, ndim)
+    x = np.random.uniform(0, period, (n, ndim))
+    y = np.random.uniform(0, period, (m, ndim))
+    configs.append({
+        "stan_function": "gp_periodic_exp_quad_cov",
+        "python_function": lambda x, y, sigma, length_scale, period: kernels.ExpQuadKernel(
+            sigma, length_scale, period=period)(x[:, None], y[None]),
+        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
+                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
+                      "period": "vector[p_]"},
+        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
+                       "length_scale": length_scale, "period": period},
+        "result_type": "matrix[n_, m_]",
+        "includes": ["gptools_kernels.stan"],
+    })
+
 
 @pytest.mark.parametrize("config", configs)
 def test_stan_python_equal(config: dict) -> None:
