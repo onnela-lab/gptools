@@ -141,6 +141,23 @@ void assert_finite(vector x) {
 // Matrices ----------------------------------------------------------------------------------------
 
 /**
+Check whether all elements of a matrix are finite.
+
+:param: Vector to check.
+*/
+int is_finite(matrix x) {
+    for (i in 1:rows(x)) {
+        for (j in 1:cols(x)) {
+            if (!is_finite(x[i, j])) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+
+/**
 Pretty-print a matrix.
 */
 void print_matrix(complex_matrix x) {
