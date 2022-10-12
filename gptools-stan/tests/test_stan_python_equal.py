@@ -254,6 +254,16 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
             "desired": x((n, m)),
         })
 
+    # Linearising matrices.
+    add_configuration({
+        "stan_function": "ravel",
+        "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]"},
+        "arg_values": {"n_": n, "m_": m, "y": y},
+        "result_type": "vector[n_ * m_]",
+        "includes": ["gptools_util.stan"],
+        "desired": y.ravel(),
+    })
+
 for ndim in [1, 2, 3]:
     n = 1 + np.random.poisson(50)
     m = 1 + np.random.poisson(50)

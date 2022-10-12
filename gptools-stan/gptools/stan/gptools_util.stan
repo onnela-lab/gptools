@@ -196,6 +196,13 @@ void assert_close(matrix actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
+/**
+Ravel a matrix in the same order as numpy.
+*/
+vector ravel(matrix y) {
+    return to_vector(y');
+}
+
 // Complex vectors ---------------------------------------------------------------------------------
 
 /**
