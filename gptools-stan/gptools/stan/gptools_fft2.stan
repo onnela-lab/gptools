@@ -12,6 +12,11 @@ matrix gp_evaluate_rfft2_scale(matrix cov) {
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
     matrix[height, fftwidth] fftscale = n * get_real(rfft2(cov)) / 2;
+    // Check positive-definiteness.
+    real minval = min(fftscale);
+    if (minval < 0) {
+        reject("covariance matrix is not positive-definite (minimum eigenvalue is ", minval, ")");
+    }
 
     // Adjust the scale for the zero-frequency (and Nyqvist) terms in the first column.
     fftscale[1, 1] *= 2;

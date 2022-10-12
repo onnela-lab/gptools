@@ -14,8 +14,10 @@ vector gp_evaluate_rfft_scale(vector cov) {
     int n = size(cov);
     int nrfft = n %/% 2 + 1;
     vector[nrfft] result = n * get_real(fft(cov)[:nrfft]) / 2;
-    if (min(result) < 0){
-        reject("kernel is not positive definite");
+    // Check positive-definiteness.
+    real minval = min(result);
+    if (minval < 0) {
+        reject("covariance matrix is not positive-definite (minimum eigenvalue is ", minval, ")");
     }
     // The first element has larger scale because it only has a real part but must still have the
     // right variance. The same applies to the last element if the number of elements is even
