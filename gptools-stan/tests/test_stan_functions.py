@@ -328,6 +328,15 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": y.reshape((m, n)),
         "suffix": "vector",
     })
+    add_configuration({
+        "stan_function": "reshape",
+        "arg_types": {"n": "int", "m": "int", "y": "row_vector[n * m]"},
+        "arg_values": {"y": y.ravel(), "m": m, "n": n},
+        "result_type": "matrix[m, n]",
+        "includes": ["gptools_util.stan"],
+        "desired": y.reshape((m, n)),
+        "suffix": "row_vector",
+    })
 
 for ndim in [1, 2, 3]:
     n = 1 + np.random.poisson(50)

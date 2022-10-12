@@ -220,8 +220,14 @@ array [] int ravel(array [,] int y) {
 /**
 Reshape a vector in the same order as numpy.
 */
-
 matrix reshape(vector y, int n, int m) {
+    return to_matrix(y, m, n)';
+}
+
+/**
+Reshape a vector in the same order as numpy.
+*/
+matrix reshape(row_vector y, int n, int m) {
     return to_matrix(y, m, n)';
 }
 
