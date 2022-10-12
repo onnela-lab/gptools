@@ -217,6 +217,21 @@ array [] int ravel(array [,] int y) {
     return to_array_1d(y);
 }
 
+/**
+Reshape a vector in the same order as numpy.
+*/
+
+matrix reshape(vector y, int n, int m) {
+    return to_matrix(y, m, n)';
+}
+
+/**
+Reshape a matrix in the same order as numpy.
+*/
+matrix reshape(matrix y, int n, int m) {
+    return to_matrix(y', m, n)';
+}
+
 // Complex vectors ---------------------------------------------------------------------------------
 
 /**

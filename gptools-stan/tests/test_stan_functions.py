@@ -9,7 +9,7 @@ from scipy import stats
 import typing
 
 
-CONFIGURATIONS = []
+CONFIGURATIONS: list[dict] = []
 
 
 def add_configuration(configuration: dict) -> dict:
@@ -19,11 +19,26 @@ def add_configuration(configuration: dict) -> dict:
     return configuration
 
 
+def get_configuration_ids() -> typing.Iterable[str]:
+    configuration_ids = []
+    for configuration in CONFIGURATIONS:
+        parts = [configuration["stan_function"]]
+        parts.extend(str(arg) for arg in configuration["arg_values"].values() if not
+                     isinstance(arg, np.ndarray))
+        if (suffix := configuration.get("suffix")):
+            parts.append(suffix)
+        configuration_id = "-".join(parts)
+        if configuration_id in configuration_ids:
+            raise ValueError(f"configuration id {configuration_id} already exists")
+        configuration_ids.append(configuration_id)
+    return configuration_ids
+
+
 def assert_stan_python_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
         result_type: str, desired: typing.Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
         includes: typing.Optional[typing.Iterable[str]] = None,
-        line_info: typing.Optional[str] = "???") -> None:
+        line_info: typing.Optional[str] = "???", suffix: typing.Optional[str] = None) -> None:
     """
     Assert that a Stan and Python function return the same result up to numerical inaccuracies.
     """
@@ -282,6 +297,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "result_type": "vector[n_ * m_]",
         "includes": ["gptools_util.stan"],
         "desired": y.ravel(),
+        "suffix": "vector",
     })
     add_configuration({
         "stan_function": "ravel",
@@ -290,6 +306,27 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "result_type": "array [n_ * m_] real",
         "includes": ["gptools_util.stan"],
         "desired": y.ravel(),
+        "suffix": "array",
+    })
+
+    # Reshaping vectors and matrices.
+    add_configuration({
+        "stan_function": "reshape",
+        "arg_types": {"n": "int", "m": "int", "y": "matrix[n, m]"},
+        "arg_values": {"y": y, "m": m, "n": n},
+        "result_type": "matrix[m, n]",
+        "includes": ["gptools_util.stan"],
+        "desired": y.reshape((m, n)),
+        "suffix": "matrix",
+    })
+    add_configuration({
+        "stan_function": "reshape",
+        "arg_types": {"n": "int", "m": "int", "y": "vector[n * m]"},
+        "arg_values": {"y": y.ravel(), "m": m, "n": n},
+        "result_type": "matrix[m, n]",
+        "includes": ["gptools_util.stan"],
+        "desired": y.reshape((m, n)),
+        "suffix": "vector",
     })
 
 for ndim in [1, 2, 3]:
@@ -313,6 +350,6 @@ for ndim in [1, 2, 3]:
     })
 
 
-@pytest.mark.parametrize("config", CONFIGURATIONS)
+@pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
 def test_stan_python_equal(config: dict) -> None:
     assert_stan_python_allclose(**config)
