@@ -254,12 +254,40 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
             "desired": x((n, m)),
         })
 
-    # Linearising matrices.
+    # Using `to_vector` is different from numpy's `ravel` in terms of ordering ...
+    add_configuration({
+        "stan_function": "to_vector",
+        "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]"},
+        "arg_values": {"n_": n, "m_": m, "y": y},
+        "result_type": "vector[n_ * m_]",
+        "includes": ["gptools_util.stan"],
+        "desired": y.T.ravel(),
+    })
+
+    # ... but `to_array_1d` has the same ordering as numpy's `ravel`.
+    add_configuration({
+        "stan_function": "to_array_1d",
+        "arg_types": {"n_": "int", "m_": "int", "y": "array [n_, m_] real"},
+        "arg_values": {"n_": n, "m_": m, "y": y},
+        "result_type": "array [n_ * m_] real",
+        "includes": ["gptools_util.stan"],
+        "desired": y.ravel(),
+    })
+
+    # Linearising matrices and arrays using a common `ravel` function.
     add_configuration({
         "stan_function": "ravel",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]"},
         "arg_values": {"n_": n, "m_": m, "y": y},
         "result_type": "vector[n_ * m_]",
+        "includes": ["gptools_util.stan"],
+        "desired": y.ravel(),
+    })
+    add_configuration({
+        "stan_function": "ravel",
+        "arg_types": {"n_": "int", "m_": "int", "y": "array [n_, m_] real"},
+        "arg_values": {"n_": n, "m_": m, "y": y},
+        "result_type": "array [n_ * m_] real",
         "includes": ["gptools_util.stan"],
         "desired": y.ravel(),
     })

@@ -203,6 +203,20 @@ vector ravel(matrix y) {
     return to_vector(y');
 }
 
+/**
+Ravel a two-dimensional real array in the same order as numpy.
+*/
+array [] real ravel(array [,] real y) {
+    return to_array_1d(y);
+}
+
+/**
+Ravel a two-dimensional integer array in the same order as numpy.
+*/
+array [] int ravel(array [,] int y) {
+    return to_array_1d(y);
+}
+
 // Complex vectors ---------------------------------------------------------------------------------
 
 /**
