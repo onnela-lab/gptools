@@ -53,18 +53,21 @@ void assert_close(real actual, real desired) {
 }
 
 /**
-Check whether a value is finite.
+Check whether a possibly complex value is finite.
 
 :param x: Value to check.
 :retval 1: If the values are close.
 :retval 0: If the values are not close.
 */
-int is_finite(real x) {
-    if (is_nan(x) || is_inf(x)) {
+int is_finite(complex x) {
+    real rx = get_real(x);
+    real ix = get_imag(x);
+    if (is_nan(rx) || is_nan(ix) || is_inf(rx) || is_inf(ix)) {
         return 0;
     }
     return 1;
 }
+
 
 // Vectors -----------------------------------------------------------------------------------------
 
@@ -121,7 +124,31 @@ int is_finite(vector x) {
     return 1;
 }
 
+/**
+Assert that all elements of a vector are finite.
+
+:param: Vector to check.
+*/
+void assert_finite(vector x) {
+    int n = size(x);
+    for (i in 1:n) {
+        if (!is_finite(x[i])) {
+            reject(x[i], " at index ", i, " is not finite");
+        }
+    }
+}
+
 // Matrices ----------------------------------------------------------------------------------------
+
+/**
+Pretty-print a matrix.
+*/
+void print_matrix(complex_matrix x) {
+    print("matrix with ", rows(x), " rows and ", cols(x), " columns");
+    for (i in 1:rows(x)) {
+        print(x[i]);
+    }
+}
 
 /**
 Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
@@ -169,12 +196,192 @@ void assert_close(matrix actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
+/**
+Ravel a matrix in the same order as numpy.
+*/
+vector ravel(matrix y) {
+    return to_vector(y');
+}
+
+// Complex vectors ---------------------------------------------------------------------------------
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex_vector desired, real rtol, real atol) {
+    int n = size(desired);
+    int m = size(actual);
+    if (m != n) {
+        reject("number of elements are not equal: size(desired)=", n, "; size(actual)=", m);
+    }
+    assert_close(get_real(actual), get_real(desired), rtol, atol);
+    assert_close(get_imag(actual), get_imag(desired), rtol, atol);
+}
+
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex_vector desired) {
+    assert_close(actual, desired, 1e-6, 0);
+}
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex desired, real rtol, real atol) {
+    assert_close(actual, rep_vector(desired, size(actual)), rtol, atol);
+}
+
+/**
+Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+*/
+void assert_close(complex_vector actual, complex desired) {
+    assert_close(actual, desired, 1e-6, 0);
+}
+
+
+/**
+Assert that all elements of a complex vector are finite.
+
+:param: Vector to check.
+*/
+void assert_finite(complex_vector x) {
+    int n = size(x);
+    for (i in 1:n) {
+        if (!is_finite(x[i])) {
+            reject(x[i], " at index ", i, " is not finite");
+        }
+    }
+}
+
 // Shorthand for creating containers ---------------------------------------------------------------
 
 vector zeros(int n) {
     return rep_vector(0, n);
 }
 
+matrix zeros(int n, int m) {
+    return rep_matrix(0, n, m);
+}
+
 vector ones(int n) {
-    return rep_vector(0, n);
+    return rep_vector(1, n);
+}
+
+matrix ones(int n, int m) {
+    return rep_matrix(1, n, m);
+}
+
+// Real Fourier transforms -------------------------------------------------------------------------
+
+/**
+Evaluate the complex conjugate.
+*/
+complex conjugate(complex x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
+Evaluate the complex conjugate.
+*/
+complex_vector conjugate(complex_vector x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
+Evaluate the complex conjugate.
+*/
+complex_row_vector conjugate(complex_row_vector x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
+Evaluate the complex conjugate.
+*/
+complex_matrix conjugate(complex_matrix x) {
+    return get_real(x) - 1.0i * get_imag(x);
+}
+
+/**
+Compute the one-dimensional discrete Fourier transform for real input.
+
+:param y: Real signal with `n` elements to transform.
+:returns: Truncated vector of Fourier coefficients with `n %/% 2 + 1` elements.
+*/
+complex_vector rfft(vector y) {
+    return fft(y)[:size(y) %/% 2 + 1];
+}
+
+/**
+Expand truncated one-dimensional discrete Fourier transform coefficients for real input to full
+Fourier coefficients.
+*/
+complex_vector expand_rfft(complex_vector y, int n) {
+    complex_vector[n] result;
+    int nrfft = n %/% 2 + 1;
+    if (size(y) != nrfft) {
+        reject("expected complex vector with ", nrfft, " elements but got ", size(y));
+    }
+    int ncomplex = (n - 1) %/% 2;
+    result[:nrfft] = y;
+    result[nrfft + 1:n] = conjugate(reverse(y[2:1 + ncomplex]));
+    return result;
+}
+
+/**
+Compute the one-dimensional inverse discrete Fourier transform for real output.
+
+:param z: Truncated vector of Fourier coefficents with `n %/% 2 + 1` elements.
+:param n: Length of the signal (required because the length of the signal cannot be determined from
+    `z` alone).
+:returns: Real signal with `n` elements.
+*/
+vector inv_rfft(complex_vector z, int n) {
+    return get_real(inv_fft(expand_rfft(z, n)));
+}
+
+/**
+Compute the two-dimensional discrete Fourier transform for real input.
+
+:param y: Real signal with `n` rows and `m` columns to transform.
+:returns: Truncated vector of Fourier coefficients with `n` rows and `m %/% 2 + 1` elements.
+*/
+complex_matrix rfft2(matrix y) {
+    return fft2(y)[:, :cols(y) %/% 2 + 1];
+}
+
+/**
+Compute the two-dimensional inverse discrete Fourier transform for real output.
+
+:param z: Truncated vector of Fourier coefficients with `n` rows and `m %/% 2 + 1` elements.
+:param m: Number of columns of the signal (required because the number of columns cannot be
+    determined from `z` alone).
+:returns: Real signal with `n` rows and `m` columns.
+*/
+matrix inv_rfft2(complex_matrix z, int m) {
+    int n = rows(z);
+    complex_matrix[n, m] x;
+    int mrfft = m %/% 2 + 1;
+    int mcomplex = (m - 1) %/% 2;
+    x[:, 1:mrfft] = z[:, 1:mrfft];
+    // Fill redundant values.
+    for (i in 1:n) {
+        x[i, mrfft + 1:m] = conjugate(reverse(z[i, 2:1 + mcomplex]));
+    }
+    // Reverse the order to account for negative frequencies.
+    for (i in mrfft + 1:mrfft + mcomplex) {
+        x[2:, i] = reverse(x[2:, i]);
+    }
+    return get_real(inv_fft2(x));
+}
+
+// Custom likelihoods ------------------------------------------------------------------------------
+
+real std_normal_lpdf(complex_vector z) {
+    return std_normal_lpdf(get_real(z)) + std_normal_lpdf(get_imag(z));
+}
+
+real std_normal_lpdf(matrix z) {
+    return std_normal_lpdf(to_vector(z));
 }

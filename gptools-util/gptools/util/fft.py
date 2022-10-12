@@ -36,13 +36,13 @@ def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return scale
 
 
-def unpack_rfft(rfft: ArrayOrTensor, size: int) -> ArrayOrTensor:
+def unpack_rfft(z: ArrayOrTensor, size: int) -> ArrayOrTensor:
     """
     Unpack the Fourier coefficients of a real Fourier transform with `size // 2 + 1` elements to a
     vector of `size` elements.
 
     Args:
-        rfft: Real Fourier transform coefficients.
+        z: Real Fourier transform coefficients.
         size: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
 
     Returns:
@@ -51,7 +51,7 @@ def unpack_rfft(rfft: ArrayOrTensor, size: int) -> ArrayOrTensor:
             subsequent `(size - 1) // 2` elements are the imaginary parts of complex coefficients.
     """
     ncomplex = (size - 1) // 2
-    parts = [rfft.real, rfft.imag[..., 1: ncomplex + 1]]
+    parts = [z.real, z.imag[..., 1: ncomplex + 1]]
     return dispatch.concatenate(parts, axis=-1)
 
 
@@ -83,13 +83,14 @@ def pack_rfft(z: ArrayOrTensor, full_fft: bool = False) -> ArrayOrTensor:
     return dispatch.concatenate([rfft, dispatch.flip(rfft[..., 1:ncomplex + 1].conj(), (-1,))], -1)
 
 
-def transform_irfft(z: ArrayOrTensor, cov: ArrayOrTensor,
+def transform_irfft(z: ArrayOrTensor, loc: ArrayOrTensor, cov: ArrayOrTensor,
                     rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
 
     Args:
         z: Fourier-domain white noise with shape `(..., size)`. See :func:`unpack_rfft` for details.
+        loc: Mean of the Gaussian process with shape `(..., size)`.
         cov: First row of the covariance matrix with shape `(..., size)`.
 
     Returns:
@@ -98,16 +99,17 @@ def transform_irfft(z: ArrayOrTensor, cov: ArrayOrTensor,
     if rfft_scale is None:
         rfft_scale = evaluate_rfft_scale(cov)
     rfft = pack_rfft(z) * rfft_scale
-    return dispatch[rfft].fft.irfft(rfft, z.shape[-1])
+    return dispatch[rfft].fft.irfft(rfft, z.shape[-1]) + loc
 
 
-def transform_rfft(y: ArrayOrTensor, cov: ArrayOrTensor, rfft_scale: OptionalArrayOrTensor = None) \
-        -> ArrayOrTensor:
+def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, cov: ArrayOrTensor,
+                   rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
         y: Realization of the Gaussian process with shape `(..., size)`.
+        loc: Mean of the Gaussian process with shape `(..., size)`.
         cov: First row of the covariance matrix with shape `(..., size)`.
 
     Returns:
@@ -117,23 +119,25 @@ def transform_rfft(y: ArrayOrTensor, cov: ArrayOrTensor, rfft_scale: OptionalArr
     # Take the Fourier transform and rescale.
     if rfft_scale is None:
         rfft_scale = evaluate_rfft_scale(cov)
-    return unpack_rfft(dispatch[y].fft.rfft(y) / rfft_scale, y.shape[-1])
+    return unpack_rfft(dispatch[y].fft.rfft(y - loc) / rfft_scale, y.shape[-1])
 
 
-def evaluate_log_prob_rfft(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
+def evaluate_log_prob_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, cov: ArrayOrTensor) \
+        -> ArrayOrTensor:
     """
     Evaluate the log probability of a one-dimensional Gaussian process realization in Fourier space.
 
     Args:
         y: Realization of a Gaussian process with shape `(..., size)`, where `...` is the batch
             shape and `size` is the number of grid points.
+        loc: Mean of the Gaussian process with shape `(..., size)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., size)`.
 
     Returns:
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
-    rfft = transform_rfft(y, cov)
+    rfft = transform_rfft(y, loc, cov)
     return log_prob_stdnorm(rfft).sum(axis=-1) + evaluate_rfft_log_abs_det_jacobian(cov)
 
 
@@ -203,7 +207,7 @@ def evaluate_rfft2_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return dispatch.sqrt(rfft2_scale)
 
 
-def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
+def unpack_rfft2(z: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     """
     Unpack the Fourier coefficients of a two-dimensional real Fourier transform with shape
     `(..., height, width // 2 + 1)` to a batch of matrices with shape `(..., height, width)`.
@@ -211,7 +215,7 @@ def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     TODO: add details on packing structure.
 
     Args:
-        rfft: Two-dimensional real Fourier transform coefficients.
+        z: Two-dimensional real Fourier transform coefficients.
         shape: Shape of the real signal. Necessary because the number of columns cannot be inferred
             from `rfft2`.
 
@@ -222,13 +226,13 @@ def unpack_rfft2(rfft2: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     ncomplex = (width - 1) // 2
     parts = [
         # First column is always real.
-        unpack_rfft(rfft2[..., :height // 2 + 1, 0], height)[..., None],
+        unpack_rfft(z[..., :height // 2 + 1, 0], height)[..., None],
         # Real and imaginary parts of complex coefficients.
-        rfft2[..., 1:ncomplex + 1].real,
-        rfft2[..., 1:ncomplex + 1].imag,
+        z[..., 1:ncomplex + 1].real,
+        z[..., 1:ncomplex + 1].imag,
     ]
     if width % 2 == 0:  # Nyqvist frequency terms if the number of columns is even.
-        parts.append(unpack_rfft(rfft2[..., :height // 2 + 1, width // 2], height)[..., None])
+        parts.append(unpack_rfft(z[..., :height // 2 + 1, width // 2], height)[..., None])
     return dispatch.concatenate(parts, axis=-1)
 
 
@@ -260,7 +264,7 @@ def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
     return rfft2
 
 
-def transform_irfft2(z: ArrayOrTensor, cov: ArrayOrTensor,
+def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, cov: ArrayOrTensor,
                      rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
@@ -268,6 +272,7 @@ def transform_irfft2(z: ArrayOrTensor, cov: ArrayOrTensor,
     Args:
         z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
             details.
+        loc: Mean of the Gaussian process with shape `(..., size)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., n, m)`.
 
@@ -277,16 +282,17 @@ def transform_irfft2(z: ArrayOrTensor, cov: ArrayOrTensor,
     if rfft2_scale is None:
         rfft2_scale = evaluate_rfft2_scale(cov)
     rfft2 = pack_rfft2(z) * rfft2_scale
-    return dispatch[rfft2].fft.irfft2(rfft2, z.shape[-2:])
+    return dispatch[rfft2].fft.irfft2(rfft2, z.shape[-2:]) + loc
 
 
-def transform_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor,
+def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, cov: ArrayOrTensor,
                     rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
         y: Realization of the Gaussian process.
+        loc: Mean of the Gaussian process with shape `(..., size)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., n, m)`.
 
@@ -297,7 +303,7 @@ def transform_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor,
     # Take the Fourier transform and rescale.
     if rfft2_scale is None:
         rfft2_scale = evaluate_rfft2_scale(cov)
-    return unpack_rfft2(dispatch[y].fft.rfft2(y) / rfft2_scale, y.shape)
+    return unpack_rfft2(dispatch[y].fft.rfft2(y - loc) / rfft2_scale, y.shape)
 
 
 def evaluate_rfft2_log_abs_det_jacobian(
@@ -342,18 +348,20 @@ def evaluate_rfft2_log_abs_det_jacobian(
     return sum(parts) - log2 * nterms + size * math.log(size) / 2
 
 
-def evaluate_log_prob_rfft2(y: ArrayOrTensor, cov: ArrayOrTensor) -> ArrayOrTensor:
+def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, cov: ArrayOrTensor) \
+        -> ArrayOrTensor:
     """
     Evaluate the log probability of a two-dimensional Gaussian process realization in Fourier space.
 
     Args:
         y: Realization of a Gaussian process with shape `(..., n, m)`, where `...` is the batch
             shape, `n` is the number of rows, and `m` is the number of columns.
+        loc: Mean of the Gaussian process with shape `(..., size)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., n, m)`.
 
     Returns:
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
-    rfft = transform_rfft2(y, cov)
+    rfft = transform_rfft2(y, loc, cov)
     return log_prob_stdnorm(rfft).sum(axis=(-2, -1)) + evaluate_rfft2_log_abs_det_jacobian(cov)

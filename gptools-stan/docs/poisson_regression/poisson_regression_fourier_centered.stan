@@ -1,9 +1,9 @@
 // Graph gaussian process with log link for Poisson observations.
 
 functions {
-    #include gptools_fft.stan
-    #include gptools_kernels.stan
     #include gptools_util.stan
+    #include gptools_fft1.stan
+    #include gptools_kernels.stan
 }
 
 data {
@@ -22,6 +22,6 @@ transformed parameters {
 
 model {
     // Fourier Gaussian process and observation model.
-    eta ~ gp_fft(cov);
+    eta ~ gp_rfft(zeros(n), cov);
     y ~ poisson_log(eta);
 }

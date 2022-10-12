@@ -30,13 +30,13 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
         """
         Transform a Gaussian process realization to white noise.
         """
-        return transform_rfft(x - self.loc, self.cov, self._rfft_scale)
+        return transform_rfft(x, self.loc, self.cov, self._rfft_scale)
 
     def _inv_call(self, y: th.Tensor) -> th.Tensor:
         """
         Transform white noise to a Gaussian process realization.
         """
-        return transform_irfft(y, self.cov, self._rfft_scale) + self.loc
+        return transform_irfft(y, self.loc, self.cov, self._rfft_scale)
 
     def log_abs_det_jacobian(self, x: th.Tensor, y: th.Tensor) -> th.Tensor:
         return evaluate_rfft_log_abs_det_jacobian(self.cov, self._rfft_scale)
@@ -94,13 +94,13 @@ class FourierGaussianProcess2DTransform(th.distributions.Transform):
         """
         Transform a Gaussian process realization to white noise.
         """
-        return transform_rfft2(x - self.loc, self.cov, self._rfft2_scale)
+        return transform_rfft2(x, self.loc, self.cov, self._rfft2_scale)
 
     def _inv_call(self, y: th.Tensor) -> th.Tensor:
         """
         Transform white noise to a Gaussian process realization.
         """
-        return transform_irfft2(y, self.cov, self._rfft2_scale) + self.loc
+        return transform_irfft2(y, self.loc, self.cov, self._rfft2_scale)
 
     def log_abs_det_jacobian(self, x: th.Tensor, y: th.Tensor) -> th.Tensor:
         return evaluate_rfft2_log_abs_det_jacobian(self.cov, self._rfft2_scale)

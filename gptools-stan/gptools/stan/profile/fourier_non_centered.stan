@@ -1,9 +1,9 @@
 // Fourier gaussian process with normal noise and non-centered parameterization.
 
 functions {
-    #include gptools_fft.stan
-    #include gptools_kernels.stan
     #include gptools_util.stan
+    #include gptools_fft1.stan
+    #include gptools_kernels.stan
 }
 
 #include data.stan
@@ -16,7 +16,7 @@ transformed parameters {
     vector[n] eta;
     {
         vector[n] cov = gp_periodic_exp_quad_cov(zeros(1), X, alpha, rho, n);
-        eta = gp_transform_irfft(eta_, cov);
+        eta = gp_transform_irfft(eta_, zeros(n), cov);
     }
 }
 
