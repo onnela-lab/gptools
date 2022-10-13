@@ -79,42 +79,25 @@ complex_matrix gp_pack_rfft2(matrix z) {
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */
-matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov, matrix rfft2_scale) {
+matrix gp_transform_rfft2(matrix y, matrix loc, matrix rfft2_scale) {
     return gp_unpack_rfft2(rfft2(y - loc) ./ rfft2_scale, cols(y));
-}
-
-
-/**
-Transform a Gaussian process realization to white noise in the Fourier domain.
-*/
-matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov) {
-    return gp_transform_rfft2(y, loc, cov, gp_evaluate_rfft2_scale(cov));
 }
 
 
 /**
 Transform white noise in the Fourier domain to a Gaussian process realization.
 */
-matrix gp_transform_irfft2(matrix z, matrix loc, matrix cov, matrix rfft2_scale) {
+matrix gp_transform_irfft2(matrix z, matrix loc, matrix rfft2_scale) {
     complex_matrix[rows(z), cols(z) %/% 2 + 1] y = gp_pack_rfft2(z) .* rfft2_scale;
     return inv_rfft2(y, cols(z)) + loc;
 }
 
 
 /**
-Transform white noise in the Fourier domain to a Gaussian process realization.
-*/
-matrix gp_transform_irfft2(matrix z, matrix loc, matrix cov) {
-    return gp_transform_irfft2(z, loc, cov, gp_evaluate_rfft2_scale(cov));
-}
-
-
-/**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
-real gp_rfft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
-    int height = rows(cov);
-    int width = cols(cov);
+real gp_rfft2_log_abs_det_jacobian(int width, matrix fftscale) {
+    int height = rows(fftscale);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
@@ -147,14 +130,6 @@ real gp_rfft2_log_abs_det_jacobian(matrix cov, matrix fftscale) {
 
 
 /**
-Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
-*/
-real gp_rfft2_log_abs_det_jacobian(matrix cov) {
-    return gp_rfft2_log_abs_det_jacobian(cov, gp_evaluate_rfft2_scale(cov));
-}
-
-
-/**
 Evaluate the log probability of a two-dimensional Gaussian process with zero mean in Fourier space.
 
 :param y: Random variable whose likelihood to evaluate.
@@ -163,8 +138,7 @@ Evaluate the log probability of a two-dimensional Gaussian process with zero mea
 
 :returns: Log probability of the Gaussian process.
 */
-real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov) {
-    matrix[rows(cov), cols(cov) %/% 2 + 1] rfft2_scale = gp_evaluate_rfft2_scale(cov);
-    return std_normal_lpdf(gp_transform_rfft2(y, loc, cov, rfft2_scale))
-        + gp_rfft2_log_abs_det_jacobian(cov, rfft2_scale);
+real gp_rfft2_lpdf(matrix y, matrix loc, matrix rfft2_scale) {
+    return std_normal_lpdf(gp_transform_rfft2(y, loc, rfft2_scale))
+        + gp_rfft2_log_abs_det_jacobian(cols(y), rfft2_scale);
 }
