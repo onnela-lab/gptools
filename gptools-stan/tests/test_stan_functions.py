@@ -133,7 +133,7 @@ for n in [7, 8]:
     cov = kernel(np.arange(n)[:, None])
     lincov = cov[0]
     rfft_scale = fft.evaluate_rfft_scale(lincov)
-    z = fft.transform_rfft(y, loc, lincov)
+    z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
@@ -152,7 +152,7 @@ for n in [7, 8]:
         "arg_values": {"n_": n, "z": z, "loc": loc, "rfft_scale": rfft_scale},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
-        "desired": [y, fft.transform_irfft(z, loc, lincov)],
+        "desired": [y, fft.transform_irfft(z, loc, rfft_scale=rfft_scale)],
     })
 
     # Evaluate the likelihood.

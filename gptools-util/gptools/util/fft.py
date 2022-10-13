@@ -91,7 +91,7 @@ def pack_rfft(z: ArrayOrTensor, full_fft: bool = False) -> ArrayOrTensor:
     return dispatch.concatenate([rfft, dispatch.flip(rfft[..., 1:ncomplex + 1].conj(), (-1,))], -1)
 
 
-def transform_irfft(z: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTensor = None,
+def transform_irfft(z: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
                     rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
@@ -110,7 +110,7 @@ def transform_irfft(z: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTe
     return dispatch[rfft].fft.irfft(rfft, z.shape[-1]) + loc
 
 
-def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTensor = None,
+def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
                    rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
@@ -128,7 +128,8 @@ def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTen
     return unpack_rfft(dispatch[y].fft.rfft(y - loc) / rfft_scale, y.shape[-1])
 
 
-def evaluate_log_prob_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTensor = None,
+def evaluate_log_prob_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *,
+                           cov: OptionalArrayOrTensor = None,
                            rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log probability of a one-dimensional Gaussian process realization in Fourier space.
@@ -149,7 +150,7 @@ def evaluate_log_prob_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalAr
         + evaluate_rfft_log_abs_det_jacobian(y.shape[-1], rfft_scale=rfft_scale)
 
 
-def evaluate_rfft_log_abs_det_jacobian(size: int, cov: OptionalArrayOrTensor = None,
+def evaluate_rfft_log_abs_det_jacobian(size: int, *, cov: OptionalArrayOrTensor = None,
                                        rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
@@ -280,7 +281,7 @@ def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
     return rfft2
 
 
-def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTensor = None,
+def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
                      rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
@@ -299,7 +300,7 @@ def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrT
     return dispatch[rfft2].fft.irfft2(rfft2, z.shape[-2:]) + loc
 
 
-def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTensor = None,
+def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
                     rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
@@ -318,7 +319,7 @@ def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTe
     return unpack_rfft2(dispatch[y].fft.rfft2(y - loc) / rfft2_scale, y.shape)
 
 
-def evaluate_rfft2_log_abs_det_jacobian(width: int, cov: OptionalArrayOrTensor = None,
+def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov: OptionalArrayOrTensor = None,
                                         rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
@@ -360,7 +361,8 @@ def evaluate_rfft2_log_abs_det_jacobian(width: int, cov: OptionalArrayOrTensor =
     return sum(parts) - log2 * nterms + size * math.log(size) / 2
 
 
-def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, cov: OptionalArrayOrTensor = None,
+def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
+                            cov: OptionalArrayOrTensor = None,
                             rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log probability of a two-dimensional Gaussian process realization in Fourier space.

@@ -21,7 +21,7 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
     domain = constraints.real_vector
     codomain = constraints.real_vector
 
-    def __init__(self, loc: th.Tensor, cov: OptionalTensor = None,
+    def __init__(self, loc: th.Tensor, *, cov: OptionalTensor = None,
                  rfft_scale: OptionalTensor = None, cache_size: int = 0) -> None:
         super().__init__(cache_size)
         self.loc = loc
@@ -60,11 +60,11 @@ class FourierGaussianProcess1D(th.distributions.TransformedDistribution):
     support = constraints.real_vector
     has_rsample = True
 
-    def __init__(self, loc: th.Tensor, cov: OptionalTensor = None,
+    def __init__(self, loc: th.Tensor, *, cov: OptionalTensor = None,
                  rfft_scale: OptionalTensor = None, validate_args=None) -> None:
         *_, size = loc.shape
         base_distribution = th.distributions.Normal(th.zeros(size), th.ones(size))
-        transform = FourierGaussianProcess1DTransform(loc, cov, rfft_scale)
+        transform = FourierGaussianProcess1DTransform(loc, cov=cov, rfft_scale=rfft_scale)
         super().__init__(base_distribution, transform.inv, validate_args=validate_args)
 
     @property
@@ -92,7 +92,7 @@ class FourierGaussianProcess2DTransform(th.distributions.Transform):
     domain = real_matrix
     codomain = real_matrix
 
-    def __init__(self, loc: th.Tensor, cov: OptionalTensor = None,
+    def __init__(self, loc: th.Tensor, *, cov: OptionalTensor = None,
                  rfft2_scale: OptionalTensor = None, cache_size: int = 0) -> None:
         super().__init__(cache_size)
         self.loc = loc
@@ -126,15 +126,17 @@ class FourierGaussianProcess2D(th.distributions.TransformedDistribution):
     arg_constraints = {
         "loc": real_matrix,
         "cov": real_matrix,
+        "rfft2_scale": real_matrix,
     }
     support = real_matrix
     has_rsample = True
 
-    def __init__(self, loc: th.Tensor, cov: th.Tensor, validate_args=None) -> None:
-        *_, height, width = th.broadcast_shapes(loc.shape, cov.shape)
+    def __init__(self, loc: th.Tensor, *, cov: OptionalTensor = None,
+                 rfft2_scale: OptionalTensor = None, validate_args=None) -> None:
+        *_, height, width = loc.shape
         shape = (height, width)
         base_distribution = th.distributions.Normal(th.zeros(shape), th.ones(shape))
-        transform = FourierGaussianProcess2DTransform(loc, cov)
+        transform = FourierGaussianProcess2DTransform(loc, cov=cov, rfft2_scale=rfft2_scale)
         super().__init__(base_distribution, transform.inv, validate_args=validate_args)
 
     @property
@@ -144,3 +146,7 @@ class FourierGaussianProcess2D(th.distributions.TransformedDistribution):
     @property
     def cov(self):
         return self.transforms[0].inv.cov
+
+    @property
+    def rfft2_scale(self):
+        return self.transforms[0].inv.rfft2_scale
