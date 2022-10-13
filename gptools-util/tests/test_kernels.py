@@ -37,7 +37,7 @@ def test_periodic(kernel_configuration: KernelConfiguration):
     # Ensure that translating by an integer period doesn't mess with the covariance.
     for delta in it.product(*([-1, 1, 2] for _ in range(dim))):
         Y = X + delta * np.asarray(kernel.period)
-        other = kernel(X[..., :, None, :], Y[..., None, :, :])
+        other = kernel(X[..., :, None, :], Y[..., None, :, :]) + kernel.epsilon * np.eye(13)
         np.testing.assert_allclose(cov, other)
 
     # For one and two dimensions, ensure that the Fourier transform has the correct structure.
