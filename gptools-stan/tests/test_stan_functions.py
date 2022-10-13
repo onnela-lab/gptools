@@ -132,11 +132,13 @@ for n in [7, 8]:
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
     cov = kernel(np.arange(n)[:, None])
     lincov = cov[0]
+    rfft_scale = fft.evaluate_rfft_scale(lincov)
     z = fft.transform_rfft(y, loc, lincov)
     add_configuration({
         "stan_function": "gp_transform_rfft",
-        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "cov": lincov},
+        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
+                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": z,
@@ -145,8 +147,9 @@ for n in [7, 8]:
     # ... and back again.
     add_configuration({
         "stan_function": "gp_transform_irfft",
-        "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "z": z, "loc": loc, "cov": lincov},
+        "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]",
+                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "z": z, "loc": loc, "rfft_scale": rfft_scale},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": [y, fft.transform_irfft(z, loc, lincov)],
@@ -155,11 +158,12 @@ for n in [7, 8]:
     # Evaluate the likelihood.
     add_configuration({
         "stan_function": "gp_rfft_lpdf",
-        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "cov": lincov},
+        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
+                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
         "result_type": "real",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
-        "desired": [fft.evaluate_log_prob_rfft(y, loc, lincov),
+        "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
 
