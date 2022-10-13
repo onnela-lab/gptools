@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from scipy import stats
 import torch as th
-import typing
+from typing import Optional
 
 
 shapes = [(20,), (21,), (7, 9), (8, 9), (7, 8), (8, 6)]
@@ -71,7 +71,7 @@ def test_fft_gp_transform_roundtrip(data: dict) -> None:
 
 
 @pytest.mark.parametrize("sample_shape", [(), (2,), (3, 4)])
-def test_fft_gp_sample(data: dict, sample_shape: typing.Optional[th.Size]) -> None:
+def test_fft_gp_sample(data: dict, sample_shape: Optional[th.Size]) -> None:
     dist = data["distribution_cls"](data["loc"], data["cov"])
     assert dist.has_rsample
     assert dist.rsample(sample_shape).shape == sample_shape + data["shape"]

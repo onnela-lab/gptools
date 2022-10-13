@@ -10,11 +10,11 @@ import pathlib
 import pickle
 import tabulate
 from tqdm import tqdm
-import typing
+from typing import Optional
 from . import PARAMETERIZATIONS
 
 
-def __main__(args: typing.Optional[list[str]] = None) -> None:
+def __main__(args: Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("parameterization", help="parameterization of the model",
                         choices=PARAMETERIZATIONS)

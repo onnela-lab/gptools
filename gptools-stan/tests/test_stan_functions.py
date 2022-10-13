@@ -6,7 +6,7 @@ import numpy as np
 import pathlib
 import pytest
 from scipy import stats
-import typing
+from typing import Iterable, Optional, Union
 
 
 CONFIGURATIONS: list[dict] = []
@@ -19,7 +19,7 @@ def add_configuration(configuration: dict) -> dict:
     return configuration
 
 
-def get_configuration_ids() -> typing.Iterable[str]:
+def get_configuration_ids() -> Iterable[str]:
     configuration_ids = []
     for configuration in CONFIGURATIONS:
         parts = [configuration["stan_function"]]
@@ -36,9 +36,9 @@ def get_configuration_ids() -> typing.Iterable[str]:
 
 def assert_stan_python_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
-        result_type: str, desired: typing.Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
-        includes: typing.Optional[typing.Iterable[str]] = None,
-        line_info: typing.Optional[str] = "???", suffix: typing.Optional[str] = None) -> None:
+        result_type: str, desired: Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
+        includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
+        suffix: Optional[str] = None) -> None:
     """
     Assert that a Stan and Python function return the same result up to numerical inaccuracies.
     """

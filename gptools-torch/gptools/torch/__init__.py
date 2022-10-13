@@ -1,4 +1,4 @@
 import torch as th
-import typing
+from typing import Optional
 
-OptionalTensor = typing.Optional[th.Tensor]
+OptionalTensor = Optional[th.Tensor]

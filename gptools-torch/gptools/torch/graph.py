@@ -1,6 +1,6 @@
 import torch as th
 from torch.distributions import constraints
-import typing
+from typing import Callable, Literal, Optional
 
 
 class GraphGaussianProcess(th.distributions.Distribution):
@@ -35,8 +35,8 @@ class GraphGaussianProcess(th.distributions.Distribution):
 
     def __init__(
             self, loc: th.Tensor, coords: th.Tensor, predecessors: th.LongTensor,
-            kernel: typing.Callable[..., th.Tensor], lstsq_rcond: typing.Optional[float] = None,
-            lstsq_driver: typing.Literal["gels", "gelsy", "gelsd", "gelss"] = "gelsd",
+            kernel: Callable[..., th.Tensor], lstsq_rcond: Optional[float] = None,
+            lstsq_driver: Literal["gels", "gelsy", "gelsd", "gelss"] = "gelsd",
             validate_args=None) -> None:
         # Store parameter values and evaluate the shapes.
         self.num_nodes = loc.shape[-1]
@@ -71,7 +71,7 @@ class GraphGaussianProcess(th.distributions.Distribution):
         loc = (self.weights * value[..., self.indices[..., 1:]]).sum(axis=-1)
         return th.distributions.Normal(loc, self.scale).log_prob(value).sum(axis=-1)
 
-    def sample(self, size: typing.Optional[th.Size] = None) -> th.Tensor:
+    def sample(self, size: Optional[th.Size] = None) -> th.Tensor:
         # We sample elements sequentially. This isn't particularly efficient due to the python loop
         # but it's much more efficient than inverting the whole matrix. TODO: look at sparse matrix
         # solvers that could solve this problem in a batch. First, sample white noise which we will

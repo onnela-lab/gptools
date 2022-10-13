@@ -4,7 +4,7 @@ import functools as ft
 import os
 from pathlib import Path
 import re
-import typing
+from typing import Any, Optional, Union
 
 
 def get_include() -> str:
@@ -42,10 +42,10 @@ def _needs_compilation(stan_file: Path, reference: float, include_paths: list[st
 
 @ft.wraps(cmdstanpy.CmdStanModel)
 def compile_model(
-        model_name: typing.Optional[str] = None, stan_file: OptionalPath = None,
-        exe_file: OptionalPath = None, compile: typing.Union[bool, str] = True,
-        stanc_options: typing.Optional[dict[str, typing.Any]] = None,
-        cpp_options: typing.Optional[dict[str, typing.Any]] = None,
+        model_name: Optional[str] = None, stan_file: OptionalPath = None,
+        exe_file: OptionalPath = None, compile: Union[bool, str] = True,
+        stanc_options: Optional[dict[str, Any]] = None,
+        cpp_options: Optional[dict[str, Any]] = None,
         user_header: OptionalPath = None) -> cmdstanpy.CmdStanModel:
     # Add gptools includes by default.
     stanc_options = stanc_options or {}
