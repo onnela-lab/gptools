@@ -96,28 +96,28 @@ matrix gp_transform_irfft2(matrix z, matrix loc, matrix rfft2_scale) {
 /**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
-real gp_rfft2_log_abs_det_jacobian(int width, matrix fftscale) {
-    int height = rows(fftscale);
+real gp_rfft2_log_abs_det_jacobian(int width, matrix rfft2_scale) {
+    int height = rows(rfft2_scale);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
-    matrix[height, fftwidth] logfftscale = log(fftscale);
+    matrix[height, fftwidth] log_rfft2_scale = log(rfft2_scale);
     real ladj = 0;
 
     // For the real part, we always use the full height of the non-redundant part. For the imaginary
     // part, we discard the last element if the number of rows is even because it's the real Nyqvist
     // frequency.
     int idx = (height % 2) ? fftheight : fftheight - 1;
-    ladj -= sum(logfftscale[:fftheight, 1]) + sum(logfftscale[2:idx, 1]);
+    ladj -= sum(log_rfft2_scale[:fftheight, 1]) + sum(log_rfft2_scale[2:idx, 1]);
 
     // Evaluate the "bulk" likelihood that needs no adjustment.
-    ladj -= 2 * sum(to_vector(logfftscale[:, 2:fftwidth - 1]));
+    ladj -= 2 * sum(to_vector(log_rfft2_scale[:, 2:fftwidth - 1]));
 
     if (width % 2) {
         // If the width is odd, the last column comprises all-independent terms.
-        ladj -= 2 * sum(logfftscale[:, fftwidth]);
+        ladj -= 2 * sum(log_rfft2_scale[:, fftwidth]);
     } else {
-        ladj -= sum(logfftscale[:fftheight, fftwidth]) + sum(logfftscale[2:idx, fftwidth]);
+        ladj -= sum(log_rfft2_scale[:fftheight, fftwidth]) + sum(log_rfft2_scale[2:idx, fftwidth]);
     }
     // Correction terms from the transform that only depend on the shape.
     int nterms = (n - 1) %/% 2;
