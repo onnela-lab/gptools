@@ -1,3 +1,5 @@
+import operator
+from typing import Callable
 from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
 
 
@@ -134,25 +136,79 @@ class Kernel:
     Base class for covariance kernels.
 
     Args:
-        epsilon: Diagonal "nugget" variance.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, epsilon: float = 0, period: OptionalArrayOrTensor = None):
-        self.epsilon = epsilon
+    def __init__(self, period: OptionalArrayOrTensor = None):
         self.period = period
 
     def __call__(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        cov = self._evaluate(x, y)
-        if self.epsilon and y is None:
-            return cov + self.epsilon * dispatch[cov].eye(cov.shape[-1])
-        return cov
+        return self.evaluate(x, y)
 
-    def _evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        """
+        Evaluate the covariance kernel.
+
+        Args:
+            x: First set of points.
+            y: Second set of points (defaults to `x` for pairwise covariances).
+
+        Returns:
+            cov: Covariance between the two sets of points.
+        """
         raise NotImplementedError
+
+    def __add__(self, other) -> "CompositeKernel":
+        return CompositeKernel(operator.add, self, other)
+
+    def __mul__(self, other) -> "CompositeKernel":
+        return CompositeKernel(operator.mul, self, other)
 
     @property
     def is_periodic(self):
         return self.period is not None
+
+
+class CompositeKernel(Kernel):
+    """
+    Composition of two kernels.
+
+    Args:
+        operation: Operation for composing kernels.
+        a: First kernel.
+        b: Second kernel.
+    """
+    def __init__(self, operation: Callable, a: Kernel, b: Kernel) -> None:
+        period = None
+        if isinstance(a, Kernel) and isinstance(b, Kernel):
+            if a.is_periodic != b.is_periodic:
+                raise ValueError("either both or neither kernel must be periodic")
+            if a.is_periodic:
+                if not dispatch.allclose(a.period, b.period):
+                    raise ValueError("kernels do not have the same period")
+                period = a.period
+        super().__init__(period)
+        self.operation = operation
+        self.a = a
+        self.b = b
+
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        return self.operation(self.a(x, y) if callable(self.a) else self.a,
+                              self.b(x, y) if callable(self.b) else self.b)
+
+
+class DiagonalKernel(Kernel):
+    """
+    Diagonal kernel with "nugget" variance. The kernel can only evaluated pairwise for a single set
+    of points but not for the Cartesian product of two sets of points.
+    """
+    def __init__(self, epsilon: float = 1, period: OptionalArrayOrTensor = None) -> None:
+        super().__init__(period)
+        self.epsilon = epsilon
+
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        if y is not None:
+            raise ValueError
+        return dispatch[x].eye(x.shape[-2]) * self.epsilon
 
 
 class ExpQuadKernel(Kernel):
@@ -161,22 +217,20 @@ class ExpQuadKernel(Kernel):
 
     .. math::
 
-        \text{cov}\left(x, y\right) = \alpha^2 \exp\left(-\frac{\left(x-y\right)^2}{2\rho^2}\right)
-        + \delta\left(x - y\right)
+        \text{cov}\left(x, y\right) = \sigma^2 \exp\left(-\frac{\left(x-y\right)^2}{2\ell^2}\right)
 
     Args:
-        alpha: Scale of the covariance.
-        rho: Correlation length.
-        epsilon: Diagonal "nugget" variance.
+        sigma: Scale of the covariance.
+        length_scale: Correlation length.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, alpha: float, rho: float, epsilon: float = 0,
-                 period: OptionalArrayOrTensor = None) -> None:
-        super().__init__(epsilon, period)
-        self.alpha = alpha
-        self.rho = rho
+    def __init__(self, sigma: float, length_scale: float, period: OptionalArrayOrTensor = None) \
+            -> None:
+        super().__init__(period)
+        self.sigma = sigma
+        self.length_scale = length_scale
 
-    def _evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        residuals = evaluate_residuals(x, y, self.period) / self.rho
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        residuals = evaluate_residuals(x, y, self.period) / self.length_scale
         exponent = - dispatch.square(residuals).sum(axis=-1) / 2
-        return self.alpha * self.alpha * dispatch.exp(exponent)
+        return self.sigma * self.sigma * dispatch.exp(exponent)

@@ -11,7 +11,7 @@ parameters {
 }
 
 model {
-    matrix[n, n] cov = gp_exp_quad_cov(X, alpha, rho);
+    matrix[n, n] cov = gp_exp_quad_cov(X, sigma, length_scale);
     eta ~ multi_normal(zeros(n), cov);
     y ~ normal(eta, noise_scale);
 }

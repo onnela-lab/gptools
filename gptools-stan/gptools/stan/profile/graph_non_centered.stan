@@ -15,7 +15,7 @@ parameters {
 }
 
 transformed parameters {
-   vector[n] eta = graph_gp_transform(eta_, X, alpha, rho, epsilon, edge_index, degrees);
+   vector[n] eta = graph_gp_transform(eta_, X, sigma, length_scale, epsilon, edge_index, degrees);
 }
 
 model {

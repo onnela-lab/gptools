@@ -11,12 +11,11 @@ import torch as th
 def test_kernel(kernel_configuration: KernelConfiguration, shape: tuple, use_torch: bool) -> None:
     kernel = kernel_configuration()
     X = kernel_configuration.sample_locations(shape)
-    cov = kernel(X)
+    cov = (kernel + kernels.DiagonalKernel(1e-3, kernel.period)).evaluate(X)
     # Check the shape and that the kernel is positive definite if there is nugget variance.
     *batch_shape, n = shape
     assert cov.shape == tuple(batch_shape) + (n, n)
-    if kernel.epsilon:
-        np.linalg.cholesky(cov)
+    np.linalg.cholesky(cov)
 
 
 @pytest.mark.parametrize("p", [1, 3, 5])
@@ -37,7 +36,7 @@ def test_periodic(kernel_configuration: KernelConfiguration):
     # Ensure that translating by an integer period doesn't mess with the covariance.
     for delta in it.product(*([-1, 1, 2] for _ in range(dim))):
         Y = X + delta * np.asarray(kernel.period)
-        other = kernel(X[..., :, None, :], Y[..., None, :, :]) + kernel.epsilon * np.eye(13)
+        other = kernel(X[..., :, None, :], Y[..., None, :, :])
         np.testing.assert_allclose(cov, other)
 
     # For one and two dimensions, ensure that the Fourier transform has the correct structure.
@@ -55,3 +54,26 @@ def test_periodic(kernel_configuration: KernelConfiguration):
         cov = kernel(xs)[0].reshape(shape)
         fftcov = np.fft.rfft(cov) if dim == 1 else np.fft.rfft2(cov)
         np.testing.assert_allclose(fftcov.imag, 0, atol=1e-9)
+
+
+def test_kernel_composition():
+    a = kernels.ExpQuadKernel(2, 0.5)
+    b = kernels.DiagonalKernel()
+    kernel = a * 2 + 1 + b
+    x = np.random.normal(0, 1, (100, 2))
+    np.testing.assert_allclose(kernel(x), 2 * a(x) + 1 + b(x))
+
+
+def test_kernel_composition_period():
+    with pytest.raises(ValueError):
+        kernels.DiagonalKernel(period=1) + kernels.DiagonalKernel()
+    with pytest.raises(ValueError):
+        kernels.DiagonalKernel(period=1) + kernels.DiagonalKernel(period=2)
+
+
+def test_diagonal_kernel():
+    kernel = kernels.DiagonalKernel()
+    x = np.random.normal(0, 1, (10, 2))
+    np.testing.assert_allclose(kernel(x), np.eye(10))
+    with pytest.raises(ValueError):
+        kernel(x, x)

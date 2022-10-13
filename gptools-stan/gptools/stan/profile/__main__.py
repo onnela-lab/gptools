@@ -3,7 +3,7 @@ import logging
 import cmdstanpy
 from gptools.stan import compile_model
 from gptools.util import Timer
-from gptools.util.kernels import ExpQuadKernel
+from gptools.util.kernels import ExpQuadKernel, DiagonalKernel
 from gptools.util.graph import lattice_predecessors, predecessors_to_edge_index
 import numpy as np
 import pathlib
@@ -23,9 +23,9 @@ def __main__(args: Optional[list[str]] = None) -> None:
     parser.add_argument("--n", help="number of observations", type=int, default=100)
     parser.add_argument("--num_parents", help="number of parents for GP on graphs", type=int,
                         default=5)
-    parser.add_argument("--alpha", help="scale of Gaussian process covariance", type=float,
+    parser.add_argument("--sigma", help="scale of Gaussian process covariance", type=float,
                         default=1.0)
-    parser.add_argument("--rho", help="correlation length of Gaussian process covariance",
+    parser.add_argument("--length_scale", help="correlation length of Gaussian process covariance",
                         type=float, default=1.0)
     parser.add_argument("--epsilon", help="diagonal contribution to Gaussian process covariance",
                         type=float, default=1e-3)
@@ -67,7 +67,7 @@ def __main__(args: Optional[list[str]] = None) -> None:
                 and (args.timeout is None or total_timer.duration < args.timeout):
             # Generate data from a Gaussian process with normal observation noise.
             X = np.arange(args.n)[:, None]
-            kernel = ExpQuadKernel(args.alpha, args.rho, args.epsilon)
+            kernel = ExpQuadKernel(args.sigma, args.length_scale) + DiagonalKernel(args.epsilon)
             cov = kernel(X)
             eta = np.random.multivariate_normal(np.zeros(args.n), cov)
             y = np.random.normal(eta, args.noise_scale)
@@ -81,9 +81,9 @@ def __main__(args: Optional[list[str]] = None) -> None:
                 "num_dims": 1,
                 "X": X,
                 "y": y,
-                "alpha": kernel.alpha,
-                "rho": kernel.rho,
-                "epsilon": kernel.epsilon,
+                "sigma": args.sigma,
+                "length_scale": args.length_scale,
+                "epsilon": args.epsilon,
                 "num_edges": edge_index.shape[1],
                 "edge_index": edge_index,
                 "noise_scale": args.noise_scale,

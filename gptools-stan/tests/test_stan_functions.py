@@ -129,7 +129,8 @@ for n in [7, 8]:
 
     # Transforming to whitened Fourier coefficients ...
     loc = np.random.normal(0, 1, n)
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
+        + kernels.DiagonalKernel(.1, 1)
     cov = kernel(np.arange(n)[:, None])
     lincov = cov[0]
     rfft_scale = fft.evaluate_rfft_scale(lincov)
@@ -224,7 +225,8 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
 
     # Transforming to whitened Fourier coefficients ...
     loc = np.random.normal(0, 1, (n, m))
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
+        + kernels.DiagonalKernel(.1, 1)
     xs = coordgrid(np.arange(n), np.arange(m))
     cov = kernel(xs)
     lincov = cov[0].reshape((n, m))

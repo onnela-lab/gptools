@@ -51,11 +51,12 @@ class KernelConfiguration:
 
 
 _kernel_configurations = [
-    KernelConfiguration([None], ExpQuadKernel, alpha=1.3, rho=0.2),
-    KernelConfiguration([None, None, None], ExpQuadKernel, alpha=4, rho=0.2, epsilon=0.1),
-    KernelConfiguration([2, 3], ExpQuadKernel, alpha=1.7, rho=0.3, epsilon=0.2),
-    KernelConfiguration([1.5], ExpQuadKernel, alpha=1.5, rho=0.1),
-    KernelConfiguration([2, 3, 4], ExpQuadKernel, alpha=2.1, rho=np.asarray([0.1, 0.15, 0.2])),
+    KernelConfiguration([None], ExpQuadKernel, sigma=1.3, length_scale=0.2),
+    KernelConfiguration([None, None, None], ExpQuadKernel, sigma=4, length_scale=0.2),
+    KernelConfiguration([2, 3], ExpQuadKernel, sigma=1.7, length_scale=0.3),
+    KernelConfiguration([1.5], ExpQuadKernel, sigma=1.5, length_scale=0.1),
+    KernelConfiguration([2, 3, 4], ExpQuadKernel, sigma=2.1,
+                        length_scale=np.asarray([0.1, 0.15, 0.2])),
 ]
 
 

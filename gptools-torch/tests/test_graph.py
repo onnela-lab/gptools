@@ -1,5 +1,5 @@
 from gptools.torch.graph import GraphGaussianProcess
-from gptools.util.kernels import ExpQuadKernel
+from gptools.util.kernels import DiagonalKernel, ExpQuadKernel
 from gptools.util.graph import lattice_predecessors
 import itertools as it
 import pytest
@@ -11,7 +11,7 @@ def data() -> dict:
     n = 50
     x = th.linspace(0, 1, n)[:, None]
     loc = 2 - th.linspace(0, 1, n) ** 2
-    kernel = ExpQuadKernel(1, 0.1, 1e-3)
+    kernel = ExpQuadKernel(1, 0.1) + DiagonalKernel(1e-3)
     cov = kernel(x)
 
     # Obtain the full distribution and graph-based distribution.
@@ -71,7 +71,7 @@ def test_torch_sample(size: th.Size) -> None:
     num_nodes = 100
     x = th.linspace(0, 1, num_nodes)
     X = x[:, None]
-    kernel = ExpQuadKernel(1.4, 0.1, 1e-3)
+    kernel = ExpQuadKernel(1.4, 0.1) + DiagonalKernel(1e-3)
     predecessors = lattice_predecessors(x.shape, 7)
     dist = GraphGaussianProcess(th.zeros_like(x), X, predecessors, kernel)
     y = dist.sample(size)
