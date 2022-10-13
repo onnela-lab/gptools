@@ -47,33 +47,17 @@ vector gp_unpack_rfft(complex_vector x, int n) {
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */
-vector gp_transform_rfft(vector y, vector loc, vector cov, vector rfft_scale) {
+vector gp_transform_rfft(vector y, vector loc, vector rfft_scale) {
     return gp_unpack_rfft(rfft(y - loc) ./ rfft_scale, size(y));
 }
 
 
 /**
-Transform a Gaussian process realization to white noise in the Fourier domain.
-*/
-vector gp_transform_rfft(vector y, vector loc, vector cov) {
-    return gp_transform_rfft(y, loc, cov, gp_evaluate_rfft_scale(cov));
-}
-
-
-/**
 Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
 */
-real gp_rfft_log_abs_det_jacobian(vector cov, vector rfft_scale, int n) {
+real gp_rfft_log_abs_det_jacobian(vector rfft_scale, int n) {
     return - sum(log(rfft_scale[1:n %/% 2 + 1])) -sum(log(rfft_scale[2:(n + 1) %/% 2]))
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
-}
-
-
-/**
-Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
-*/
-real gp_rfft_log_abs_det_jacobian(vector cov, int n) {
-    return gp_rfft_log_abs_det_jacobian(cov, gp_evaluate_rfft_scale(cov), n);
 }
 
 
@@ -88,12 +72,11 @@ space.
 
 :returns: Log probability of the Gaussian process.
 */
-real gp_rfft_lpdf(vector y, vector loc, vector cov) {
+real gp_rfft_lpdf(vector y, vector loc, vector rfft_scale) {
     int n = size(y);
     int nrfft = n %/% 2 + 1;
-    vector[nrfft] rfft_scale = gp_evaluate_rfft_scale(cov);
-    vector[n] z = gp_transform_rfft(y, loc, cov, rfft_scale);
-    return std_normal_lpdf(z) + gp_rfft_log_abs_det_jacobian(cov, rfft_scale, n);
+    vector[n] z = gp_transform_rfft(y, loc, rfft_scale);
+    return std_normal_lpdf(z) + gp_rfft_log_abs_det_jacobian(rfft_scale, n);
 }
 
 
@@ -133,6 +116,6 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
-vector gp_transform_irfft(vector z, vector loc, vector cov) {
-    return get_real(inv_rfft(gp_evaluate_rfft_scale(cov) .* gp_pack_rfft(z), size(z))) + loc;
+vector gp_transform_irfft(vector z, vector loc, vector rfft_scale) {
+    return get_real(inv_rfft(rfft_scale .* gp_pack_rfft(z), size(z))) + loc;
 }

@@ -40,7 +40,7 @@ def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torc
     log_prob = dist.logpdf(y)
     log_prob_rfft = fft.evaluate_log_prob_rfft(
         th.as_tensor(y) if use_torch else y, th.as_tensor(loc) if use_torch else loc,
-        th.as_tensor(cov[0]) if use_torch else cov[0])
+        cov=th.as_tensor(cov[0]) if use_torch else cov[0])
     np.testing.assert_allclose(log_prob, log_prob_rfft)
 
 
@@ -53,8 +53,8 @@ def test_transform_rfft_roundtrip(batch_shape: tuple[int], rfft_num: int, use_to
     loc = th.as_tensor(loc) if use_torch else loc
     z = th.as_tensor(z) if use_torch else z
     cov = th.as_tensor(cov) if use_torch else cov
-    y = fft.transform_irfft(z, loc, cov)
-    x = fft.transform_rfft(y, loc, cov)
+    y = fft.transform_irfft(z, loc, cov=cov)
+    x = fft.transform_rfft(y, loc, cov=cov)
     # Verify that the inverse of the transform is the input.
     np.testing.assert_allclose(z, x)
 
@@ -75,7 +75,7 @@ def test_evaluate_log_prob_rfft2(batch_shape: tuple[int], rfft2_shape: int, use_
         y2 = th.as_tensor(y2)
         loc2 = th.as_tensor(loc2)
         cov2 = th.as_tensor(cov2)
-    log_prob_rfft2 = fft.evaluate_log_prob_rfft2(y2, loc2, cov2)
+    log_prob_rfft2 = fft.evaluate_log_prob_rfft2(y2, loc2, cov=cov2)
     np.testing.assert_allclose(log_prob, log_prob_rfft2)
 
 
@@ -106,7 +106,7 @@ def test_transform_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, us
     z = np.random.normal(0, 1, batch_shape + rfft2_shape)
     z = th.as_tensor(z) if use_torch else z
     cov = th.as_tensor(cov) if use_torch else cov
-    y = fft.transform_irfft2(z, loc, cov)
-    x = fft.transform_rfft2(y, loc, cov)
+    y = fft.transform_irfft2(z, loc, cov=cov)
+    x = fft.transform_rfft2(y, loc, cov=cov)
     # Verify that the inverse of the transform is the input.
     np.testing.assert_allclose(z, x)

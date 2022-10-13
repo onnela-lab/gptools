@@ -1,7 +1,7 @@
 from __future__ import annotations
 import torch as th
 from torch.distributions import constraints
-import typing
+from typing import Optional
 
 
 DistributionDict = dict[str, th.distributions.Distribution]
@@ -21,7 +21,7 @@ class ParameterizedDistribution(th.nn.Module):
         **kwargs: Initial conditions of the distribution.
     """
     def __init__(self, cls: type[th.distributions.Distribution], *,
-                 const: typing.Optional[set[str]] = None, **kwargs: TensorDict):
+                 const: Optional[set[str]] = None, **kwargs: TensorDict):
         super().__init__()
         const = const or set()
         self.cls = cls
@@ -73,8 +73,8 @@ class VariationalModel(th.nn.Module):
         """
         return {key: value() for key, value in self.approximations.items()}
 
-    def rsample(self, size: typing.Optional[th.Size] = None,
-                distributions: typing.Optional[DistributionDict] = None) -> TensorDict:
+    def rsample(self, size: Optional[th.Size] = None,
+                distributions: Optional[DistributionDict] = None) -> TensorDict:
         """
         Draw reparameterized samples from the variational approximations.
         """
@@ -82,7 +82,7 @@ class VariationalModel(th.nn.Module):
         size = () if size is None else size
         return {key: distribution.rsample(size) for key, distribution in distributions.items()}
 
-    def entropies(self, distributions: typing.Optional[DistributionDict] = None) -> TensorDict:
+    def entropies(self, distributions: Optional[DistributionDict] = None) -> TensorDict:
         """
         Get entropies of each variational approximation.
 
@@ -96,7 +96,7 @@ class VariationalModel(th.nn.Module):
         distributions = distributions or self.distributions()
         return {key: distribution.entropy() for key, distribution in distributions.items()}
 
-    def entropy(self, distributions: typing.Optional[DistributionDict] = None) -> th.Tensor:
+    def entropy(self, distributions: Optional[DistributionDict] = None) -> th.Tensor:
         """
         Get entropy of the joint variational approximation.
 
@@ -109,10 +109,8 @@ class VariationalModel(th.nn.Module):
         """
         return sum(entropy.sum() for entropy in self.entropies(distributions).values())
 
-    def elbo_estimate(
-            self, parameters: TensorDict, *args,
-            distributions: typing.Optional[DistributionDict] = None, **kwargs
-            ) -> th.Tensor:
+    def elbo_estimate(self, parameters: TensorDict, *args,
+                      distributions: Optional[DistributionDict] = None, **kwargs) -> th.Tensor:
         """
         Evaluate an estimate of the evidence lower bound given parameter values.
 
@@ -129,8 +127,7 @@ class VariationalModel(th.nn.Module):
         entropy = self.entropy(distributions)
         return log_prob + entropy
 
-    def batch_elbo_estimate(self, size: typing.Optional[th.Size] = None, *args, **kwargs) \
-            -> th.Tensor:
+    def batch_elbo_estimate(self, size: Optional[th.Size] = None, *args, **kwargs) -> th.Tensor:
         """
         Evaluate an estimate of the evidence lower bound for a batch of parameter samples obtained
         from the variational approximation.
@@ -169,7 +166,7 @@ class TerminateOnPlateau:
         patience: Number of steps to wait before terminating.
         max_num_steps: Maximum number of steps irrespective of termination criterion.
     """
-    def __init__(self, patience: int, max_num_steps: typing.Optional[int] = None) -> None:
+    def __init__(self, patience: int, max_num_steps: Optional[int] = None) -> None:
         self.patience = patience
         self.best_value = float("inf")
         self.elapsed = 0

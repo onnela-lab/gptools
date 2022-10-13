@@ -3,7 +3,7 @@ import numbers
 import numpy as np
 import pytest
 import re
-import typing
+from typing import Literal, Optional, Union
 
 
 @pytest.mark.parametrize("shape, ks", [
@@ -16,7 +16,7 @@ import typing
 @pytest.mark.parametrize("bounds", graph.LatticeBounds)
 @pytest.mark.parametrize("compress", [False, True])
 def test_lattice_predecessors(
-        shape: tuple[int], ks: typing.Union[int, tuple[int]], bounds: graph.LatticeBounds,
+        shape: tuple[int], ks: Union[int, tuple[int]], bounds: graph.LatticeBounds,
         compress: bool) -> None:
     predecessors = graph.lattice_predecessors(shape, ks, bounds, compress)
 
@@ -46,7 +46,7 @@ def test_lattice_predecessors_invalid(
 
 
 @pytest.mark.parametrize("indexing", ["numpy", "stan"])
-def test_predecessors_to_edge_index(indexing: typing.Literal["numpy", "stan"]) -> None:
+def test_predecessors_to_edge_index(indexing: Literal["numpy", "stan"]) -> None:
     shape = (5, 7, 11)
     ks = (2, 3, 5)
     predecessors = graph.lattice_predecessors(shape, ks)
@@ -79,8 +79,8 @@ def test_predecessors_to_edge_index_invalid(predecessors: np.ndarray, match: str
     ([[0, 1, 1, 2, 2, 0], [0, 0, 1, 1, 2, 2]], "numpy", "edge index induces a graph with"),
 ])
 def test_check_edge_index_invalid(
-        edge_index: np.ndarray, indexing: typing.Literal["numpy", "stan"],
-        match: typing.Optional[str]) -> None:
+        edge_index: np.ndarray, indexing: Literal["numpy", "stan"],
+        match: Optional[str]) -> None:
     with pytest.raises(ValueError, match=re.escape(match)):
         graph.check_edge_index(np.asarray(edge_index), indexing)
 

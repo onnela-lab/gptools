@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from scipy import stats
 import torch as th
-import typing
+from typing import Optional
 
 
 shapes = [(20,), (21,), (7, 9), (8, 9), (7, 8), (8, 6)]
@@ -58,20 +58,20 @@ def data(shape: tuple[int]) -> dict:
 
 
 def test_log_prob_fft(data: dict) -> None:
-    dist = data["distribution_cls"](data["loc"], data["cov"])
+    dist = data["distribution_cls"](data["loc"], cov=data["cov"])
     np.testing.assert_allclose(dist.log_prob(data["y"]), data["log_prob"])
 
 
 def test_fft_gp_transform_roundtrip(data: dict) -> None:
     z = th.randn(data["shape"])
-    transform = data["transform_cls"](data["loc"], data["cov"])
+    transform = data["transform_cls"](data["loc"], cov=data["cov"])
     y = transform(z)
     x = transform.inv(y)
     np.testing.assert_allclose(z, x)
 
 
 @pytest.mark.parametrize("sample_shape", [(), (2,), (3, 4)])
-def test_fft_gp_sample(data: dict, sample_shape: typing.Optional[th.Size]) -> None:
-    dist = data["distribution_cls"](data["loc"], data["cov"])
+def test_fft_gp_sample(data: dict, sample_shape: Optional[th.Size]) -> None:
+    dist = data["distribution_cls"](data["loc"], cov=data["cov"])
     assert dist.has_rsample
     assert dist.rsample(sample_shape).shape == sample_shape + data["shape"]

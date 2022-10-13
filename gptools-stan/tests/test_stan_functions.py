@@ -6,7 +6,7 @@ import numpy as np
 import pathlib
 import pytest
 from scipy import stats
-import typing
+from typing import Iterable, Optional, Union
 
 
 CONFIGURATIONS: list[dict] = []
@@ -19,7 +19,7 @@ def add_configuration(configuration: dict) -> dict:
     return configuration
 
 
-def get_configuration_ids() -> typing.Iterable[str]:
+def get_configuration_ids() -> Iterable[str]:
     configuration_ids = []
     for configuration in CONFIGURATIONS:
         parts = [configuration["stan_function"]]
@@ -36,9 +36,9 @@ def get_configuration_ids() -> typing.Iterable[str]:
 
 def assert_stan_python_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
-        result_type: str, desired: typing.Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
-        includes: typing.Optional[typing.Iterable[str]] = None,
-        line_info: typing.Optional[str] = "???", suffix: typing.Optional[str] = None) -> None:
+        result_type: str, desired: Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
+        includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
+        suffix: Optional[str] = None) -> None:
     """
     Assert that a Stan and Python function return the same result up to numerical inaccuracies.
     """
@@ -132,11 +132,13 @@ for n in [7, 8]:
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
     cov = kernel(np.arange(n)[:, None])
     lincov = cov[0]
-    z = fft.transform_rfft(y, loc, lincov)
+    rfft_scale = fft.evaluate_rfft_scale(lincov)
+    z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft",
-        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "cov": lincov},
+        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
+                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": z,
@@ -145,21 +147,23 @@ for n in [7, 8]:
     # ... and back again.
     add_configuration({
         "stan_function": "gp_transform_irfft",
-        "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "z": z, "loc": loc, "cov": lincov},
+        "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]",
+                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "z": z, "loc": loc, "rfft_scale": rfft_scale},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
-        "desired": [y, fft.transform_irfft(z, loc, lincov)],
+        "desired": [y, fft.transform_irfft(z, loc, rfft_scale=rfft_scale)],
     })
 
     # Evaluate the likelihood.
     add_configuration({
         "stan_function": "gp_rfft_lpdf",
-        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]", "cov": "vector[n_]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "cov": lincov},
+        "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
+                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
         "result_type": "real",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
-        "desired": [fft.evaluate_log_prob_rfft(y, loc, lincov),
+        "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
 
@@ -224,12 +228,13 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     xs = coordgrid(np.arange(n), np.arange(m))
     cov = kernel(xs)
     lincov = cov[0].reshape((n, m))
-    z = fft.transform_rfft2(y, loc, lincov)
+    rfft2_scale = fft.evaluate_rfft2_scale(lincov)
+    z = fft.transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
-                      "cov": "matrix[n_, m_]"},
-        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov": lincov},
+                      "rfft2_scale": "matrix[n_, m_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "rfft2_scale": rfft2_scale},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
         "desired": z,
@@ -239,23 +244,23 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     add_configuration({
         "stan_function": "gp_transform_irfft2",
         "arg_types": {"n_": "int", "m_": "int", "z": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
-                      "cov": "matrix[n_, m_]"},
-        "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "cov": lincov},
+                      "rfft2_scale": "matrix[n_, m_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "rfft2_scale": rfft2_scale},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
-        "desired": [y, fft.transform_irfft2(z, loc, lincov)],
+        "desired": [y, fft.transform_irfft2(z, loc, rfft2_scale=rfft2_scale)],
     })
 
     # Evaluate the likelihood.
     add_configuration({
         "stan_function": "gp_rfft2_lpdf",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
-                      "cov": "matrix[n_, m_]"},
-        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov": lincov},
+                      "rfft2_scale": "matrix[n_, m_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "rfft2_scale": rfft2_scale},
         "result_type": "real",
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
-                    fft.evaluate_log_prob_rfft2(y, loc, lincov)],
+                    fft.evaluate_log_prob_rfft2(y, loc, rfft2_scale=rfft2_scale)],
     })
 
     # Containers.

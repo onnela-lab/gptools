@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-import typing
+from typing import Type
 from .kernels import ExpQuadKernel, Kernel
 from . import coordgrid, ArrayOrTensor
 
@@ -14,7 +14,7 @@ class KernelConfiguration:
         kernel_cls: Class of the kernel to create.
         **kwargs: Keyword arguments passed to the kernel.
     """
-    def __init__(self, dims: tuple, kernel_cls: typing.Type[Kernel], **kwargs) -> None:
+    def __init__(self, dims: tuple, kernel_cls: Type[Kernel], **kwargs) -> None:
         self.dims = dims
         self.kernel_cls = kernel_cls
         self.kwargs = kwargs

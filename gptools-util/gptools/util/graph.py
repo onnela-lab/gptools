@@ -1,7 +1,7 @@
 
 import enum
 import numpy as np
-import typing
+from typing import Literal, Union
 from . import coordgrid, FALSE
 
 
@@ -28,7 +28,7 @@ class LatticeBounds(enum.Enum):
 
 
 def lattice_predecessors(
-        shape: tuple[int], k: typing.Union[int, tuple[int]],
+        shape: tuple[int], k: Union[int, tuple[int]],
         bounds: LatticeBounds = LatticeBounds.ELLIPSE, compress: bool = True
         ) -> np.ndarray:
     """
@@ -119,14 +119,14 @@ def compress_predecessors(predecessors: np.ndarray) -> np.ndarray:
     return compressed
 
 
-def _check_indexing(indexing: typing.Literal["numpy", "stan"]) -> typing.Literal["numpy", "stan"]:
+def _check_indexing(indexing: Literal["numpy", "stan"]) -> Literal["numpy", "stan"]:
     if indexing not in (expected := {"numpy", "stan"}):
         raise ValueError(f"`indexing` must be one of {expected} but got {indexing}")
     return indexing
 
 
 def predecessors_to_edge_index(predecessors: np.ndarray,
-                               indexing: typing.Literal["numpy", "stan"] = "stan") -> np.ndarray:
+                               indexing: Literal["numpy", "stan"] = "stan") -> np.ndarray:
     """
     Convert a matrix of predecessors to an edgelist with self loops.
 
@@ -150,7 +150,7 @@ def predecessors_to_edge_index(predecessors: np.ndarray,
     return edge_index
 
 
-def check_edge_index(edge_index: np.ndarray, indexing: typing.Literal["numpy", "stan"] = "stan") \
+def check_edge_index(edge_index: np.ndarray, indexing: Literal["numpy", "stan"] = "stan") \
         -> np.ndarray:
     """
     Check the edge index, ensuring it has the right structure for the Stan implementation and

@@ -3,7 +3,7 @@ import functools as ft
 import numpy as np
 import os
 import time
-import typing
+from typing import Any, Callable, Iterable, Literal, Optional, Union
 
 
 # This tricks pylance into thinking that the imports *could* happen for type checking.
@@ -12,29 +12,29 @@ if FALSE:
     import torch as th
 
 
-ArrayOrTensor = typing.Union[np.ndarray, "th.Tensor"]
-OptionalArrayOrTensor = typing.Optional[ArrayOrTensor]
+ArrayOrTensor = Union[np.ndarray, "th.Tensor"]
+OptionalArrayOrTensor = Optional[ArrayOrTensor]
 
 
 class ArrayOrTensorDispatch:
     """
     Call the equivalent numpy or torch function based on the value of arguments.
     """
-    def __getattr__(self, name: str) -> typing.Callable:
+    def __getattr__(self, name: str) -> Callable:
         return ft.partial(self, name)
 
-    def __call__(self, name, *args, **kwargs) -> typing.Any:
+    def __call__(self, name, *args, **kwargs) -> Any:
         module = self[args + tuple(kwargs.values())]
         return getattr(module, name)(*args, **kwargs)
 
-    def __getitem__(self, x: ArrayOrTensor) -> typing.Any:
+    def __getitem__(self, x: ArrayOrTensor) -> Any:
         if self.is_tensor(*x) if isinstance(x, tuple) else self.is_tensor(x):
             import torch
             return torch
         else:
             return np
 
-    def is_tensor(self, *xs: typing.Iterable[ArrayOrTensor]) -> bool:
+    def is_tensor(self, *xs: Iterable[ArrayOrTensor]) -> bool:
         """
         Check if objects are tensors.
 
@@ -60,15 +60,15 @@ class ArrayOrTensorDispatch:
             raise ValueError("arguments are a mixture of torch tensors and numpy arrays")
         return True
 
-    def get_complex_dtype(self, x: ArrayOrTensor) -> typing.Any:
+    def get_complex_dtype(self, x: ArrayOrTensor) -> Any:
         """
         Get the complex dtype matching `x` in precision.
         """
         return (1j * self[x].empty(0, dtype=x.dtype)).dtype
 
     @ft.wraps(np.concatenate)
-    def concatenate(self, arrays: typing.Iterable[ArrayOrTensor],
-                    axis: typing.Optional[typing.Union[int, tuple[int]]] = None) -> ArrayOrTensor:
+    def concatenate(self, arrays: Iterable[ArrayOrTensor],
+                    axis: Optional[Union[int, tuple[int]]] = None) -> ArrayOrTensor:
         if self.is_tensor(*arrays):
             import torch as th
             return th.concat(arrays, dim=axis)
@@ -76,8 +76,8 @@ class ArrayOrTensorDispatch:
             return np.concatenate(arrays, axis=axis)
 
 
-def coordgrid(*xs: typing.Iterable[np.ndarray], ravel: bool = True,
-              indexing: typing.Literal["ij", "xy"] = "ij") -> np.ndarray:
+def coordgrid(*xs: Iterable[np.ndarray], ravel: bool = True, indexing: Literal["ij", "xy"] = "ij") \
+        -> np.ndarray:
     """
     Obtain coordinates for all grid points induced by `xs`.
 

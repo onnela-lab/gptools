@@ -1,11 +1,11 @@
-from . import ArrayOrTensor, ArrayOrTensorDispatch
+from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
 
 
 dispatch = ArrayOrTensorDispatch()
 
 
-def evaluate_residuals(x: ArrayOrTensor, y: ArrayOrTensor = None, period: ArrayOrTensor = None) \
-        -> ArrayOrTensor:
+def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
+                       period: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the residuals between points respecting periodic boundary conditions.
 
@@ -74,8 +74,8 @@ def evaluate_residuals(x: ArrayOrTensor, y: ArrayOrTensor = None, period: ArrayO
     return residuals
 
 
-def evaluate_squared_distance(x: ArrayOrTensor, y: ArrayOrTensor = None,
-                              period: ArrayOrTensor = None) -> ArrayOrTensor:
+def evaluate_squared_distance(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
+                              period: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     r"""
     Evaluate the squared distance between points respecting periodic boundary conditions.
 
@@ -137,17 +137,17 @@ class Kernel:
         epsilon: Diagonal "nugget" variance.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, epsilon: float = 0, period: ArrayOrTensor = None):
+    def __init__(self, epsilon: float = 0, period: OptionalArrayOrTensor = None):
         self.epsilon = epsilon
         self.period = period
 
-    def __call__(self, x: ArrayOrTensor, y: ArrayOrTensor = None) -> ArrayOrTensor:
+    def __call__(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
         cov = self._evaluate(x, y)
-        if self.epsilon:
+        if self.epsilon and y is None:
             return cov + self.epsilon * dispatch[cov].eye(cov.shape[-1])
         return cov
 
-    def _evaluate(self, x: ArrayOrTensor, y: ArrayOrTensor = None) -> ArrayOrTensor:
+    def _evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
         raise NotImplementedError
 
     @property
@@ -170,13 +170,13 @@ class ExpQuadKernel(Kernel):
         epsilon: Diagonal "nugget" variance.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, alpha: float, rho: float, epsilon: float = 0, period: ArrayOrTensor = None) \
-            -> None:
+    def __init__(self, alpha: float, rho: float, epsilon: float = 0,
+                 period: OptionalArrayOrTensor = None) -> None:
         super().__init__(epsilon, period)
         self.alpha = alpha
         self.rho = rho
 
-    def _evaluate(self, x: ArrayOrTensor, y: ArrayOrTensor = None) -> ArrayOrTensor:
+    def _evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
         residuals = evaluate_residuals(x, y, self.period) / self.rho
         exponent = - dispatch.square(residuals).sum(axis=-1) / 2
         return self.alpha * self.alpha * dispatch.exp(exponent)
