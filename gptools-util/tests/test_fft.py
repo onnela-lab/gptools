@@ -66,7 +66,7 @@ def test_evaluate_log_prob_rfft2(batch_shape: tuple[int], rfft2_shape: int, use_
         -> None:
     xs = coordgrid(*(np.linspace(0, 1, size, endpoint=False) for size in rfft2_shape))
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
-        + kernels.DiagonalKernel(1e-3, 1)
+        + kernels.DiagonalKernel(1e-2, 1)
     cov = kernel(xs)
     loc = np.random.normal(0, 1, xs.shape[0])
     dist = stats.multivariate_normal(loc, cov)

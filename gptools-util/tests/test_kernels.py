@@ -77,3 +77,16 @@ def test_diagonal_kernel():
     np.testing.assert_allclose(kernel(x), np.eye(10))
     with pytest.raises(ValueError):
         kernel(x, x)
+
+
+@pytest.mark.parametrize("n", [100, 101])
+def test_heat_kernel(n: int) -> None:
+    kernel = kernels.HeatKernel(1.2, 0.1, 3, n // 2 + 1)
+    x = np.linspace(0, kernel.period, n, endpoint=False)
+    cov = kernel.evaluate(x[:, None])[0]
+    rfft = np.fft.rfft(cov)
+    assert rfft.shape == (n // 2 + 1,)
+    np.testing.assert_allclose(rfft.imag, 0, atol=1e-9)
+    rfft = rfft.real
+    predicted = kernel.evaluate_rfft([n])
+    np.testing.assert_allclose(rfft, predicted, atol=1e-9)

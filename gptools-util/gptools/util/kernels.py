@@ -1,5 +1,6 @@
+import math
 import operator
-from typing import Callable
+from typing import Callable, Optional
 from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
 
 
@@ -234,3 +235,50 @@ class ExpQuadKernel(Kernel):
         residuals = evaluate_residuals(x, y, self.period) / self.length_scale
         exponent = - dispatch.square(residuals).sum(axis=-1) / 2
         return self.sigma * self.sigma * dispatch.exp(exponent)
+
+
+class HeatKernel(Kernel):
+    """
+    Heat kernel on a finite domain with periodic boundary conditions.
+
+    Args:
+        sigma: Scale of the covariance.
+        length_scale: Correlation length.
+        period: Period for circular boundary conditions.
+        num_terms: Number of terms in the series approximation of the heat equation solution.
+    """
+    def __init__(self, sigma: ArrayOrTensor, length_scale: ArrayOrTensor, period: ArrayOrTensor,
+                 num_terms: Optional[int] = None) -> None:
+        super().__init__(period)
+        self.sigma = sigma
+        self.length_scale = length_scale
+        # Evaluate the effective relaxation time of the heat kernel.
+        self.time = 2 * math.pi ** 2 * (self.length_scale / self.period) ** 2
+        # The terms decay rapidly with exp(- k^2 * time) so we only need to consider the first few.
+        # If not given, we try to reach k^2 * time > 10.
+        self.num_terms = num_terms or int((10 / self.time) ** 2) + 1
+
+    def evaluate(self, x, y=None):
+        # TODO: make this work for higher dimensions.
+        residuals = evaluate_residuals(x, y, self.period).squeeze() / self.period
+        ks = dispatch[x].arange(1, self.num_terms)
+        parts = dispatch.cos(2 * math.pi * ks * residuals[..., None]) \
+            * dispatch.exp(- ks ** 2 * self.time)
+        value = 2 * parts.sum(axis=-1) + 1
+        return self.sigma ** 2 * value * dispatch.sqrt(self.time / math.pi)
+
+    def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
+        """
+        Evaluate the real fast Fourier transform of the kernel.
+
+        Args:
+            shape: Number of sample points in each dimension.
+
+        Returns:
+            rfft: Fourier coefficients with shape `(*shape[:-1], shape[-1] // 2 + 1)`.
+        """
+        import numpy as np
+        size = math.prod(shape)
+        ks = np.arange(size // 2 + 1)
+        return size * math.sqrt(2 * math.pi) * self.length_scale * self.sigma ** 2 / self.period \
+            * dispatch.exp(-2 * (math.pi * ks * self.length_scale / self.period) ** 2)
