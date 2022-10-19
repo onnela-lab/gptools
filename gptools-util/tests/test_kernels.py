@@ -1,4 +1,4 @@
-from gptools.util import kernels
+from gptools.util import coordgrid, kernels
 from gptools.util.testing import KernelConfiguration
 import itertools as it
 import numpy as np
@@ -79,14 +79,28 @@ def test_diagonal_kernel():
         kernel(x, x)
 
 
-@pytest.mark.parametrize("n", [100, 101])
-def test_heat_kernel(n: int) -> None:
-    kernel = kernels.HeatKernel(1.2, 0.1, 3, n // 2 + 1)
-    x = np.linspace(0, kernel.period, n, endpoint=False)
-    cov = kernel.evaluate(x[:, None])[0]
-    rfft = np.fft.rfft(cov)
-    assert rfft.shape == (n // 2 + 1,)
+@pytest.mark.parametrize("shape", [(5,), (7,)])
+def test_heat_kernel(shape: int) -> None:
+    *head, tail = shape
+    ndim = len(shape)
+    # Use a large number of terms to evaluate the kernel.
+    kernel = kernels.HeatKernel(1.2, 0.5, 3, tail // 2 + 1)
+    xs = coordgrid(*[np.linspace(0, kernel.period, n, endpoint=False) for n in shape])
+    cov = kernel.evaluate(xs)[0].reshape(shape)
+    if ndim == 1:
+        rfft = np.fft.rfft(cov)
+    elif ndim == 2:
+        rfft = np.fft.rfft2(cov)
+    else:
+        raise ValueError
+    assert rfft.shape == (*head, tail // 2 + 1,)
     np.testing.assert_allclose(rfft.imag, 0, atol=1e-9)
     rfft = rfft.real
-    predicted = kernel.evaluate_rfft([n])
+    predicted = kernel.evaluate_rfft(shape)
     np.testing.assert_allclose(rfft, predicted, atol=1e-9)
+
+
+@pytest.mark.parametrize("num_terms", [None, 7, np.arange(4)])
+def test_heat_kernel_num_terms(num_terms) -> None:
+    kernel = kernels.HeatKernel(1, .5, 1, num_terms)
+    assert kernel.num_terms >= 1

@@ -1,4 +1,6 @@
 import math
+import numbers
+import numpy as np
 import operator
 from typing import Callable, Optional
 from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
@@ -253,19 +255,27 @@ class HeatKernel(Kernel):
         self.sigma = sigma
         self.length_scale = length_scale
         # Evaluate the effective relaxation time of the heat kernel.
-        self.time = 2 * math.pi ** 2 * (self.length_scale / self.period) ** 2
+        self.time = 2 * (math.pi * self.length_scale / self.period) ** 2
         # The terms decay rapidly with exp(- k^2 * time) so we only need to consider the first few.
         # If not given, we try to reach k^2 * time > 10.
-        self.num_terms = num_terms or int((10 / self.time) ** 2) + 1
+        if num_terms is None:
+            num_terms = 10 / self.time + 1
+        if not isinstance(num_terms, numbers.Number):
+            num_terms = max(num_terms)
+        self.num_terms = int(num_terms)
 
     def evaluate(self, x, y=None):
-        # TODO: make this work for higher dimensions.
-        residuals = evaluate_residuals(x, y, self.period).squeeze() / self.period
-        ks = dispatch[x].arange(1, self.num_terms)
-        parts = dispatch.cos(2 * math.pi * ks * residuals[..., None]) \
-            * dispatch.exp(- ks ** 2 * self.time)
-        value = 2 * parts.sum(axis=-1) + 1
-        return self.sigma ** 2 * value * dispatch.sqrt(self.time / math.pi)
+        # The wavenumbers will have shape `(num_terms,)`.
+        ks = np.arange(1, self.num_terms)[:, None]
+        # The residuals will have shape `(..., num_dims)`.
+        residuals = evaluate_residuals(x, y, self.period) / self.period
+        # We want to construct parts with shape `(..., num_terms, num_dims)`. This is preferable
+        # over a different ordering because we can naturally have the time being a scalar or vector.
+        parts = np.exp(- ks * ks * self.time) * np.cos(2 * np.pi * ks * residuals[..., None, :])
+        # Then take the sum over terms and product over dimensions.
+        value = (1 + 2 * parts.sum(axis=-2)).prod(axis=-1)
+        cov = self.sigma ** 2 * value * dispatch.sqrt(self.time / math.pi).prod()
+        return cov
 
     def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
         """
@@ -278,7 +288,21 @@ class HeatKernel(Kernel):
             rfft: Fourier coefficients with shape `(*shape[:-1], shape[-1] // 2 + 1)`.
         """
         import numpy as np
-        size = math.prod(shape)
-        ks = np.arange(size // 2 + 1)
-        return size * math.sqrt(2 * math.pi) * self.length_scale * self.sigma ** 2 / self.period \
-            * dispatch.exp(-2 * (math.pi * ks * self.length_scale / self.period) ** 2)
+
+        ndim = len(shape)
+        time = self.time * np.ones(ndim)
+        sigma = self.sigma * np.ones(ndim)
+        value = None
+        for i, size in enumerate(shape):
+            z = np.arange(max(1, self.num_terms // size))
+            if i == ndim - 1:
+                size = size // 2 + 1
+            k = np.arange(size)
+            part = np.exp(- (k + size * z[:, None]) ** 2 * time[i]).sum(axis=0) \
+                * sigma[i] ** 2 * np.sqrt(time[i] / math.pi)
+            if value is None:
+                value = part
+            else:
+                value = value[..., None] * part  # pragma: no cover
+
+        return value * np.prod(shape)
