@@ -79,7 +79,7 @@ def test_diagonal_kernel():
         kernel(x, x)
 
 
-@pytest.mark.parametrize("shape", [(5,), (7,)])
+@pytest.mark.parametrize("shape", [(5,), (6,), (7,), (8,)])
 def test_heat_kernel(shape: int) -> None:
     *head, tail = shape
     ndim = len(shape)

@@ -295,14 +295,15 @@ class HeatKernel(Kernel):
         value = None
         for i, size in enumerate(shape):
             z = np.arange(max(1, self.num_terms // size))
-            if i == ndim - 1:
-                size = size // 2 + 1
-            k = np.arange(size)
+            nterms = size // 2 + 1 if i == ndim - 1 else size
+            k = np.arange(nterms)
             part = np.exp(- (k + size * z[:, None]) ** 2 * time[i]).sum(axis=0) \
-                * sigma[i] ** 2 * np.sqrt(time[i] / math.pi)
+                * sigma[i] ** 2 * np.sqrt(time[i] / math.pi) * size
+            if size % 2 == 0:
+                part[..., -1] *= 2
             if value is None:
                 value = part
             else:
                 value = value[..., None] * part  # pragma: no cover
 
-        return value * np.prod(shape)
+        return value
