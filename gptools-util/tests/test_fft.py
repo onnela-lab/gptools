@@ -119,7 +119,7 @@ def test_transform_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, us
 
 
 @pytest.mark.parametrize("n", [5, 7])
-def test_rfft2fft(n: int) -> None:
+def test_expand_rfft(n: int) -> None:
     x = np.random.normal(0, 1, n)
     rfft = np.fft.rfft(x)
-    np.testing.assert_allclose(np.fft.fft(x), fft.rfft2fft(rfft, n))
+    np.testing.assert_allclose(np.fft.fft(x), fft.expand_rfft(rfft, n))

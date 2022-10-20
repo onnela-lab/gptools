@@ -44,7 +44,7 @@ def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return scale
 
 
-def rfft2fft(rfft: ArrayOrTensor, n: int) -> ArrayOrTensor:
+def expand_rfft(rfft: ArrayOrTensor, n: int) -> ArrayOrTensor:
     """
     Convert truncated real Fourier coefficients to full Fourier coefficients.
 
