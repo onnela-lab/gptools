@@ -383,6 +383,21 @@ for ndim in [1, 2, 3]:
         "desired": kernels.HeatKernel(sigma, length_scale, period=period)(x[:, None], y[None]),
     })
 
+for m in [7, 8]:
+    sigma = np.random.gamma(10, 0.1)
+    length_scale = np.random.gamma(10, 0.1)
+    period = np.random.gamma(100, 0.1)
+    add_configuration({
+        "stan_function": "gp_heat_cov_rfft",
+        "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real",
+                      "nterms": "int"},
+        "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period,
+                       "nterms": 100},
+        "result_type": "vector[m %/% 2 + 1]",
+        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+        "desired": kernels.HeatKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
+    })
+
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
 def test_stan_python_equal(config: dict) -> None:

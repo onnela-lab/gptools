@@ -187,3 +187,11 @@ matrix gp_heat_cov(array [] vector x1, array [] vector x2, real sigma, vector le
     }
     return result;
 }
+
+/**
+Evaluate the real fast Fourier transform of the heat kernel.
+*/
+vector gp_heat_cov_rfft(int n, real sigma, real length_scale, real period, int nterms) {
+    real time = 2 * (pi() * length_scale / period) ^ 2;
+    return sigma * sigma * jtheta_rfft(n, exp(-time), nterms) * sqrt(time / pi());
+}
