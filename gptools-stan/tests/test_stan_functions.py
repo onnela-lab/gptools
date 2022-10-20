@@ -397,6 +397,19 @@ for m in [7, 8]:
         "includes": ["gptools_util.stan", "gptools_kernels.stan"],
         "desired": kernels.HeatKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
     })
+    for n in [9, 10]:
+        length_scale = np.random.gamma(10, 0.1, 2)
+        period = np.random.gamma(100, 0.1, 2)
+        add_configuration({
+            "stan_function": "gp_heat_cov_rfft2",
+            "arg_types": {"m": "int", "n": "int", "sigma": "real", "length_scale": "vector[2]",
+                          "period": "vector[2]", "nterms": "int"},
+            "arg_values": {"m": m, "n": n, "sigma": sigma, "length_scale": length_scale,
+                           "period": period, "nterms": 100},
+            "result_type": "matrix[m, n %/% 2 + 1]",
+            "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+            "desired": kernels.HeatKernel(sigma, length_scale, period=period).evaluate_rfft([m, n]),
+        })
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())

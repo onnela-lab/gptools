@@ -195,3 +195,12 @@ vector gp_heat_cov_rfft(int n, real sigma, real length_scale, real period, int n
     real time = 2 * (pi() * length_scale / period) ^ 2;
     return sigma * sigma * jtheta_rfft(n, exp(-time), nterms) * sqrt(time / pi());
 }
+
+/**
+Evaluate the two-dimensional real fast Fourier transform of the heat kernel.
+*/
+matrix gp_heat_cov_rfft2(int m, int n, real sigma, vector length_scale, vector period, int nterms) {
+    vector[m %/% 2 + 1] rfftm = gp_heat_cov_rfft(m, sigma, length_scale[1], period[1], nterms);
+    vector[n %/% 2 + 1] rfftn = gp_heat_cov_rfft(n, 1, length_scale[2], period[2], nterms);
+    return get_real(expand_rfft(rfftm, m)) * rfftn';
+}
