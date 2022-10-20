@@ -102,7 +102,7 @@ def test_heat_kernel(shape: int) -> None:
     *head, tail = shape
     ndim = len(shape)
     # Use a large number of terms to evaluate the kernel.
-    kernel = kernels.HeatKernel(1.2, 0.5, 3, tail // 2 + 1)
+    kernel = kernels.HeatKernel(1.2, 0.1, 3, tail // 2 + 1)
     xs = coordgrid(*[np.linspace(0, kernel.period, n, endpoint=False) for n in shape])
     cov = kernel.evaluate(xs)[0].reshape(shape)
     if ndim == 1:

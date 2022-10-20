@@ -315,19 +315,13 @@ class HeatKernel(Kernel):
         self.num_terms = int(num_terms)
 
     def evaluate(self, x, y=None):
-        # The wavenumbers will have shape `(num_terms,)`.
-        ks = np.arange(1, self.num_terms)[:, None]
         # The residuals will have shape `(..., num_dims)`.
         residuals = evaluate_residuals(x, y, self.period) / self.period
-        # We want to construct parts with shape `(..., num_terms, num_dims)`. This is preferable
-        # over a different ordering because we can naturally have the time being a scalar or vector.
-        parts = np.exp(- ks * ks * self.time) * np.cos(2 * np.pi * ks * residuals[..., None, :])
-        # Then take the sum over terms and product over dimensions.
-        value = (1 + 2 * parts.sum(axis=-2)).prod(axis=-1)
+        value = jtheta(residuals, dispatch.exp(-self.time)).prod(axis=-1)
         cov = self.sigma ** 2 * value * dispatch.sqrt(self.time / math.pi).prod()
         return cov
 
-    def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
+    def evaluate_rfft(self, shape: tuple[int]):
         """
         Evaluate the real fast Fourier transform of the kernel.
 
@@ -337,23 +331,18 @@ class HeatKernel(Kernel):
         Returns:
             rfft: Fourier coefficients with shape `(*shape[:-1], shape[-1] // 2 + 1)`.
         """
-        import numpy as np
-
         ndim = len(shape)
         time = self.time * np.ones(ndim)
         sigma = self.sigma * np.ones(ndim)
         value = None
         for i, size in enumerate(shape):
-            z = np.arange(max(1, self.num_terms // size))
-            nterms = size // 2 + 1 if i == ndim - 1 else size
-            k = np.arange(nterms)
-            part = np.exp(- (k + size * z[:, None]) ** 2 * time[i]).sum(axis=0) \
-                * sigma[i] ** 2 * np.sqrt(time[i] / math.pi) * size
-            if size % 2 == 0:
-                part[..., -1] *= 2
+            part = jtheta_rfft(size, np.exp(-self.time)) * sigma[i] ** 2 \
+                * np.sqrt(time[i] / math.pi)
+            if i != ndim - 1:  # pragma: no cover
+                part = np.fft.fft(np.fft.irfft(part, size)).real
             if value is None:
                 value = part
-            else:
-                value = value[..., None] * part  # pragma: no cover
+            else:  # pragma: no cover
+                value = value[..., None] * part
 
         return value
