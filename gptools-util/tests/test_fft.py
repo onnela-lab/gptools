@@ -116,3 +116,10 @@ def test_transform_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, us
     x = fft.transform_rfft2(y, loc, cov=cov)
     # Verify that the inverse of the transform is the input.
     np.testing.assert_allclose(z, x)
+
+
+@pytest.mark.parametrize("n", [5, 7])
+def test_rfft2fft(n: int) -> None:
+    x = np.random.normal(0, 1, n)
+    rfft = np.fft.rfft(x)
+    np.testing.assert_allclose(np.fft.fft(x), fft.rfft2fft(rfft, n))
