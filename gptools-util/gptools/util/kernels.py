@@ -4,6 +4,7 @@ import numpy as np
 import operator
 from typing import Callable, Optional
 from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
+from .fft import rfft2fft
 
 
 dispatch = ArrayOrTensorDispatch()
@@ -337,7 +338,7 @@ class HeatKernel(Kernel):
         for i, size in enumerate(shape):
             part = jtheta_rfft(size, np.exp(-self.time)) * np.sqrt(time[i] / math.pi)
             if i != ndim - 1:
-                part = np.fft.fft(np.fft.irfft(part, size)).real
+                part = rfft2fft(part, size)
             if value is None:
                 value = part
             else:
