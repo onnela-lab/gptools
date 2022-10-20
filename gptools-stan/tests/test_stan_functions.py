@@ -80,7 +80,16 @@ def assert_stan_python_allclose(
         for value in desired:
             np.testing.assert_allclose(result, value, atol=atol)
     except Exception as ex:
-        raise RuntimeError(f"unexpected result for {stan_function} at {line_info}") from ex
+        raise RuntimeError(f"unexpected result for {stan_function} at {line_info}: \n{ex}") from ex
+
+
+add_configuration({
+    "stan_function": "linspaced_vector",
+    "arg_types": {"n": "int", "lower": "real", "upper": "real"},
+    "arg_values": {"n": 10, "lower": 0, "upper": 9},
+    "result_type": "vector[n]",
+    "desired": np.arange(10),
+})
 
 
 for n in [7, 8]:
@@ -355,6 +364,14 @@ for n in [5, 8]:
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan"],
         "desired": kernels.jtheta(z, q),
+    })
+    add_configuration({
+        "stan_function": "jtheta_rfft",
+        "arg_types": {"n": "int", "q": "real", "nterms": "int"},
+        "arg_values": {"n": n, "q": q[0], "nterms": 10},
+        "result_type": "vector[n %/% 2 + 1]",
+        "includes": ["gptools_util.stan"],
+        "desired": kernels.jtheta_rfft(n, q[0]),
     })
 
 for ndim in [1, 2, 3]:
