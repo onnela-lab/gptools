@@ -1,7 +1,6 @@
 from gptools import stan
 import pathlib
 import pytest
-from unittest import mock
 
 
 @pytest.mark.parametrize("filename", ["gptools_graph.stan", "gptools_fft.stan",
@@ -11,7 +10,7 @@ def test_include(filename: str) -> None:
     assert include.is_file()
 
 
-def test_needs_compilation(tmp_path: pathlib.Path):
+def test_needs_compilation(tmp_path: pathlib.Path, caplog: pytest.LogCaptureFixture):
     # Create files.
     include_file = tmp_path / "include.stan"
     with include_file.open("w") as fp:
@@ -25,31 +24,23 @@ def test_needs_compilation(tmp_path: pathlib.Path):
         """)
 
     # Check we compile as usual first.
-    with mock.patch("cmdstanpy.CmdStanModel") as model:
-        stan.compile_model(stan_file=stan_file)
-    model.assert_called_once()
-    args, _ = model.call_args
-    assert args[3] is True
+    model = stan.compile_model(stan_file=stan_file)
+    exe_file = pathlib.Path(model.exe_file)
+    assert exe_file.exists()
+    last_compiled = exe_file.stat().st_mtime
 
-    # Actually build the model.
+    # Check the model is not recompiled.
     stan.compile_model(stan_file=stan_file)
+    assert exe_file.stat().st_mtime == last_compiled
 
-    # Check we still compile as usual.
-    with mock.patch("cmdstanpy.CmdStanModel") as model:
-        stan.compile_model(stan_file=stan_file)
-    model.assert_called_once()
-    args, _ = model.call_args
-    assert args[3] is True
-
-    # Touch the included file and check we compile with compile="force".
+    # Touch the included file and check we compile anew.
     include_file.touch()
-    with mock.patch("cmdstanpy.CmdStanModel") as model:
-        stan.compile_model(stan_file=stan_file)
-    model.assert_called_once()
-    args, _ = model.call_args
-    assert args[3] == "force"
+    stan.compile_model(stan_file=stan_file)
+    assert exe_file.stat().st_mtime > last_compiled
 
     # Remove the include file and check we get an error.
     include_file.unlink()
-    with pytest.raises(FileNotFoundError, match="include.stan"):
+    with caplog.at_level("DEBUG"):
         stan.compile_model(stan_file=stan_file)
+    assert any("--info" in record.message and "returned non-zero exit status 1" for record in
+               caplog.records)
