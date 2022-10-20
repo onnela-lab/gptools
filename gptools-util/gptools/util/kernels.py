@@ -317,8 +317,8 @@ class HeatKernel(Kernel):
     def evaluate(self, x, y=None):
         # The residuals will have shape `(..., num_dims)`.
         residuals = evaluate_residuals(x, y, self.period) / self.period
-        value = jtheta(residuals, dispatch.exp(-self.time)).prod(axis=-1)
-        cov = self.sigma ** 2 * value * dispatch.sqrt(self.time / math.pi).prod()
+        value = jtheta(residuals, dispatch.exp(-self.time)) * (self.time / math.pi) ** 0.5
+        cov = self.sigma ** 2 * value.prod(axis=-1)
         return cov
 
     def evaluate_rfft(self, shape: tuple[int]):
@@ -333,16 +333,14 @@ class HeatKernel(Kernel):
         """
         ndim = len(shape)
         time = self.time * np.ones(ndim)
-        sigma = self.sigma * np.ones(ndim)
         value = None
         for i, size in enumerate(shape):
-            part = jtheta_rfft(size, np.exp(-self.time)) * sigma[i] ** 2 \
-                * np.sqrt(time[i] / math.pi)
-            if i != ndim - 1:  # pragma: no cover
+            part = jtheta_rfft(size, np.exp(-self.time)) * np.sqrt(time[i] / math.pi)
+            if i != ndim - 1:
                 part = np.fft.fft(np.fft.irfft(part, size)).real
             if value is None:
                 value = part
-            else:  # pragma: no cover
+            else:
                 value = value[..., None] * part
 
-        return value
+        return self.sigma ** 2 * value
