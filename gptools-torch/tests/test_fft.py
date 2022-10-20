@@ -1,6 +1,6 @@
 from gptools.torch.fft import FourierGaussianProcess1D, FourierGaussianProcess1DTransform, \
     FourierGaussianProcess2D, FourierGaussianProcess2DTransform
-from gptools.util.kernels import ExpQuadKernel
+from gptools.util.kernels import DiagonalKernel, ExpQuadKernel
 from gptools.util import coordgrid
 import numpy as np
 import pytest
@@ -23,7 +23,8 @@ def data(shape: tuple[int]) -> dict:
     xs = coordgrid(*(np.arange(size) for size in shape))
     size = np.prod(shape)
     assert xs.shape == (size, ndim)
-    kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), 0.1, shape)
+    kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), shape) \
+        + DiagonalKernel(0.1, shape)
     cov = th.as_tensor(kernel(xs))
     loc = th.randn(shape)
     dist = stats.multivariate_normal(loc.ravel(), cov)

@@ -32,7 +32,8 @@ def test_log_prob_norm(use_torch: bool) -> None:
 
 def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torch: bool) -> None:
     x = np.linspace(0, 1, rfft_num, endpoint=False)
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
+        + kernels.DiagonalKernel(0.1, 1)
     cov = kernel(x[:, None])
     loc = np.random.normal(0, 1, rfft_num)
     dist = stats.multivariate_normal(loc, cov)
@@ -46,10 +47,12 @@ def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torc
 
 def test_transform_rfft_roundtrip(batch_shape: tuple[int], rfft_num: int, use_torch: bool) -> None:
     x = np.linspace(0, 1, rfft_num, endpoint=False)
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
+        + kernels.DiagonalKernel(0.1, 1)
     z = np.random.normal(0, 1, (*batch_shape, rfft_num))
     loc = np.random.normal(0, 1, rfft_num)
-    cov = kernel(x[:, None])[0]
+    cov = kernel(x[:, None])
+    cov = cov[0]
     loc = th.as_tensor(loc) if use_torch else loc
     z = th.as_tensor(z) if use_torch else z
     cov = th.as_tensor(cov) if use_torch else cov
@@ -62,7 +65,8 @@ def test_transform_rfft_roundtrip(batch_shape: tuple[int], rfft_num: int, use_to
 def test_evaluate_log_prob_rfft2(batch_shape: tuple[int], rfft2_shape: int, use_torch: bool) \
         -> None:
     xs = coordgrid(*(np.linspace(0, 1, size, endpoint=False) for size in rfft2_shape))
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
+        + kernels.DiagonalKernel(1e-2, 1)
     cov = kernel(xs)
     loc = np.random.normal(0, 1, xs.shape[0])
     dist = stats.multivariate_normal(loc, cov)
@@ -100,8 +104,10 @@ def test_pack_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, use_tor
 def test_transform_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, use_torch: bool) \
         -> None:
     xs = coordgrid(*(np.linspace(0, 1, size, endpoint=False) for size in rfft2_shape))
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 0.1, 1)
-    cov = kernel(xs)[0].reshape(rfft2_shape)
+    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
+        + kernels.DiagonalKernel(1e-3, 1)
+    cov = kernel(xs)
+    cov = cov[0].reshape(rfft2_shape)
     loc = np.random.normal(0, 1, rfft2_shape)
     z = np.random.normal(0, 1, batch_shape + rfft2_shape)
     z = th.as_tensor(z) if use_torch else z
@@ -110,3 +116,10 @@ def test_transform_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, us
     x = fft.transform_rfft2(y, loc, cov=cov)
     # Verify that the inverse of the transform is the input.
     np.testing.assert_allclose(z, x)
+
+
+@pytest.mark.parametrize("n", [5, 7])
+def test_rfft2fft(n: int) -> None:
+    x = np.random.normal(0, 1, n)
+    rfft = np.fft.rfft(x)
+    np.testing.assert_allclose(np.fft.fft(x), fft.rfft2fft(rfft, n))

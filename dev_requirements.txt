@@ -442,6 +442,10 @@ more-itertools==8.14.0
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   jaraco-classes
+mpmath==1.2.1
+    # via
+    #   -r doc_requirements.txt
+    #   -r gptools-util/test_requirements.txt
 nbclient==0.6.8
     # via
     #   -r doc_requirements.txt

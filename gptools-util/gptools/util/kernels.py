@@ -1,7 +1,63 @@
+import math
+import numbers
+import numpy as np
+import operator
+from typing import Callable, Optional
 from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
+from .fft import rfft2fft
 
 
 dispatch = ArrayOrTensorDispatch()
+
+
+def _jtheta_num_terms(q: ArrayOrTensor, rtol: float = 1e-9) -> int:
+    return math.ceil(math.log(1e-9) / math.log(dispatch.max(q)))
+
+
+def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None) -> ArrayOrTensor:
+    r"""
+    Evaluate the Jacobi theta function using a series approximation.
+
+    .. math::
+
+        \vartheta_3\left(q,z\right) = 1 + 2 \sum_{n=1}^\infty q^{n^2} \cos\left(2\pi n z\right)
+
+    Args:
+        z: Argument of the theta function.
+        q: Nome of the theta function with modulus less than one.
+        nterms: Number of terms in the series approximation (defaults to achieve a relative
+            tolerance of :math:`10^{-9}`, 197 terms for `q = 0.9`).
+    """
+    # TODO: fix for torch.
+    q, z = np.broadcast_arrays(q, z)
+    nterms = nterms or _jtheta_num_terms(q)
+    n = dispatch[z].arange(1, nterms + 1)
+    parts = q[..., None] ** (n ** 2) * dispatch.cos(2 * math.pi * z[..., None] * n)
+    return 1 + 2 * parts.sum(axis=-1)
+
+
+def jtheta_rfft(nz: int, q: ArrayOrTensor, nterms: Optional[int] = None) -> ArrayOrTensor:
+    """
+    Evaluate the real fast Fourier transform of the Jacobi theta function evaluated on the unit
+    interval with `nz` grid points.
+
+    The :func:`jtheta` and :func:`jtheta_rfft` functions are related by
+
+    >>> nz = ...
+    >>> q = ...
+    >>> z = np.linspace(0, 1, nz, endpoint=False)
+    >>> np.fft.rfft(jtheta(z, q)) == jtheta_rfft(nz, q)
+
+    Args:
+        nz: Number of grid points.
+        q: Nome of the theta function with modulus less than one.
+        nterms: Number of terms in the series approximation (defaults to achieve a relative
+            tolerance of :math:`10^{-9}`, 197 terms for `q = 0.9`).
+    """
+    nterms = nterms or _jtheta_num_terms(q)
+    k = np.arange(nz // 2 + 1)
+    ns = nz * np.arange(nterms)[:, None]
+    return nz * ((q ** ((k + ns) ** 2)).sum(axis=0) + (q ** ((nz - k + ns) ** 2)).sum(axis=0))
 
 
 def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
@@ -134,25 +190,79 @@ class Kernel:
     Base class for covariance kernels.
 
     Args:
-        epsilon: Diagonal "nugget" variance.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, epsilon: float = 0, period: OptionalArrayOrTensor = None):
-        self.epsilon = epsilon
+    def __init__(self, period: OptionalArrayOrTensor = None):
         self.period = period
 
     def __call__(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        cov = self._evaluate(x, y)
-        if self.epsilon and y is None:
-            return cov + self.epsilon * dispatch[cov].eye(cov.shape[-1])
-        return cov
+        return self.evaluate(x, y)
 
-    def _evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        """
+        Evaluate the covariance kernel.
+
+        Args:
+            x: First set of points.
+            y: Second set of points (defaults to `x` for pairwise covariances).
+
+        Returns:
+            cov: Covariance between the two sets of points.
+        """
         raise NotImplementedError
+
+    def __add__(self, other) -> "CompositeKernel":
+        return CompositeKernel(operator.add, self, other)
+
+    def __mul__(self, other) -> "CompositeKernel":
+        return CompositeKernel(operator.mul, self, other)
 
     @property
     def is_periodic(self):
         return self.period is not None
+
+
+class CompositeKernel(Kernel):
+    """
+    Composition of two kernels.
+
+    Args:
+        operation: Operation for composing kernels.
+        a: First kernel.
+        b: Second kernel.
+    """
+    def __init__(self, operation: Callable, a: Kernel, b: Kernel) -> None:
+        period = None
+        if isinstance(a, Kernel) and isinstance(b, Kernel):
+            if a.is_periodic != b.is_periodic:
+                raise ValueError("either both or neither kernel must be periodic")
+            if a.is_periodic:
+                if not dispatch.allclose(a.period, b.period):
+                    raise ValueError("kernels do not have the same period")
+                period = a.period
+        super().__init__(period)
+        self.operation = operation
+        self.a = a
+        self.b = b
+
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        return self.operation(self.a(x, y) if callable(self.a) else self.a,
+                              self.b(x, y) if callable(self.b) else self.b)
+
+
+class DiagonalKernel(Kernel):
+    """
+    Diagonal kernel with "nugget" variance. The kernel can only evaluated pairwise for a single set
+    of points but not for the Cartesian product of two sets of points.
+    """
+    def __init__(self, epsilon: float = 1, period: OptionalArrayOrTensor = None) -> None:
+        super().__init__(period)
+        self.epsilon = epsilon
+
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        if y is not None:
+            raise ValueError
+        return dispatch[x].eye(x.shape[-2]) * self.epsilon
 
 
 class ExpQuadKernel(Kernel):
@@ -161,22 +271,79 @@ class ExpQuadKernel(Kernel):
 
     .. math::
 
-        \text{cov}\left(x, y\right) = \alpha^2 \exp\left(-\frac{\left(x-y\right)^2}{2\rho^2}\right)
-        + \delta\left(x - y\right)
+        \text{cov}\left(x, y\right) = \sigma^2 \exp\left(-\frac{\left(x-y\right)^2}{2\ell^2}\right)
 
     Args:
-        alpha: Scale of the covariance.
-        rho: Correlation length.
-        epsilon: Diagonal "nugget" variance.
+        sigma: Scale of the covariance.
+        length_scale: Correlation length.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, alpha: float, rho: float, epsilon: float = 0,
-                 period: OptionalArrayOrTensor = None) -> None:
-        super().__init__(epsilon, period)
-        self.alpha = alpha
-        self.rho = rho
+    def __init__(self, sigma: float, length_scale: float, period: OptionalArrayOrTensor = None) \
+            -> None:
+        super().__init__(period)
+        self.sigma = sigma
+        self.length_scale = length_scale
 
-    def _evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        residuals = evaluate_residuals(x, y, self.period) / self.rho
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        residuals = evaluate_residuals(x, y, self.period) / self.length_scale
         exponent = - dispatch.square(residuals).sum(axis=-1) / 2
-        return self.alpha * self.alpha * dispatch.exp(exponent)
+        return self.sigma * self.sigma * dispatch.exp(exponent)
+
+
+class HeatKernel(Kernel):
+    """
+    Heat kernel on a finite domain with periodic boundary conditions.
+
+    Args:
+        sigma: Scale of the covariance.
+        length_scale: Correlation length.
+        period: Period for circular boundary conditions.
+        num_terms: Number of terms in the series approximation of the heat equation solution.
+    """
+    def __init__(self, sigma: ArrayOrTensor, length_scale: ArrayOrTensor, period: ArrayOrTensor,
+                 num_terms: Optional[int] = None) -> None:
+        super().__init__(period)
+        if not self.is_periodic:
+            raise ValueError("HeatKernel needs a finite domain")
+        self.sigma = sigma
+        self.length_scale = length_scale
+        # Evaluate the effective relaxation time of the heat kernel.
+        self.time = 2 * (math.pi * self.length_scale / self.period) ** 2
+        # The terms decay rapidly with exp(- k^2 * time) so we only need to consider the first few.
+        # If not given, we try to reach k^2 * time > 10.
+        if num_terms is None:
+            num_terms = 10 / self.time + 1
+        if not isinstance(num_terms, numbers.Number):
+            num_terms = max(num_terms)
+        self.num_terms = int(num_terms)
+
+    def evaluate(self, x, y=None):
+        # The residuals will have shape `(..., num_dims)`.
+        residuals = evaluate_residuals(x, y, self.period) / self.period
+        value = jtheta(residuals, dispatch.exp(-self.time)) * (self.time / math.pi) ** 0.5
+        cov = self.sigma ** 2 * value.prod(axis=-1)
+        return cov
+
+    def evaluate_rfft(self, shape: tuple[int]):
+        """
+        Evaluate the real fast Fourier transform of the kernel.
+
+        Args:
+            shape: Number of sample points in each dimension.
+
+        Returns:
+            rfft: Fourier coefficients with shape `(*shape[:-1], shape[-1] // 2 + 1)`.
+        """
+        ndim = len(shape)
+        time = self.time * np.ones(ndim)
+        value = None
+        for i, size in enumerate(shape):
+            part = jtheta_rfft(size, np.exp(-time[i])) * (time[i] / math.pi) ** 0.5
+            if i != ndim - 1:
+                part = rfft2fft(part, size)
+            if value is None:
+                value = part
+            else:
+                value = value[..., None] * part
+
+        return self.sigma ** 2 * value

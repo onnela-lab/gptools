@@ -44,6 +44,25 @@ def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     return scale
 
 
+def rfft2fft(rfft: ArrayOrTensor, n: int) -> ArrayOrTensor:
+    """
+    Convert truncated real Fourier coefficients to full Fourier coefficients.
+
+    Args:
+        rfft: Truncated real Fourier coefficients with shape `(n // 2 + 1,)`.
+        n: Number of samples.
+
+    Returns:
+        fft: Full Fourier coefficients with shape `(n,)`.
+    """
+    nrfft = n // 2 + 1
+    ncomplex = (n - 1) // 2
+    fft = dispatch[rfft].empty(n, dtype=rfft.dtype)
+    fft[:nrfft] = rfft
+    fft[nrfft:] = dispatch.flip(rfft[1:1 + ncomplex]).conj()
+    return fft
+
+
 def unpack_rfft(z: ArrayOrTensor, size: int) -> ArrayOrTensor:
     """
     Unpack the Fourier coefficients of a real Fourier transform with `size // 2 + 1` elements to a
