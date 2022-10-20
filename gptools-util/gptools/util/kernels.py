@@ -303,6 +303,8 @@ class HeatKernel(Kernel):
     def __init__(self, sigma: ArrayOrTensor, length_scale: ArrayOrTensor, period: ArrayOrTensor,
                  num_terms: Optional[int] = None) -> None:
         super().__init__(period)
+        if not self.is_periodic:
+            raise ValueError("HeatKernel needs a finite domain")
         self.sigma = sigma
         self.length_scale = length_scale
         # Evaluate the effective relaxation time of the heat kernel.
@@ -336,7 +338,7 @@ class HeatKernel(Kernel):
         time = self.time * np.ones(ndim)
         value = None
         for i, size in enumerate(shape):
-            part = jtheta_rfft(size, np.exp(-self.time)) * np.sqrt(time[i] / math.pi)
+            part = jtheta_rfft(size, np.exp(-time[i])) * (time[i] / math.pi) ** 0.5
             if i != ndim - 1:
                 part = rfft2fft(part, size)
             if value is None:

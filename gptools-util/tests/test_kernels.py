@@ -102,8 +102,14 @@ def test_heat_kernel(shape: int) -> None:
     *head, tail = shape
     ndim = len(shape)
     # Use a large number of terms to evaluate the kernel.
-    kernel = kernels.HeatKernel(1.2, 0.1, 3, tail // 2 + 1)
-    xs = coordgrid(*[np.linspace(0, kernel.period, n, endpoint=False) for n in shape])
+    if ndim == 1:
+        kernel = kernels.HeatKernel(1.2, 0.1, 3, tail // 2 + 1)
+    elif ndim == 2:
+        kernel = kernels.HeatKernel(0.9, np.asarray([0.2, 0.3]), np.asarray([2.1, 2.3]))
+    else:
+        raise ValueError
+    xs = coordgrid(*[np.linspace(0, period, n, endpoint=False) for n, period in
+                     zip(shape, kernel.period * np.ones(ndim))])
     cov = kernel.evaluate(xs)[0].reshape(shape)
     if ndim == 1:
         rfft = np.fft.rfft(cov)
@@ -122,3 +128,8 @@ def test_heat_kernel(shape: int) -> None:
 def test_heat_kernel_num_terms(num_terms) -> None:
     kernel = kernels.HeatKernel(1, .5, 1, num_terms)
     assert kernel.num_terms >= 1
+
+
+def test_heat_kernel_without_period() -> None:
+    with pytest.raises(ValueError):
+        kernels.HeatKernel(1.2, 0.5, None)

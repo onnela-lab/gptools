@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from typing import Type
-from .kernels import ExpQuadKernel, Kernel
+from .kernels import ExpQuadKernel, HeatKernel, Kernel
 from . import coordgrid, ArrayOrTensor
 
 
@@ -57,6 +57,9 @@ _kernel_configurations = [
     KernelConfiguration([1.5], ExpQuadKernel, sigma=1.5, length_scale=0.1),
     KernelConfiguration([2, 3, 4], ExpQuadKernel, sigma=2.1,
                         length_scale=np.asarray([0.1, 0.15, 0.2])),
+    KernelConfiguration(np.asarray([1.7]), HeatKernel, sigma=2.5, length_scale=0.2),
+    KernelConfiguration(np.asarray([1.7, 2.3]), HeatKernel, sigma=2.5,
+                        length_scale=np.asarray([0.2, 0.3])),
 ]
 
 
