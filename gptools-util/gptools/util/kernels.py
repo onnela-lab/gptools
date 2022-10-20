@@ -9,7 +9,11 @@ from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
 dispatch = ArrayOrTensorDispatch()
 
 
-def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None):
+def _jtheta_num_terms(q: ArrayOrTensor, rtol: float = 1e-9) -> int:
+    return math.ceil(math.log(1e-9) / math.log(dispatch.max(q)))
+
+
+def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None) -> ArrayOrTensor:
     r"""
     Evaluate the Jacobi theta function using a series approximation.
 
@@ -25,10 +29,34 @@ def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None):
     """
     # TODO: fix for torch.
     q, z = np.broadcast_arrays(q, z)
-    nterms = nterms or math.ceil(math.log(1e-9) / math.log(dispatch.max(q)))
+    nterms = nterms or _jtheta_num_terms(q)
     n = dispatch[z].arange(1, nterms + 1)
     parts = q[..., None] ** (n ** 2) * dispatch.cos(2 * math.pi * z[..., None] * n)
     return 1 + 2 * parts.sum(axis=-1)
+
+
+def jtheta_rfft(nz: int, q: ArrayOrTensor, nterms: Optional[int] = None) -> ArrayOrTensor:
+    """
+    Evaluate the real fast Fourier transform of the Jacobi theta function evaluated on the unit
+    interval with `nz` grid points.
+
+    The :func:`jtheta` and :func:`jtheta_rfft` functions are related by
+
+    >>> nz = ...
+    >>> q = ...
+    >>> z = np.linspace(0, 1, nz, endpoint=False)
+    >>> np.fft.rfft(jtheta(z, q)) == jtheta_rfft(nz, q)
+
+    Args:
+        nz: Number of grid points.
+        q: Nome of the theta function with modulus less than one.
+        nterms: Number of terms in the series approximation (defaults to achieve a relative
+            tolerance of :math:`10^{-9}`, 197 terms for `q = 0.9`).
+    """
+    nterms = nterms or _jtheta_num_terms(q)
+    k = np.arange(nz // 2 + 1)
+    ns = nz * np.arange(nterms)[:, None]
+    return nz * ((q ** ((k + ns) ** 2)).sum(axis=0) + (q ** ((nz - k + ns) ** 2)).sum(axis=0))
 
 
 def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,

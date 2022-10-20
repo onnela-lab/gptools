@@ -9,10 +9,19 @@ import torch as th
 
 
 @pytest.mark.parametrize("q", [0.1, 0.8])
-def test_jtheta(q) -> None:
-    z = np.linspace(0, 1, 7)
+def test_jtheta(q: float) -> None:
+    z = np.linspace(0, 1, 7, endpoint=False)
     actual = kernels.jtheta(z, q)
     desired = np.vectorize(mpmath.jtheta)(3, np.pi * z, q).astype(float)
+    np.testing.assert_allclose(actual, desired)
+
+
+@pytest.mark.parametrize("nz", [5, 6])
+@pytest.mark.parametrize("q", [0.1, 0.8])
+def test_jtheta_rfft(nz: int, q: float) -> None:
+    jtheta = kernels.jtheta(np.linspace(0, 1, nz, endpoint=False), q)
+    actual = kernels.jtheta_rfft(nz, q)
+    desired = np.fft.rfft(jtheta)
     np.testing.assert_allclose(actual, desired)
 
 
