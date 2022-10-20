@@ -1,10 +1,19 @@
 from gptools.util import coordgrid, kernels
 from gptools.util.testing import KernelConfiguration
 import itertools as it
+import mpmath
 import numpy as np
 import pytest
 from scipy.spatial.distance import cdist
 import torch as th
+
+
+@pytest.mark.parametrize("q", [0.1, 0.8])
+def test_jtheta(q) -> None:
+    z = np.linspace(0, 1, 7)
+    actual = kernels.jtheta(z, q)
+    desired = np.vectorize(mpmath.jtheta)(3, np.pi * z, q).astype(float)
+    np.testing.assert_allclose(actual, desired)
 
 
 @pytest.mark.parametrize("shape", [(7,), (2, 3)])

@@ -9,6 +9,28 @@ from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
 dispatch = ArrayOrTensorDispatch()
 
 
+def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None):
+    r"""
+    Evaluate the Jacobi theta function using a series approximation.
+
+    .. math::
+
+        \vartheta_3\left(q,z\right) = 1 + 2 \sum_{n=1}^\infty q^{n^2} \cos\left(2\pi n z\right)
+
+    Args:
+        z: Argument of the theta function.
+        q: Nome of the theta function with modulus less than one.
+        nterms: Number of terms in the series approximation (defaults to achieve a relative
+            tolerance of :math:`10^{-9}`, 197 terms for `q = 0.9`).
+    """
+    # TODO: fix for torch.
+    q, z = np.broadcast_arrays(q, z)
+    nterms = nterms or math.ceil(math.log(1e-9) / math.log(dispatch.max(q)))
+    n = dispatch[z].arange(1, nterms + 1)
+    parts = q[..., None] ** (n ** 2) * dispatch.cos(2 * math.pi * z[..., None] * n)
+    return 1 + 2 * parts.sum(axis=-1)
+
+
 def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
                        period: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """

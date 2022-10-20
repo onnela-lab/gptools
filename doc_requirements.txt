@@ -184,6 +184,8 @@ mistune==2.0.4
     # via nbconvert
 more-itertools==8.14.0
     # via jaraco-classes
+mpmath==1.2.1
+    # via gp-tools-util
 nbclient==0.6.8
     # via nbconvert
 nbconvert==7.0.0
