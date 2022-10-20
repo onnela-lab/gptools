@@ -345,6 +345,18 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "suffix": "row_vector",
     })
 
+for n in [5, 8]:
+    z = np.linspace(0, 1, n, endpoint=False)
+    q = np.random.uniform(0.25, 0.75, n)
+    add_configuration({
+        "stan_function": "jtheta",
+        "arg_types": {"n_": "int", "z": "vector[n_]", "q": "vector[n_]", "nterms": "int"},
+        "arg_values": {"n_": n, "z": z, "q": q, "nterms": 10},
+        "result_type": "vector[n_]",
+        "includes": ["gptools_util.stan"],
+        "desired": kernels.jtheta(z, q),
+    })
+
 for ndim in [1, 2, 3]:
     n = 1 + np.random.poisson(50)
     m = 1 + np.random.poisson(50)
@@ -361,8 +373,19 @@ for ndim in [1, 2, 3]:
         "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
                        "length_scale": length_scale, "period": period},
         "result_type": "matrix[n_, m_]",
-        "includes": ["gptools_kernels.stan"],
+        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
         "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)(x[:, None], y[None]),
+    })
+    add_configuration({
+        "stan_function": "gp_heat_cov",
+        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
+                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
+                      "period": "vector[p_]", "nterms": "int"},
+        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
+                       "length_scale": length_scale, "period": period, "nterms": 100},
+        "result_type": "matrix[n_, m_]",
+        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+        "desired": kernels.HeatKernel(sigma, length_scale, period=period)(x[:, None], y[None]),
     })
 
 

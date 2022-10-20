@@ -437,3 +437,13 @@ real std_normal_lpdf(complex_vector z) {
 real std_normal_lpdf(matrix z) {
     return std_normal_lpdf(to_vector(z));
 }
+
+// Special functions -------------------------------------------------------------------------------
+
+vector jtheta(vector z, vector q, int nterms) {
+    vector[size(z)] result = zeros(size(z));
+    for (k in 1:nterms) {
+        result += q ^ (k ^ 2) .* cos(2 * pi() * z * k);
+    }
+    return 1 + 2 * result;
+}

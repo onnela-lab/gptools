@@ -1,4 +1,18 @@
 /**
+Evaluate the residuals between two vectors, respecting circular boundary conditions.
+*/
+vector evaluate_residuals(vector x, vector y, vector period, vector scale) {
+    if (min(scale) <= 0) {
+        reject("distance scale factor must be positive");
+    }
+    if (min(period) <= 0) {
+        reject("period for circular boundary conditions must be positive");
+    }
+    vector[size(x)] residual = abs(x - y);
+    return fmin(residual, period - residual) ./ scale;
+}
+
+/**
 Evaluate the squared distance between two vectors, respecting circular boundary conditions.
 
 The squared distance is evaluated as
@@ -18,14 +32,7 @@ for periodic boundary conditions on the domain of size :math:`u_i`.
 :returns: Squared distance between :math:`x` and :math:`y`.
 */
 real dist2(vector x, vector y, vector period, vector scale) {
-    if (min(scale) <= 0) {
-        reject("distance scale factor must be positive");
-    }
-    if (min(period) <= 0) {
-        reject("period for circular boundary conditions must be positive");
-    }
-    vector[size(x)] residual = abs(x - y);
-    residual = fmin(residual, period - residual) ./ scale;
+    vector[size(x)] residual = evaluate_residuals(x, y, period, scale);
     return residual' * residual;
 }
 
@@ -159,4 +166,24 @@ Evaluate the squared exponential kernel with periodic boundary conditions.
 matrix gp_periodic_exp_quad_cov(array [] vector x1, real sigma, real length_scale, real period) {
     int p = dims(x1)[2];
     return sigma * sigma * exp(- dist2(x1, rep_vector(period, p), rep_vector(length_scale, p)) / 2);
+}
+
+
+/**
+Evaluate the heat kernel with periodic boundary conditions.
+*/
+matrix gp_heat_cov(array [] vector x1, array [] vector x2, real sigma, vector length_scale,
+                   vector period, int nterms) {
+    int m = size(x1);
+    int n = size(x2);
+    matrix[m, n] result;
+    vector[size(length_scale)] time = 2 * (pi() * length_scale ./ period) ^ 2;
+    vector[size(length_scale)] q = exp(-time);
+    real scale = sigma * sigma * prod(sqrt(time / pi()));
+    for (i in 1:m) {
+        for (j in 1:n) {
+            result[i, j] = scale * prod(jtheta(evaluate_residuals(x1[i], x2[j], period, period), q, nterms));
+        }
+    }
+    return result;
 }
