@@ -20,9 +20,9 @@ transformed parameters {
         // Evaluate covariance of the point at zero with everything else and transform the white
         // noise. We wrap the evaluation in braces because Stan only writes top-level variables to
         // the output CSV files, and we don't need to store the entire covariance matrix.
-        vector[n] cov = gp_periodic_exp_quad_cov(zeros(1), X, sigma, length_scale, n);
+        vector[n] cov = gp_periodic_exp_quad_cov(zeros_vector(1), X, sigma, length_scale, n);
         cov[1] += epsilon;
-        eta = gp_transform_irfft(z, zeros(n), gp_evaluate_rfft_scale(cov));
+        eta = gp_transform_irfft(z, zeros_vector(n), gp_evaluate_rfft_scale(cov));
     }
 }
 

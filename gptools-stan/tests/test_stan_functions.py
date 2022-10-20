@@ -177,17 +177,6 @@ for n in [7, 8]:
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
 
-    # Containers.
-    for x in [np.zeros, np.ones]:
-        add_configuration({
-            "stan_function": x.__name__,
-            "arg_types": {"n": "int"},
-            "arg_values": {"n": n},
-            "result_type": "vector[n]",
-            "includes": ["gptools_util.stan"],
-            "desired": x(n),
-        })
-
 for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     # Two-dimensional real Fourier transform ...
     y = np.random.normal(0, 1, (n, m))
@@ -273,17 +262,6 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
                     fft.evaluate_log_prob_rfft2(y, loc, rfft2_scale=rfft2_scale)],
     })
-
-    # Containers.
-    for x in [np.zeros, np.ones]:
-        add_configuration({
-            "stan_function": x.__name__,
-            "arg_types": {"n": "int", "m": "int"},
-            "arg_values": {"n": n, "m": m},
-            "result_type": "matrix[n, m]",
-            "includes": ["gptools_util.stan"],
-            "desired": x((n, m)),
-        })
 
     # Using `to_vector` is different from numpy's `ravel` in terms of ordering ...
     add_configuration({

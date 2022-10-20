@@ -21,6 +21,6 @@ parameters {
 model {
     // Gaussian process prior and observation model.
     matrix[n, n] cov = add_diag(gp_periodic_exp_quad_cov(X, sigma, length_scale, n), epsilon);
-    eta ~ multi_normal(zeros(n), cov);
+    eta ~ multi_normal(zeros_vector(n), cov);
     y ~ poisson_log(eta);
 }

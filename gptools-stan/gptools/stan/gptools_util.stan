@@ -307,24 +307,6 @@ void assert_finite(complex_vector x) {
     }
 }
 
-// Shorthand for creating containers ---------------------------------------------------------------
-
-vector zeros(int n) {
-    return rep_vector(0, n);
-}
-
-matrix zeros(int n, int m) {
-    return rep_matrix(0, n, m);
-}
-
-vector ones(int n) {
-    return rep_vector(1, n);
-}
-
-matrix ones(int n, int m) {
-    return rep_matrix(1, n, m);
-}
-
 // Real Fourier transforms -------------------------------------------------------------------------
 
 /**
@@ -441,7 +423,7 @@ real std_normal_lpdf(matrix z) {
 // Special functions -------------------------------------------------------------------------------
 
 vector jtheta(vector z, vector q, int nterms) {
-    vector[size(z)] result = zeros(size(z));
+    vector[size(z)] result = zeros_vector(size(z));
     for (n in 1:nterms) {
         result += q ^ (n ^ 2) .* cos(2 * pi() * z * n);
     }
@@ -450,7 +432,7 @@ vector jtheta(vector z, vector q, int nterms) {
 
 vector jtheta_rfft(int nz, real q, int nterms) {
     int nrfft = nz %/% 2 + 1;
-    vector[nrfft] result = zeros(nrfft);
+    vector[nrfft] result = zeros_vector(nrfft);
     vector[nrfft] k = linspaced_vector(nrfft, 0, nrfft - 1);
     for (n in 0:nterms) {
         result += q ^ ((k + n * nz) ^ 2) + q ^ ((nz - k + n * nz) ^ 2);
