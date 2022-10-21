@@ -2,16 +2,12 @@
 // I.e., x[1:3] includes x[1] to x[3]. More generally, x[i:j] comprises j - i + 1 elements. It could
 // at least have been exclusive on the right...
 
-/**
-Evaluate the scale of Fourier coefficients.
-*/
-matrix gp_evaluate_rfft2_scale(matrix cov) {
-    int height = rows(cov);
-    int width = cols(cov);
+matrix gp_evaluate_rfft2_scale(matrix rfft2_, int width) {
+    int height = rows(rfft2_);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
-    matrix[height, fftwidth] fftscale = n * get_real(rfft2(cov)) / 2;
+    matrix[height, fftwidth] fftscale = n * rfft2_ / 2;
     // Check positive-definiteness.
     real minval = min(fftscale);
     if (minval < 0) {
@@ -33,6 +29,13 @@ matrix gp_evaluate_rfft2_scale(matrix cov) {
         fftscale[fftheight, fftwidth] *= 2;
     }
     return sqrt(fftscale);
+}
+
+/**
+Evaluate the scale of Fourier coefficients.
+*/
+matrix gp_evaluate_rfft2_scale(matrix cov) {
+    return gp_evaluate_rfft2_scale(get_real(rfft2(cov)), cols(cov));
 }
 
 
