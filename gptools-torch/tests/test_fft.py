@@ -25,7 +25,7 @@ def data(shape: tuple[int]) -> dict:
     assert xs.shape == (size, ndim)
     kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), shape) \
         + DiagonalKernel(0.1, shape)
-    cov = th.as_tensor(kernel(xs))
+    cov = th.as_tensor(kernel.evaluate(xs))
     loc = th.randn(shape)
     dist = stats.multivariate_normal(loc.ravel(), cov)
     y = th.as_tensor(dist.rvs())

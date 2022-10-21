@@ -12,7 +12,7 @@ def data() -> dict:
     x = th.linspace(0, 1, n)[:, None]
     loc = 2 - th.linspace(0, 1, n) ** 2
     kernel = ExpQuadKernel(1, 0.1) + DiagonalKernel(1e-3)
-    cov = kernel(x)
+    cov = kernel.evaluate(x)
 
     # Obtain the full distribution and graph-based distribution.
     dist = th.distributions.MultivariateNormal(loc, cov)

@@ -140,7 +140,7 @@ for n in [7, 8]:
     loc = np.random.normal(0, 1, n)
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
         + kernels.DiagonalKernel(.1, 1)
-    cov = kernel(np.arange(n)[:, None])
+    cov = kernel.evaluate(np.arange(n)[:, None])
     lincov = cov[0]
     rfft_scale = fft.evaluate_rfft_scale(lincov)
     z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
@@ -226,7 +226,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
         + kernels.DiagonalKernel(.1, 1)
     xs = coordgrid(np.arange(n), np.arange(m))
-    cov = kernel(xs)
+    cov = kernel.evaluate(xs)
     lincov = cov[0].reshape((n, m))
     rfft2_scale = fft.evaluate_rfft2_scale(lincov)
     z = fft.transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
@@ -360,6 +360,7 @@ for ndim in [1, 2, 3]:
     period = np.random.gamma(100, 0.1, ndim)
     x = np.random.uniform(0, period, (n, ndim))
     y = np.random.uniform(0, period, (m, ndim))
+    kernel = kernels.ExpQuadKernel(sigma, length_scale, period=period)
     add_configuration({
         "stan_function": "gp_periodic_exp_quad_cov",
         "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
@@ -369,8 +370,9 @@ for ndim in [1, 2, 3]:
                        "length_scale": length_scale, "period": period},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools_util.stan", "gptools_kernels.stan"],
-        "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)(x[:, None], y[None]),
+        "desired": kernel.evaluate(x[:, None], y[None]),
     })
+    kernel = kernels.HeatKernel(sigma, length_scale, period=period)
     add_configuration({
         "stan_function": "gp_heat_cov",
         "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
@@ -380,7 +382,7 @@ for ndim in [1, 2, 3]:
                        "length_scale": length_scale, "period": period, "nterms": 100},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools_util.stan", "gptools_kernels.stan"],
-        "desired": kernels.HeatKernel(sigma, length_scale, period=period)(x[:, None], y[None]),
+        "desired": kernel.evaluate(x[:, None], y[None]),
     })
 
 for m in [7, 8]:

@@ -54,7 +54,8 @@ class GraphGaussianProcess(th.distributions.Distribution):
         self.indices = self.predecessors.maximum(self._ZERO)
 
         # Get all positions expanded to predecessors and evaluate the masked covariance function.
-        cov = kernel(self.coords[..., self.indices, :]) * (mask[..., None, :] & mask[..., None])
+        cov = kernel.evaluate(self.coords[..., self.indices, :]) \
+            * (mask[..., None, :] & mask[..., None])
 
         # Precompute intermediate values for evaluating the conditional parameters. The weights
         # correspond to the contributions of preceeding points to the location parameter.

@@ -195,9 +195,6 @@ class Kernel:
     def __init__(self, period: OptionalArrayOrTensor = None):
         self.period = period
 
-    def __call__(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        return self.evaluate(x, y)
-
     def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
         """
         Evaluate the covariance kernel.
@@ -213,9 +210,6 @@ class Kernel:
 
     def __add__(self, other) -> "CompositeKernel":
         return CompositeKernel(operator.add, self, other)
-
-    def __mul__(self, other) -> "CompositeKernel":
-        return CompositeKernel(operator.mul, self, other)
 
     @property
     def is_periodic(self):
@@ -246,8 +240,8 @@ class CompositeKernel(Kernel):
         self.b = b
 
     def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        return self.operation(self.a(x, y) if callable(self.a) else self.a,
-                              self.b(x, y) if callable(self.b) else self.b)
+        return self.operation(self.a.evaluate(x, y) if isinstance(self.a, Kernel) else self.a,
+                              self.b.evaluate(x, y) if isinstance(self.b, Kernel) else self.b)
 
 
 class DiagonalKernel(Kernel):
