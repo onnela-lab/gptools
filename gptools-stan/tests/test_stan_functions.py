@@ -142,7 +142,7 @@ for n in [7, 8]:
         + kernels.DiagonalKernel(.1, 1)
     cov = kernel.evaluate(np.arange(n)[:, None])
     lincov = cov[0]
-    rfft_scale = fft.evaluate_rfft_scale(lincov)
+    rfft_scale = fft.evaluate_rfft_scale(cov=lincov)
     z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft",

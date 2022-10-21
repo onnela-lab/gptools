@@ -1,5 +1,6 @@
 import math
-from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
+from typing import Optional
+from . import ArrayOrTensor, ArrayOrTensorDispatch, mutually_exclusive_kwargs, OptionalArrayOrTensor
 
 
 dispatch = ArrayOrTensorDispatch()
@@ -13,7 +14,7 @@ def _get_rfft_scale(cov: OptionalArrayOrTensor, rfft_scale: OptionalArrayOrTenso
         raise ValueError("exactly one of `cov` and `rfft_scale` must be given")
     if rfft_scale is not None:
         return rfft_scale
-    return evaluate_rfft_scale(cov)
+    return evaluate_rfft_scale(cov=cov)
 
 
 def log_prob_stdnorm(y: ArrayOrTensor) -> ArrayOrTensor:
@@ -23,7 +24,9 @@ def log_prob_stdnorm(y: ArrayOrTensor) -> ArrayOrTensor:
     return - (log2pi + y * y) / 2
 
 
-def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
+@mutually_exclusive_kwargs("cov", ("rfft", "size"))
+def evaluate_rfft_scale(*, cov: OptionalArrayOrTensor = None, rfft: OptionalArrayOrTensor = None,
+                        size: Optional[int] = None) -> ArrayOrTensor:
     """
     Evaluate the scale of Fourier coefficients.
 
@@ -34,8 +37,10 @@ def evaluate_rfft_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
     Returns:
         scale: Scale of Fourier coefficients with shape `(..., n // 2 + 1)`.
     """
-    *_, size = cov.shape
-    scale: ArrayOrTensor = dispatch.sqrt(size * dispatch[cov].fft.rfft(cov).real / 2)
+    if rfft is None:
+        *_, size = cov.shape
+        rfft = dispatch[cov].fft.rfft(cov).real
+    scale: ArrayOrTensor = dispatch.sqrt(size * rfft / 2)
     # Rescale for the real-only zero frequency term.
     scale[0] *= sqrt2
     if size % 2 == 0:
