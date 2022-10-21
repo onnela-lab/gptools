@@ -410,6 +410,12 @@ matrix inv_rfft2(complex_matrix z, int m) {
     return get_real(inv_fft2(x));
 }
 
+// Containers --------------------------------------------------------------------------------------
+
+matrix zeros_matrix(int m, int n) {
+    return rep_matrix(0, m, n);
+}
+
 // Custom likelihoods ------------------------------------------------------------------------------
 
 real std_normal_lpdf(complex_vector z) {

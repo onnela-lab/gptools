@@ -331,6 +331,14 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": y.reshape((m, n)),
         "suffix": "row_vector",
     })
+    add_configuration({
+        "stan_function": "zeros_matrix",
+        "arg_types": {"m": "int", "n": "int"},
+        "arg_values": {"m": m, "n": n},
+        "result_type": "matrix[m, n]",
+        "includes": ["gptools_util.stan"],
+        "desired": np.zeros((m, n)),
+    })
 
 for n in [5, 8]:
     z = np.linspace(0, 1, n, endpoint=False)
