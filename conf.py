@@ -1,5 +1,6 @@
 import cmdstanpy
 import logging
+import os
 
 
 master_doc = "README"
@@ -20,6 +21,8 @@ plot_formats = [
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
 exclude_patterns = ["docs/_build", "playground"]
+if "FASTDOCS" in os.environ:
+    nbsphinx_execute = "never"
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
