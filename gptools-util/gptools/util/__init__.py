@@ -1,5 +1,6 @@
 from __future__ import annotations
 import functools as ft
+import inspect
 import numpy as np
 import os
 import time
@@ -137,3 +138,40 @@ class Timer:
             return f"Timer(duration={self.duration:.3f})"
         except RuntimeError:
             return "Timer(not started)"
+
+
+class mutually_exclusive_kwargs:
+    """
+    Ensure a function receives mutually exclusive keyword arguments.
+
+    Args:
+        keys: Sequence of string or string tuple keys. Tuples indicate that none or all of the keys
+            must be given together.
+    """
+    def __init__(self, *keys) -> None:
+        self.keys = keys
+
+    def __call__(self, func: Callable) -> Callable:
+        @ft.wraps(func)
+        def _wrapper(*args, **kwargs) -> Any:
+            # Assemble the values from the keys.
+            given_key = None
+            for key in self.keys:
+                if isinstance(key, str):
+                    given = kwargs.get(key) is not None
+                else:
+                    given = {x: kwargs.get(x) is not None for x in key}
+                    if all(given.values()) != any(given.values()):
+                        raise ValueError(f"some but not all of {key} are given: {given}")
+                    given = all(given.values())
+                if given and given_key:
+                    raise ValueError(f"`{key}` and `{given_key}` are both given")
+                if given:
+                    given_key = key
+            if not given_key:
+                raise ValueError(f"expected exactly one of {self.keys} to be given but got "
+                                 f"{kwargs}")
+            if "given" in list(inspect.signature(func).parameters):
+                kwargs["given"] = given_key
+            return func(*args, **kwargs)
+        return _wrapper

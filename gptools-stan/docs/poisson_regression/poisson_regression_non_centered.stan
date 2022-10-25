@@ -1,6 +1,7 @@
 // Gaussian process with log link for Poisson observations.
 
 functions {
+    #include gptools_util.stan
     #include gptools_kernels.stan
 }
 
@@ -24,7 +25,7 @@ transformed parameters {
 }
 
 model {
-    // White noise prior (implies eta ~ multi_normal(zeros(n), cov)) and observation model.
+    // White noise prior (implies eta ~ multi_normal(zeros_vector(n), cov)) and observation model.
     z ~ normal(0, 1);
     y ~ poisson_log(eta);
 }

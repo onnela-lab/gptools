@@ -2,18 +2,9 @@
 // I.e., x[1:3] includes x[1] to x[3]. More generally, x[i:j] comprises j - i + 1 elements. It could
 // at least have been exclusive on the right...
 
-/**
-Evaluate the scale of Fourier coefficients.
-
-The Fourier coefficients of a zero-mean Gaussian process with even covariance function are
-uncorrelated Gaussian random variables with zero mean. This function evaluates their scale.
-
-:param cov: Covariance between the origin and the rest of the domain.
-*/
-vector gp_evaluate_rfft_scale(vector cov) {
-    int n = size(cov);
+vector gp_evaluate_rfft_scale(vector rfft_, int n) {
     int nrfft = n %/% 2 + 1;
-    vector[nrfft] result = n * get_real(fft(cov)[:nrfft]) / 2;
+    vector[nrfft] result = n * rfft_ / 2;
     // Check positive-definiteness.
     real minval = min(result);
     if (minval < 0) {
@@ -27,6 +18,18 @@ vector gp_evaluate_rfft_scale(vector cov) {
         result[nrfft] *= 2;
     }
     return sqrt(result);
+}
+
+/**
+Evaluate the scale of Fourier coefficients.
+
+The Fourier coefficients of a zero-mean Gaussian process with even covariance function are
+uncorrelated Gaussian random variables with zero mean. This function evaluates their scale.
+
+:param cov: Covariance between the origin and the rest of the domain.
+*/
+vector gp_evaluate_rfft_scale(vector cov) {
+    return gp_evaluate_rfft_scale(get_real(rfft(cov)), size(cov));
 }
 
 

@@ -80,7 +80,16 @@ def assert_stan_python_allclose(
         for value in desired:
             np.testing.assert_allclose(result, value, atol=atol)
     except Exception as ex:
-        raise RuntimeError(f"unexpected result for {stan_function} at {line_info}") from ex
+        raise RuntimeError(f"unexpected result for {stan_function} at {line_info}: \n{ex}") from ex
+
+
+add_configuration({
+    "stan_function": "linspaced_vector",
+    "arg_types": {"n": "int", "lower": "real", "upper": "real"},
+    "arg_values": {"n": 10, "lower": 0, "upper": 9},
+    "result_type": "vector[n]",
+    "desired": np.arange(10),
+})
 
 
 for n in [7, 8]:
@@ -131,9 +140,9 @@ for n in [7, 8]:
     loc = np.random.normal(0, 1, n)
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
         + kernels.DiagonalKernel(.1, 1)
-    cov = kernel(np.arange(n)[:, None])
+    cov = kernel.evaluate(np.arange(n)[:, None])
     lincov = cov[0]
-    rfft_scale = fft.evaluate_rfft_scale(lincov)
+    rfft_scale = fft.evaluate_rfft_scale(cov=lincov)
     z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft",
@@ -167,17 +176,6 @@ for n in [7, 8]:
         "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
-
-    # Containers.
-    for x in [np.zeros, np.ones]:
-        add_configuration({
-            "stan_function": x.__name__,
-            "arg_types": {"n": "int"},
-            "arg_values": {"n": n},
-            "result_type": "vector[n]",
-            "includes": ["gptools_util.stan"],
-            "desired": x(n),
-        })
 
 for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     # Two-dimensional real Fourier transform ...
@@ -228,7 +226,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
         + kernels.DiagonalKernel(.1, 1)
     xs = coordgrid(np.arange(n), np.arange(m))
-    cov = kernel(xs)
+    cov = kernel.evaluate(xs)
     lincov = cov[0].reshape((n, m))
     rfft2_scale = fft.evaluate_rfft2_scale(lincov)
     z = fft.transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
@@ -264,17 +262,6 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
                     fft.evaluate_log_prob_rfft2(y, loc, rfft2_scale=rfft2_scale)],
     })
-
-    # Containers.
-    for x in [np.zeros, np.ones]:
-        add_configuration({
-            "stan_function": x.__name__,
-            "arg_types": {"n": "int", "m": "int"},
-            "arg_values": {"n": n, "m": m},
-            "result_type": "matrix[n, m]",
-            "includes": ["gptools_util.stan"],
-            "desired": x((n, m)),
-        })
 
     # Using `to_vector` is different from numpy's `ravel` in terms of ordering ...
     add_configuration({
@@ -344,6 +331,34 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": y.reshape((m, n)),
         "suffix": "row_vector",
     })
+    add_configuration({
+        "stan_function": "zeros_matrix",
+        "arg_types": {"m": "int", "n": "int"},
+        "arg_values": {"m": m, "n": n},
+        "result_type": "matrix[m, n]",
+        "includes": ["gptools_util.stan"],
+        "desired": np.zeros((m, n)),
+    })
+
+for n in [5, 8]:
+    z = np.linspace(0, 1, n, endpoint=False)
+    q = np.random.uniform(0.25, 0.75, n)
+    add_configuration({
+        "stan_function": "jtheta",
+        "arg_types": {"n_": "int", "z": "vector[n_]", "q": "vector[n_]", "nterms": "int"},
+        "arg_values": {"n_": n, "z": z, "q": q, "nterms": 10},
+        "result_type": "vector[n_]",
+        "includes": ["gptools_util.stan"],
+        "desired": kernels.jtheta(z, q),
+    })
+    add_configuration({
+        "stan_function": "jtheta_rfft",
+        "arg_types": {"n": "int", "q": "real", "nterms": "int"},
+        "arg_values": {"n": n, "q": q[0], "nterms": 10},
+        "result_type": "vector[n %/% 2 + 1]",
+        "includes": ["gptools_util.stan"],
+        "desired": kernels.jtheta_rfft(n, q[0]),
+    })
 
 for ndim in [1, 2, 3]:
     n = 1 + np.random.poisson(50)
@@ -353,6 +368,7 @@ for ndim in [1, 2, 3]:
     period = np.random.gamma(100, 0.1, ndim)
     x = np.random.uniform(0, period, (n, ndim))
     y = np.random.uniform(0, period, (m, ndim))
+    kernel = kernels.ExpQuadKernel(sigma, length_scale, period=period)
     add_configuration({
         "stan_function": "gp_periodic_exp_quad_cov",
         "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
@@ -361,9 +377,49 @@ for ndim in [1, 2, 3]:
         "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
                        "length_scale": length_scale, "period": period},
         "result_type": "matrix[n_, m_]",
-        "includes": ["gptools_kernels.stan"],
-        "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)(x[:, None], y[None]),
+        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+        "desired": kernel.evaluate(x[:, None], y[None]),
     })
+    kernel = kernels.HeatKernel(sigma, length_scale, period=period)
+    add_configuration({
+        "stan_function": "gp_heat_cov",
+        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
+                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
+                      "period": "vector[p_]", "nterms": "int"},
+        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
+                       "length_scale": length_scale, "period": period, "nterms": 100},
+        "result_type": "matrix[n_, m_]",
+        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+        "desired": kernel.evaluate(x[:, None], y[None]),
+    })
+
+for m in [7, 8]:
+    sigma = np.random.gamma(10, 0.1)
+    length_scale = np.random.gamma(10, 0.1)
+    period = np.random.gamma(100, 0.1)
+    add_configuration({
+        "stan_function": "gp_heat_cov_rfft",
+        "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real",
+                      "nterms": "int"},
+        "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period,
+                       "nterms": 100},
+        "result_type": "vector[m %/% 2 + 1]",
+        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+        "desired": kernels.HeatKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
+    })
+    for n in [9, 10]:
+        length_scale = np.random.gamma(10, 0.1, 2)
+        period = np.random.gamma(100, 0.1, 2)
+        add_configuration({
+            "stan_function": "gp_heat_cov_rfft2",
+            "arg_types": {"m": "int", "n": "int", "sigma": "real", "length_scale": "vector[2]",
+                          "period": "vector[2]", "nterms": "int"},
+            "arg_values": {"m": m, "n": n, "sigma": sigma, "length_scale": length_scale,
+                           "period": period, "nterms": 100},
+            "result_type": "matrix[m, n %/% 2 + 1]",
+            "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+            "desired": kernels.HeatKernel(sigma, length_scale, period=period).evaluate_rfft([m, n]),
+        })
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())

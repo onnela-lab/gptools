@@ -68,7 +68,7 @@ def __main__(args: Optional[list[str]] = None) -> None:
             # Generate data from a Gaussian process with normal observation noise.
             X = np.arange(args.n)[:, None]
             kernel = ExpQuadKernel(args.sigma, args.length_scale) + DiagonalKernel(args.epsilon)
-            cov = kernel(X)
+            cov = kernel.evaluate(X)
             eta = np.random.multivariate_normal(np.zeros(args.n), cov)
             y = np.random.normal(eta, args.noise_scale)
 

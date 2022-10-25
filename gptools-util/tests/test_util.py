@@ -1,6 +1,7 @@
 from gptools import util
 import numpy as np
 import pytest
+import re
 import time
 import torch as th
 
@@ -22,9 +23,9 @@ def test_timer(capsys: pytest.CaptureFixture):
         assert 0.09 < timer.duration < 0.11
         time.sleep(0.05)
     time.sleep(0.1)
-    assert 0.14 < timer.duration < 0.16
+    assert 0.14 < timer.duration < 0.17
     out, _ = capsys.readouterr()
-    assert out.startswith("timer test in 0.15")
+    assert re.match(r"timer test in 0\.1[56]", out)
 
 
 def test_timer_errors():
@@ -68,3 +69,20 @@ def test_get_complex_dtype(float_, complex_) -> None:
     dispatch = util.ArrayOrTensorDispatch()
     x = (th if float_.__module__ == "torch" else np).ones(3, dtype=float_)
     assert dispatch.get_complex_dtype(x) == complex_
+
+
+def test_mutually_exclusive_kwargs() -> None:
+    @util.mutually_exclusive_kwargs("a", ("b", "c"))
+    def _func(a=None, b=None, c=None, given=None) -> None:
+        return given
+
+    assert _func(a=3) == "a"
+    assert _func(b=2, c=1) == ("b", "c")
+    with pytest.raises(ValueError):
+        _func()
+    with pytest.raises(ValueError):
+        _func(a=3, b=2)
+    with pytest.raises(ValueError):
+        _func(b=2)
+    with pytest.raises(ValueError):
+        _func(a=3, b=2, c=1)

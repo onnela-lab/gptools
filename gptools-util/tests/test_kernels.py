@@ -50,11 +50,11 @@ def test_periodic(kernel_configuration: KernelConfiguration):
     # Sample some points from the domain.
     X = kernel_configuration.sample_locations((13,))
     _, dim = X.shape
-    cov = kernel(X)
+    cov = kernel.evaluate(X)
     # Ensure that translating by an integer period doesn't mess with the covariance.
     for delta in it.product(*([-1, 1, 2] for _ in range(dim))):
         Y = X + delta * np.asarray(kernel.period)
-        other = kernel(X[..., :, None, :], Y[..., None, :, :])
+        other = kernel.evaluate(X[..., :, None, :], Y[..., None, :, :])
         np.testing.assert_allclose(cov, other)
 
     # For one and two dimensions, ensure that the Fourier transform has the correct structure.
@@ -69,7 +69,7 @@ def test_periodic(kernel_configuration: KernelConfiguration):
 
         # Evaluate the covariance with the origin, take the Fourier transform, and check that there
         # is no imaginary part.
-        cov = kernel(xs)[0].reshape(shape)
+        cov = kernel.evaluate(xs)[0].reshape(shape)
         fftcov = np.fft.rfft(cov) if dim == 1 else np.fft.rfft2(cov)
         np.testing.assert_allclose(fftcov.imag, 0, atol=1e-9)
 
@@ -77,9 +77,9 @@ def test_periodic(kernel_configuration: KernelConfiguration):
 def test_kernel_composition():
     a = kernels.ExpQuadKernel(2, 0.5)
     b = kernels.DiagonalKernel()
-    kernel = a * 2 + 1 + b
+    kernel = a + 1 + b
     x = np.random.normal(0, 1, (100, 2))
-    np.testing.assert_allclose(kernel(x), 2 * a(x) + 1 + b(x))
+    np.testing.assert_allclose(kernel.evaluate(x), a.evaluate(x) + 1 + b.evaluate(x))
 
 
 def test_kernel_composition_period():
@@ -92,9 +92,9 @@ def test_kernel_composition_period():
 def test_diagonal_kernel():
     kernel = kernels.DiagonalKernel()
     x = np.random.normal(0, 1, (10, 2))
-    np.testing.assert_allclose(kernel(x), np.eye(10))
+    np.testing.assert_allclose(kernel.evaluate(x), np.eye(10))
     with pytest.raises(ValueError):
-        kernel(x, x)
+        kernel.evaluate(x, x)
 
 
 @pytest.mark.parametrize("shape", [(5,), (6,), (5, 7), (5, 6), (6, 5), (6, 8)])
