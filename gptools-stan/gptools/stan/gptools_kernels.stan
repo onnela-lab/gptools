@@ -84,7 +84,8 @@ Evaluate the squared exponential kernel with periodic boundary conditions
     \mathrm{cov}\left(f(x), f(y)\right) = \sigma^2 \exp\left(-\frac{d_u(x-y)^2}{2\ell^2}\right),
 
 where :math:`d_u(x, y)` is distance between :math:`x` and :math:`y` on the domain :math:`u` with
-periodic boundary conditions (see :cpp:func:`dist2` for details).
+periodic boundary conditions (see
+:stan:func:`dist2(array [] vector, array [] vector, vector, vector)` for details).
 
 :param x1: First matrix with :math:`n` rows and :math:`p` columns.
 :param x2: Second matrix with :math:`m` rows and :math:`p` columns.
@@ -101,7 +102,7 @@ matrix gp_periodic_exp_quad_cov(array [] vector x1, array [] vector x2, real sig
 
 /**
 Evaluate the squared exponential kernel with periodic boundary conditions (see
-:cpp:func:`gp_periodic_exp_quad_cov` for details).
+:stan:func:`gp_periodic_exp_quad_cov` for details).
 
 :param x1: First matrix with :math:`n` rows and :math:`p` columns.
 :param x2: Second matrix with :math:`m` rows and :math:`p` columns.
@@ -120,7 +121,7 @@ matrix gp_periodic_exp_quad_cov(array [] vector x1, array [] vector x2, real sig
 
 /**
 Evaluate the squared exponential kernel with periodic boundary conditions (see
-:cpp:func:`gp_periodic_exp_quad_cov` for details).
+:stan:func:`gp_periodic_exp_quad_cov` for details).
 
 :param x1: Length-:math:`p` vector of reference coordinates.
 :param x2: Second matrix with :math:`m` rows and :math:`p` columns.

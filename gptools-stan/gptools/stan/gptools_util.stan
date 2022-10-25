@@ -24,8 +24,7 @@ where :math:`r` is the relative tolerance, and :math:`a` is the absolute toleran
 :param desired: Desired value :math:`y`.
 :param rtol: Relative tolerance :math:`r`.
 :param atol: Absolute tolerance :math:`a`.
-:retval 1: If the values are close.
-:retval 0: If the values are not close.
+:returns: `1` if the values are close, `0` otherwise.
 */
 int is_close(real actual, real desired, real rtol, real atol) {
     // We always allow a tolerance of at least 1e-15 in case there are rounding errors.
@@ -37,7 +36,7 @@ int is_close(real actual, real desired, real rtol, real atol) {
 }
 
 /**
-Assert that two values are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two values are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(real actual, real desired, real rtol, real atol) {
     if (!is_close(actual, desired, rtol, atol)) {
@@ -46,7 +45,7 @@ void assert_close(real actual, real desired, real rtol, real atol) {
 }
 
 /**
-Assert that two values are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two values are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(real actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
@@ -56,8 +55,7 @@ void assert_close(real actual, real desired) {
 Check whether a possibly complex value is finite.
 
 :param x: Value to check.
-:retval 1: If the values are close.
-:retval 0: If the values are not close.
+:returns: `1` if the value is finite, `0` otherwise.
 */
 int is_finite(complex x) {
     real rx = get_real(x);
@@ -72,7 +70,7 @@ int is_finite(complex x) {
 // Vectors -----------------------------------------------------------------------------------------
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(vector actual, vector desired, real rtol, real atol) {
     int n = size(desired);
@@ -88,21 +86,21 @@ void assert_close(vector actual, vector desired, real rtol, real atol) {
 }
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(vector actual, vector desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(vector actual, real desired, real rtol, real atol) {
     assert_close(actual, rep_vector(desired, size(actual)), rtol, atol);
 }
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(vector actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
@@ -112,8 +110,7 @@ void assert_close(vector actual, real desired) {
 Check whether all elements of a vector are finite.
 
 :param x: Vector to check.
-:retval 1: If the values are close.
-:retval 0: If the values are not close.
+:returns: `1` if all elements of the vector are finite, `0` otherwise.
 */
 int is_finite(vector x) {
     for (i in 1:size(x)) {
@@ -168,7 +165,7 @@ void print_matrix(complex_matrix x) {
 }
 
 /**
-Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two matrices are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(matrix actual, matrix desired, real rtol, real atol) {
     array [2] int nshape = dims(desired);
@@ -192,14 +189,14 @@ void assert_close(matrix actual, matrix desired, real rtol, real atol) {
 }
 
 /**
-Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two matrices are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(matrix actual, matrix desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
 /**
-Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two matrices are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(matrix actual, real desired, real rtol, real atol) {
     array [2] int shape = dims(actual);
@@ -207,7 +204,7 @@ void assert_close(matrix actual, real desired, real rtol, real atol) {
 }
 
 /**
-Assert that two matrices are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two matrices are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(matrix actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
@@ -258,7 +255,7 @@ matrix reshape(matrix y, int n, int m) {
 // Complex vectors ---------------------------------------------------------------------------------
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(complex_vector actual, complex_vector desired, real rtol, real atol) {
     int n = size(desired);
@@ -272,21 +269,21 @@ void assert_close(complex_vector actual, complex_vector desired, real rtol, real
 
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(complex_vector actual, complex_vector desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(complex_vector actual, complex desired, real rtol, real atol) {
     assert_close(actual, rep_vector(desired, size(actual)), rtol, atol);
 }
 
 /**
-Assert that two vectors are close. See :cpp:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
 */
 void assert_close(complex_vector actual, complex desired) {
     assert_close(actual, desired, 1e-6, 0);

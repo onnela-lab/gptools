@@ -9,3 +9,4 @@ matplotlib
 nbsphinx
 sphinx
 sphinx_rtd_theme
+sphinx-stan>=0.1.2

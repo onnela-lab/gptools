@@ -97,7 +97,7 @@ matrix gp_transform_irfft2(matrix z, matrix loc, matrix rfft2_scale) {
 
 
 /**
-Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
+Evaluate the log absolute determinant of the Jacobian associated with :stan:func:`gp_transform_rfft`.
 */
 real gp_rfft2_log_abs_det_jacobian(int width, matrix rfft2_scale) {
     int height = rows(rfft2_scale);
