@@ -56,7 +56,7 @@ vector gp_transform_rfft(vector y, vector loc, vector rfft_scale) {
 
 
 /**
-Evaluate the log absolute determinant of the Jacobian associated with :cpp:func:`gp_transform_rfft`.
+Evaluate the log absolute determinant of the Jacobian associated with :stan:func:`gp_transform_rfft`.
 */
 real gp_rfft_log_abs_det_jacobian(vector rfft_scale, int n) {
     return - sum(log(rfft_scale[1:n %/% 2 + 1])) -sum(log(rfft_scale[2:(n + 1) %/% 2]))
@@ -71,7 +71,7 @@ space.
 :param y: Random variable whose likelihood to evaluate.
 :param loc: Mean of the Gaussian process.
 :param cov: Covariance between the origin and the rest of the domain (see
-    :cpp:func:`gp_evaluate_rfft_scale` for details).
+    :stan:func:`gp_evaluate_rfft_scale(vector)` for details).
 
 :returns: Log probability of the Gaussian process.
 */
@@ -115,7 +115,7 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 :param z: Fourier-domain white noise comprising :math:`n` elements.
 :param loc: Mean of the Gaussian process.
 :param cov: Covariance between the origin and the rest of the domain (see
-    :cpp:func:`gp_evaluate_rfft_scale` for details).
+    :stan:func:`gp_evaluate_rfft_scale(vector)` for details).
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
