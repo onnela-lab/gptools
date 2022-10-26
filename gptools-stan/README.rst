@@ -21,7 +21,8 @@ The Stan library is organized as multiple files each comprising related function
 ⏩ Likelihood evaluations based on fast Fourier transforms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. stan:autodoc:: gptools/stan/gptools_fft.stan
+.. stan:autodoc:: gptools/stan/gptools_fft1.stan
+.. stan:autodoc:: gptools/stan/gptools_fft2.stan
 
 📏 Kernel functions with periodic boundary conditions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

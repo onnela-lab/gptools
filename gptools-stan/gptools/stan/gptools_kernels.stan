@@ -102,7 +102,8 @@ matrix gp_periodic_exp_quad_cov(array [] vector x1, array [] vector x2, real sig
 
 /**
 Evaluate the squared exponential kernel with periodic boundary conditions (see
-:stan:func:`gp_periodic_exp_quad_cov` for details).
+:stan:func:`gp_periodic_exp_quad_cov(array [] vector, array [] vector, real, vector, vector)` for
+details).
 
 :param x1: First matrix with :math:`n` rows and :math:`p` columns.
 :param x2: Second matrix with :math:`m` rows and :math:`p` columns.
@@ -121,7 +122,8 @@ matrix gp_periodic_exp_quad_cov(array [] vector x1, array [] vector x2, real sig
 
 /**
 Evaluate the squared exponential kernel with periodic boundary conditions (see
-:stan:func:`gp_periodic_exp_quad_cov` for details).
+:stan:func:`gp_periodic_exp_quad_cov(array [] vector, array [] vector, real, vector, vector)` for
+details).
 
 :param x1: Length-:math:`p` vector of reference coordinates.
 :param x2: Second matrix with :math:`m` rows and :math:`p` columns.
