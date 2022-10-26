@@ -54,6 +54,7 @@ manager(
     file_dep=[requirements_in, "doc_requirements.txt", *requirements_txt],
     actions=[f"pip-compile -v -o {target} {requirements_in}"]
 )
+manager(basename="requirements", name="sync", file_dep=[target], actions=[["pip-sync", target]])
 
 # Build documentation at the root level (we don't have namespace-package-level documentation).
 with di.defaults(basename="docs"):
