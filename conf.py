@@ -1,12 +1,11 @@
 import cmdstanpy
 import logging
-import os
 
 
 master_doc = "README"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
-    "nbsphinx",
+    "myst_nb",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
@@ -20,9 +19,7 @@ plot_formats = [
 ]
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
-exclude_patterns = ["docs/_build", "playground"]
-if "FASTDOCS" in os.environ:
-    nbsphinx_execute = "never"
+exclude_patterns = ["docs/_build", "docs/jupyter_execute", ".pytest_cache", "playground"]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
@@ -36,7 +33,18 @@ intersphinx_mapping = {
     "torch": ("https://pytorch.org/docs/stable/", None),
 }
 
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.ipynb': 'myst-nb',
+}
 
 cmdstanpy_logger = cmdstanpy.utils.get_logger()
 for handler in cmdstanpy_logger.handlers:
     handler.setLevel(logging.WARNING)
+
+nb_execution_mode = "off"
+myst_enable_extensions = [
+    "amsmath",
+    "dollarmath",
+]
+myst_dmath_double_inline = True

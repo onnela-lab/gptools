@@ -175,8 +175,10 @@ more-itertools==9.0.0
     # via jaraco-classes
 nbclassic==0.4.5
     # via notebook
-nbclient==0.7.0
-    # via nbconvert
+nbclient==0.5.13
+    # via
+    #   -r gptools-torch/../shared_requirements.in
+    #   nbconvert
 nbconvert==7.2.2
     # via
     #   jupyter

@@ -69,6 +69,7 @@ attrs==22.1.0
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   jsonschema
+    #   jupyter-cache
     #   pytest
 babel==2.10.3
     # via
@@ -120,7 +121,10 @@ charset-normalizer==2.1.1
     #   -r gptools-util/test_requirements.txt
     #   requests
 click==8.1.3
-    # via pip-tools
+    # via
+    #   -r doc_requirements.txt
+    #   jupyter-cache
+    #   pip-tools
 cloudpickle==2.2.0
     # via
     #   -r doc_requirements.txt
@@ -195,7 +199,7 @@ docutils==0.17.1
     #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
-    #   nbsphinx
+    #   myst-parser
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
@@ -272,6 +276,8 @@ importlib-metadata==5.0.0
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   doit
+    #   jupyter-cache
+    #   myst-nb
     #   twine
 iniconfig==1.1.1
     # via
@@ -289,6 +295,7 @@ ipykernel==6.16.2
     #   ipywidgets
     #   jupyter
     #   jupyter-console
+    #   myst-nb
     #   nbclassic
     #   notebook
     #   qtconsole
@@ -301,6 +308,7 @@ ipython==8.5.0
     #   ipykernel
     #   ipywidgets
     #   jupyter-console
+    #   myst-nb
 ipython-genutils==0.2.0
     # via
     #   -r doc_requirements.txt
@@ -338,9 +346,9 @@ jinja2==3.1.2
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   jupyter-server
+    #   myst-parser
     #   nbclassic
     #   nbconvert
-    #   nbsphinx
     #   notebook
     #   sphinx
 jsonschema==4.16.0
@@ -356,6 +364,10 @@ jupyter==1.0.0
     #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
+jupyter-cache==0.5.0
+    # via
+    #   -r doc_requirements.txt
+    #   myst-nb
 jupyter-client==7.4.4
     # via
     #   -r doc_requirements.txt
@@ -425,6 +437,11 @@ kiwisolver==1.4.4
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   matplotlib
+markdown-it-py==2.1.0
+    # via
+    #   -r doc_requirements.txt
+    #   mdit-py-plugins
+    #   myst-parser
 markupsafe==2.1.1
     # via
     #   -r doc_requirements.txt
@@ -454,6 +471,14 @@ mccabe==0.7.0
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   flake8
+mdit-py-plugins==0.3.1
+    # via
+    #   -r doc_requirements.txt
+    #   myst-parser
+mdurl==0.1.2
+    # via
+    #   -r doc_requirements.txt
+    #   markdown-it-py
 mistune==2.0.4
     # via
     #   -r doc_requirements.txt
@@ -472,6 +497,12 @@ mpmath==1.2.1
     # via
     #   -r doc_requirements.txt
     #   -r gptools-util/test_requirements.txt
+myst-nb==0.17.1
+    # via -r doc_requirements.txt
+myst-parser==0.18.1
+    # via
+    #   -r doc_requirements.txt
+    #   myst-nb
 nbclassic==0.4.5
     # via
     #   -r doc_requirements.txt
@@ -479,12 +510,14 @@ nbclassic==0.4.5
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   notebook
-nbclient==0.7.0
+nbclient==0.5.13
     # via
     #   -r doc_requirements.txt
     #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
+    #   jupyter-cache
+    #   myst-nb
     #   nbconvert
 nbconvert==7.2.2
     # via
@@ -495,7 +528,6 @@ nbconvert==7.2.2
     #   jupyter
     #   jupyter-server
     #   nbclassic
-    #   nbsphinx
     #   notebook
 nbformat==5.7.0
     # via
@@ -503,14 +535,13 @@ nbformat==5.7.0
     #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
+    #   jupyter-cache
     #   jupyter-server
+    #   myst-nb
     #   nbclassic
     #   nbclient
     #   nbconvert
-    #   nbsphinx
     #   notebook
-nbsphinx==0.8.9
-    # via -r doc_requirements.txt
 nest-asyncio==1.5.6
     # via
     #   -r doc_requirements.txt
@@ -743,6 +774,12 @@ pytz==2022.5
     #   -r gptools-stan/test_requirements.txt
     #   babel
     #   pandas
+pyyaml==6.0
+    # via
+    #   -r doc_requirements.txt
+    #   jupyter-cache
+    #   myst-nb
+    #   myst-parser
 pyzmq==24.0.1
     # via
     #   -r doc_requirements.txt
@@ -851,7 +888,8 @@ soupsieve==2.3.2.post1
 sphinx==5.3.0
     # via
     #   -r doc_requirements.txt
-    #   nbsphinx
+    #   myst-nb
+    #   myst-parser
     #   sphinx-rtd-theme
     #   sphinx-stan
 sphinx-rtd-theme==1.0.0
@@ -882,6 +920,10 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r doc_requirements.txt
     #   sphinx
+sqlalchemy==1.4.42
+    # via
+    #   -r doc_requirements.txt
+    #   jupyter-cache
 stack-data==0.5.1
     # via
     #   -r doc_requirements.txt
@@ -894,6 +936,7 @@ tabulate==0.9.0
     #   -r doc_requirements.txt
     #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
+    #   jupyter-cache
 terminado==0.17.0
     # via
     #   -r doc_requirements.txt
@@ -961,7 +1004,6 @@ traitlets==5.5.0
     #   nbclient
     #   nbconvert
     #   nbformat
-    #   nbsphinx
     #   notebook
     #   qtconsole
 twine==4.0.1
@@ -975,6 +1017,8 @@ typing-extensions==4.4.0
     #   -r doc_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
+    #   myst-nb
+    #   myst-parser
     #   torch
 urllib3==1.26.12
     # via

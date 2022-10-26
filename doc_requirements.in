@@ -6,7 +6,7 @@
 doit_interface
 jupyter
 matplotlib
-nbsphinx
+myst-nb
 sphinx
 sphinx_rtd_theme
 sphinx-stan>=0.1.5

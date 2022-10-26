@@ -33,6 +33,7 @@ asttokens==2.0.8
 attrs==22.1.0
     # via
     #   jsonschema
+    #   jupyter-cache
     #   pytest
 babel==2.10.3
     # via sphinx
@@ -50,6 +51,8 @@ cffi==1.15.1
     # via argon2-cffi-bindings
 charset-normalizer==2.1.1
     # via requests
+click==8.1.3
+    # via jupyter-cache
 cloudpickle==2.2.0
     # via doit
 cmdstanpy==1.0.8
@@ -72,7 +75,7 @@ defusedxml==0.7.1
     # via nbconvert
 docutils==0.17.1
     # via
-    #   nbsphinx
+    #   myst-parser
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
@@ -108,6 +111,8 @@ imagesize==1.4.1
 importlib-metadata==5.0.0
     # via
     #   doit
+    #   jupyter-cache
+    #   myst-nb
     #   twine
 iniconfig==1.1.1
     # via pytest
@@ -116,6 +121,7 @@ ipykernel==6.16.2
     #   ipywidgets
     #   jupyter
     #   jupyter-console
+    #   myst-nb
     #   nbclassic
     #   notebook
     #   qtconsole
@@ -124,6 +130,7 @@ ipython==8.5.0
     #   ipykernel
     #   ipywidgets
     #   jupyter-console
+    #   myst-nb
 ipython-genutils==0.2.0
     # via
     #   nbclassic
@@ -138,9 +145,9 @@ jedi==0.18.1
 jinja2==3.1.2
     # via
     #   jupyter-server
+    #   myst-parser
     #   nbclassic
     #   nbconvert
-    #   nbsphinx
     #   notebook
     #   sphinx
 jsonschema==4.16.0
@@ -151,6 +158,8 @@ jupyter==1.0.0
     #   gp-tools-stan
     #   gp-tools-torch
     #   gp-tools-util
+jupyter-cache==0.5.0
+    # via myst-nb
 jupyter-client==7.4.4
     # via
     #   ipykernel
@@ -183,6 +192,10 @@ keyring==23.9.3
     # via twine
 kiwisolver==1.4.4
     # via matplotlib
+markdown-it-py==2.1.0
+    # via
+    #   mdit-py-plugins
+    #   myst-parser
 markupsafe==2.1.1
     # via
     #   jinja2
@@ -199,33 +212,42 @@ matplotlib-inline==0.1.6
     #   ipython
 mccabe==0.7.0
     # via flake8
+mdit-py-plugins==0.3.1
+    # via myst-parser
+mdurl==0.1.2
+    # via markdown-it-py
 mistune==2.0.4
     # via nbconvert
 more-itertools==9.0.0
     # via jaraco-classes
 mpmath==1.2.1
     # via gp-tools-util
+myst-nb==0.17.1
+    # via -r doc_requirements.in
+myst-parser==0.18.1
+    # via myst-nb
 nbclassic==0.4.5
     # via notebook
-nbclient==0.7.0
-    # via nbconvert
+nbclient==0.5.13
+    # via
+    #   jupyter-cache
+    #   myst-nb
+    #   nbconvert
 nbconvert==7.2.2
     # via
     #   jupyter
     #   jupyter-server
     #   nbclassic
-    #   nbsphinx
     #   notebook
 nbformat==5.7.0
     # via
+    #   jupyter-cache
     #   jupyter-server
+    #   myst-nb
     #   nbclassic
     #   nbclient
     #   nbconvert
-    #   nbsphinx
     #   notebook
-nbsphinx==0.8.9
-    # via -r doc_requirements.in
 nest-asyncio==1.5.6
     # via
     #   ipykernel
@@ -334,6 +356,11 @@ pytz==2022.5
     # via
     #   babel
     #   pandas
+pyyaml==6.0
+    # via
+    #   jupyter-cache
+    #   myst-nb
+    #   myst-parser
 pyzmq==24.0.1
     # via
     #   ipykernel
@@ -383,7 +410,8 @@ soupsieve==2.3.2.post1
 sphinx==5.3.0
     # via
     #   -r doc_requirements.in
-    #   nbsphinx
+    #   myst-nb
+    #   myst-parser
     #   sphinx-rtd-theme
     #   sphinx-stan
 sphinx-rtd-theme==1.0.0
@@ -402,12 +430,15 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+sqlalchemy==1.4.42
+    # via jupyter-cache
 stack-data==0.5.1
     # via ipython
 tabulate==0.9.0
     # via
     #   gp-tools-stan
     #   gp-tools-torch
+    #   jupyter-cache
 terminado==0.17.0
     # via
     #   jupyter-server
@@ -448,7 +479,6 @@ traitlets==5.5.0
     #   nbclient
     #   nbconvert
     #   nbformat
-    #   nbsphinx
     #   notebook
     #   qtconsole
 twine==4.0.1
@@ -457,7 +487,10 @@ twine==4.0.1
     #   gp-tools-torch
     #   gp-tools-util
 typing-extensions==4.4.0
-    # via torch
+    # via
+    #   myst-nb
+    #   myst-parser
+    #   torch
 urllib3==1.26.12
     # via
     #   requests

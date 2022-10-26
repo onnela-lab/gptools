@@ -173,8 +173,10 @@ mpmath==1.2.1
     # via gp-tools-util
 nbclassic==0.4.5
     # via notebook
-nbclient==0.7.0
-    # via nbconvert
+nbclient==0.5.13
+    # via
+    #   -r gptools-util/../shared_requirements.in
+    #   nbconvert
 nbconvert==7.2.2
     # via
     #   jupyter

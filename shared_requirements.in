@@ -1,1 +1,2 @@
 docutils<0.18  # Required for sphinx-rtd-theme.
+nbclient<=0.5.13  # Required for myst-nb.
