@@ -5,3 +5,4 @@
 -r gptools-util/test_requirements.txt
 # Include additional packages we need for development.
 pip-tools
+jupytext[myst]
