@@ -35,7 +35,6 @@ intersphinx_mapping = {
 
 source_suffix = {
     '.rst': 'restructuredtext',
-    '.ipynb': 'myst-nb',
 }
 
 cmdstanpy_logger = cmdstanpy.utils.get_logger()
