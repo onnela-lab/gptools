@@ -139,4 +139,5 @@ workspace/
 *.html
 *.tmp
 *.o
+*.ipynb
 .cmdstanpy_cache
