@@ -208,6 +208,18 @@ class Kernel:
         """
         raise NotImplementedError
 
+    def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
+        """
+        Evaluate the real fast Fourier transform of the kernel.
+
+        Args:
+            shape: Number of sample points in each dimension.
+
+        Returns:
+            rfft: Fourier coefficients with shape `(*shape[:-1], shape[-1] // 2 + 1)`.
+        """
+        raise NotImplementedError
+
     def __add__(self, other) -> "CompositeKernel":
         return CompositeKernel(operator.add, self, other)
 
@@ -261,32 +273,7 @@ class DiagonalKernel(Kernel):
 
 class ExpQuadKernel(Kernel):
     r"""
-    Exponentiated quadratic kernel.
-
-    .. math::
-
-        \text{cov}\left(x, y\right) = \sigma^2 \exp\left(-\frac{\left(x-y\right)^2}{2\ell^2}\right)
-
-    Args:
-        sigma: Scale of the covariance.
-        length_scale: Correlation length.
-        period: Period for circular boundary conditions.
-    """
-    def __init__(self, sigma: float, length_scale: float, period: OptionalArrayOrTensor = None) \
-            -> None:
-        super().__init__(period)
-        self.sigma = sigma
-        self.length_scale = length_scale
-
-    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        residuals = evaluate_residuals(x, y, self.period) / self.length_scale
-        exponent = - dispatch.square(residuals).sum(axis=-1) / 2
-        return self.sigma * self.sigma * dispatch.exp(exponent)
-
-
-class HeatKernel(Kernel):
-    """
-    Heat kernel on a finite domain with periodic boundary conditions.
+    Exponentiated quadratic kernel or solution to the heat equation if the kernel is periodic.
 
     Args:
         sigma: Scale of the covariance.
@@ -294,40 +281,39 @@ class HeatKernel(Kernel):
         period: Period for circular boundary conditions.
         num_terms: Number of terms in the series approximation of the heat equation solution.
     """
-    def __init__(self, sigma: ArrayOrTensor, length_scale: ArrayOrTensor, period: ArrayOrTensor,
+    def __init__(self, sigma: float, length_scale: float, period: OptionalArrayOrTensor = None,
                  num_terms: Optional[int] = None) -> None:
         super().__init__(period)
-        if not self.is_periodic:
-            raise ValueError("HeatKernel needs a finite domain")
         self.sigma = sigma
         self.length_scale = length_scale
-        # Evaluate the effective relaxation time of the heat kernel.
-        self.time = 2 * (math.pi * self.length_scale / self.period) ** 2
-        # The terms decay rapidly with exp(- k^2 * time) so we only need to consider the first few.
-        # If not given, we try to reach k^2 * time > 10.
-        if num_terms is None:
-            num_terms = 10 / self.time + 1
-        if not isinstance(num_terms, numbers.Number):
-            num_terms = max(num_terms)
-        self.num_terms = int(num_terms)
+        if self.is_periodic:
+            # Evaluate the effective relaxation time of the heat kernel.
+            self.time = 2 * (math.pi * self.length_scale / self.period) ** 2
+            # The terms decay rapidly with exp(- k^2 * time) so we only need to consider the first
+            # few. If not given, we try to reach k^2 * time > 10.
+            if num_terms is None:
+                num_terms = 10 / self.time + 1
+            if not isinstance(num_terms, numbers.Number):
+                num_terms = max(num_terms)
+            self.num_terms = int(num_terms)
+        else:
+            self.time = self.num_terms = None
 
-    def evaluate(self, x, y=None):
-        # The residuals will have shape `(..., num_dims)`.
-        residuals = evaluate_residuals(x, y, self.period) / self.period
-        value = jtheta(residuals, dispatch.exp(-self.time)) * (self.time / math.pi) ** 0.5
-        cov = self.sigma ** 2 * value.prod(axis=-1)
-        return cov
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        if self.is_periodic:
+            # The residuals will have shape `(..., num_dims)`.
+            residuals = evaluate_residuals(x, y, self.period) / self.period
+            value = jtheta(residuals, dispatch.exp(-self.time)) * (self.time / math.pi) ** 0.5
+            cov = self.sigma ** 2 * value.prod(axis=-1)
+            return cov
+        else:
+            residuals = evaluate_residuals(x, y, self.period) / self.length_scale
+            exponent = - dispatch.square(residuals).sum(axis=-1) / 2
+            return self.sigma * self.sigma * dispatch.exp(exponent)
 
-    def evaluate_rfft(self, shape: tuple[int]):
-        """
-        Evaluate the real fast Fourier transform of the kernel.
-
-        Args:
-            shape: Number of sample points in each dimension.
-
-        Returns:
-            rfft: Fourier coefficients with shape `(*shape[:-1], shape[-1] // 2 + 1)`.
-        """
+    def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
+        if not self.is_periodic:
+            raise ValueError("kernel must be periodic")
         ndim = len(shape)
         time = self.time * np.ones(ndim)
         value = None

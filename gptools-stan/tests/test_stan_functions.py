@@ -373,18 +373,6 @@ for ndim in [1, 2, 3]:
         "stan_function": "gp_periodic_exp_quad_cov",
         "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
                       "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
-                      "period": "vector[p_]"},
-        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale, "period": period},
-        "result_type": "matrix[n_, m_]",
-        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
-        "desired": kernel.evaluate(x[:, None], y[None]),
-    })
-    kernel = kernels.HeatKernel(sigma, length_scale, period=period)
-    add_configuration({
-        "stan_function": "gp_heat_cov",
-        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
-                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
                       "period": "vector[p_]", "nterms": "int"},
         "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
                        "length_scale": length_scale, "period": period, "nterms": 100},
@@ -398,27 +386,28 @@ for m in [7, 8]:
     length_scale = np.random.gamma(10, 0.1)
     period = np.random.gamma(100, 0.1)
     add_configuration({
-        "stan_function": "gp_heat_cov_rfft",
+        "stan_function": "gp_periodic_exp_quad_cov_rfft",
         "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real",
                       "nterms": "int"},
         "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period,
                        "nterms": 100},
         "result_type": "vector[m %/% 2 + 1]",
         "includes": ["gptools_util.stan", "gptools_kernels.stan"],
-        "desired": kernels.HeatKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
+        "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
     })
     for n in [9, 10]:
         length_scale = np.random.gamma(10, 0.1, 2)
         period = np.random.gamma(100, 0.1, 2)
         add_configuration({
-            "stan_function": "gp_heat_cov_rfft2",
+            "stan_function": "gp_periodic_exp_quad_cov_rfft2",
             "arg_types": {"m": "int", "n": "int", "sigma": "real", "length_scale": "vector[2]",
                           "period": "vector[2]", "nterms": "int"},
             "arg_values": {"m": m, "n": n, "sigma": sigma, "length_scale": length_scale,
                            "period": period, "nterms": 100},
             "result_type": "matrix[m, n %/% 2 + 1]",
             "includes": ["gptools_util.stan", "gptools_kernels.stan"],
-            "desired": kernels.HeatKernel(sigma, length_scale, period=period).evaluate_rfft([m, n]),
+            "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)
+            .evaluate_rfft([m, n]),
         })
 
 

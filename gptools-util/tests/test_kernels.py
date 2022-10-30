@@ -46,7 +46,11 @@ def test_evaluate_squared_distance(p: int, use_torch: bool) -> None:
 def test_periodic(kernel_configuration: KernelConfiguration):
     kernel = kernel_configuration()
     if not kernel.is_periodic:
-        pytest.skip("kernel is not periodic")
+        # Ensure the rfft cannot be evaluated and skip the rest.
+        with pytest.raises((NotImplementedError, ValueError)):
+            kernel.evaluate_rfft(tuple(range(13, 13 + len(kernel_configuration.dims))))
+        return
+
     # Sample some points from the domain.
     X = kernel_configuration.sample_locations((13,))
     _, dim = X.shape
@@ -55,7 +59,7 @@ def test_periodic(kernel_configuration: KernelConfiguration):
     for delta in it.product(*([-1, 1, 2] for _ in range(dim))):
         Y = X + delta * np.asarray(kernel.period)
         other = kernel.evaluate(X[..., :, None, :], Y[..., None, :, :])
-        np.testing.assert_allclose(cov, other)
+        np.testing.assert_allclose(cov, other, atol=1e-12)
 
     # For one and two dimensions, ensure that the Fourier transform has the correct structure.
     if dim > 2:
@@ -72,6 +76,9 @@ def test_periodic(kernel_configuration: KernelConfiguration):
         cov = kernel.evaluate(xs)[0].reshape(shape)
         fftcov = np.fft.rfft(cov) if dim == 1 else np.fft.rfft2(cov)
         np.testing.assert_allclose(fftcov.imag, 0, atol=1e-9)
+
+        # Ensure the numeric rfft matches the manual evaluation.
+        np.testing.assert_allclose(fftcov.real, kernel.evaluate_rfft(shape), atol=1e-9)
 
 
 def test_kernel_composition():
@@ -98,14 +105,14 @@ def test_diagonal_kernel():
 
 
 @pytest.mark.parametrize("shape", [(5,), (6,), (5, 7), (5, 6), (6, 5), (6, 8)])
-def test_heat_kernel(shape: int) -> None:
+def test_periodic_exp_quad_rfft(shape: int) -> None:
     *head, tail = shape
     ndim = len(shape)
     # Use a large number of terms to evaluate the kernel.
     if ndim == 1:
-        kernel = kernels.HeatKernel(1.2, 0.1, 3, tail // 2 + 1)
+        kernel = kernels.ExpQuadKernel(1.2, 0.1, 3, tail // 2 + 1)
     elif ndim == 2:
-        kernel = kernels.HeatKernel(0.9, np.asarray([0.2, 0.3]), np.asarray([2.1, 2.3]))
+        kernel = kernels.ExpQuadKernel(0.9, np.asarray([0.2, 0.3]), np.asarray([2.1, 2.3]))
     else:
         raise ValueError
     xs = coordgrid(*[np.linspace(0, period, n, endpoint=False) for n, period in
@@ -125,11 +132,6 @@ def test_heat_kernel(shape: int) -> None:
 
 
 @pytest.mark.parametrize("num_terms", [None, 7, np.arange(4)])
-def test_heat_kernel_num_terms(num_terms) -> None:
-    kernel = kernels.HeatKernel(1, .5, 1, num_terms)
+def test_periodic_exp_quad_kernel_num_terms(num_terms) -> None:
+    kernel = kernels.ExpQuadKernel(1, .5, 1, num_terms)
     assert kernel.num_terms >= 1
-
-
-def test_heat_kernel_without_period() -> None:
-    with pytest.raises(ValueError):
-        kernels.HeatKernel(1.2, 0.5, None)
