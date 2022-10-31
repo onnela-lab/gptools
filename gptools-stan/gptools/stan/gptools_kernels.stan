@@ -136,11 +136,16 @@ matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, vector l
     int nrfft = n %/% 2 + 1;
     matrix[m, nrfft] result;
     real ndim = 2;
-    vector[nrfft] kcol = linspaced_vector(nrfft, 0, nrfft - 1);
-    for (i in 1:m) {
-        int krow = min(i - 1, m - i + 1);
-        result[i] = 1 + 2 / dof * pi() ^ 2 *
-            ((krow * length_scale[1] / period[1]) ^ 2 + (kcol * length_scale[2] / period[2]) ^ 2)';
+    row_vector[nrfft] col_part = (linspaced_row_vector(nrfft, 0, nrfft - 1) * length_scale[2]
+                                  / period[2]) ^ 2;
+    // We only iterate up to m %/% 2 + 1 because the kernel is symmetric in positive and negative
+    // frequencies.
+    for (i in 1:m %/% 2 + 1) {
+        int krow = i - 1;
+        result[i] = 1 + 2 / dof * pi() ^ 2 * ((krow * length_scale[1] / period[1]) ^ 2 + col_part);
+        if (i > 1) {
+            result[m - i + 2] = result[i];
+        }
     }
     return sigma ^ 2 * m * n * 2 ^ ndim * (pi() / (2 * dof)) ^ (ndim / 2)
         * tgamma(dof + ndim / 2) / tgamma(dof)
