@@ -143,19 +143,27 @@ def test_matern_invalid_dof() -> None:
 
 
 @pytest.mark.parametrize("dof", [3 / 2, 5 / 2])
-@pytest.mark.parametrize("size", [500, 501])
-def test_matern_approximate_rfft(dof: float, size: int) -> None:
+@pytest.mark.parametrize("shape", [(500,), (501,), (500, 502), (500, 501), (501, 500), (501, 503)])
+def test_matern_approximate_rfft(dof: float, shape: tuple[int]) -> None:
     sigma = 1.2
-    period = 2.1
-    length_scale = 0.01
+    ndim = len(shape)
+    period = np.asarray([2.1, 1.7])[:ndim]
+    length_scale = np.asarray([0.01, 0.02])[:ndim]
     kernel = kernels.MaternKernel(dof, sigma, length_scale)
     periodic_kernel = kernels.MaternKernel(dof, sigma, length_scale, period)
-    x = np.linspace(0, period, size, endpoint=False)
-    x = np.minimum(x, period - x)
-    cov = kernel.evaluate(np.zeros(1), x[:, None]).squeeze()
-    rfft = np.fft.rfft(cov).real
-    direct_rfft = periodic_kernel.evaluate_rfft([size])
-    poly = np.polynomial.Polynomial.fit(rfft, direct_rfft, 1).convert()
+    xs = coordgrid(*(np.linspace(0, p, n, endpoint=False) for n, p in zip(shape, period)))
+    xs = np.minimum(xs, period - xs)
+    cov = kernel.evaluate(np.zeros(ndim), xs).reshape(shape)
+    if ndim == 1:
+        rfft = np.fft.rfft(cov)
+    elif ndim == 2:
+        rfft = np.fft.rfft2(cov)
+    else:
+        raise ValueError(ndim)
+    np.testing.assert_allclose(rfft.imag, 0, atol=1e-9)
+    rfft = rfft.real
+    direct_rfft = periodic_kernel.evaluate_rfft(shape)
+    poly = np.polynomial.Polynomial.fit(rfft.ravel(), direct_rfft.ravel(), 1).convert()
     bias, slope = poly.coef
     assert abs(bias) < 1e-2
     assert abs(slope - 1) < 1e-2

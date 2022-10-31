@@ -373,13 +373,13 @@ class MaternKernel(Kernel):
         ks = [np.arange(n) for n in head]
         ks.append(np.arange(tail // 2 + 1))
         ks = coordgrid(*ks)
+        ks = np.minimum(ks, shape - ks)
         ndim = len(shape)
 
         # Evaluate the spectral density.
-        length_scale = self.length_scale / self.period
-        value = size * 2 ** ndim * math.pi ** (ndim / 2) * special.gamma(self.dof + ndim / 2) \
-            * (2 * self.dof) ** self.dof \
-            / (special.gamma(self.dof) * length_scale ** (2 * self.dof)) \
-            * (2 * self.dof + (2 * math.pi * length_scale * ks).prod(axis=-1) ** 2) \
-            ** -(self.dof + ndim / 2) * length_scale ** (2 * self.dof + ndim)
+        length_scale = self.length_scale / self.period * np.ones(ndim)
+        arg = 2 * self.dof + np.sum((2 * math.pi * length_scale * ks) ** 2, axis=-1)
+        value = size * 2 ** ndim * math.pi ** (ndim / 2) * (2 * self.dof) ** self.dof \
+            * special.gamma(self.dof + ndim / 2) / special.gamma(self.dof) \
+            * arg ** -(self.dof + ndim / 2) * length_scale.prod()
         return self.sigma * self.sigma * value.reshape(head + [tail // 2 + 1])
