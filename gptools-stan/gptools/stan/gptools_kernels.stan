@@ -115,3 +115,34 @@ matrix gp_periodic_exp_quad_cov_rfft2(int m, int n, real sigma, vector length_sc
                                                               nterms);
     return get_real(expand_rfft(rfftm, m)) * rfftn';
 }
+
+/**
+Evaluate the real fast Fourier transform of the periodic Matern kernel.
+*/
+vector gp_periodic_matern_cov_rfft(real dof, int n, real sigma, real length_scale, real period) {
+    int nrfft = n %/% 2 + 1;
+    vector[nrfft] k = linspaced_vector(nrfft, 0, nrfft - 1);
+    return sigma ^ 2 * n * sqrt(2 * pi() / dof) * tgamma(dof + 0.5) / tgamma(dof)
+        * (1 + 2 / dof * (pi() * length_scale / period * k) ^ 2) ^ -(dof + 0.5) * length_scale
+        / period;
+}
+
+
+/**
+Evaluate the real fast Fourier transform of the two-dimensional periodic Matern kernel.
+*/
+matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, vector length_scale,
+                                    vector period) {
+    int nrfft = n %/% 2 + 1;
+    matrix[m, nrfft] result;
+    real ndim = 2;
+    vector[nrfft] kcol = linspaced_vector(nrfft, 0, nrfft - 1);
+    for (i in 1:m) {
+        int krow = min(i - 1, m - i + 1);
+        result[i] = 1 + 2 / dof * pi() ^ 2 *
+            ((krow * length_scale[1] / period[1]) ^ 2 + (kcol * length_scale[2] / period[2]) ^ 2)';
+    }
+    return sigma ^ 2 * m * n * 2 ^ ndim * (pi() / (2 * dof)) ^ (ndim / 2)
+        * tgamma(dof + ndim / 2) / tgamma(dof)
+        * result ^ -(dof + ndim / 2) * prod(to_array_1d(length_scale ./ period));
+}

@@ -378,8 +378,8 @@ class MaternKernel(Kernel):
 
         # Evaluate the spectral density.
         length_scale = self.length_scale / self.period * np.ones(ndim)
-        arg = 2 * self.dof + np.sum((2 * math.pi * length_scale * ks) ** 2, axis=-1)
-        value = size * 2 ** ndim * math.pi ** (ndim / 2) * (2 * self.dof) ** self.dof \
+        arg = 1 + 2 / self.dof * np.sum((math.pi * length_scale * ks) ** 2, axis=-1)
+        value = size * 2 ** ndim * (math.pi / (2 * self.dof)) ** (ndim / 2) \
             * special.gamma(self.dof + ndim / 2) / special.gamma(self.dof) \
             * arg ** -(self.dof + ndim / 2) * length_scale.prod()
         return self.sigma * self.sigma * value.reshape(head + [tail // 2 + 1])

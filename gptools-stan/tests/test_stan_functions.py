@@ -417,6 +417,17 @@ for m in [7, 8]:
         "includes": ["gptools_util.stan", "gptools_kernels.stan"],
         "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
     })
+    for dof in [3 / 2, 5 / 2]:
+        add_configuration({
+            "stan_function": "gp_periodic_matern_cov_rfft",
+            "arg_types": {"dof": "real", "m": "int", "sigma": "real", "length_scale": "real",
+                          "period": "real"},
+            "arg_values": {"dof": dof, "m": n, "sigma": sigma, "length_scale": length_scale,
+                           "period": period},
+            "result_type": "vector[m %/% 2 + 1]",
+            "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+            "desired": kernels.MaternKernel(dof, sigma, length_scale, period).evaluate_rfft([n]),
+        })
     for n in [9, 10]:
         length_scale = np.random.gamma(10, 0.1, 2)
         period = np.random.gamma(100, 0.1, 2)
@@ -431,6 +442,18 @@ for m in [7, 8]:
             "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)
             .evaluate_rfft([m, n]),
         })
+        for dof in [3 / 2, 5 / 2]:
+            kernel = kernels.MaternKernel(dof, sigma, length_scale, period)
+            add_configuration({
+                "stan_function": "gp_periodic_matern_cov_rfft2",
+                "arg_types": {"dof": "real", "m": "int", "n": "int", "sigma": "real",
+                              "length_scale": "vector[2]", "period": "vector[2]"},
+                "arg_values": {"dof": dof, "m": m, "n": n, "sigma": sigma,
+                               "length_scale": length_scale, "period": period},
+                "result_type": "matrix[m, n %/% 2 + 1]",
+                "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+                "desired": kernel.evaluate_rfft([m, n]),
+            })
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
