@@ -307,7 +307,7 @@ class ExpQuadKernel(Kernel):
             cov = self.sigma ** 2 * value.prod(axis=-1)
             return cov
         else:
-            residuals = evaluate_residuals(x, y, self.period) / self.length_scale
+            residuals = evaluate_residuals(x, y) / self.length_scale
             exponent = - dispatch.square(residuals).sum(axis=-1) / 2
             return self.sigma * self.sigma * dispatch.exp(exponent)
 
@@ -327,3 +327,37 @@ class ExpQuadKernel(Kernel):
                 value = value[..., None] * part
 
         return self.sigma ** 2 * value
+
+
+class MaternKernel(Kernel):
+    """
+    Matern covariance function.
+
+    Args:
+        dof: Smoothness parameter.
+        sigma: Scale of the covariance.
+        length_scale: Correlation length.
+        period: Period for circular boundary conditions.
+    """
+    def __init__(self, dof: float, sigma: float, length_scale: float,
+                 period: OptionalArrayOrTensor = None) -> None:
+        super().__init__(period)
+        if dof not in (allowed_dofs := {3 / 2, 5 / 2}):
+            raise ValueError(f"dof must be one of {allowed_dofs} but got {dof}")
+        self.sigma = sigma
+        self.length_scale = length_scale
+        self.dof = dof
+
+    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+        if self.is_periodic:
+            raise NotImplementedError
+        else:
+            residuals = evaluate_residuals(x, y) / self.length_scale
+            distance = (2 * self.dof * residuals * residuals).sum(axis=-1) ** 0.5
+            if self.dof == 3 / 2:
+                value = 1 + distance
+            elif self.dof == 5 / 2:
+                value = 1 + distance + distance * distance / 3
+            else:
+                raise NotImplementedError
+            return self.sigma * self.sigma * value * dispatch.exp(-distance)

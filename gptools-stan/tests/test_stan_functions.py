@@ -381,6 +381,28 @@ for ndim in [1, 2, 3]:
         "desired": kernel.evaluate(x[:, None], y[None]),
     })
 
+    # Verify two 3/2 and 5/2 Matern kernels.
+    kernel = kernels.MaternKernel(3 / 2, sigma, length_scale[0])
+    add_configuration({
+        "stan_function": "gp_matern32_cov",
+        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
+                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "real"},
+        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
+                       "length_scale": length_scale[0]},
+        "result_type": "matrix[n_, m_]",
+        "desired": kernel.evaluate(x[:, None], y[None]),
+    })
+    kernel = kernels.MaternKernel(5 / 2, sigma, length_scale[0])
+    add_configuration({
+        "stan_function": "gp_matern52_cov",
+        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
+                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "real"},
+        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
+                       "length_scale": length_scale[0]},
+        "result_type": "matrix[n_, m_]",
+        "desired": kernel.evaluate(x[:, None], y[None]),
+    })
+
 for m in [7, 8]:
     sigma = np.random.gamma(10, 0.1)
     length_scale = np.random.gamma(10, 0.1)

@@ -135,3 +135,8 @@ def test_periodic_exp_quad_rfft(shape: int) -> None:
 def test_periodic_exp_quad_kernel_num_terms(num_terms) -> None:
     kernel = kernels.ExpQuadKernel(1, .5, 1, num_terms)
     assert kernel.num_terms >= 1
+
+
+def test_matern_invalid_dof() -> None:
+    with pytest.raises(ValueError):
+        kernels.MaternKernel(1, 1, 1)
