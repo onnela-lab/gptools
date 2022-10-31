@@ -3,7 +3,7 @@ import numbers
 import numpy as np
 import operator
 from typing import Callable, Optional
-from . import ArrayOrTensor, ArrayOrTensorDispatch, OptionalArrayOrTensor
+from . import ArrayOrTensor, ArrayOrTensorDispatch, coordgrid, OptionalArrayOrTensor
 from .fft import expand_rfft
 
 
@@ -361,3 +361,25 @@ class MaternKernel(Kernel):
             else:
                 raise NotImplementedError
             return self.sigma * self.sigma * value * dispatch.exp(-distance)
+
+    def evaluate_rfft(self, shape: tuple[int]):
+        if not self.is_periodic:
+            raise ValueError("kernel must be periodic")
+        from scipy import special
+
+        # Construct the grid to evaluate on.
+        size = np.prod(shape)
+        *head, tail = shape
+        ks = [np.arange(n) for n in head]
+        ks.append(np.arange(tail // 2 + 1))
+        ks = coordgrid(*ks)
+        ndim = len(shape)
+
+        # Evaluate the spectral density.
+        length_scale = self.length_scale / self.period
+        value = size * 2 ** ndim * math.pi ** (ndim / 2) * special.gamma(self.dof + ndim / 2) \
+            * (2 * self.dof) ** self.dof \
+            / (special.gamma(self.dof) * length_scale ** (2 * self.dof)) \
+            * (2 * self.dof + (2 * math.pi * length_scale * ks).prod(axis=-1) ** 2) \
+            ** -(self.dof + ndim / 2) * length_scale ** (2 * self.dof + ndim)
+        return self.sigma * self.sigma * value.reshape(head + [tail // 2 + 1])

@@ -140,3 +140,22 @@ def test_periodic_exp_quad_kernel_num_terms(num_terms) -> None:
 def test_matern_invalid_dof() -> None:
     with pytest.raises(ValueError):
         kernels.MaternKernel(1, 1, 1)
+
+
+@pytest.mark.parametrize("dof", [3 / 2, 5 / 2])
+@pytest.mark.parametrize("size", [500, 501])
+def test_matern_approximate_rfft(dof: float, size: int) -> None:
+    sigma = 1.2
+    period = 2.1
+    length_scale = 0.01
+    kernel = kernels.MaternKernel(dof, sigma, length_scale)
+    periodic_kernel = kernels.MaternKernel(dof, sigma, length_scale, period)
+    x = np.linspace(0, period, size, endpoint=False)
+    x = np.minimum(x, period - x)
+    cov = kernel.evaluate(np.zeros(1), x[:, None]).squeeze()
+    rfft = np.fft.rfft(cov).real
+    direct_rfft = periodic_kernel.evaluate_rfft([size])
+    poly = np.polynomial.Polynomial.fit(rfft, direct_rfft, 1).convert()
+    bias, slope = poly.coef
+    assert abs(bias) < 1e-2
+    assert abs(slope - 1) < 1e-2
