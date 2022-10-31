@@ -1,6 +1,10 @@
+import numpy as np
 import pytest
 import torch as th
 
+
+# Raise errors for numerical issues.
+np.seterr(divide="raise", over="raise", invalid="raise")
 th.set_default_dtype(th.float64)
 
 
