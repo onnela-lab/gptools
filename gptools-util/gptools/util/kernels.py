@@ -11,10 +11,11 @@ dispatch = ArrayOrTensorDispatch()
 
 
 def _jtheta_num_terms(q: ArrayOrTensor, rtol: float = 1e-9) -> int:
-    return math.ceil(math.log(1e-9) / math.log(dispatch.max(q)))
+    return math.ceil(math.log(rtol) / math.log(dispatch.max(q)))
 
 
-def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None) -> ArrayOrTensor:
+def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None,
+           max_batch_size: int = 1e6) -> ArrayOrTensor:
     r"""
     Evaluate the Jacobi theta function using a series approximation.
 
@@ -27,13 +28,23 @@ def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None) -> 
         q: Nome of the theta function with modulus less than one.
         nterms: Number of terms in the series approximation (defaults to achieve a relative
             tolerance of :math:`10^{-9}`, 197 terms for `q = 0.9`).
+        max_batch_size: Maximum number of terms per batch.
     """
     # TODO: fix for torch.
     q, z = np.broadcast_arrays(q, z)
     nterms = nterms or _jtheta_num_terms(q)
-    n = dispatch[z].arange(1, nterms + 1)
-    parts = q[..., None] ** (n ** 2) * dispatch.cos(2 * math.pi * z[..., None] * n)
-    return 1 + 2 * parts.sum(axis=-1)
+    # If the dimensions of q and z are large and the number of terms is large, we can run into
+    # memory issues here. We batch the evaluation if necessary to overcome this issue. The maximum
+    # number of terms should be no more than 10 ^ 6 elements (about 8MB at 64-bit precision).
+    batch_size = int(max(1, max_batch_size / (q.size * nterms)))
+    series = 0.0
+    for offset in range(0, nterms, batch_size):
+        size = min(batch_size, nterms - offset)
+        n = 1 + offset + dispatch[z].arange(size)
+        series = series \
+            + (q[..., None] ** (n ** 2) * dispatch.cos(2 * math.pi * z[..., None] * n)).sum(axis=-1)
+
+    return 1 + 2 * series
 
 
 def jtheta_rfft(nz: int, q: ArrayOrTensor, nterms: Optional[int] = None) -> ArrayOrTensor:
@@ -289,10 +300,8 @@ class ExpQuadKernel(Kernel):
         if self.is_periodic:
             # Evaluate the effective relaxation time of the heat kernel.
             self.time = 2 * (math.pi * self.length_scale / self.period) ** 2
-            # The terms decay rapidly with exp(- k^2 * time) so we only need to consider the first
-            # few. If not given, we try to reach k^2 * time > 10.
             if num_terms is None:
-                num_terms = 10 / self.time + 1
+                num_terms = _jtheta_num_terms(dispatch.exp(-self.time).max())
             if not isinstance(num_terms, numbers.Number):
                 num_terms = max(num_terms)
             self.num_terms = int(num_terms)
@@ -303,7 +312,8 @@ class ExpQuadKernel(Kernel):
         if self.is_periodic:
             # The residuals will have shape `(..., num_dims)`.
             residuals = evaluate_residuals(x, y, self.period) / self.period
-            value = jtheta(residuals, dispatch.exp(-self.time)) * (self.time / math.pi) ** 0.5
+            value = jtheta(residuals, dispatch.exp(-self.time), self.num_terms) \
+                * (self.time / math.pi) ** 0.5
             cov = self.sigma ** 2 * value.prod(axis=-1)
             return cov
         else:

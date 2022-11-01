@@ -11,9 +11,17 @@ import torch as th
 @pytest.mark.parametrize("q", [0.1, 0.8])
 def test_jtheta(q: float) -> None:
     z = np.linspace(0, 1, 7, endpoint=False)
-    actual = kernels.jtheta(z, q)
+    actual = kernels.jtheta(z, q, max_batch_size=3)
     desired = np.vectorize(mpmath.jtheta)(3, np.pi * z, q).astype(float)
     np.testing.assert_allclose(actual, desired)
+
+
+def test_jtheta_batching() -> None:
+    z = np.linspace(0, 1, 7, endpoint=False)
+    result = kernels.jtheta(0.5, z, nterms=13)
+    for max_batch_size in [7, 13, 14, 21]:
+        np.testing.assert_allclose(result, kernels.jtheta(0.5, z, nterms=13,
+                                                          max_batch_size=max_batch_size))
 
 
 @pytest.mark.parametrize("nz", [5, 6])
@@ -110,7 +118,7 @@ def test_periodic_exp_quad_rfft(shape: int) -> None:
     ndim = len(shape)
     # Use a large number of terms to evaluate the kernel.
     if ndim == 1:
-        kernel = kernels.ExpQuadKernel(1.2, 0.1, 3, tail // 2 + 1)
+        kernel = kernels.ExpQuadKernel(1.2, 0.1, 3)
     elif ndim == 2:
         kernel = kernels.ExpQuadKernel(0.9, np.asarray([0.2, 0.3]), np.asarray([2.1, 2.3]))
     else:
