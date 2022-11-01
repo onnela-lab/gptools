@@ -12,14 +12,14 @@ kernelspec:
 ---
 
 ```{code-cell} ipython3
-import pandas as pd
+from gptools import util
+from gptools.stan import compile_model
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
+import os
+import pandas as pd
 from scipy import ndimage, stats
-from gptools import util
-import gptools.util.fft
-from gptools.stan import compile_model
 from scipy.fft import next_fast_len
 
 mpl.rcParams["image.origin"] = "lower"
@@ -67,7 +67,8 @@ data = {
 ```{code-cell} ipython3
 # Compile and fit the model.
 model = compile_model(stan_file="trees.stan")
-fit = model.sample(data, chains=1, iter_warmup=500, iter_sampling=500, seed=seed)
+niter = 3 if "CI" in os.environ else 500
+fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter, seed=seed)
 print(fit.diagnose())
 ```
 
