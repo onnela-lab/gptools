@@ -423,6 +423,8 @@ jupyterlab-widgets==3.0.3
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   ipywidgets
+jupytext[myst]==1.14.1
+    # via -r dev_requirements.in
 keyring==23.9.3
     # via
     #   -r doc_requirements.txt
@@ -440,6 +442,7 @@ kiwisolver==1.4.4
 markdown-it-py==2.1.0
     # via
     #   -r doc_requirements.txt
+    #   jupytext
     #   mdit-py-plugins
     #   myst-parser
 markupsafe==2.1.1
@@ -474,6 +477,7 @@ mccabe==0.7.0
 mdit-py-plugins==0.3.1
     # via
     #   -r doc_requirements.txt
+    #   jupytext
     #   myst-parser
 mdurl==0.1.2
     # via
@@ -537,6 +541,7 @@ nbformat==5.7.0
     #   -r gptools-util/test_requirements.txt
     #   jupyter-cache
     #   jupyter-server
+    #   jupytext
     #   myst-nb
     #   nbclassic
     #   nbclient
@@ -778,6 +783,7 @@ pyyaml==6.0
     # via
     #   -r doc_requirements.txt
     #   jupyter-cache
+    #   jupytext
     #   myst-nb
     #   myst-parser
 pyzmq==24.0.1
@@ -953,6 +959,8 @@ tinycss2==1.2.1
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   nbconvert
+toml==0.10.2
+    # via jupytext
 tomli==2.0.1
     # via
     #   -r doc_requirements.txt

@@ -1,5 +1,6 @@
 import cmdstanpy
 import logging
+from sphinx.application import Sphinx
 
 
 master_doc = "README"
@@ -47,3 +48,9 @@ myst_enable_extensions = [
     "dollarmath",
 ]
 myst_dmath_double_inline = True
+
+
+def setup(app: Sphinx) -> None:
+    # Ignore .ipynb and .html files (cf. https://github.com/executablebooks/MyST-NB/issues/363).
+    app.registry.source_suffix.pop(".ipynb", None)
+    app.registry.source_suffix.pop(".html", None)

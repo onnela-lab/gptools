@@ -92,3 +92,34 @@ try:
                 file_dep=[prefix / x for x in file_dep])
 except ModuleNotFoundError:
     pass
+
+
+# Tree data from https://datadryad.org/stash/dataset/doi:10.15146/5xcp-0d46.
+with di.defaults(basename="trees"):
+    # Download elevation data.
+    target = "data/elevation.tsv"
+    url = "https://datadryad.org/stash/downloads/file_stream/148941"
+    manager(name="elevation", targets=[target], actions=[["curl", "-L", "-o", "$@", url]],
+            uptodate=[True])
+
+    # Download the tree archive.
+    archive = "data/bci.tree.zip"
+    url = "https://datadryad.org/stash/downloads/file_stream/148942"
+    manager(name="zip", targets=[archive], actions=[["curl", "-L", "-o", "$@", url]],
+            uptodate=[True])
+    # Extract the rdata from the archive.
+    rdata_target = "data/bci.tree8.rdata"
+    manager(name="rdata", targets=[rdata_target], file_dep=[archive], actions=[
+        ["unzip", "-jo", archive, "home/fullplotdata/tree/bci.tree8.rdata", "-d", "data"]
+    ])
+    # Convert to CSV.
+    csv_target = "data/bci.tree8.csv"
+    manager(name="csv", targets=[csv_target], file_dep=[rdata_target], actions=[
+        ["Rscript", "--vanilla", "data/rda2csv.r", rdata_target, "bci.tree8", csv_target],
+    ])
+    # Aggregate the trees to get a smaller dataset.
+    for species in ["tachve"]:
+        target = f"data/{species}.csv"
+        script = "data/aggregate_trees.py"
+        manager(name=species, targets=[target], file_dep=[csv_target, script],
+                actions=[["$!", script, csv_target, species, target]])
