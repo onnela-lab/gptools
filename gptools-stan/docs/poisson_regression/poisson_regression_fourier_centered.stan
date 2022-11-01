@@ -16,12 +16,12 @@ parameters {
 
 transformed parameters {
     // Evaluate covariance of the point at zero with everything else.
-    vector[n] cov = gp_periodic_exp_quad_cov(zeros_vector(1), X, sigma, length_scale, n);
-    cov[1] += epsilon;
+    vector[n %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(n, sigma, length_scale, n, 10)
+        + epsilon;
 }
 
 model {
     // Fourier Gaussian process and observation model.
-    eta ~ gp_rfft(zeros_vector(n), gp_evaluate_rfft_scale(cov));
+    eta ~ gp_rfft(zeros_vector(n), gp_evaluate_rfft_scale(cov_rfft, n));
     y ~ poisson_log(eta);
 }
