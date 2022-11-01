@@ -149,5 +149,5 @@ matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, vector l
     }
     return sigma ^ 2 * m * n * 2 ^ ndim * (pi() / (2 * dof)) ^ (ndim / 2)
         * tgamma(dof + ndim / 2) / tgamma(dof)
-        * result ^ -(dof + ndim / 2) * prod(to_array_1d(length_scale ./ period));
+        * result .^ -(dof + ndim / 2) * prod(to_array_1d(length_scale ./ period));
 }
