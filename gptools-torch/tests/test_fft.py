@@ -23,7 +23,7 @@ def data(shape: tuple[int]) -> dict:
     xs = coordgrid(*(np.arange(size) for size in shape))
     size = np.prod(shape)
     assert xs.shape == (size, ndim)
-    kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), shape) \
+    kernel = ExpQuadKernel(np.random.gamma(10, 0.01), np.random.gamma(10, 0.1), np.asarray(shape)) \
         + DiagonalKernel(0.1, shape)
     cov = th.as_tensor(kernel.evaluate(xs))
     loc = th.randn(shape)

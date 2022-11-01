@@ -230,11 +230,13 @@ sample_and_plot("poisson_regression_fourier_centered.stan", sample)
 sample_and_plot("poisson_regression_fourier_non_centered.stan", sample)
 ```
 
-Given the substantial performance improvements, we can readily increase the sample size as illustrated below for a dataset with more than a thousand observations.
+Given the substantial performance improvements, we can readily increase the sample size as illustrated below for a dataset with more than a thousand observations. Sampling from the forward model takes a while because evaluating the periodic squared exponential kernel requires a series approximation.
 
 ```{code-cell} ipython3
 x = np.arange(1024)
-kernel = ExpQuadKernel(sigma=1.2, length_scale=15, period=x.size) + DiagonalKernel(1e-3, x.size)
+num_terms = 3 if os.environ.get("CI") else None
+kernel = ExpQuadKernel(sigma=1.2, length_scale=15, period=x.size, num_terms=num_terms) \
+    + DiagonalKernel(1e-3, x.size)
 sample = simulate(x, kernel)
 plot_sample(sample).legend()
 ```
