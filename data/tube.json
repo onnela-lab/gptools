@@ -1,0 +1,6425 @@
+{
+    "nodes": {
+        "940GZZLUHAW": {
+            "name": "Harrow & Wealdstone Underground Station",
+            "zone": 5,
+            "lat": 51.592268,
+            "lon": -0.335217,
+            "zones": [
+                5
+            ],
+            "x": 515420.0277200199,
+            "y": 189470.2142625277,
+            "entries": 8173,
+            "exits": 7661
+        },
+        "940GZZLUKEN": {
+            "name": "Kenton Underground Station",
+            "zone": 4,
+            "lat": 51.581756,
+            "lon": -0.31691,
+            "zones": [
+                4
+            ],
+            "x": 516715.024181601,
+            "y": 188330.23708468652,
+            "entries": 3206,
+            "exits": 3151
+        },
+        "940GZZLUSKT": {
+            "name": "South Kenton Underground Station",
+            "zone": 4,
+            "lat": 51.570232,
+            "lon": -0.308433,
+            "zones": [
+                4
+            ],
+            "x": 517331.987614024,
+            "y": 187062.2400622241,
+            "entries": 2121,
+            "exits": 2568
+        },
+        "940GZZLUNWY": {
+            "name": "North Wembley Underground Station",
+            "zone": 4,
+            "lat": 51.562551,
+            "lon": -0.304,
+            "zones": [
+                4
+            ],
+            "x": 517659.0082920895,
+            "y": 186215.17568714748,
+            "entries": 2727,
+            "exits": 2513
+        },
+        "940GZZLUWYC": {
+            "name": "Wembley Central Underground Station",
+            "zone": 4,
+            "lat": 51.552304,
+            "lon": -0.296852,
+            "zones": [
+                4
+            ],
+            "x": 518180.9904340474,
+            "y": 185087.1548917917,
+            "entries": 8818,
+            "exits": 9352
+        },
+        "940GZZLUSGP": {
+            "name": "Stonebridge Park Underground Station",
+            "zone": 3,
+            "lat": 51.543959,
+            "lon": -0.275892,
+            "zones": [
+                3
+            ],
+            "x": 519655.983628716,
+            "y": 184193.1815040061,
+            "entries": 4257,
+            "exits": 4054
+        },
+        "940GZZLUHSN": {
+            "name": "Harlesden Underground Station",
+            "zone": 3,
+            "lat": 51.53631,
+            "lon": -0.257883,
+            "zones": [
+                3
+            ],
+            "x": 520924.9977838993,
+            "y": 183372.1524023469,
+            "entries": 5337,
+            "exits": 5267
+        },
+        "940GZZLUWJN": {
+            "name": "Willesden Junction Underground Station",
+            "zone": 2,
+            "lat": 51.532259,
+            "lon": -0.244283,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 521878.9997458315,
+            "y": 182944.20528066636,
+            "entries": 8773,
+            "exits": 8384
+        },
+        "940GZZLUKSL": {
+            "name": "Kensal Green Underground Station",
+            "zone": 2,
+            "lat": 51.530539,
+            "lon": -0.225016,
+            "zones": [
+                2
+            ],
+            "x": 523219.9671904728,
+            "y": 182785.17490598385,
+            "entries": 4255,
+            "exits": 3972
+        },
+        "940GZZLUQPS": {
+            "name": "Queen's Park Underground Station",
+            "zone": 2,
+            "lat": 51.534158,
+            "lon": -0.204574,
+            "zones": [
+                2
+            ],
+            "x": 524627.9648129671,
+            "y": 183222.21980831213,
+            "entries": 9240,
+            "exits": 8586
+        },
+        "940GZZLUKPK": {
+            "name": "Kilburn Park Underground Station",
+            "zone": 2,
+            "lat": 51.534979,
+            "lon": -0.194232,
+            "zones": [
+                2
+            ],
+            "x": 525342.9825102899,
+            "y": 183331.1713548571,
+            "entries": 5423,
+            "exits": 5106
+        },
+        "940GZZLUMVL": {
+            "name": "Maida Vale Underground Station",
+            "zone": 2,
+            "lat": 51.529777,
+            "lon": -0.185758,
+            "zones": [
+                2
+            ],
+            "x": 525945.0313467107,
+            "y": 182767.22419671033,
+            "entries": 5649,
+            "exits": 5220
+        },
+        "940GZZLUWKA": {
+            "name": "Warwick Avenue Underground Station",
+            "zone": 2,
+            "lat": 51.523263,
+            "lon": -0.183783,
+            "zones": [
+                2
+            ],
+            "x": 526100.0010763177,
+            "y": 182046.23645374045,
+            "entries": 6683,
+            "exits": 6275
+        },
+        "940GZZLUPAC": {
+            "name": "Bank and Monument Underground Station",
+            "zone": 1,
+            "lat": 51.516581,
+            "lon": -0.175689,
+            "zones": [
+                1
+            ],
+            "x": 526680.0191194142,
+            "y": 181317.13684277318,
+            "entries": 113772,
+            "exits": 114346
+        },
+        "940GZZLUERB": {
+            "name": "Edgware Road (Bakerloo) Underground Station",
+            "zone": 1,
+            "lat": 51.520299,
+            "lon": -0.17015,
+            "zones": [
+                1
+            ],
+            "x": 527053.9855666055,
+            "y": 181740.18889610114,
+            "entries": 8106,
+            "exits": 7977
+        },
+        "940GZZLUMYB": {
+            "name": "Marylebone Underground Station",
+            "zone": 1,
+            "lat": 51.522322,
+            "lon": -0.163207,
+            "zones": [
+                1
+            ],
+            "x": 527530.015911876,
+            "y": 181977.222520328,
+            "entries": 19755,
+            "exits": 21751
+        },
+        "940GZZLUBST": {
+            "name": "Baker Street Underground Station",
+            "zone": 1,
+            "lat": 51.522883,
+            "lon": -0.15713,
+            "zones": [
+                1
+            ],
+            "x": 527950.0233856365,
+            "y": 182050.20779470622,
+            "entries": 46779,
+            "exits": 46387
+        },
+        "940GZZLURGP": {
+            "name": "Regent's Park Underground Station",
+            "zone": 1,
+            "lat": 51.523344,
+            "lon": -0.146444,
+            "zones": [
+                1
+            ],
+            "x": 528690.0328546375,
+            "y": 182120.19669826154,
+            "entries": 6498,
+            "exits": 7106
+        },
+        "940GZZLUOXC": {
+            "name": "Oxford Circus Underground Station",
+            "zone": 1,
+            "lat": 51.515224,
+            "lon": -0.141903,
+            "zones": [
+                1
+            ],
+            "x": 529027.9753172848,
+            "y": 181225.21111143392,
+            "entries": 114563,
+            "exits": 130177
+        },
+        "940GZZLUPCC": {
+            "name": "Piccadilly Circus Underground Station",
+            "zone": 1,
+            "lat": 51.51005,
+            "lon": -0.133798,
+            "zones": [
+                1
+            ],
+            "x": 529604.9999696019,
+            "y": 180664.15323322377,
+            "entries": 56866,
+            "exits": 54966
+        },
+        "940GZZLUCHX": {
+            "name": "Charing Cross Underground Station",
+            "zone": 1,
+            "lat": 51.50741,
+            "lon": -0.127277,
+            "zones": [
+                1
+            ],
+            "x": 530065.0121959771,
+            "y": 180382.13482571213,
+            "entries": 31804,
+            "exits": 30557
+        },
+        "940GZZLUEMB": {
+            "name": "Embankment Underground Station",
+            "zone": 1,
+            "lat": 51.507058,
+            "lon": -0.122666,
+            "zones": [
+                1
+            ],
+            "x": 530385.9974470088,
+            "y": 180351.18890161742,
+            "entries": 34107,
+            "exits": 33299
+        },
+        "940GZZLUWLO": {
+            "name": "Waterloo Underground Station",
+            "zone": 1,
+            "lat": 51.503299,
+            "lon": -0.11478,
+            "zones": [
+                1
+            ],
+            "x": 530944.01871508,
+            "y": 179947.24298266985,
+            "entries": 149888,
+            "exits": 130330
+        },
+        "940GZZLULBN": {
+            "name": "Lambeth North Underground Station",
+            "zone": 1,
+            "lat": 51.498808,
+            "lon": -0.112315,
+            "zones": [
+                1
+            ],
+            "x": 531127.9728486367,
+            "y": 179452.23916250095,
+            "entries": 6175,
+            "exits": 5717
+        },
+        "940GZZLUEAC": {
+            "name": "Elephant & Castle Underground Station",
+            "zone": 1,
+            "lat": 51.494536,
+            "lon": -0.100606,
+            "zones": [
+                1,
+                2
+            ],
+            "x": 531952.9993015653,
+            "y": 178998.2045033885,
+            "entries": 33373,
+            "exits": 30599
+        },
+        "940GZZLUEPG": {
+            "name": "Epping Underground Station",
+            "zone": 6,
+            "lat": 51.69368,
+            "lon": 0.113767,
+            "zones": [
+                6
+            ],
+            "x": 546192.9718435911,
+            "y": 201551.17540325556,
+            "entries": 6576,
+            "exits": 6925
+        },
+        "940GZZLUTHB": {
+            "name": "Theydon Bois Underground Station",
+            "zone": 6,
+            "lat": 51.671759,
+            "lon": 0.103085,
+            "zones": [
+                6
+            ],
+            "x": 545524.970486654,
+            "y": 199092.1741826394,
+            "entries": 1495,
+            "exits": 1449
+        },
+        "940GZZLUDBN": {
+            "name": "Debden Underground Station",
+            "zone": 6,
+            "lat": 51.645386,
+            "lon": 0.083782,
+            "zones": [
+                6
+            ],
+            "x": 544273.9873475957,
+            "y": 196121.1576313888,
+            "entries": 4242,
+            "exits": 4095
+        },
+        "940GZZLULGN": {
+            "name": "Loughton Underground Station",
+            "zone": 6,
+            "lat": 51.641443,
+            "lon": 0.055476,
+            "zones": [
+                6
+            ],
+            "x": 542328.0219739651,
+            "y": 195627.1963994262,
+            "entries": 5787,
+            "exits": 5839
+        },
+        "940GZZLUBKH": {
+            "name": "Buckhurst Hill Underground Station",
+            "zone": 5,
+            "lat": 51.626605,
+            "lon": 0.046757,
+            "zones": [
+                5
+            ],
+            "x": 541770.987017177,
+            "y": 193960.22805696505,
+            "entries": 3190,
+            "exits": 3085
+        },
+        "940GZZLUWOF": {
+            "name": "Woodford Underground Station",
+            "zone": 4,
+            "lat": 51.606899,
+            "lon": 0.03397,
+            "zones": [
+                4
+            ],
+            "x": 540946.9666210231,
+            "y": 191744.1495431036,
+            "entries": 9764,
+            "exits": 9568
+        },
+        "940GZZLUSWF": {
+            "name": "South Woodford Underground Station",
+            "zone": 4,
+            "lat": 51.591907,
+            "lon": 0.027338,
+            "zones": [
+                4
+            ],
+            "x": 540533.9939452473,
+            "y": 190064.23967931583,
+            "entries": 8377,
+            "exits": 9252
+        },
+        "940GZZLUSNB": {
+            "name": "Snaresbrook Underground Station",
+            "zone": 4,
+            "lat": 51.580678,
+            "lon": 0.02144,
+            "zones": [
+                4
+            ],
+            "x": 540159.996083718,
+            "y": 188804.2326620383,
+            "entries": 4024,
+            "exits": 3878
+        },
+        "940GZZLULYS": {
+            "name": "Leytonstone Underground Station",
+            "zone": 3,
+            "lat": 51.568324,
+            "lon": 0.008194,
+            "zones": [
+                3,
+                4
+            ],
+            "x": 539280.0135565028,
+            "y": 187405.1453071012,
+            "entries": 16043,
+            "exits": 15739
+        },
+        "940GZZLULYN": {
+            "name": "Leyton Underground Station",
+            "zone": 3,
+            "lat": 51.556589,
+            "lon": -0.005523,
+            "zones": [
+                3
+            ],
+            "x": 538364.9977349172,
+            "y": 186074.1656666525,
+            "entries": 18882,
+            "exits": 16117
+        },
+        "940GZZLUSTD": {
+            "name": "Stratford Underground Station",
+            "zone": 2,
+            "lat": 51.541806,
+            "lon": -0.003458,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 538553.0153599132,
+            "y": 184434.1679772322,
+            "entries": 97218,
+            "exits": 98508
+        },
+        "940GZZLUMED": {
+            "name": "Mile End Underground Station",
+            "zone": 2,
+            "lat": 51.525122,
+            "lon": -0.03364,
+            "zones": [
+                2
+            ],
+            "x": 536510.0048456995,
+            "y": 182522.17490202206,
+            "entries": 24477,
+            "exits": 24103
+        },
+        "940GZZLUBLG": {
+            "name": "Bethnal Green Underground Station",
+            "zone": 2,
+            "lat": 51.527222,
+            "lon": -0.055506,
+            "zones": [
+                2
+            ],
+            "x": 534987.0084794504,
+            "y": 182715.16395416507,
+            "entries": 23350,
+            "exits": 22246
+        },
+        "940GZZLULVT": {
+            "name": "Liverpool Street Underground Station",
+            "zone": 1,
+            "lat": 51.517372,
+            "lon": -0.083182,
+            "zones": [
+                1
+            ],
+            "x": 533095.9689308702,
+            "y": 181569.15781170252,
+            "entries": 111518,
+            "exits": 117156
+        },
+        "940GZZLUBNK": {
+            "name": "Bank and Monument Underground Station",
+            "zone": 1,
+            "lat": 51.513585,
+            "lon": -0.08814,
+            "zones": [
+                1
+            ],
+            "x": 532762.986700002,
+            "y": 181139.03334420046,
+            "entries": 113772,
+            "exits": 114346
+        },
+        "940GZZLUSPU": {
+            "name": "St. Paul's Underground Station",
+            "zone": 1,
+            "lat": 51.514936,
+            "lon": -0.097567,
+            "zones": [
+                1
+            ],
+            "x": 532104.98394799,
+            "y": 181272.2225513945,
+            "entries": 26846,
+            "exits": 27905
+        },
+        "940GZZLUCHL": {
+            "name": "Chancery Lane Underground Station",
+            "zone": 1,
+            "lat": 51.518247,
+            "lon": -0.111583,
+            "zones": [
+                1
+            ],
+            "x": 531123.0025381973,
+            "y": 181615.2288109549,
+            "entries": 31974,
+            "exits": 32878
+        },
+        "940GZZLUHBN": {
+            "name": "Holborn Underground Station",
+            "zone": 1,
+            "lat": 51.51758,
+            "lon": -0.120475,
+            "zones": [
+                1
+            ],
+            "x": 530507.9928712634,
+            "y": 181525.17340522975,
+            "entries": 51033,
+            "exits": 56295
+        },
+        "940GZZLUTCR": {
+            "name": "Tottenham Court Road Underground Station",
+            "zone": 1,
+            "lat": 51.516426,
+            "lon": -0.13041,
+            "zones": [
+                1
+            ],
+            "x": 529821.983876416,
+            "y": 181379.18739912607,
+            "entries": 67504,
+            "exits": 65219
+        },
+        "940GZZLUBND": {
+            "name": "Bond Street Underground Station",
+            "zone": 1,
+            "lat": 51.514304,
+            "lon": -0.149723,
+            "zones": [
+                1
+            ],
+            "x": 528487.9831105052,
+            "y": 181109.15629045467,
+            "entries": 60554,
+            "exits": 59865
+        },
+        "940GZZLUMBA": {
+            "name": "Marble Arch Underground Station",
+            "zone": 1,
+            "lat": 51.513424,
+            "lon": -0.158953,
+            "zones": [
+                1
+            ],
+            "x": 527850.0217374541,
+            "y": 180995.14532273554,
+            "entries": 19485,
+            "exits": 18009
+        },
+        "940GZZLULGT": {
+            "name": "Lancaster Gate Underground Station",
+            "zone": 1,
+            "lat": 51.511723,
+            "lon": -0.175494,
+            "zones": [
+                1
+            ],
+            "x": 526707.0168199302,
+            "y": 180777.24410000187,
+            "entries": 10455,
+            "exits": 10081
+        },
+        "940GZZLUQWY": {
+            "name": "Queensway Underground Station",
+            "zone": 1,
+            "lat": 51.510312,
+            "lon": -0.187152,
+            "zones": [
+                1
+            ],
+            "x": 525901.9651083482,
+            "y": 180600.2326365146,
+            "entries": 11511,
+            "exits": 11881
+        },
+        "940GZZLUNHG": {
+            "name": "Notting Hill Gate Underground Station",
+            "zone": 1,
+            "lat": 51.509128,
+            "lon": -0.196104,
+            "zones": [
+                1,
+                2
+            ],
+            "x": 525284.0189043566,
+            "y": 180453.21779736207,
+            "entries": 22498,
+            "exits": 22356
+        },
+        "940GZZLUHPK": {
+            "name": "Holland Park Underground Station",
+            "zone": 2,
+            "lat": 51.507143,
+            "lon": -0.205679,
+            "zones": [
+                2
+            ],
+            "x": 524624.9903227312,
+            "y": 180216.14383120154,
+            "entries": 6264,
+            "exits": 6063
+        },
+        "940GZZLUSBC": {
+            "name": "Shepherd's Bush (Central) Underground Station",
+            "zone": 2,
+            "lat": 51.504376,
+            "lon": -0.218813,
+            "zones": [
+                2
+            ],
+            "x": 523721.0267560405,
+            "y": 179886.17774524546,
+            "entries": 31510,
+            "exits": 29886
+        },
+        "940GZZLUWCY": {
+            "name": "White City Underground Station",
+            "zone": 2,
+            "lat": 51.511959,
+            "lon": -0.224297,
+            "zones": [
+                2
+            ],
+            "x": 523319.97502330696,
+            "y": 180720.1960961999,
+            "entries": 16935,
+            "exits": 15833
+        },
+        "940GZZLUEAN": {
+            "name": "East Acton Underground Station",
+            "zone": 2,
+            "lat": 51.516612,
+            "lon": -0.247248,
+            "zones": [
+                2
+            ],
+            "x": 521715.0305676511,
+            "y": 181199.24444122997,
+            "entries": 6779,
+            "exits": 6785
+        },
+        "940GZZLUNAN": {
+            "name": "North Acton Underground Station",
+            "zone": 2,
+            "lat": 51.523524,
+            "lon": -0.259755,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 520828.98736317735,
+            "y": 181947.1876023874,
+            "entries": 10641,
+            "exits": 10362
+        },
+        "940GZZLUHGR": {
+            "name": "Hanger Lane Underground Station",
+            "zone": 3,
+            "lat": 51.530177,
+            "lon": -0.292704,
+            "zones": [
+                3
+            ],
+            "x": 518525.9878786766,
+            "y": 182633.19797659287,
+            "entries": 6181,
+            "exits": 5862
+        },
+        "940GZZLUPVL": {
+            "name": "Perivale Underground Station",
+            "zone": 4,
+            "lat": 51.536717,
+            "lon": -0.323446,
+            "zones": [
+                4
+            ],
+            "x": 516376.9927545015,
+            "y": 183311.18319390313,
+            "entries": 4171,
+            "exits": 4056
+        },
+        "940GZZLUGFD": {
+            "name": "Greenford Underground Station",
+            "zone": 4,
+            "lat": 51.542424,
+            "lon": -0.34605,
+            "zones": [
+                4
+            ],
+            "x": 514795.0040792399,
+            "y": 183910.16143898247,
+            "entries": 7068,
+            "exits": 7010
+        },
+        "940GZZLUNHT": {
+            "name": "Northolt Underground Station",
+            "zone": 5,
+            "lat": 51.548236,
+            "lon": -0.368699,
+            "zones": [
+                5
+            ],
+            "x": 513210.0221382775,
+            "y": 184521.2352563516,
+            "entries": 8451,
+            "exits": 8102
+        },
+        "940GZZLUSRP": {
+            "name": "South Ruislip Underground Station",
+            "zone": 5,
+            "lat": 51.556853,
+            "lon": -0.398915,
+            "zones": [
+                5
+            ],
+            "x": 511094.0140941589,
+            "y": 185433.22811685054,
+            "entries": 3304,
+            "exits": 3201
+        },
+        "940GZZLURSG": {
+            "name": "Ruislip Gardens Underground Station",
+            "zone": 5,
+            "lat": 51.560736,
+            "lon": -0.41071,
+            "zones": [
+                5
+            ],
+            "x": 510266.974977075,
+            "y": 185847.2176370666,
+            "entries": 1979,
+            "exits": 1797
+        },
+        "940GZZLUWRP": {
+            "name": "West Ruislip Underground Station",
+            "zone": 6,
+            "lat": 51.569688,
+            "lon": -0.437886,
+            "zones": [
+                6
+            ],
+            "x": 508361.96586945595,
+            "y": 186802.17554085486,
+            "entries": 2723,
+            "exits": 2375
+        },
+        "940GZZLUHLT": {
+            "name": "Hainault Underground Station",
+            "zone": 4,
+            "lat": 51.603659,
+            "lon": 0.093482,
+            "zones": [
+                4
+            ],
+            "x": 545078.019300208,
+            "y": 191500.22062679473,
+            "entries": 6413,
+            "exits": 6025
+        },
+        "940GZZLUFLP": {
+            "name": "Fairlop Underground Station",
+            "zone": 4,
+            "lat": 51.595618,
+            "lon": 0.091004,
+            "zones": [
+                4
+            ],
+            "x": 544932.0079176817,
+            "y": 190601.13580167532,
+            "entries": 2181,
+            "exits": 1983
+        },
+        "940GZZLUBKE": {
+            "name": "Barkingside Underground Station",
+            "zone": 4,
+            "lat": 51.585689,
+            "lon": 0.088585,
+            "zones": [
+                4
+            ],
+            "x": 544796.0184226688,
+            "y": 189492.22562342882,
+            "entries": 2744,
+            "exits": 2741
+        },
+        "940GZZLUNBP": {
+            "name": "Newbury Park Underground Station",
+            "zone": 4,
+            "lat": 51.575726,
+            "lon": 0.090004,
+            "zones": [
+                4
+            ],
+            "x": 544925.991372963,
+            "y": 188387.13606724073,
+            "entries": 8932,
+            "exits": 7935
+        },
+        "940GZZLUGTH": {
+            "name": "Gants Hill Underground Station",
+            "zone": 4,
+            "lat": 51.576544,
+            "lon": 0.066185,
+            "zones": [
+                4
+            ],
+            "x": 543273.0177767063,
+            "y": 188431.18902809895,
+            "entries": 10966,
+            "exits": 10422
+        },
+        "940GZZLURBG": {
+            "name": "Redbridge Underground Station",
+            "zone": 4,
+            "lat": 51.576243,
+            "lon": 0.04536,
+            "zones": [
+                4
+            ],
+            "x": 541831.0248473638,
+            "y": 188357.1448564963,
+            "entries": 4779,
+            "exits": 4409
+        },
+        "940GZZLUWSD": {
+            "name": "Wanstead Underground Station",
+            "zone": 4,
+            "lat": 51.575501,
+            "lon": 0.028527,
+            "zones": [
+                4
+            ],
+            "x": 540666.9729711767,
+            "y": 188242.138345967,
+            "entries": 4497,
+            "exits": 4605
+        },
+        "940GZZLUGGH": {
+            "name": "Grange Hill Underground Station",
+            "zone": 4,
+            "lat": 51.613378,
+            "lon": 0.092066,
+            "zones": [
+                4
+            ],
+            "x": 544949.0261157061,
+            "y": 192578.18288185296,
+            "entries": 1222,
+            "exits": 1117
+        },
+        "940GZZLUCWL": {
+            "name": "Chigwell Underground Station",
+            "zone": 4,
+            "lat": 51.617916,
+            "lon": 0.075041,
+            "zones": [
+                4
+            ],
+            "x": 543756.0216019003,
+            "y": 193049.21083695773,
+            "entries": 1029,
+            "exits": 860
+        },
+        "940GZZLURVY": {
+            "name": "Roding Valley Underground Station",
+            "zone": 4,
+            "lat": 51.617199,
+            "lon": 0.043647,
+            "zones": [
+                4
+            ],
+            "x": 541584.9925069893,
+            "y": 192908.22935075872,
+            "entries": 757,
+            "exits": 920
+        },
+        "940GZZLUWTA": {
+            "name": "West Acton Underground Station",
+            "zone": 3,
+            "lat": 51.518001,
+            "lon": -0.28098,
+            "zones": [
+                3
+            ],
+            "x": 519370.9956454933,
+            "y": 181298.1957095639,
+            "entries": 2891,
+            "exits": 2775
+        },
+        "940GZZLUEBY": {
+            "name": "Ealing Broadway Underground Station",
+            "zone": 3,
+            "lat": 51.515017,
+            "lon": -0.301457,
+            "zones": [
+                3
+            ],
+            "x": 517957.99280660716,
+            "y": 180933.1846350212,
+            "entries": 27187,
+            "exits": 26109
+        },
+        "940GZZLUERC": {
+            "name": "Edgware Road (Circle Line) Underground Station",
+            "zone": 1,
+            "lat": 51.519858,
+            "lon": -0.167832,
+            "zones": [
+                1
+            ],
+            "x": 527216.0269391602,
+            "y": 181695.17166941823,
+            "entries": 11748,
+            "exits": 11381
+        },
+        "940GZZLUBWT": {
+            "name": "Bayswater Underground Station",
+            "zone": 1,
+            "lat": 51.512284,
+            "lon": -0.187938,
+            "zones": [
+                1
+            ],
+            "x": 525841.9939053594,
+            "y": 180818.17687911657,
+            "entries": 6484,
+            "exits": 6079
+        },
+        "940GZZLUHSK": {
+            "name": "High Street Kensington Underground Station",
+            "zone": 1,
+            "lat": 51.501055,
+            "lon": -0.192792,
+            "zones": [
+                1
+            ],
+            "x": 525536.0154795425,
+            "y": 179561.13541033491,
+            "entries": 19321,
+            "exits": 19255
+        },
+        "940GZZLUGTR": {
+            "name": "Gloucester Road Underground Station",
+            "zone": 1,
+            "lat": 51.494316,
+            "lon": -0.182658,
+            "zones": [
+                1
+            ],
+            "x": 526257.9751793484,
+            "y": 178829.14575038129,
+            "entries": 22343,
+            "exits": 21493
+        },
+        "940GZZLUSKS": {
+            "name": "South Kensington Underground Station",
+            "zone": 1,
+            "lat": 51.494094,
+            "lon": -0.174138,
+            "zones": [
+                1
+            ],
+            "x": 526850.0114875003,
+            "y": 178819.17543944623,
+            "entries": 50639,
+            "exits": 50513
+        },
+        "940GZZLUSSQ": {
+            "name": "Sloane Square Underground Station",
+            "zone": 1,
+            "lat": 51.49227,
+            "lon": -0.156377,
+            "zones": [
+                1
+            ],
+            "x": 528088.013531823,
+            "y": 178647.240906847,
+            "entries": 28506,
+            "exits": 28049
+        },
+        "940GZZLUVIC": {
+            "name": "Victoria Underground Station",
+            "zone": 1,
+            "lat": 51.496359,
+            "lon": -0.143102,
+            "zones": [
+                1
+            ],
+            "x": 528998.0085576602,
+            "y": 179125.2434645816,
+            "entries": 132807,
+            "exits": 139851
+        },
+        "940GZZLUSJP": {
+            "name": "St. James's Park Underground Station",
+            "zone": 1,
+            "lat": 51.499544,
+            "lon": -0.133608,
+            "zones": [
+                1
+            ],
+            "x": 529647.9762112803,
+            "y": 179496.1859184779,
+            "entries": 27072,
+            "exits": 26686
+        },
+        "940GZZLUWSM": {
+            "name": "Westminster Underground Station",
+            "zone": 1,
+            "lat": 51.50132,
+            "lon": -0.124861,
+            "zones": [
+                1
+            ],
+            "x": 530250.021299921,
+            "y": 179709.19933527173,
+            "entries": 35054,
+            "exits": 36406
+        },
+        "940GZZLUTMP": {
+            "name": "Temple Underground Station",
+            "zone": 1,
+            "lat": 51.511006,
+            "lon": -0.11426,
+            "zones": [
+                1
+            ],
+            "x": 530958.0252139405,
+            "y": 180805.21587802755,
+            "entries": 15687,
+            "exits": 16465
+        },
+        "940GZZLUBKF": {
+            "name": "Blackfriars Underground Station",
+            "zone": 1,
+            "lat": 51.511581,
+            "lon": -0.103659,
+            "zones": [
+                1
+            ],
+            "x": 531691.967220158,
+            "y": 180888.16513672622,
+            "entries": 28287,
+            "exits": 27564
+        },
+        "940GZZLUMSH": {
+            "name": "Mansion House Underground Station",
+            "zone": 1,
+            "lat": 51.512117,
+            "lon": -0.094009,
+            "zones": [
+                1
+            ],
+            "x": 532360.014926943,
+            "y": 180965.16489508643,
+            "entries": 12204,
+            "exits": 13196
+        },
+        "940GZZLUCST": {
+            "name": "Cannon Street Underground Station",
+            "zone": 1,
+            "lat": 51.51151,
+            "lon": -0.090432,
+            "zones": [
+                1
+            ],
+            "x": 532609.9761378178,
+            "y": 180904.1349632666,
+            "entries": 14247,
+            "exits": 12514
+        },
+        "940GZZLUTWH": {
+            "name": "Tower Hill Underground Station",
+            "zone": 1,
+            "lat": 51.509971,
+            "lon": -0.076546,
+            "zones": [
+                1
+            ],
+            "x": 533578.0039480793,
+            "y": 180758.22682332137,
+            "entries": 31941,
+            "exits": 32823
+        },
+        "940GZZLUALD": {
+            "name": "Aldgate Underground Station",
+            "zone": 1,
+            "lat": 51.514246,
+            "lon": -0.075689,
+            "zones": [
+                1
+            ],
+            "x": 533624.9715534704,
+            "y": 181235.18186925026,
+            "entries": 17039,
+            "exits": 18352
+        },
+        "940GZZLUMGT": {
+            "name": "Moorgate Underground Station",
+            "zone": 1,
+            "lat": 51.518176,
+            "lon": -0.088322,
+            "zones": [
+                1
+            ],
+            "x": 532737.021670397,
+            "y": 181649.2363972962,
+            "entries": 46329,
+            "exits": 47786
+        },
+        "940GZZLUBBN": {
+            "name": "Barbican Underground Station",
+            "zone": 1,
+            "lat": 51.520275,
+            "lon": -0.097993,
+            "zones": [
+                1
+            ],
+            "x": 532059.9948985713,
+            "y": 181865.1679409918,
+            "entries": 18859,
+            "exits": 19564
+        },
+        "940GZZLUFCN": {
+            "name": "Farringdon Underground Station",
+            "zone": 1,
+            "lat": 51.520252,
+            "lon": -0.104913,
+            "zones": [
+                1
+            ],
+            "x": 531579.9832876123,
+            "y": 181850.15444149554,
+            "entries": 48563,
+            "exits": 50143
+        },
+        "940GZZLUKSX": {
+            "name": "King's Cross St. Pancras Underground Station",
+            "zone": 1,
+            "lat": 51.530663,
+            "lon": -0.123194,
+            "zones": [
+                1
+            ],
+            "x": 530282.032721766,
+            "y": 182975.20894757617,
+            "entries": 138167,
+            "exits": 137722
+        },
+        "940GZZLUESQ": {
+            "name": "Euston Square Underground Station",
+            "zone": 1,
+            "lat": 51.525604,
+            "lon": -0.135829,
+            "zones": [
+                1
+            ],
+            "x": 529420.004250373,
+            "y": 182390.22399618768,
+            "entries": 25170,
+            "exits": 25470
+        },
+        "940GZZLUGPS": {
+            "name": "Great Portland Street Underground Station",
+            "zone": 1,
+            "lat": 51.52384,
+            "lon": -0.144262,
+            "zones": [
+                1
+            ],
+            "x": 528840.0018312134,
+            "y": 182179.19042513485,
+            "entries": 15164,
+            "exits": 14284
+        },
+        "940GZZLURYO": {
+            "name": "Royal Oak Underground Station",
+            "zone": 2,
+            "lat": 51.519113,
+            "lon": -0.188748,
+            "zones": [
+                2
+            ],
+            "x": 525766.9939143575,
+            "y": 181576.20053512958,
+            "entries": 4489,
+            "exits": 4217
+        },
+        "940GZZLUWSP": {
+            "name": "Westbourne Park Underground Station",
+            "zone": 2,
+            "lat": 51.52111,
+            "lon": -0.201065,
+            "zones": [
+                2
+            ],
+            "x": 524907.0057854635,
+            "y": 181777.19771072065,
+            "entries": 7249,
+            "exits": 6656
+        },
+        "940GZZLULAD": {
+            "name": "Ladbroke Grove Underground Station",
+            "zone": 2,
+            "lat": 51.517449,
+            "lon": -0.210391,
+            "zones": [
+                2
+            ],
+            "x": 524269.97018600325,
+            "y": 181354.2130945305,
+            "entries": 9377,
+            "exits": 9249
+        },
+        "940GZZLULRD": {
+            "name": "Latimer Road Underground Station",
+            "zone": 2,
+            "lat": 51.513389,
+            "lon": -0.217799,
+            "zones": [
+                2
+            ],
+            "x": 523766.9929478128,
+            "y": 180890.17866342934,
+            "entries": 4090,
+            "exits": 3947
+        },
+        "940GZZLUWLA": {
+            "name": "Wood Lane Underground Station",
+            "zone": 2,
+            "lat": 51.509669,
+            "lon": -0.22453,
+            "zones": [
+                2
+            ],
+            "x": 523309.9851100502,
+            "y": 180465.14481442195,
+            "entries": 7073,
+            "exits": 8087
+        },
+        "940GZZLUSBM": {
+            "name": "Shepherd's Bush Market Underground Station",
+            "zone": 2,
+            "lat": 51.505579,
+            "lon": -0.226375,
+            "zones": [
+                2
+            ],
+            "x": 523192.9773901236,
+            "y": 180007.2130301178,
+            "entries": 5409,
+            "exits": 5208
+        },
+        "940GZZLUGHK": {
+            "name": "Goldhawk Road Underground Station",
+            "zone": 2,
+            "lat": 51.502005,
+            "lon": -0.226715,
+            "zones": [
+                2
+            ],
+            "x": 523179.01057317713,
+            "y": 179609.19561621523,
+            "entries": 3583,
+            "exits": 3469
+        },
+        "940GZZLUHSC": {
+            "name": "Hammersmith (H&C Line) Underground Station",
+            "zone": 2,
+            "lat": 51.49339,
+            "lon": -0.225033,
+            "zones": [
+                2
+            ],
+            "x": 523318.9784623254,
+            "y": 178653.9974242539,
+            "entries": 17707,
+            "exits": 16154
+        },
+        "940GZZLUUPM": {
+            "name": "Upminster Underground Station",
+            "zone": 6,
+            "lat": 51.559063,
+            "lon": 0.250882,
+            "zones": [
+                6
+            ],
+            "x": 556130.0136347689,
+            "y": 186865.16598385194,
+            "entries": 8124,
+            "exits": 8360
+        },
+        "940GZZLUUPB": {
+            "name": "Upminster Bridge Underground Station",
+            "zone": 6,
+            "lat": 51.55856,
+            "lon": 0.235809,
+            "zones": [
+                6
+            ],
+            "x": 555086.9690245455,
+            "y": 186777.1810378788,
+            "entries": 2104,
+            "exits": 2022
+        },
+        "940GZZLUHCH": {
+            "name": "Hornchurch Underground Station",
+            "zone": 6,
+            "lat": 51.554093,
+            "lon": 0.219116,
+            "zones": [
+                6
+            ],
+            "x": 553944.9852523643,
+            "y": 186245.2104030972,
+            "entries": 3801,
+            "exits": 3780
+        },
+        "940GZZLUEPK": {
+            "name": "Elm Park Underground Station",
+            "zone": 6,
+            "lat": 51.549775,
+            "lon": 0.19864,
+            "zones": [
+                6
+            ],
+            "x": 552540.0054082071,
+            "y": 185722.17922389554,
+            "entries": 5560,
+            "exits": 5411
+        },
+        "940GZZLUDGE": {
+            "name": "Dagenham East Underground Station",
+            "zone": 5,
+            "lat": 51.544096,
+            "lon": 0.166017,
+            "zones": [
+                5
+            ],
+            "x": 550297.0275365432,
+            "y": 185023.18883123324,
+            "entries": 5327,
+            "exits": 4886
+        },
+        "940GZZLUDGY": {
+            "name": "Dagenham Heathway Underground Station",
+            "zone": 5,
+            "lat": 51.541639,
+            "lon": 0.147527,
+            "zones": [
+                5
+            ],
+            "x": 549023.0141312303,
+            "y": 184712.16669355013,
+            "entries": 9980,
+            "exits": 9774
+        },
+        "940GZZLUBEC": {
+            "name": "Becontree Underground Station",
+            "zone": 5,
+            "lat": 51.540331,
+            "lon": 0.127016,
+            "zones": [
+                5
+            ],
+            "x": 547604.9982186959,
+            "y": 184525.159245778,
+            "entries": 5989,
+            "exits": 5632
+        },
+        "940GZZLUUPY": {
+            "name": "Upney Underground Station",
+            "zone": 4,
+            "lat": 51.538372,
+            "lon": 0.10153,
+            "zones": [
+                4
+            ],
+            "x": 545843.985033686,
+            "y": 184256.23536320066,
+            "entries": 4604,
+            "exits": 4214
+        },
+        "940GZZLUBKG": {
+            "name": "Barking Underground Station",
+            "zone": 4,
+            "lat": 51.539321,
+            "lon": 0.081053,
+            "zones": [
+                4
+            ],
+            "x": 544420.9836235077,
+            "y": 184321.1682213992,
+            "entries": 30017,
+            "exits": 30356
+        },
+        "940GZZLUEHM": {
+            "name": "East Ham Underground Station",
+            "zone": 3,
+            "lat": 51.538948,
+            "lon": 0.051186,
+            "zones": [
+                3,
+                4
+            ],
+            "x": 542351.0237414916,
+            "y": 184221.19096354384,
+            "entries": 21587,
+            "exits": 21361
+        },
+        "940GZZLUUPK": {
+            "name": "Upton Park Underground Station",
+            "zone": 3,
+            "lat": 51.53534,
+            "lon": 0.035263,
+            "zones": [
+                3
+            ],
+            "x": 541257.9955432981,
+            "y": 183789.1340476079,
+            "entries": 16282,
+            "exits": 15725
+        },
+        "940GZZLUPLW": {
+            "name": "Plaistow Underground Station",
+            "zone": 3,
+            "lat": 51.531341,
+            "lon": 0.017451,
+            "zones": [
+                3
+            ],
+            "x": 540034.9734228256,
+            "y": 183310.22162989352,
+            "entries": 9558,
+            "exits": 9136
+        },
+        "940GZZLUWHM": {
+            "name": "West Ham Underground Station",
+            "zone": 2,
+            "lat": 51.528136,
+            "lon": 0.005055,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 539184.9849632024,
+            "y": 182930.18392231618,
+            "entries": 7079,
+            "exits": 7530
+        },
+        "940GZZLUBBB": {
+            "name": "Bromley-by-Bow Underground Station",
+            "zone": 2,
+            "lat": 51.524839,
+            "lon": -0.011538,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 538044.016470666,
+            "y": 182532.13979379297,
+            "entries": 7206,
+            "exits": 6958
+        },
+        "940GZZLUBWR": {
+            "name": "Bow Road Underground Station",
+            "zone": 2,
+            "lat": 51.52694,
+            "lon": -0.025128,
+            "zones": [
+                2
+            ],
+            "x": 537095.0031876598,
+            "y": 182740.24329974852,
+            "entries": 8953,
+            "exits": 8339
+        },
+        "940GZZLUSGN": {
+            "name": "Stepney Green Underground Station",
+            "zone": 2,
+            "lat": 51.521858,
+            "lon": -0.046596,
+            "zones": [
+                2
+            ],
+            "x": 535620.9698700117,
+            "y": 182135.13649554073,
+            "entries": 10380,
+            "exits": 9688
+        },
+        "940GZZLUWPL": {
+            "name": "Whitechapel Underground Station",
+            "zone": 2,
+            "lat": 51.519518,
+            "lon": -0.059971,
+            "zones": [
+                2
+            ],
+            "x": 534700.0108818213,
+            "y": 181850.2367159014,
+            "entries": 22293,
+            "exits": 22572
+        },
+        "940GZZLUADE": {
+            "name": "Aldgate East Underground Station",
+            "zone": 1,
+            "lat": 51.515037,
+            "lon": -0.072384,
+            "zones": [
+                1
+            ],
+            "x": 533851.9697767213,
+            "y": 181329.17840703053,
+            "entries": 23063,
+            "exits": 22381
+        },
+        "940GZZLUECT": {
+            "name": "Earl's Court Underground Station",
+            "zone": 1,
+            "lat": 51.492063,
+            "lon": -0.193378,
+            "zones": [
+                1,
+                2
+            ],
+            "x": 525520.0226254056,
+            "y": 178560.18368486455,
+            "entries": 29958,
+            "exits": 29366
+        },
+        "940GZZLUWKN": {
+            "name": "West Kensington Underground Station",
+            "zone": 2,
+            "lat": 51.490459,
+            "lon": -0.206636,
+            "zones": [
+                2
+            ],
+            "x": 524604.0328617675,
+            "y": 178359.1824182084,
+            "entries": 8114,
+            "exits": 7761
+        },
+        "940GZZLUBSC": {
+            "name": "Barons Court Underground Station",
+            "zone": 2,
+            "lat": 51.490311,
+            "lon": -0.213427,
+            "zones": [
+                2
+            ],
+            "x": 524132.9918025057,
+            "y": 178331.1972782637,
+            "entries": 11850,
+            "exits": 11091
+        },
+        "940GZZLUHSD": {
+            "name": "Hammersmith (Dist&Picc Line) Underground Station",
+            "zone": 2,
+            "lat": 51.4923,
+            "lon": -0.22362,
+            "zones": [
+                2
+            ],
+            "x": 523420.00645647553,
+            "y": 178535.16369680822,
+            "entries": 45437,
+            "exits": 44616
+        },
+        "940GZZLURVP": {
+            "name": "Ravenscourt Park Underground Station",
+            "zone": 2,
+            "lat": 51.494122,
+            "lon": -0.235881,
+            "zones": [
+                2
+            ],
+            "x": 522563.9767954696,
+            "y": 178717.19674384932,
+            "entries": 5525,
+            "exits": 5459
+        },
+        "940GZZLUSFB": {
+            "name": "Stamford Brook Underground Station",
+            "zone": 2,
+            "lat": 51.494917,
+            "lon": -0.245704,
+            "zones": [
+                2
+            ],
+            "x": 521879.9810708863,
+            "y": 178789.218403649,
+            "entries": 4712,
+            "exits": 4557
+        },
+        "940GZZLUTNG": {
+            "name": "Turnham Green Underground Station",
+            "zone": 2,
+            "lat": 51.495148,
+            "lon": -0.254555,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 521264.97418931604,
+            "y": 178800.22050977882,
+            "entries": 9625,
+            "exits": 9908
+        },
+        "940GZZLUCWP": {
+            "name": "Chiswick Park Underground Station",
+            "zone": 3,
+            "lat": 51.494627,
+            "lon": -0.267972,
+            "zones": [
+                3
+            ],
+            "x": 520335.0040269797,
+            "y": 178720.16192738764,
+            "entries": 4042,
+            "exits": 4613
+        },
+        "940GZZLUACT": {
+            "name": "Acton Town Underground Station",
+            "zone": 3,
+            "lat": 51.503057,
+            "lon": -0.280462,
+            "zones": [
+                3
+            ],
+            "x": 519445.97838732094,
+            "y": 179637.18413659738,
+            "entries": 10091,
+            "exits": 10023
+        },
+        "940GZZLUECM": {
+            "name": "Ealing Common Underground Station",
+            "zone": 3,
+            "lat": 51.51014,
+            "lon": -0.288265,
+            "zones": [
+                3
+            ],
+            "x": 518886.0050513797,
+            "y": 180412.16030296194,
+            "entries": 4999,
+            "exits": 5062
+        },
+        "940GZZLUGBY": {
+            "name": "Gunnersbury Underground Station",
+            "zone": 3,
+            "lat": 51.491803,
+            "lon": -0.275267,
+            "zones": [
+                3
+            ],
+            "x": 519836.01393407746,
+            "y": 178394.1627699539,
+            "entries": 10418,
+            "exits": 9688
+        },
+        "940GZZLUKWG": {
+            "name": "Kew Gardens Underground Station",
+            "zone": 3,
+            "lat": 51.477058,
+            "lon": -0.285241,
+            "zones": [
+                3,
+                4
+            ],
+            "x": 519182.0191041664,
+            "y": 176738.17761717545,
+            "entries": 6054,
+            "exits": 5756
+        },
+        "940GZZLURMD": {
+            "name": "Richmond Underground Station",
+            "zone": 4,
+            "lat": 51.463237,
+            "lon": -0.301336,
+            "zones": [
+                4
+            ],
+            "x": 518099.9889662018,
+            "y": 175175.16084777133,
+            "entries": 11835,
+            "exits": 12783
+        },
+        "940GZZLUWBN": {
+            "name": "West Brompton Underground Station",
+            "zone": 2,
+            "lat": 51.487268,
+            "lon": -0.195599,
+            "zones": [
+                2
+            ],
+            "x": 525378.9852769983,
+            "y": 178023.157619878,
+            "entries": 8591,
+            "exits": 8926
+        },
+        "940GZZLUFBY": {
+            "name": "Fulham Broadway Underground Station",
+            "zone": 2,
+            "lat": 51.480081,
+            "lon": -0.195422,
+            "zones": [
+                2
+            ],
+            "x": 525410.972731331,
+            "y": 177224.2376624348,
+            "entries": 14374,
+            "exits": 14917
+        },
+        "940GZZLUPSG": {
+            "name": "Parsons Green Underground Station",
+            "zone": 2,
+            "lat": 51.475277,
+            "lon": -0.20117,
+            "zones": [
+                2
+            ],
+            "x": 525024.9710651077,
+            "y": 176680.19261757442,
+            "entries": 11348,
+            "exits": 11109
+        },
+        "940GZZLUPYB": {
+            "name": "Putney Bridge Underground Station",
+            "zone": 2,
+            "lat": 51.468262,
+            "lon": -0.208731,
+            "zones": [
+                2
+            ],
+            "x": 524518.9819937337,
+            "y": 175887.22512876784,
+            "entries": 9410,
+            "exits": 10071
+        },
+        "940GZZLUEPY": {
+            "name": "East Putney Underground Station",
+            "zone": 2,
+            "lat": 51.459205,
+            "lon": -0.211,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 524385.9908201797,
+            "y": 174876.19968743576,
+            "entries": 10995,
+            "exits": 10760
+        },
+        "940GZZLUSFS": {
+            "name": "Southfields Underground Station",
+            "zone": 3,
+            "lat": 51.445073,
+            "lon": -0.206602,
+            "zones": [
+                3
+            ],
+            "x": 524729.9937220617,
+            "y": 173312.1429623476,
+            "entries": 10186,
+            "exits": 9502
+        },
+        "940GZZLUWIP": {
+            "name": "Wimbledon Park Underground Station",
+            "zone": 3,
+            "lat": 51.434573,
+            "lon": -0.199719,
+            "zones": [
+                3
+            ],
+            "x": 525236.9908474025,
+            "y": 172156.24090287846,
+            "entries": 3625,
+            "exits": 3539
+        },
+        "940GZZLUWIM": {
+            "name": "Wimbledon Underground Station",
+            "zone": 3,
+            "lat": 51.421207,
+            "lon": -0.206573,
+            "zones": [
+                3
+            ],
+            "x": 524796.9730708344,
+            "y": 170658.21581424,
+            "entries": 18140,
+            "exits": 22385
+        },
+        "940GZZLUKOY": {
+            "name": "Kensington (Olympia) Underground Station",
+            "zone": 2,
+            "lat": 51.497624,
+            "lon": -0.210015,
+            "zones": [
+                2
+            ],
+            "x": 524349.9744057342,
+            "y": 179150.22056304896,
+            "entries": 33,
+            "exits": 55
+        },
+        "940GZZLUCGT": {
+            "name": "Canning Town Underground Station",
+            "zone": 2,
+            "lat": 51.513584,
+            "lon": 0.008322,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 539456.0073756198,
+            "y": 181318.19304178224,
+            "entries": 23025,
+            "exits": 23370
+        },
+        "940GZZLUNGW": {
+            "name": "North Greenwich Underground Station",
+            "zone": 2,
+            "lat": 51.50047,
+            "lon": 0.004287,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 539215.9786003606,
+            "y": 179852.22122760979,
+            "entries": 42973,
+            "exits": 46137
+        },
+        "940GZZLUCYF": {
+            "name": "Canary Wharf Underground Station",
+            "zone": 2,
+            "lat": 51.503488,
+            "lon": -0.018246,
+            "zones": [
+                2
+            ],
+            "x": 537642.9964624132,
+            "y": 180145.242836812,
+            "entries": 81830,
+            "exits": 86880
+        },
+        "940GZZLUCWR": {
+            "name": "Canada Water Underground Station",
+            "zone": 2,
+            "lat": 51.497931,
+            "lon": -0.049405,
+            "zones": [
+                2
+            ],
+            "x": 535497.0204856521,
+            "y": 179469.20005692187,
+            "entries": 19430,
+            "exits": 19937
+        },
+        "940GZZLUBMY": {
+            "name": "Bermondsey Underground Station",
+            "zone": 2,
+            "lat": 51.49775,
+            "lon": -0.063993,
+            "zones": [
+                2
+            ],
+            "x": 534485.0147102998,
+            "y": 179422.19021074765,
+            "entries": 15260,
+            "exits": 14803
+        },
+        "940GZZLULNB": {
+            "name": "London Bridge Underground Station",
+            "zone": 1,
+            "lat": 51.505721,
+            "lon": -0.088873,
+            "zones": [
+                1
+            ],
+            "x": 532734.9635224568,
+            "y": 180263.20530585223,
+            "entries": 121129,
+            "exits": 118095
+        },
+        "940GZZLUSWK": {
+            "name": "Southwark Underground Station",
+            "zone": 1,
+            "lat": 51.50427,
+            "lon": -0.105331,
+            "zones": [
+                1
+            ],
+            "x": 531596.99643354,
+            "y": 180072.15428534022,
+            "entries": 25731,
+            "exits": 26209
+        },
+        "940GZZLUGPK": {
+            "name": "Green Park Underground Station",
+            "zone": 1,
+            "lat": 51.506947,
+            "lon": -0.142787,
+            "zones": [
+                1
+            ],
+            "x": 528989.9980205871,
+            "y": 180303.22117982182,
+            "entries": 59329,
+            "exits": 66672
+        },
+        "940GZZLUSJW": {
+            "name": "St. John's Wood Underground Station",
+            "zone": 2,
+            "lat": 51.534521,
+            "lon": -0.173948,
+            "zones": [
+                2
+            ],
+            "x": 526751.0258093106,
+            "y": 183315.1560980907,
+            "entries": 12449,
+            "exits": 12777
+        },
+        "940GZZLUSWC": {
+            "name": "Swiss Cottage Underground Station",
+            "zone": 2,
+            "lat": 51.543681,
+            "lon": -0.174894,
+            "zones": [
+                2
+            ],
+            "x": 526660.0042100209,
+            "y": 184332.15336592222,
+            "entries": 11913,
+            "exits": 11600
+        },
+        "940GZZLUFYR": {
+            "name": "Finchley Road Underground Station",
+            "zone": 2,
+            "lat": 51.546825,
+            "lon": -0.179845,
+            "zones": [
+                2
+            ],
+            "x": 526308.000065588,
+            "y": 184673.22775922378,
+            "entries": 15313,
+            "exits": 14863
+        },
+        "940GZZLUWHP": {
+            "name": "West Hampstead Underground Station",
+            "zone": 2,
+            "lat": 51.546638,
+            "lon": -0.191059,
+            "zones": [
+                2
+            ],
+            "x": 525530.9829256772,
+            "y": 184633.1452307473,
+            "entries": 17865,
+            "exits": 16386
+        },
+        "940GZZLUKBN": {
+            "name": "Kilburn Underground Station",
+            "zone": 2,
+            "lat": 51.547183,
+            "lon": -0.204248,
+            "zones": [
+                2
+            ],
+            "x": 524615.0204325209,
+            "y": 184671.22059400257,
+            "entries": 13151,
+            "exits": 12636
+        },
+        "940GZZLUWIG": {
+            "name": "Willesden Green Underground Station",
+            "zone": 2,
+            "lat": 51.549146,
+            "lon": -0.221537,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 523410.9722327517,
+            "y": 184860.23114831856,
+            "entries": 13067,
+            "exits": 12388
+        },
+        "940GZZLUDOH": {
+            "name": "Dollis Hill Underground Station",
+            "zone": 3,
+            "lat": 51.551955,
+            "lon": -0.239068,
+            "zones": [
+                3
+            ],
+            "x": 522187.9819503565,
+            "y": 185143.20227996778,
+            "entries": 6790,
+            "exits": 6154
+        },
+        "940GZZLUNDN": {
+            "name": "Neasden Underground Station",
+            "zone": 3,
+            "lat": 51.553986,
+            "lon": -0.249837,
+            "zones": [
+                3
+            ],
+            "x": 521435.9795039584,
+            "y": 185351.14293855574,
+            "entries": 6002,
+            "exits": 5298
+        },
+        "940GZZLUWYP": {
+            "name": "Wembley Park Underground Station",
+            "zone": 4,
+            "lat": 51.563198,
+            "lon": -0.279262,
+            "zones": [
+                4
+            ],
+            "x": 519371.974185501,
+            "y": 186327.1775290671,
+            "entries": 24558,
+            "exits": 24309
+        },
+        "940GZZLUKBY": {
+            "name": "Kingsbury Underground Station",
+            "zone": 4,
+            "lat": 51.584845,
+            "lon": -0.27879,
+            "zones": [
+                4
+            ],
+            "x": 519348.02745472133,
+            "y": 188735.23749687843,
+            "entries": 7653,
+            "exits": 7480
+        },
+        "940GZZLUQBY": {
+            "name": "Queensbury Underground Station",
+            "zone": 4,
+            "lat": 51.594188,
+            "lon": -0.286219,
+            "zones": [
+                4
+            ],
+            "x": 518809.0003034358,
+            "y": 189762.15478551033,
+            "entries": 6964,
+            "exits": 6880
+        },
+        "940GZZLUCPK": {
+            "name": "Canons Park Underground Station",
+            "zone": 5,
+            "lat": 51.607701,
+            "lon": -0.294693,
+            "zones": [
+                5
+            ],
+            "x": 518186.99511405197,
+            "y": 191251.17380546237,
+            "entries": 5040,
+            "exits": 4929
+        },
+        "940GZZLUSTM": {
+            "name": "Stanmore Underground Station",
+            "zone": 5,
+            "lat": 51.619839,
+            "lon": -0.303266,
+            "zones": [
+                5
+            ],
+            "x": 517562.0284251303,
+            "y": 192587.19727694354,
+            "entries": 6239,
+            "exits": 6310
+        },
+        "940GZZLUAMS": {
+            "name": "Amersham Underground Station",
+            "zone": 9,
+            "lat": 51.674126,
+            "lon": -0.607714,
+            "zones": [
+                9
+            ],
+            "x": 496371.0125599888,
+            "y": 198179.1575347755,
+            "entries": 4143,
+            "exits": 4041
+        },
+        "940GZZLUCAL": {
+            "name": "Chalfont & Latimer Underground Station",
+            "zone": 8,
+            "lat": 51.667985,
+            "lon": -0.560689,
+            "zones": [
+                8
+            ],
+            "x": 499636.01891530346,
+            "y": 197559.23832471017,
+            "entries": 3207,
+            "exits": 2952
+        },
+        "940GZZLUCYD": {
+            "name": "Chorleywood Underground Station",
+            "zone": 7,
+            "lat": 51.654358,
+            "lon": -0.518461,
+            "zones": [
+                7
+            ],
+            "x": 502586.9970175936,
+            "y": 196102.15455126105,
+            "entries": 2624,
+            "exits": 2605
+        },
+        "940GZZLURKW": {
+            "name": "Rickmansworth Underground Station",
+            "zone": 7,
+            "lat": 51.640207,
+            "lon": -0.473703,
+            "zones": [
+                7
+            ],
+            "x": 505715.9904809692,
+            "y": 194592.1565075596,
+            "entries": 4226,
+            "exits": 4204
+        },
+        "940GZZLUMPK": {
+            "name": "Moor Park Underground Station",
+            "zone": 6,
+            "lat": 51.629845,
+            "lon": -0.432454,
+            "zones": [
+                6,
+                7
+            ],
+            "x": 508594.96977965586,
+            "y": 193500.23231196182,
+            "entries": 1725,
+            "exits": 1667
+        },
+        "940GZZLUNOW": {
+            "name": "Northwood Underground Station",
+            "zone": 6,
+            "lat": 51.611053,
+            "lon": -0.423829,
+            "zones": [
+                6
+            ],
+            "x": 509236.9891362638,
+            "y": 191423.2278173148,
+            "entries": 4807,
+            "exits": 4783
+        },
+        "940GZZLUNWH": {
+            "name": "Northwood Hills Underground Station",
+            "zone": 6,
+            "lat": 51.600572,
+            "lon": -0.409464,
+            "zones": [
+                6
+            ],
+            "x": 510256.9824485827,
+            "y": 190279.19363984105,
+            "entries": 3382,
+            "exits": 3216
+        },
+        "940GZZLUPNR": {
+            "name": "Pinner Underground Station",
+            "zone": 5,
+            "lat": 51.592901,
+            "lon": -0.381161,
+            "zones": [
+                5
+            ],
+            "x": 512236.01717969397,
+            "y": 189469.14170029556,
+            "entries": 5051,
+            "exits": 4946
+        },
+        "940GZZLUNHA": {
+            "name": "North Harrow Underground Station",
+            "zone": 5,
+            "lat": 51.584872,
+            "lon": -0.362408,
+            "zones": [
+                5
+            ],
+            "x": 513554.98393191106,
+            "y": 188605.18190072232,
+            "entries": 3499,
+            "exits": 3279
+        },
+        "940GZZLUHOH": {
+            "name": "Harrow-on-the-Hill Underground Station",
+            "zone": 5,
+            "lat": 51.579195,
+            "lon": -0.337225,
+            "zones": [
+                5
+            ],
+            "x": 515313.99993451557,
+            "y": 188013.23191335995,
+            "entries": 17326,
+            "exits": 18451
+        },
+        "940GZZLUNKP": {
+            "name": "Northwick Park Underground Station",
+            "zone": 4,
+            "lat": 51.578481,
+            "lon": -0.318056,
+            "zones": [
+                4
+            ],
+            "x": 516644.00250316627,
+            "y": 187964.2062881621,
+            "entries": 7749,
+            "exits": 7579
+        },
+        "940GZZLUPRD": {
+            "name": "Preston Road Underground Station",
+            "zone": 4,
+            "lat": 51.571972,
+            "lon": -0.295107,
+            "zones": [
+                4
+            ],
+            "x": 518250.983511674,
+            "y": 187277.1854862768,
+            "entries": 5507,
+            "exits": 5395
+        },
+        "940GZZLUCSM": {
+            "name": "Chesham Underground Station",
+            "zone": 9,
+            "lat": 51.705208,
+            "lon": -0.611247,
+            "zones": [
+                9
+            ],
+            "x": 496060.97944483324,
+            "y": 201631.2192640042,
+            "entries": 2127,
+            "exits": 1973
+        },
+        "940GZZLUWHW": {
+            "name": "West Harrow Underground Station",
+            "zone": 5,
+            "lat": 51.57971,
+            "lon": -0.3534,
+            "zones": [
+                5
+            ],
+            "x": 514191.97922278935,
+            "y": 188045.14300596958,
+            "entries": 2142,
+            "exits": 2110
+        },
+        "940GZZLURYL": {
+            "name": "Rayners Lane Underground Station",
+            "zone": 5,
+            "lat": 51.575147,
+            "lon": -0.371127,
+            "zones": [
+                5
+            ],
+            "x": 512975.02823187213,
+            "y": 187510.1921399146,
+            "entries": 7125,
+            "exits": 6970
+        },
+        "940GZZLUEAE": {
+            "name": "Eastcote Underground Station",
+            "zone": 5,
+            "lat": 51.576506,
+            "lon": -0.397373,
+            "zones": [
+                5
+            ],
+            "x": 511153.0174284132,
+            "y": 187621.14035057346,
+            "entries": 4994,
+            "exits": 4866
+        },
+        "940GZZLURSM": {
+            "name": "Ruislip Manor Underground Station",
+            "zone": 6,
+            "lat": 51.573202,
+            "lon": -0.412973,
+            "zones": [
+                6
+            ],
+            "x": 510080.0296860385,
+            "y": 187230.13338300423,
+            "entries": 3246,
+            "exits": 3263
+        },
+        "940GZZLURSP": {
+            "name": "Ruislip Underground Station",
+            "zone": 6,
+            "lat": 51.571354,
+            "lon": -0.421898,
+            "zones": [
+                6
+            ],
+            "x": 509465.9839258392,
+            "y": 187011.2362537448,
+            "entries": 3258,
+            "exits": 3297
+        },
+        "940GZZLUICK": {
+            "name": "Ickenham Underground Station",
+            "zone": 6,
+            "lat": 51.56177,
+            "lon": -0.442225,
+            "zones": [
+                6
+            ],
+            "x": 508080.0144704173,
+            "y": 185915.21230547474,
+            "entries": 1905,
+            "exits": 1938
+        },
+        "940GZZLUHGD": {
+            "name": "Hillingdon Underground Station",
+            "zone": 6,
+            "lat": 51.553715,
+            "lon": -0.449828,
+            "zones": [
+                6
+            ],
+            "x": 507571.99521124084,
+            "y": 185008.23138118535,
+            "entries": 2993,
+            "exits": 2594
+        },
+        "940GZZLUUXB": {
+            "name": "Uxbridge Underground Station",
+            "zone": 6,
+            "lat": 51.546565,
+            "lon": -0.477949,
+            "zones": [
+                6
+            ],
+            "x": 505638.9792334044,
+            "y": 184172.15081217955,
+            "entries": 13854,
+            "exits": 13576
+        },
+        "940GZZLUCXY": {
+            "name": "Croxley Underground Station",
+            "zone": 7,
+            "lat": 51.647044,
+            "lon": -0.441718,
+            "zones": [
+                7
+            ],
+            "x": 507913.0025362614,
+            "y": 195399.21679283312,
+            "entries": 2054,
+            "exits": 1982
+        },
+        "940GZZLUWAF": {
+            "name": "Watford Underground Station",
+            "zone": 7,
+            "lat": 51.657446,
+            "lon": -0.417377,
+            "zones": [
+                7
+            ],
+            "x": 509571.9783545098,
+            "y": 196592.2214546156,
+            "entries": 3541,
+            "exits": 3263
+        },
+        "940GZZLUHBT": {
+            "name": "High Barnet Underground Station",
+            "zone": 5,
+            "lat": 51.650541,
+            "lon": -0.194298,
+            "zones": [
+                5
+            ],
+            "x": 525020.976690412,
+            "y": 196182.2250940486,
+            "entries": 7038,
+            "exits": 6671
+        },
+        "940GZZLUTAW": {
+            "name": "Totteridge & Whetstone Underground Station",
+            "zone": 4,
+            "lat": 51.630597,
+            "lon": -0.17921,
+            "zones": [
+                4
+            ],
+            "x": 526120.0105944765,
+            "y": 193990.23376003315,
+            "entries": 4432,
+            "exits": 4135
+        },
+        "940GZZLUWOP": {
+            "name": "Woodside Park Underground Station",
+            "zone": 4,
+            "lat": 51.618014,
+            "lon": -0.18542,
+            "zones": [
+                4
+            ],
+            "x": 525724.9760387291,
+            "y": 192580.2337951759,
+            "entries": 6509,
+            "exits": 8157
+        },
+        "940GZZLUWFN": {
+            "name": "West Finchley Underground Station",
+            "zone": 4,
+            "lat": 51.609426,
+            "lon": -0.188362,
+            "zones": [
+                4
+            ],
+            "x": 525544.983150194,
+            "y": 191620.14277964103,
+            "entries": 2856,
+            "exits": 2718
+        },
+        "940GZZLUFYC": {
+            "name": "Finchley Central Underground Station",
+            "zone": 4,
+            "lat": 51.600921,
+            "lon": -0.192527,
+            "zones": [
+                4
+            ],
+            "x": 525279.984972478,
+            "y": 190667.19557192706,
+            "entries": 14583,
+            "exits": 14736
+        },
+        "940GZZLUEFY": {
+            "name": "East Finchley Underground Station",
+            "zone": 3,
+            "lat": 51.587131,
+            "lon": -0.165012,
+            "zones": [
+                3
+            ],
+            "x": 527223.9863550115,
+            "y": 189181.14989227685,
+            "entries": 11879,
+            "exits": 11346
+        },
+        "940GZZLUHGT": {
+            "name": "Highgate Underground Station",
+            "zone": 3,
+            "lat": 51.577532,
+            "lon": -0.145857,
+            "zones": [
+                3
+            ],
+            "x": 528578.00393409,
+            "y": 188147.1730005009,
+            "entries": 9356,
+            "exits": 9376
+        },
+        "940GZZLUACY": {
+            "name": "Archway Underground Station",
+            "zone": 2,
+            "lat": 51.565478,
+            "lon": -0.134819,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 529377.0034998754,
+            "y": 186826.16452894,
+            "entries": 14483,
+            "exits": 14518
+        },
+        "940GZZLUTFP": {
+            "name": "Tufnell Park Underground Station",
+            "zone": 2,
+            "lat": 51.556822,
+            "lon": -0.138433,
+            "zones": [
+                2
+            ],
+            "x": 529151.0298263445,
+            "y": 185857.1962874935,
+            "entries": 6779,
+            "exits": 6155
+        },
+        "940GZZLUKSH": {
+            "name": "Kentish Town Underground Station",
+            "zone": 2,
+            "lat": 51.550312,
+            "lon": -0.140733,
+            "zones": [
+                2
+            ],
+            "x": 529009.9959451826,
+            "y": 185129.20014814672,
+            "entries": 13713,
+            "exits": 13082
+        },
+        "940GZZLUCTN": {
+            "name": "Camden Town Underground Station",
+            "zone": 2,
+            "lat": 51.539292,
+            "lon": -0.14274,
+            "zones": [
+                2
+            ],
+            "x": 528901.9643769169,
+            "y": 183900.19409193296,
+            "entries": 27568,
+            "exits": 28299
+        },
+        "940GZZLUEUS": {
+            "name": "Euston Underground Station",
+            "zone": 1,
+            "lat": 51.527824,
+            "lon": -0.131846,
+            "zones": [
+                1
+            ],
+            "x": 529689.9922466597,
+            "y": 182644.14307734987,
+            "entries": 65024,
+            "exits": 64466
+        },
+        "940GZZLUAGL": {
+            "name": "Angel Underground Station",
+            "zone": 1,
+            "lat": 51.532624,
+            "lon": -0.105898,
+            "zones": [
+                1
+            ],
+            "x": 531476.0330957373,
+            "y": 183224.19398684497,
+            "entries": 28869,
+            "exits": 29236
+        },
+        "940GZZLUODS": {
+            "name": "Old Street Underground Station",
+            "zone": 1,
+            "lat": 51.525864,
+            "lon": -0.08777,
+            "zones": [
+                1
+            ],
+            "x": 532752.9765418649,
+            "y": 182505.1663841784,
+            "entries": 46732,
+            "exits": 46239
+        },
+        "940GZZLUBOR": {
+            "name": "Borough Underground Station",
+            "zone": 1,
+            "lat": 51.501199,
+            "lon": -0.09337,
+            "zones": [
+                1
+            ],
+            "x": 532435.9826362315,
+            "y": 179752.20647198678,
+            "entries": 9456,
+            "exits": 9304
+        },
+        "940GZZLUKNG": {
+            "name": "Kennington Underground Station",
+            "zone": 1,
+            "lat": 51.488337,
+            "lon": -0.105963,
+            "zones": [
+                1,
+                2
+            ],
+            "x": 531598.9812148779,
+            "y": 178299.22298483318,
+            "entries": 9056,
+            "exits": 8450
+        },
+        "940GZZLUOVL": {
+            "name": "Oval Underground Station",
+            "zone": 2,
+            "lat": 51.48185,
+            "lon": -0.112439,
+            "zones": [
+                2
+            ],
+            "x": 531167.9899875858,
+            "y": 177566.23828432668,
+            "entries": 11938,
+            "exits": 11575
+        },
+        "940GZZLUSKW": {
+            "name": "Stockwell Underground Station",
+            "zone": 2,
+            "lat": 51.472184,
+            "lon": -0.122644,
+            "zones": [
+                2
+            ],
+            "x": 530486.976589626,
+            "y": 176473.13315526315,
+            "entries": 20013,
+            "exits": 15739
+        },
+        "940GZZLUCPN": {
+            "name": "Clapham North Underground Station",
+            "zone": 2,
+            "lat": 51.465135,
+            "lon": -0.130016,
+            "zones": [
+                2
+            ],
+            "x": 529995.0176959074,
+            "y": 175676.16421110934,
+            "entries": 8260,
+            "exits": 10618
+        },
+        "940GZZLUCPC": {
+            "name": "Clapham Common Underground Station",
+            "zone": 2,
+            "lat": 51.461742,
+            "lon": -0.138317,
+            "zones": [
+                2
+            ],
+            "x": 529428.0259079251,
+            "y": 175284.16259158653,
+            "entries": 13604,
+            "exits": 16290
+        },
+        "940GZZLUCPS": {
+            "name": "Clapham South Underground Station",
+            "zone": 2,
+            "lat": 51.452654,
+            "lon": -0.147582,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 528809.995695732,
+            "y": 174257.23149119405,
+            "entries": 13189,
+            "exits": 13303
+        },
+        "940GZZLUBLM": {
+            "name": "Balham Underground Station",
+            "zone": 3,
+            "lat": 51.443288,
+            "lon": -0.152997,
+            "zones": [
+                3
+            ],
+            "x": 528460.0311012602,
+            "y": 173206.2053268458,
+            "entries": 21144,
+            "exits": 21292
+        },
+        "940GZZLUTBC": {
+            "name": "Tooting Bec Underground Station",
+            "zone": 3,
+            "lat": 51.435678,
+            "lon": -0.159736,
+            "zones": [
+                3
+            ],
+            "x": 528012.9763324952,
+            "y": 172348.1665106786,
+            "entries": 12962,
+            "exits": 12025
+        },
+        "940GZZLUTBY": {
+            "name": "Tooting Broadway Underground Station",
+            "zone": 3,
+            "lat": 51.42763,
+            "lon": -0.168374,
+            "zones": [
+                3
+            ],
+            "x": 527434.9695862522,
+            "y": 171438.1618921876,
+            "entries": 25090,
+            "exits": 25102
+        },
+        "940GZZLUCSD": {
+            "name": "Colliers Wood Underground Station",
+            "zone": 3,
+            "lat": 51.41816,
+            "lon": -0.178086,
+            "zones": [
+                3
+            ],
+            "x": 526786.0057475775,
+            "y": 170368.24006603286,
+            "entries": 11364,
+            "exits": 10643
+        },
+        "940GZZLUSWN": {
+            "name": "South Wimbledon Underground Station",
+            "zone": 3,
+            "lat": 51.415309,
+            "lon": -0.192005,
+            "zones": [
+                3,
+                4
+            ],
+            "x": 525826.0212318976,
+            "y": 170027.23141079833,
+            "entries": 8092,
+            "exits": 7261
+        },
+        "940GZZLUMDN": {
+            "name": "Morden Underground Station",
+            "zone": 4,
+            "lat": 51.402142,
+            "lon": -0.194839,
+            "zones": [
+                4
+            ],
+            "x": 525665.0203215603,
+            "y": 168558.16805967118,
+            "entries": 16833,
+            "exits": 15300
+        },
+        "940GZZLUMTC": {
+            "name": "Mornington Crescent Underground Station",
+            "zone": 2,
+            "lat": 51.534679,
+            "lon": -0.138789,
+            "zones": [
+                2
+            ],
+            "x": 529189.0044089498,
+            "y": 183394.1729536935,
+            "entries": 7155,
+            "exits": 6546
+        },
+        "940GZZLUWRR": {
+            "name": "Warren Street Underground Station",
+            "zone": 1,
+            "lat": 51.524951,
+            "lon": -0.138321,
+            "zones": [
+                1
+            ],
+            "x": 529248.987690698,
+            "y": 182313.206731372,
+            "entries": 31026,
+            "exits": 33494
+        },
+        "940GZZLUGDG": {
+            "name": "Goodge Street Underground Station",
+            "zone": 1,
+            "lat": 51.520599,
+            "lon": -0.134361,
+            "zones": [
+                1
+            ],
+            "x": 529536.0265134803,
+            "y": 181836.24447375315,
+            "entries": 15404,
+            "exits": 15092
+        },
+        "940GZZLULSQ": {
+            "name": "Leicester Square Underground Station",
+            "zone": 1,
+            "lat": 51.511386,
+            "lon": -0.128426,
+            "zones": [
+                1
+            ],
+            "x": 529973.9702880728,
+            "y": 180822.24018524162,
+            "entries": 48491,
+            "exits": 45077
+        },
+        "940GZZLUEGW": {
+            "name": "Edgware Underground Station",
+            "zone": 5,
+            "lat": 51.613653,
+            "lon": -0.274928,
+            "zones": [
+                5
+            ],
+            "x": 519539.97980379604,
+            "y": 191945.1951488807,
+            "entries": 8270,
+            "exits": 7947
+        },
+        "940GZZLUBTK": {
+            "name": "Burnt Oak Underground Station",
+            "zone": 4,
+            "lat": 51.602774,
+            "lon": -0.264048,
+            "zones": [
+                4
+            ],
+            "x": 520321.9883073908,
+            "y": 190753.2097342604,
+            "entries": 7213,
+            "exits": 6784
+        },
+        "940GZZLUCND": {
+            "name": "Colindale Underground Station",
+            "zone": 4,
+            "lat": 51.595424,
+            "lon": -0.249919,
+            "zones": [
+                4
+            ],
+            "x": 521320.0078584746,
+            "y": 189959.17223793268,
+            "entries": 13156,
+            "exits": 12547
+        },
+        "940GZZLUHCL": {
+            "name": "Hendon Central Underground Station",
+            "zone": 3,
+            "lat": 51.583301,
+            "lon": -0.226424,
+            "zones": [
+                3,
+                4
+            ],
+            "x": 522980.03049202333,
+            "y": 188650.23882119328,
+            "entries": 12643,
+            "exits": 11849
+        },
+        "940GZZLUBTX": {
+            "name": "Brent Cross Underground Station",
+            "zone": 3,
+            "lat": 51.57665,
+            "lon": -0.213622,
+            "zones": [
+                3
+            ],
+            "x": 523885.03068468074,
+            "y": 187932.20092439814,
+            "entries": 4060,
+            "exits": 3856
+        },
+        "940GZZLUGGN": {
+            "name": "Golders Green Underground Station",
+            "zone": 3,
+            "lat": 51.572259,
+            "lon": -0.194039,
+            "zones": [
+                3
+            ],
+            "x": 525254.007620241,
+            "y": 187477.229408851,
+            "entries": 13044,
+            "exits": 12800
+        },
+        "940GZZLUHTD": {
+            "name": "Hampstead Underground Station",
+            "zone": 2,
+            "lat": 51.556239,
+            "lon": -0.177464,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 526447.0036521379,
+            "y": 185724.22093527287,
+            "entries": 7128,
+            "exits": 7627
+        },
+        "940GZZLUBZP": {
+            "name": "Belsize Park Underground Station",
+            "zone": 2,
+            "lat": 51.550311,
+            "lon": -0.164648,
+            "zones": [
+                2
+            ],
+            "x": 527351.9673685344,
+            "y": 185087.21512565896,
+            "entries": 10252,
+            "exits": 8779
+        },
+        "940GZZLUCFM": {
+            "name": "Chalk Farm Underground Station",
+            "zone": 2,
+            "lat": 51.544118,
+            "lon": -0.153388,
+            "zones": [
+                2
+            ],
+            "x": 528150.0115188819,
+            "y": 184418.1739417347,
+            "entries": 8973,
+            "exits": 7797
+        },
+        "940GZZLUMHL": {
+            "name": "Mill Hill East Underground Station",
+            "zone": 4,
+            "lat": 51.608229,
+            "lon": -0.209986,
+            "zones": [
+                4
+            ],
+            "x": 524050.9838751523,
+            "y": 191450.13741099485,
+            "entries": 2641,
+            "exits": 2382
+        },
+        "940GZZNEUGST": {
+            "name": "Nine Elms Underground Station",
+            "zone": 1,
+            "lat": 51.479912,
+            "lon": -0.128476,
+            "zones": [
+                1
+            ],
+            "x": 530059.9858419788,
+            "y": 177322.14104896347,
+            "entries": null,
+            "exits": null
+        },
+        "940GZZBPSUST": {
+            "name": "Battersea Power Station Underground Station",
+            "zone": 1,
+            "lat": 51.479932,
+            "lon": -0.142142,
+            "zones": [
+                1
+            ],
+            "x": 529111.0023546914,
+            "y": 177300.19776478258,
+            "entries": null,
+            "exits": null
+        },
+        "940GZZLUCKS": {
+            "name": "Cockfosters Underground Station",
+            "zone": 5,
+            "lat": 51.65152,
+            "lon": -0.149171,
+            "zones": [
+                5
+            ],
+            "x": 528140.0035393448,
+            "y": 196369.23190775682,
+            "entries": 2905,
+            "exits": 2882
+        },
+        "940GZZLUOAK": {
+            "name": "Oakwood Underground Station",
+            "zone": 5,
+            "lat": 51.647726,
+            "lon": -0.132182,
+            "zones": [
+                5
+            ],
+            "x": 529326.023471869,
+            "y": 195977.23237424588,
+            "entries": 4391,
+            "exits": 4272
+        },
+        "940GZZLUSGT": {
+            "name": "Southgate Underground Station",
+            "zone": 4,
+            "lat": 51.632315,
+            "lon": -0.127816,
+            "zones": [
+                4
+            ],
+            "x": 529671.9905516652,
+            "y": 194271.17406735872,
+            "entries": 8715,
+            "exits": 8990
+        },
+        "940GZZLUASG": {
+            "name": "Arnos Grove Underground Station",
+            "zone": 4,
+            "lat": 51.616446,
+            "lon": -0.133062,
+            "zones": [
+                4
+            ],
+            "x": 529354.0286535593,
+            "y": 192497.16417885892,
+            "entries": 7419,
+            "exits": 6733
+        },
+        "940GZZLUBDS": {
+            "name": "Bounds Green Underground Station",
+            "zone": 3,
+            "lat": 51.607034,
+            "lon": -0.124235,
+            "zones": [
+                3,
+                4
+            ],
+            "x": 529991.9798247997,
+            "y": 191466.1497753939,
+            "entries": 9930,
+            "exits": 9342
+        },
+        "940GZZLUWOG": {
+            "name": "Wood Green Underground Station",
+            "zone": 3,
+            "lat": 51.597479,
+            "lon": -0.109886,
+            "zones": [
+                3
+            ],
+            "x": 531013.0326767028,
+            "y": 190429.1855164012,
+            "entries": 19197,
+            "exits": 18571
+        },
+        "940GZZLUTPN": {
+            "name": "Turnpike Lane Underground Station",
+            "zone": 3,
+            "lat": 51.590272,
+            "lon": -0.102953,
+            "zones": [
+                3
+            ],
+            "x": 531513.9970913981,
+            "y": 189640.17322927638,
+            "entries": 16701,
+            "exits": 16844
+        },
+        "940GZZLUMRH": {
+            "name": "Manor House Underground Station",
+            "zone": 2,
+            "lat": 51.570738,
+            "lon": -0.096118,
+            "zones": [
+                2,
+                3
+            ],
+            "x": 532044.0160305758,
+            "y": 187480.21855957154,
+            "entries": 13657,
+            "exits": 13315
+        },
+        "940GZZLUFPK": {
+            "name": "Finsbury Park Underground Station",
+            "zone": 2,
+            "lat": 51.564158,
+            "lon": -0.106825,
+            "zones": [
+                2
+            ],
+            "x": 531320.9788916961,
+            "y": 186729.23103059403,
+            "entries": 64883,
+            "exits": 43780
+        },
+        "940GZZLUASL": {
+            "name": "Arsenal Underground Station",
+            "zone": 2,
+            "lat": 51.558655,
+            "lon": -0.107457,
+            "zones": [
+                2
+            ],
+            "x": 531293.012013675,
+            "y": 186116.14138970867,
+            "entries": 4542,
+            "exits": 4169
+        },
+        "940GZZLUHWY": {
+            "name": "Holloway Road Underground Station",
+            "zone": 2,
+            "lat": 51.552697,
+            "lon": -0.113244,
+            "zones": [
+                2
+            ],
+            "x": 530908.9656432102,
+            "y": 185443.2233653032,
+            "entries": 10986,
+            "exits": 10985
+        },
+        "940GZZLUCAR": {
+            "name": "Caledonian Road Underground Station",
+            "zone": 2,
+            "lat": 51.548519,
+            "lon": -0.118493,
+            "zones": [
+                2
+            ],
+            "x": 530557.0235241582,
+            "y": 184969.23912719375,
+            "entries": 9342,
+            "exits": 8862
+        },
+        "940GZZLURSQ": {
+            "name": "Russell Square Underground Station",
+            "zone": 1,
+            "lat": 51.523073,
+            "lon": -0.124285,
+            "zones": [
+                1
+            ],
+            "x": 530227.9984337213,
+            "y": 182129.23231227882,
+            "entries": 19946,
+            "exits": 19722
+        },
+        "940GZZLUCGN": {
+            "name": "Covent Garden Underground Station",
+            "zone": 1,
+            "lat": 51.513093,
+            "lon": -0.124436,
+            "zones": [
+                1
+            ],
+            "x": 530245.9681471118,
+            "y": 181019.15233945014,
+            "entries": 21574,
+            "exits": 24249
+        },
+        "940GZZLUHPC": {
+            "name": "Hyde Park Corner Underground Station",
+            "zone": 1,
+            "lat": 51.503035,
+            "lon": -0.152441,
+            "zones": [
+                1
+            ],
+            "x": 528331.0294818573,
+            "y": 179851.2361892978,
+            "entries": 6428,
+            "exits": 6773
+        },
+        "940GZZLUKNB": {
+            "name": "Knightsbridge Underground Station",
+            "zone": 1,
+            "lat": 51.501669,
+            "lon": -0.160508,
+            "zones": [
+                1
+            ],
+            "x": 527774.9802112326,
+            "y": 179685.23052741686,
+            "entries": 24217,
+            "exits": 23057
+        },
+        "940GZZLUNEN": {
+            "name": "North Ealing Underground Station",
+            "zone": 3,
+            "lat": 51.517505,
+            "lon": -0.288868,
+            "zones": [
+                3
+            ],
+            "x": 518825.0123620271,
+            "y": 181230.2120481435,
+            "entries": 1450,
+            "exits": 1448
+        },
+        "940GZZLUPKR": {
+            "name": "Park Royal Underground Station",
+            "zone": 3,
+            "lat": 51.527123,
+            "lon": -0.284341,
+            "zones": [
+                3
+            ],
+            "x": 519114.02506106906,
+            "y": 182307.14312325866,
+            "entries": 3401,
+            "exits": 3539
+        },
+        "940GZZLUALP": {
+            "name": "Alperton Underground Station",
+            "zone": 4,
+            "lat": 51.540627,
+            "lon": -0.29961,
+            "zones": [
+                4
+            ],
+            "x": 518019.9661486393,
+            "y": 183784.1489924026,
+            "entries": 4491,
+            "exits": 4893
+        },
+        "940GZZLUSUT": {
+            "name": "Sudbury Town Underground Station",
+            "zone": 4,
+            "lat": 51.550815,
+            "lon": -0.315745,
+            "zones": [
+                4
+            ],
+            "x": 516874.9805540171,
+            "y": 184891.24020949955,
+            "entries": 3260,
+            "exits": 2900
+        },
+        "940GZZLUSUH": {
+            "name": "Sudbury Hill Underground Station",
+            "zone": 4,
+            "lat": 51.556946,
+            "lon": -0.336435,
+            "zones": [
+                4
+            ],
+            "x": 515425.01871229155,
+            "y": 185540.22599565686,
+            "entries": 3201,
+            "exits": 3217
+        },
+        "940GZZLUSHH": {
+            "name": "South Harrow Underground Station",
+            "zone": 5,
+            "lat": 51.564888,
+            "lon": -0.352492,
+            "zones": [
+                5
+            ],
+            "x": 514292.02601714164,
+            "y": 186398.2415653331,
+            "entries": 3604,
+            "exits": 3646
+        },
+        "940GZZLUSEA": {
+            "name": "South Ealing Underground Station",
+            "zone": 3,
+            "lat": 51.501003,
+            "lon": -0.307424,
+            "zones": [
+                3
+            ],
+            "x": 517580.0098934013,
+            "y": 179365.15374841966,
+            "entries": 5624,
+            "exits": 5765
+        },
+        "940GZZLUNFD": {
+            "name": "Northfields Underground Station",
+            "zone": 3,
+            "lat": 51.499319,
+            "lon": -0.314719,
+            "zones": [
+                3
+            ],
+            "x": 517078.00089512055,
+            "y": 179166.2010907617,
+            "entries": 6598,
+            "exits": 6530
+        },
+        "940GZZLUBOS": {
+            "name": "Boston Manor Underground Station",
+            "zone": 4,
+            "lat": 51.495635,
+            "lon": -0.324939,
+            "zones": [
+                4
+            ],
+            "x": 516378.0138659508,
+            "y": 178740.23713720858,
+            "entries": 3585,
+            "exits": 3701
+        },
+        "940GZZLUOSY": {
+            "name": "Osterley Underground Station",
+            "zone": 4,
+            "lat": 51.481274,
+            "lon": -0.352224,
+            "zones": [
+                4
+            ],
+            "x": 514519.9716739479,
+            "y": 177100.22307512688,
+            "entries": 3557,
+            "exits": 3603
+        },
+        "940GZZLUHWE": {
+            "name": "Hounslow East Underground Station",
+            "zone": 4,
+            "lat": 51.473213,
+            "lon": -0.356474,
+            "zones": [
+                4
+            ],
+            "x": 514244.9849933636,
+            "y": 176197.15950272605,
+            "entries": 6105,
+            "exits": 6488
+        },
+        "940GZZLUHWC": {
+            "name": "Hounslow Central Underground Station",
+            "zone": 4,
+            "lat": 51.471295,
+            "lon": -0.366578,
+            "zones": [
+                4
+            ],
+            "x": 513548.0284560078,
+            "y": 175968.16622863762,
+            "entries": 5937,
+            "exits": 5962
+        },
+        "940GZZLUHWT": {
+            "name": "Hounslow West Underground Station",
+            "zone": 5,
+            "lat": 51.473469,
+            "lon": -0.386544,
+            "zones": [
+                5
+            ],
+            "x": 512156.0201946201,
+            "y": 176179.18859808624,
+            "entries": 5634,
+            "exits": 5469
+        },
+        "940GZZLUHNX": {
+            "name": "Hatton Cross Underground Station",
+            "zone": 5,
+            "lat": 51.466747,
+            "lon": -0.423191,
+            "zones": [
+                5,
+                6
+            ],
+            "x": 509627.0148731603,
+            "y": 175376.22051096905,
+            "entries": 5315,
+            "exits": 4967
+        },
+        "940GZZLUHRC": {
+            "name": "Heathrow Terminals 2 & 3 Underground Station",
+            "zone": 6,
+            "lat": 51.471235,
+            "lon": -0.452265,
+            "zones": [
+                6
+            ],
+            "x": 507597.0012261304,
+            "y": 175832.24036689545,
+            "entries": 11989,
+            "exits": 10138
+        },
+        "940GZZLUHR5": {
+            "name": "Heathrow Terminal 5 Underground Station",
+            "zone": 6,
+            "lat": 51.470052,
+            "lon": -0.49056,
+            "zones": [
+                6
+            ],
+            "x": 504940.0117888086,
+            "y": 175645.16881130723,
+            "entries": 6931,
+            "exits": 5674
+        },
+        "940GZZLUHR4": {
+            "name": "Heathrow Terminal 4 Underground Station",
+            "zone": 6,
+            "lat": 51.458524,
+            "lon": -0.445771,
+            "zones": [
+                6
+            ],
+            "x": 508078.0237925172,
+            "y": 174428.24240080873,
+            "entries": 3179,
+            "exits": 2718
+        },
+        "940GZZLUWWL": {
+            "name": "Walthamstow Central Underground Station",
+            "zone": 3,
+            "lat": 51.582965,
+            "lon": -0.019885,
+            "zones": [
+                3
+            ],
+            "x": 537290.0059757842,
+            "y": 188980.2004490607,
+            "entries": 30973,
+            "exits": 30115
+        },
+        "940GZZLUBLR": {
+            "name": "Blackhorse Road Underground Station",
+            "zone": 3,
+            "lat": 51.586919,
+            "lon": -0.04115,
+            "zones": [
+                3
+            ],
+            "x": 535804.9985077695,
+            "y": 189380.21154746716,
+            "entries": 16360,
+            "exits": 15418
+        },
+        "940GZZLUTMH": {
+            "name": "Tottenham Hale Underground Station",
+            "zone": 3,
+            "lat": 51.588108,
+            "lon": -0.060241,
+            "zones": [
+                3
+            ],
+            "x": 534478.9887537935,
+            "y": 189477.16926289647,
+            "entries": 22688,
+            "exits": 21679
+        },
+        "940GZZLUSVS": {
+            "name": "Seven Sisters Underground Station",
+            "zone": 3,
+            "lat": 51.58333,
+            "lon": -0.072584,
+            "zones": [
+                3
+            ],
+            "x": 533637.9739647182,
+            "y": 188923.22181730875,
+            "entries": 27477,
+            "exits": 25773
+        },
+        "940GZZLUHAI": {
+            "name": "Highbury & Islington Underground Station",
+            "zone": 2,
+            "lat": 51.54635,
+            "lon": -0.103324,
+            "zones": [
+                2
+            ],
+            "x": 531614.9830602941,
+            "y": 184755.19975467457,
+            "entries": 27099,
+            "exits": 28673
+        },
+        "940GZZLUPCO": {
+            "name": "Pimlico Underground Station",
+            "zone": 1,
+            "lat": 51.489097,
+            "lon": -0.133761,
+            "zones": [
+                1
+            ],
+            "x": 529666.9747181843,
+            "y": 178334.1744811182,
+            "entries": 18435,
+            "exits": 17199
+        },
+        "940GZZLUVXL": {
+            "name": "Vauxhall Underground Station",
+            "zone": 1,
+            "lat": 51.485743,
+            "lon": -0.124204,
+            "zones": [
+                1,
+                2
+            ],
+            "x": 530340.0074551541,
+            "y": 177978.15653187578,
+            "entries": 53083,
+            "exits": 51827
+        },
+        "940GZZLUBXN": {
+            "name": "Brixton Underground Station",
+            "zone": 2,
+            "lat": 51.462618,
+            "lon": -0.114888,
+            "zones": [
+                2
+            ],
+            "x": 531053.0046888058,
+            "y": 175423.20807721448,
+            "entries": 52678,
+            "exits": 49567
+        }
+    },
+    "edges": [
+        [
+            "940GZZLUHAW",
+            "940GZZLUKEN",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKEN",
+            "940GZZLUSKT",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSKT",
+            "940GZZLUNWY",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNWY",
+            "940GZZLUWYC",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWYC",
+            "940GZZLUSGP",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSGP",
+            "940GZZLUHSN",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHSN",
+            "940GZZLUWJN",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWJN",
+            "940GZZLUKSL",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSL",
+            "940GZZLUQPS",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUQPS",
+            "940GZZLUKPK",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKPK",
+            "940GZZLUMVL",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMVL",
+            "940GZZLUWKA",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWKA",
+            "940GZZLUPAC",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPAC",
+            "940GZZLUERB",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPAC",
+            "940GZZLUERC",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPAC",
+            "940GZZLUBWT",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPAC",
+            "940GZZLURYO",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUERB",
+            "940GZZLUMYB",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMYB",
+            "940GZZLUBST",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBST",
+            "940GZZLURGP",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBST",
+            "940GZZLUGPS",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBST",
+            "940GZZLUERC",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBST",
+            "940GZZLUBND",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBST",
+            "940GZZLUSJW",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBST",
+            "940GZZLUFYR",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLURGP",
+            "940GZZLUOXC",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOXC",
+            "940GZZLUPCC",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOXC",
+            "940GZZLUTCR",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOXC",
+            "940GZZLUBND",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOXC",
+            "940GZZLUWRR",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOXC",
+            "940GZZLUGPK",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPCC",
+            "940GZZLUCHX",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPCC",
+            "940GZZLULSQ",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPCC",
+            "940GZZLUGPK",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCHX",
+            "940GZZLUEMB",
+            {
+                "lines": [
+                    "northern",
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCHX",
+            "940GZZLULSQ",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEMB",
+            "940GZZLUWLO",
+            {
+                "lines": [
+                    "northern",
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEMB",
+            "940GZZLUWSM",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEMB",
+            "940GZZLUTMP",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWLO",
+            "940GZZLULBN",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWLO",
+            "940GZZLUSWK",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWLO",
+            "940GZZLUWSM",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWLO",
+            "940GZZLUKNG",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWLO",
+            "940GZZLUBNK",
+            {
+                "lines": [
+                    "waterloo-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLULBN",
+            "940GZZLUEAC",
+            {
+                "lines": [
+                    "bakerloo"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEAC",
+            "940GZZLUBOR",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEAC",
+            "940GZZLUKNG",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEPG",
+            "940GZZLUTHB",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTHB",
+            "940GZZLUDBN",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUDBN",
+            "940GZZLULGN",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLULGN",
+            "940GZZLUBKH",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBKH",
+            "940GZZLUWOF",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWOF",
+            "940GZZLUSWF",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWOF",
+            "940GZZLURVY",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSWF",
+            "940GZZLUSNB",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSNB",
+            "940GZZLULYS",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLULYS",
+            "940GZZLULYN",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLULYS",
+            "940GZZLUWSD",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLULYN",
+            "940GZZLUSTD",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSTD",
+            "940GZZLUMED",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSTD",
+            "940GZZLUWHM",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMED",
+            "940GZZLUBLG",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMED",
+            "940GZZLUBWR",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMED",
+            "940GZZLUSGN",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBLG",
+            "940GZZLULVT",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLULVT",
+            "940GZZLUBNK",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLULVT",
+            "940GZZLUALD",
+            {
+                "lines": [
+                    "circle",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLULVT",
+            "940GZZLUMGT",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLULVT",
+            "940GZZLUADE",
+            {
+                "lines": [
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBNK",
+            "940GZZLUSPU",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBNK",
+            "940GZZLUMGT",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBNK",
+            "940GZZLULNB",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBNK",
+            "940GZZLUCST",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBNK",
+            "940GZZLUTWH",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSPU",
+            "940GZZLUCHL",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCHL",
+            "940GZZLUHBN",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHBN",
+            "940GZZLUTCR",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHBN",
+            "940GZZLURSQ",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHBN",
+            "940GZZLUCGN",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTCR",
+            "940GZZLUGDG",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTCR",
+            "940GZZLULSQ",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBND",
+            "940GZZLUMBA",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBND",
+            "940GZZLUGPK",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMBA",
+            "940GZZLULGT",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLULGT",
+            "940GZZLUQWY",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUQWY",
+            "940GZZLUNHG",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNHG",
+            "940GZZLUHPK",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNHG",
+            "940GZZLUBWT",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNHG",
+            "940GZZLUHSK",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHPK",
+            "940GZZLUSBC",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSBC",
+            "940GZZLUWCY",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWCY",
+            "940GZZLUEAN",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEAN",
+            "940GZZLUNAN",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNAN",
+            "940GZZLUHGR",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNAN",
+            "940GZZLUWTA",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHGR",
+            "940GZZLUPVL",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPVL",
+            "940GZZLUGFD",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGFD",
+            "940GZZLUNHT",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNHT",
+            "940GZZLUSRP",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSRP",
+            "940GZZLURSG",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLURSG",
+            "940GZZLUWRP",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHLT",
+            "940GZZLUFLP",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHLT",
+            "940GZZLUGGH",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFLP",
+            "940GZZLUBKE",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBKE",
+            "940GZZLUNBP",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNBP",
+            "940GZZLUGTH",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGTH",
+            "940GZZLURBG",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLURBG",
+            "940GZZLUWSD",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGGH",
+            "940GZZLUCWL",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCWL",
+            "940GZZLURVY",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWTA",
+            "940GZZLUEBY",
+            {
+                "lines": [
+                    "central"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEBY",
+            "940GZZLUECM",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHSK",
+            "940GZZLUGTR",
+            {
+                "lines": [
+                    "circle"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHSK",
+            "940GZZLUECT",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGTR",
+            "940GZZLUSKS",
+            {
+                "lines": [
+                    "circle",
+                    "piccadilly",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGTR",
+            "940GZZLUECT",
+            {
+                "lines": [
+                    "piccadilly",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSKS",
+            "940GZZLUSSQ",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSKS",
+            "940GZZLUKNB",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSSQ",
+            "940GZZLUVIC",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUVIC",
+            "940GZZLUSJP",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUVIC",
+            "940GZZLUGPK",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUVIC",
+            "940GZZLUPCO",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSJP",
+            "940GZZLUWSM",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWSM",
+            "940GZZLUGPK",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTMP",
+            "940GZZLUBKF",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBKF",
+            "940GZZLUMSH",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMSH",
+            "940GZZLUCST",
+            {
+                "lines": [
+                    "circle",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTWH",
+            "940GZZLUALD",
+            {
+                "lines": [
+                    "circle"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTWH",
+            "940GZZLUADE",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMGT",
+            "940GZZLUBBN",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMGT",
+            "940GZZLUODS",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBBN",
+            "940GZZLUFCN",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFCN",
+            "940GZZLUKSX",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSX",
+            "940GZZLUESQ",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSX",
+            "940GZZLUEUS",
+            {
+                "lines": [
+                    "northern",
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSX",
+            "940GZZLUAGL",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSX",
+            "940GZZLUCAR",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSX",
+            "940GZZLURSQ",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSX",
+            "940GZZLUHAI",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUESQ",
+            "940GZZLUGPS",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLURYO",
+            "940GZZLUWSP",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWSP",
+            "940GZZLULAD",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLULAD",
+            "940GZZLULRD",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLULRD",
+            "940GZZLUWLA",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWLA",
+            "940GZZLUSBM",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSBM",
+            "940GZZLUGHK",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGHK",
+            "940GZZLUHSC",
+            {
+                "lines": [
+                    "circle",
+                    "hammersmith-city"
+                ]
+            }
+        ],
+        [
+            "940GZZLUUPM",
+            "940GZZLUUPB",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUUPB",
+            "940GZZLUHCH",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHCH",
+            "940GZZLUEPK",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEPK",
+            "940GZZLUDGE",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUDGE",
+            "940GZZLUDGY",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUDGY",
+            "940GZZLUBEC",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBEC",
+            "940GZZLUUPY",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUUPY",
+            "940GZZLUBKG",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBKG",
+            "940GZZLUEHM",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEHM",
+            "940GZZLUUPK",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUUPK",
+            "940GZZLUPLW",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPLW",
+            "940GZZLUWHM",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWHM",
+            "940GZZLUBBB",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWHM",
+            "940GZZLUCGT",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBBB",
+            "940GZZLUBWR",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSGN",
+            "940GZZLUWPL",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWPL",
+            "940GZZLUADE",
+            {
+                "lines": [
+                    "hammersmith-city",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUECT",
+            "940GZZLUWKN",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUECT",
+            "940GZZLUWBN",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUECT",
+            "940GZZLUKOY",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUECT",
+            "940GZZLUBSC",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWKN",
+            "940GZZLUBSC",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBSC",
+            "940GZZLUHSD",
+            {
+                "lines": [
+                    "piccadilly",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHSD",
+            "940GZZLURVP",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHSD",
+            "940GZZLUTNG",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLURVP",
+            "940GZZLUSFB",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSFB",
+            "940GZZLUTNG",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTNG",
+            "940GZZLUCWP",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTNG",
+            "940GZZLUGBY",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTNG",
+            "940GZZLUACT",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCWP",
+            "940GZZLUACT",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUACT",
+            "940GZZLUECM",
+            {
+                "lines": [
+                    "piccadilly",
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUACT",
+            "940GZZLUSEA",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUECM",
+            "940GZZLUNEN",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGBY",
+            "940GZZLUKWG",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKWG",
+            "940GZZLURMD",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWBN",
+            "940GZZLUFBY",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFBY",
+            "940GZZLUPSG",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPSG",
+            "940GZZLUPYB",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPYB",
+            "940GZZLUEPY",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEPY",
+            "940GZZLUSFS",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSFS",
+            "940GZZLUWIP",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWIP",
+            "940GZZLUWIM",
+            {
+                "lines": [
+                    "district"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCGT",
+            "940GZZLUNGW",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNGW",
+            "940GZZLUCYF",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCYF",
+            "940GZZLUCWR",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCWR",
+            "940GZZLUBMY",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBMY",
+            "940GZZLULNB",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLULNB",
+            "940GZZLUSWK",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLULNB",
+            "940GZZLUBOR",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGPK",
+            "940GZZLUHPC",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSJW",
+            "940GZZLUSWC",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSWC",
+            "940GZZLUFYR",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFYR",
+            "940GZZLUWHP",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFYR",
+            "940GZZLUWIG",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFYR",
+            "940GZZLUWYP",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWHP",
+            "940GZZLUKBN",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKBN",
+            "940GZZLUWIG",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWIG",
+            "940GZZLUDOH",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWIG",
+            "940GZZLUWYP",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUDOH",
+            "940GZZLUNDN",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNDN",
+            "940GZZLUWYP",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWYP",
+            "940GZZLUKBY",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWYP",
+            "940GZZLUPRD",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKBY",
+            "940GZZLUQBY",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUQBY",
+            "940GZZLUCPK",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCPK",
+            "940GZZLUSTM",
+            {
+                "lines": [
+                    "jubilee"
+                ]
+            }
+        ],
+        [
+            "940GZZLUAMS",
+            "940GZZLUCAL",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCAL",
+            "940GZZLUCYD",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCAL",
+            "940GZZLUCSM",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCYD",
+            "940GZZLURKW",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLURKW",
+            "940GZZLUMPK",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMPK",
+            "940GZZLUNOW",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMPK",
+            "940GZZLUCXY",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNOW",
+            "940GZZLUNWH",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNWH",
+            "940GZZLUPNR",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPNR",
+            "940GZZLUNHA",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNHA",
+            "940GZZLUHOH",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHOH",
+            "940GZZLUNKP",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHOH",
+            "940GZZLUWHW",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNKP",
+            "940GZZLUPRD",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWHW",
+            "940GZZLURYL",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLURYL",
+            "940GZZLUEAE",
+            {
+                "lines": [
+                    "piccadilly",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLURYL",
+            "940GZZLUSHH",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEAE",
+            "940GZZLURSM",
+            {
+                "lines": [
+                    "piccadilly",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLURSM",
+            "940GZZLURSP",
+            {
+                "lines": [
+                    "piccadilly",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLURSP",
+            "940GZZLUICK",
+            {
+                "lines": [
+                    "piccadilly",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUICK",
+            "940GZZLUHGD",
+            {
+                "lines": [
+                    "piccadilly",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHGD",
+            "940GZZLUUXB",
+            {
+                "lines": [
+                    "piccadilly",
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCXY",
+            "940GZZLUWAF",
+            {
+                "lines": [
+                    "metropolitan"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHBT",
+            "940GZZLUTAW",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTAW",
+            "940GZZLUWOP",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWOP",
+            "940GZZLUWFN",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWFN",
+            "940GZZLUFYC",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFYC",
+            "940GZZLUEFY",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFYC",
+            "940GZZLUMHL",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEFY",
+            "940GZZLUHGT",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHGT",
+            "940GZZLUACY",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUACY",
+            "940GZZLUTFP",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTFP",
+            "940GZZLUKSH",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKSH",
+            "940GZZLUCTN",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCTN",
+            "940GZZLUEUS",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCTN",
+            "940GZZLUMTC",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCTN",
+            "940GZZLUCFM",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEUS",
+            "940GZZLUMTC",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEUS",
+            "940GZZLUWRR",
+            {
+                "lines": [
+                    "northern",
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUAGL",
+            "940GZZLUODS",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKNG",
+            "940GZZLUOVL",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUKNG",
+            "940GZZNEUGST",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOVL",
+            "940GZZLUSKW",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSKW",
+            "940GZZLUCPN",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSKW",
+            "940GZZLUVXL",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSKW",
+            "940GZZLUBXN",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCPN",
+            "940GZZLUCPC",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCPC",
+            "940GZZLUCPS",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCPS",
+            "940GZZLUBLM",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBLM",
+            "940GZZLUTBC",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTBC",
+            "940GZZLUTBY",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTBY",
+            "940GZZLUCSD",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCSD",
+            "940GZZLUSWN",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSWN",
+            "940GZZLUMDN",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWRR",
+            "940GZZLUGDG",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLULSQ",
+            "940GZZLUCGN",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUEGW",
+            "940GZZLUBTK",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBTK",
+            "940GZZLUCND",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCND",
+            "940GZZLUHCL",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHCL",
+            "940GZZLUBTX",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBTX",
+            "940GZZLUGGN",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUGGN",
+            "940GZZLUHTD",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHTD",
+            "940GZZLUBZP",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBZP",
+            "940GZZLUCFM",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZNEUGST",
+            "940GZZBPSUST",
+            {
+                "lines": [
+                    "northern"
+                ]
+            }
+        ],
+        [
+            "940GZZLUCKS",
+            "940GZZLUOAK",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOAK",
+            "940GZZLUSGT",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSGT",
+            "940GZZLUASG",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUASG",
+            "940GZZLUBDS",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBDS",
+            "940GZZLUWOG",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWOG",
+            "940GZZLUTPN",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTPN",
+            "940GZZLUMRH",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUMRH",
+            "940GZZLUFPK",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFPK",
+            "940GZZLUASL",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFPK",
+            "940GZZLUSVS",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUFPK",
+            "940GZZLUHAI",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUASL",
+            "940GZZLUHWY",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHWY",
+            "940GZZLUCAR",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHPC",
+            "940GZZLUKNB",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNEN",
+            "940GZZLUPKR",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPKR",
+            "940GZZLUALP",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUALP",
+            "940GZZLUSUT",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSUT",
+            "940GZZLUSUH",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSUH",
+            "940GZZLUSHH",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUSEA",
+            "940GZZLUNFD",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUNFD",
+            "940GZZLUBOS",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBOS",
+            "940GZZLUOSY",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUOSY",
+            "940GZZLUHWE",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHWE",
+            "940GZZLUHWC",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHWC",
+            "940GZZLUHWT",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHWT",
+            "940GZZLUHNX",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHNX",
+            "940GZZLUHRC",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHNX",
+            "940GZZLUHR4",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHRC",
+            "940GZZLUHR5",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUHRC",
+            "940GZZLUHR4",
+            {
+                "lines": [
+                    "piccadilly"
+                ]
+            }
+        ],
+        [
+            "940GZZLUWWL",
+            "940GZZLUBLR",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUBLR",
+            "940GZZLUTMH",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUTMH",
+            "940GZZLUSVS",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ],
+        [
+            "940GZZLUPCO",
+            "940GZZLUVXL",
+            {
+                "lines": [
+                    "victoria"
+                ]
+            }
+        ]
+    ]
+}

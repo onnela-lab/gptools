@@ -123,3 +123,14 @@ with di.defaults(basename="trees"):
         script = "data/aggregate_trees.py"
         manager(name=species, targets=[target], file_dep=[csv_target, script],
                 actions=[["$!", script, csv_target, species, target]])
+
+
+with di.defaults(basename="tube"):
+    url = "http://crowding.data.tfl.gov.uk/Annual%20Station%20Counts/2019/" \
+        "AnnualisedEntryExit_2019.xlsx"
+    entry_exit_target = "data/AnnualisedEntryExit_2019.xlsx"
+    manager(name="entry-exit-data", targets=[entry_exit_target],
+            actions=[["curl", "-L", "-o", "$@", url]], uptodate=[True])
+    target = "data/tube.json"
+    manager(name="graph", targets=[target], file_dep=[entry_exit_target],
+            actions=[["$!", "data/construct_tube_network.py", entry_exit_target, target]])

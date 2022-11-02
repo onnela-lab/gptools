@@ -105,6 +105,7 @@ certifi==2022.9.24
     #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
+    #   pyproj
     #   requests
 cffi==1.15.1
     # via
@@ -223,6 +224,10 @@ entrypoints==0.4
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   jupyter-client
+et-xmlfile==1.1.0
+    # via
+    #   -r doc_requirements.txt
+    #   openpyxl
 exceptiongroup==1.0.0rc9
     # via
     #   -r doc_requirements.txt
@@ -591,6 +596,8 @@ numpy==1.23.4
     #   matplotlib
     #   pandas
     #   scipy
+openpyxl==3.0.10
+    # via -r doc_requirements.txt
 packaging==21.3
     # via
     #   -r doc_requirements.txt
@@ -744,6 +751,8 @@ pyparsing==3.0.9
     #   -r gptools-util/test_requirements.txt
     #   matplotlib
     #   packaging
+pyproj==3.4.0
+    # via -r doc_requirements.txt
 pyrsistent==0.18.1
     # via
     #   -r doc_requirements.txt
