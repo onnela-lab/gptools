@@ -4,6 +4,7 @@ import json
 import logging
 import networkx as nx
 import pandas as pd
+import pathlib
 from pyproj import CRS, Transformer
 import re
 import requests
@@ -17,6 +18,7 @@ NEW_STATIONS = {
     "940GZZBPSUST",  # Battersea Power Station
     "940GZZNEUGST",  # Nine Elms
 }
+# Name lookups to match against the passenger volumes.
 NAME_LOOKUP = {
     "Edgware Road (Bakerloo)": "Edgware Road (Bak)",
     "Edgware Road (Circle Line)": "Edgware Road (DIS)",
@@ -91,7 +93,7 @@ def __main__(args: Optional[list[str]] = None) -> None:
     parser.add_argument("--app_key", help="TfL app key (see https://api-portal.tfl.gov.uk/faq for "
                         "details)")
     parser.add_argument("annualized_entry_exit", help="Excel sheet of station entries and exits")
-    parser.add_argument("output", help="JSON output file")
+    parser.add_argument("output", help="JSON output file", type=pathlib.Path)
     args = parser.parse_args()
 
     if not args.app_key:
@@ -171,8 +173,11 @@ def __main__(args: Optional[list[str]] = None) -> None:
         "edges": list(graph.edges(data=True)),
     }
 
-    with open(args.output, "w") as fp:
+    output: pathlib.Path = args.output
+    with output.open("w") as fp:
         json.dump(data, fp, indent=4, default=encode_set)
+    with output.with_suffix(".raw.json").open("w") as fp:
+        json.dump(lines, fp, indent=4)
 
     print(f"dumped graph with {graph.number_of_nodes()} nodes and {graph.number_of_edges()} edges "
           f"to `{args.output}`")
