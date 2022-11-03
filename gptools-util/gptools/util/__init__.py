@@ -175,3 +175,22 @@ class mutually_exclusive_kwargs:
                 kwargs["given"] = given_key
             return func(*args, **kwargs)
         return _wrapper
+
+
+def encode_one_hot(z: ArrayOrTensor, p: Optional[int] = None) -> ArrayOrTensor:
+    """
+    Encode a vector of integers as a one-hot matrix.
+
+    Args:
+        z: Array of integers.
+        p: Number of classes (defaults to `max(z) + 1`).
+
+    Returns:
+        one_hot: One-hot encoded values.
+    """
+    p = p or z.max() + 1
+    n = z.shape[0]
+    result = dispatch[z].zeros((n, p))
+    result[dispatch[z].arange(n), z] = 1
+    return result
+

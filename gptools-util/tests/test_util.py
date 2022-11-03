@@ -86,3 +86,11 @@ def test_mutually_exclusive_kwargs() -> None:
         _func(b=2)
     with pytest.raises(ValueError):
         _func(a=3, b=2, c=1)
+
+
+def test_encode_one_hot() -> None:
+    x = np.random.randint(5, size=1000)
+    y = util.encode_one_hot(x)
+    assert y.shape == (x.shape[0], x.max() + 1)
+    np.testing.assert_array_equal(x, np.argmax(y, axis=1))
+
