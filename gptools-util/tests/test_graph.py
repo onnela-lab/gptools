@@ -1,4 +1,5 @@
 from gptools.util import graph
+import networkx as nx
 import numbers
 import numpy as np
 import pytest
@@ -88,3 +89,14 @@ def test_check_edge_index_invalid(
 def test_compress_predecessors_invalid_shape():
     with pytest.raises(ValueError):
         graph.compress_predecessors(np.zeros(2))
+
+
+@pytest.mark.parametrize("return_mapping", [False, True])
+def test_edge_index_to_graph_roundtrip(return_mapping: bool) -> None:
+    G = nx.erdos_renyi_graph(10, 0.1)
+    edge_index = graph.graph_to_edge_index(G, indexing="numpy", return_mapping=return_mapping)
+    if return_mapping:
+        edge_index, mapping = edge_index
+        assert isinstance(mapping, dict)
+    H = graph.edge_index_to_graph(edge_index)
+    assert set(map(tuple, G.edges)) == set(map(tuple, H.edges))

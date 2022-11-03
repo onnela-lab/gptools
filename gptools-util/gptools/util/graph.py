@@ -206,5 +206,40 @@ def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) 
     """
     import networkx as nx
     graph = nx.DiGraph()
-    graph.add_edges_from((u, v) for u, v in edge_index.T if u != v and remove_self_loops)
+    graph.add_edges_from(edge_index.T)
+    graph.remove_edges_from(nx.selfloop_edges(graph))
     return graph
+
+
+def graph_to_edge_index(graph: "nx.Graph", add_self_loops: bool = True,
+                        return_mapping: bool = False, indexing: Literal["numpy", "stan"] = "stan") \
+        -> np.ndarray:
+    """
+    Convert a graph to edge indices.
+
+    Args:
+        graph: Graph to convert.
+        add_self_loops: Whether to include self loops.
+        return_mapping: Whether to return the mapping from node labels to indices.
+        indexing: Whether to use zero-based indexing (`numpy`) or one-based indexing (`stan`).
+
+    Returns:
+        edge_index: Tuple of parent and child node labels.
+    """
+    start = 1 if indexing == "stan" else 0
+    mapping = {node: i for i, node in enumerate(sorted(graph), start=start)}
+    edge_index = []
+    for node in sorted(graph):
+        neighbors = graph.neighbors(node)
+        node = mapping[node]
+        if add_self_loops:
+            edge_index.append((node, node))
+        for neighbor in neighbors:
+            neighbor = mapping[neighbor]
+            if neighbor < node:
+                edge_index.append((neighbor, node))
+
+    edge_index = np.transpose(edge_index)
+    if return_mapping:
+        return edge_index, mapping
+    return edge_index
