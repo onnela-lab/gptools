@@ -84,7 +84,7 @@ def encode_set(x: set) -> list:
     Convert a set to a list for JSON encoding.
     """
     if isinstance(x, set):
-        return list(x)
+        return list(sorted(x))
     raise TypeError(type(x))
 
 

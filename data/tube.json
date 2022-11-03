@@ -3671,8 +3671,8 @@
             {
                 "lines": [
                     "circle",
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -3857,8 +3857,8 @@
             "940GZZLUEMB",
             {
                 "lines": [
-                    "northern",
-                    "bakerloo"
+                    "bakerloo",
+                    "northern"
                 ]
             }
         ],
@@ -3876,8 +3876,8 @@
             "940GZZLUWLO",
             {
                 "lines": [
-                    "northern",
-                    "bakerloo"
+                    "bakerloo",
+                    "northern"
                 ]
             }
         ],
@@ -4113,8 +4113,8 @@
             "940GZZLUBWR",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -4123,8 +4123,8 @@
             "940GZZLUSGN",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -4591,8 +4591,8 @@
             {
                 "lines": [
                     "circle",
-                    "piccadilly",
-                    "district"
+                    "district",
+                    "piccadilly"
                 ]
             }
         ],
@@ -4601,8 +4601,8 @@
             "940GZZLUECT",
             {
                 "lines": [
-                    "piccadilly",
-                    "district"
+                    "district",
+                    "piccadilly"
                 ]
             }
         ],
@@ -4987,8 +4987,8 @@
             "940GZZLUEHM",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -4997,8 +4997,8 @@
             "940GZZLUUPK",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -5007,8 +5007,8 @@
             "940GZZLUPLW",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -5017,8 +5017,8 @@
             "940GZZLUWHM",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -5027,8 +5027,8 @@
             "940GZZLUBBB",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -5046,8 +5046,8 @@
             "940GZZLUBWR",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -5056,8 +5056,8 @@
             "940GZZLUWPL",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -5066,8 +5066,8 @@
             "940GZZLUADE",
             {
                 "lines": [
-                    "hammersmith-city",
-                    "district"
+                    "district",
+                    "hammersmith-city"
                 ]
             }
         ],
@@ -5121,8 +5121,8 @@
             "940GZZLUHSD",
             {
                 "lines": [
-                    "piccadilly",
-                    "district"
+                    "district",
+                    "piccadilly"
                 ]
             }
         ],
@@ -5203,8 +5203,8 @@
             "940GZZLUECM",
             {
                 "lines": [
-                    "piccadilly",
-                    "district"
+                    "district",
+                    "piccadilly"
                 ]
             }
         ],
@@ -5663,8 +5663,8 @@
             "940GZZLUEAE",
             {
                 "lines": [
-                    "piccadilly",
-                    "metropolitan"
+                    "metropolitan",
+                    "piccadilly"
                 ]
             }
         ],
@@ -5682,8 +5682,8 @@
             "940GZZLURSM",
             {
                 "lines": [
-                    "piccadilly",
-                    "metropolitan"
+                    "metropolitan",
+                    "piccadilly"
                 ]
             }
         ],
@@ -5692,8 +5692,8 @@
             "940GZZLURSP",
             {
                 "lines": [
-                    "piccadilly",
-                    "metropolitan"
+                    "metropolitan",
+                    "piccadilly"
                 ]
             }
         ],
@@ -5702,8 +5702,8 @@
             "940GZZLUICK",
             {
                 "lines": [
-                    "piccadilly",
-                    "metropolitan"
+                    "metropolitan",
+                    "piccadilly"
                 ]
             }
         ],
@@ -5712,8 +5712,8 @@
             "940GZZLUHGD",
             {
                 "lines": [
-                    "piccadilly",
-                    "metropolitan"
+                    "metropolitan",
+                    "piccadilly"
                 ]
             }
         ],
@@ -5722,8 +5722,8 @@
             "940GZZLUUXB",
             {
                 "lines": [
-                    "piccadilly",
-                    "metropolitan"
+                    "metropolitan",
+                    "piccadilly"
                 ]
             }
         ],
