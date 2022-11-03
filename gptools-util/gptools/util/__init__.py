@@ -10,6 +10,8 @@ from typing import Any, Callable, Iterable, Literal, Optional, Union
 # This tricks pylance into thinking that the imports *could* happen for type checking.
 FALSE = os.environ.get("f1571823-5638-473a-adb5-6f5efb0cb773")
 if FALSE:
+    from matplotlib.axes import Axes
+    from matplotlib.colorbar import Colorbar
     import torch as th
 
 
@@ -75,6 +77,9 @@ class ArrayOrTensorDispatch:
             return th.concat(arrays, dim=axis)
         else:
             return np.concatenate(arrays, axis=axis)
+
+
+dispatch = ArrayOrTensorDispatch()
 
 
 def coordgrid(*xs: Iterable[np.ndarray], ravel: bool = True, indexing: Literal["ij", "xy"] = "ij") \
@@ -194,3 +199,36 @@ def encode_one_hot(z: ArrayOrTensor, p: Optional[int] = None) -> ArrayOrTensor:
     result[dispatch[z].arange(n), z] = 1
     return result
 
+
+def match_colorbar(cb: "Colorbar", ax: Optional["Axes"] = None) -> tuple[float]:
+    """
+    Match the size of the colorbar with the size of the axes.
+
+    Args:
+        ax: Axes from which the colorbar "stole" space.
+        cb: Colorbar to match to `ax`.
+
+    Returns:
+        pos: New position of the colorbar axes.
+    """
+    from matplotlib import pyplot as plt
+
+    ax = ax or plt.gca()
+    bbox = ax.get_position()
+    cb_bbox = cb.ax.get_position()
+    cb.ax.set_aspect("auto")
+    if cb.orientation == "vertical":
+        # Update bottom and height.
+        left = cb_bbox.xmin
+        width = cb_bbox.width
+        bottom = bbox.ymin
+        height = bbox.height
+    else:
+        # Update left and width.
+        left = bbox.xmin
+        width = bbox.width
+        bottom = cb_bbox.ymin
+        height = cb_bbox.height
+    pos = (left, bottom, width, height)
+    cb.ax.set_position(pos)
+    return pos
