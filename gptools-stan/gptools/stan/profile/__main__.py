@@ -59,8 +59,7 @@ def __main__(args: Optional[list[str]] = None) -> None:
                 and (args.timeout is None or total_timer.duration < args.timeout):
             # Generate data from a Gaussian process with normal observation noise.
             X = np.arange(args.n)[:, None]
-            kernel = ExpQuadKernel(args.sigma, args.length_scale, args.n) \
-                + DiagonalKernel(args.epsilon, args.n)
+            kernel = ExpQuadKernel(args.sigma, args.length_scale) + DiagonalKernel(args.epsilon)
             cov = kernel.evaluate(X)
             eta = np.random.multivariate_normal(np.zeros(args.n), cov)
             y = np.random.normal(eta, args.noise_scale)
