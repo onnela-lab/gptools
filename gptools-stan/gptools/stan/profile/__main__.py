@@ -5,6 +5,7 @@ from gptools.stan import compile_model
 from gptools.util import Timer
 from gptools.util.kernels import ExpQuadKernel, DiagonalKernel
 from gptools.util.graph import lattice_predecessors, predecessors_to_edge_index
+from gptools.util.timeout import call_with_timeout
 import numpy as np
 import pathlib
 import pickle
@@ -12,6 +13,15 @@ import tabulate
 from tqdm import tqdm
 from typing import Optional
 from . import PARAMETERIZATIONS
+
+
+def sample_and_load_fit(model: cmdstanpy.CmdStanModel, **kwargs) -> cmdstanpy.CmdStanMCMC:
+    """
+    Wrapper function to sample and load the data so the posterior samples can be serialized.
+    """
+    fit = model.sample(**kwargs)
+    fit.stan_variables()
+    return fit
 
 
 def __main__(args: Optional[list[str]] = None) -> None:
@@ -98,17 +108,17 @@ def __main__(args: Optional[list[str]] = None) -> None:
                     kwargs = {
                         "data": data,
                         "seed": args.seed,
-                        "timeout": args.timeout,
                     }
                     if args.method == "sample":
                         iter_warmup = args.iter_warmup or args.iter_sampling
-                        fit = model.sample(
+                        fit = call_with_timeout(
+                            args.timeout, sample_and_load_fit, model,
                             iter_sampling=args.iter_sampling, chains=1, threads_per_chain=1,
                             show_progress=args.show_progress, iter_warmup=iter_warmup, **kwargs,
                         )
                     elif args.method == "variational":
-                        fit = model.variational(
-                            output_samples=args.iter_sampling,
+                        fit = call_with_timeout(
+                            args.timeout, model.variational, output_samples=args.iter_sampling,
                             require_converged=not args.ignore_converged, **kwargs,
                         )
                     else:  # pragma: no cover
