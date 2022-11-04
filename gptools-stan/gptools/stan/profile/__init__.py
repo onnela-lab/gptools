@@ -14,8 +14,7 @@ for handler in cmdstanpy_logger.handlers:
     handler.setLevel(logging.WARNING)
 
 
-def sample_and_load_fit(model: cmdstanpy.CmdStanModel, **kwargs) -> cmdstanpy.CmdStanMCMC:  \
-        # pragma: no cover
+def sample_and_load_fit(model: cmdstanpy.CmdStanModel, **kwargs) -> cmdstanpy.CmdStanMCMC:  # noqa: E501, pragma: no cover
     """
     Wrapper function to sample and load the data so the posterior samples can be serialized.
     """
