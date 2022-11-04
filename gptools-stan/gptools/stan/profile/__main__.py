@@ -1,6 +1,4 @@
 import argparse
-import logging
-import cmdstanpy
 from gptools.stan import compile_model
 from gptools.util import Timer
 from gptools.util.kernels import ExpQuadKernel, DiagonalKernel
@@ -46,11 +44,6 @@ def __main__(args: Optional[list[str]] = None) -> None:
     parser.add_argument("--ignore_converged", action="store_true",
                         help="do not check if the variational algorithm has converged")
     args = parser.parse_args(args)
-
-    # Make cmdstanpy less verbose.
-    cmdstanpy_logger = cmdstanpy.utils.get_logger()
-    for handler in cmdstanpy_logger.handlers:
-        handler.setLevel(logging.WARNING)
 
     # Compile the model.
     stan_file = pathlib.Path(__file__).parent / f"{args.parameterization}.stan"
