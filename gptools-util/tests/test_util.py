@@ -1,4 +1,5 @@
 from gptools import util
+from matplotlib import pyplot as plt
 import numpy as np
 import pytest
 import re
@@ -86,3 +87,18 @@ def test_mutually_exclusive_kwargs() -> None:
         _func(b=2)
     with pytest.raises(ValueError):
         _func(a=3, b=2, c=1)
+
+
+def test_encode_one_hot() -> None:
+    x = np.random.randint(5, size=1000)
+    y = util.encode_one_hot(x)
+    assert y.shape == (x.shape[0], x.max() + 1)
+    np.testing.assert_array_equal(x, np.argmax(y, axis=1))
+
+
+@pytest.mark.parametrize("location", ["top", "right"])
+def test_match_colorbar(location: str) -> None:
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.random.normal(0, 1, (5, 5)))
+    cb = fig.colorbar(im, ax=ax, location=location)
+    util.match_colorbar(cb)

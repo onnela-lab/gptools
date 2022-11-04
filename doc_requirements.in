@@ -7,6 +7,8 @@ doit_interface
 jupyter
 matplotlib
 myst-nb
+openpyxl
+pyproj
 sphinx
 sphinx_rtd_theme
 sphinx-stan>=0.1.5

@@ -46,7 +46,9 @@ bleach==5.0.1
     #   nbconvert
     #   readme-renderer
 certifi==2022.9.24
-    # via requests
+    # via
+    #   pyproj
+    #   requests
 cffi==1.15.1
     # via argon2-cffi-bindings
 charset-normalizer==2.1.1
@@ -89,6 +91,8 @@ doit-interface==0.1.8
     #   gp-tools-util
 entrypoints==0.4
     # via jupyter-client
+et-xmlfile==1.1.0
+    # via openpyxl
 exceptiongroup==1.0.0rc9
     # via pytest
 executing==1.1.1
@@ -273,6 +277,8 @@ numpy==1.23.4
     #   matplotlib
     #   pandas
     #   scipy
+openpyxl==3.0.10
+    # via -r doc_requirements.in
 packaging==21.3
     # via
     #   ipykernel
@@ -334,6 +340,8 @@ pyparsing==3.0.9
     # via
     #   matplotlib
     #   packaging
+pyproj==3.4.0
+    # via -r doc_requirements.in
 pyrsistent==0.18.1
     # via jsonschema
 pytest==7.2.0

@@ -10,6 +10,8 @@ from typing import Any, Callable, Iterable, Literal, Optional, Union
 # This tricks pylance into thinking that the imports *could* happen for type checking.
 FALSE = os.environ.get("f1571823-5638-473a-adb5-6f5efb0cb773")
 if FALSE:
+    from matplotlib.axes import Axes
+    from matplotlib.colorbar import Colorbar
     import torch as th
 
 
@@ -75,6 +77,9 @@ class ArrayOrTensorDispatch:
             return th.concat(arrays, dim=axis)
         else:
             return np.concatenate(arrays, axis=axis)
+
+
+dispatch = ArrayOrTensorDispatch()
 
 
 def coordgrid(*xs: Iterable[np.ndarray], ravel: bool = True, indexing: Literal["ij", "xy"] = "ij") \
@@ -175,3 +180,55 @@ class mutually_exclusive_kwargs:
                 kwargs["given"] = given_key
             return func(*args, **kwargs)
         return _wrapper
+
+
+def encode_one_hot(z: ArrayOrTensor, p: Optional[int] = None) -> ArrayOrTensor:
+    """
+    Encode a vector of integers as a one-hot matrix.
+
+    Args:
+        z: Array of integers.
+        p: Number of classes (defaults to `max(z) + 1`).
+
+    Returns:
+        one_hot: One-hot encoded values.
+    """
+    p = p or z.max() + 1
+    n = z.shape[0]
+    result = dispatch[z].zeros((n, p))
+    result[dispatch[z].arange(n), z] = 1
+    return result
+
+
+def match_colorbar(cb: "Colorbar", ax: Optional["Axes"] = None) -> tuple[float]:
+    """
+    Match the size of the colorbar with the size of the axes.
+
+    Args:
+        ax: Axes from which the colorbar "stole" space.
+        cb: Colorbar to match to `ax`.
+
+    Returns:
+        pos: New position of the colorbar axes.
+    """
+    from matplotlib import pyplot as plt
+
+    ax = ax or plt.gca()
+    bbox = ax.get_position()
+    cb_bbox = cb.ax.get_position()
+    cb.ax.set_aspect("auto")
+    if cb.orientation == "vertical":
+        # Update bottom and height.
+        left = cb_bbox.xmin
+        width = cb_bbox.width
+        bottom = bbox.ymin
+        height = bbox.height
+    else:
+        # Update left and width.
+        left = bbox.xmin
+        width = bbox.width
+        bottom = cb_bbox.ymin
+        height = cb_bbox.height
+    pos = (left, bottom, width, height)
+    cb.ax.set_position(pos)
+    return pos
