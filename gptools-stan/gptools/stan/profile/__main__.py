@@ -12,16 +12,7 @@ import pickle
 import tabulate
 from tqdm import tqdm
 from typing import Optional
-from . import PARAMETERIZATIONS
-
-
-def sample_and_load_fit(model: cmdstanpy.CmdStanModel, **kwargs) -> cmdstanpy.CmdStanMCMC:
-    """
-    Wrapper function to sample and load the data so the posterior samples can be serialized.
-    """
-    fit = model.sample(**kwargs)
-    fit.stan_variables()
-    return fit
+from . import PARAMETERIZATIONS, sample_and_load_fit
 
 
 def __main__(args: Optional[list[str]] = None) -> None:
