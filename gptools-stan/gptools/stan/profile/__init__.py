@@ -8,7 +8,8 @@ PARAMETERIZATIONS = ["graph_centered", "graph_non_centered", "fourier_centered",
                      "fourier_non_centered", "standard_centered", "standard_non_centered"]
 
 
-def sample_and_load_fit(model: cmdstanpy.CmdStanModel, **kwargs) -> cmdstanpy.CmdStanMCMC:
+def sample_and_load_fit(model: cmdstanpy.CmdStanModel, **kwargs) -> cmdstanpy.CmdStanMCMC:  \
+        # pragma: no cover
     """
     Wrapper function to sample and load the data so the posterior samples can be serialized.
     """

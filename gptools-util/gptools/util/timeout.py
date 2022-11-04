@@ -5,7 +5,7 @@ import traceback
 from typing import Any, Callable
 
 
-def _wrapper(queue, target, *args, **kwargs):
+def _wrapper(queue, target, *args, **kwargs):  # pragma: no cover
     """
     Wrapper to execute a function in a subprocess.
     """
