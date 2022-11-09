@@ -2,15 +2,17 @@ from myst_parser.config.main import MdParserConfig
 from myst_nb.core.config import NbParserConfig
 from myst_nb.core.read import create_nb_reader, NbReader
 from nbconvert.preprocessors import ExecutePreprocessor
+import os
 import pathlib
 import pytest
 from typing import Any
 
 
-def run_myst_notebook(path: str, timeout: float = 60) -> Any:
+def run_myst_notebook(path: str) -> Any:
     """
     Run a myst example notebook.
     """
+    timeout = 60 if "CI" in os.environ else None
     md_config = MdParserConfig()
     nb_config = NbParserConfig()
     with open(path) as fp:
