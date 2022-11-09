@@ -41,7 +41,7 @@ for parameterization, log_noise_scale, size in product:
         fltr = ~result["timeouts"]
         duration = result["durations"][fltr].mean() if fltr.all() else np.nan
         durations.setdefault(parameterization, []).append(duration)
-        
+
 shape = (len(LOG10_NOISE_SCALES), len(SIZES))
 durations = {key: np.reshape(value, shape) for key, value in durations.items()}
 ```
@@ -62,7 +62,7 @@ def load_lps(filename: str) -> np.ndarray:
         if not test_idx.size:
             raise ValueError("there are no test values")
         test_eta = eta[test_idx]
-        
+
         if isinstance(fit, cmdstanpy.CmdStanVB):
             df = pd.DataFrame(fit.variational_sample.values, columns=fit.column_names)
             df = df[[column for column in df if re.fullmatch(r"eta\[\d+\]", column)]]
@@ -73,8 +73,8 @@ def load_lps(filename: str) -> np.ndarray:
                 print("divergent transitions")
         else:
             raise TypeError(fit)
-            
-        
+
+
         error = 0
         for i in test_idx:
             # assert False
@@ -95,11 +95,11 @@ for method, parameterization, log_noise_scale in product:
     filename = f"../workspace/profile/{method}/{parameterization}/" \
         f"log10_noise_scale-{log_noise_scale:.3f}_size-{size}{suffix}.pkl"
     lps.setdefault((method, parameterization), []).append(load_lps(filename))
-    
+
 num_bootstrap = 1000
 mean_lps = {
     key: np.asarray([
-        np.random.dirichlet(np.ones_like(value), num_bootstrap) @ value 
+        np.random.dirichlet(np.ones_like(value), num_bootstrap) @ value
         for value in values
     ]).T for key, values in lps.items()
 }
@@ -156,7 +156,7 @@ for i, ax in [(0, ax1), (-1, ax2)]:
         line.set_markeredgecolor("w")
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.text(0.05, 0.95, fr"({'ab'[i]}) $\sigma=10^{{{LOG10_NOISE_SCALES[i]:.0f}}}$", 
+    ax.text(0.05, 0.95, fr"({'ab'[i]}) $\sigma=10^{{{LOG10_NOISE_SCALES[i]:.0f}}}$",
             transform=ax.transAxes, va="top")
     ax.set_xlabel("size $n$")
     ax.set_ylabel("duration (seconds)")
@@ -174,7 +174,7 @@ mappable = mpl.cm.ScalarMappable(norm=mpl.colors.LogNorm(SIZES.min(), SIZES.max(
 method = "fourier"
 for parameterization in ["non_centered", "centered"]:
     for size, y in zip(SIZES, durations[f"{method}_{parameterization}"].T):
-        ax.plot(NOISE_SCALES, y, color=mappable.to_rgba(size), 
+        ax.plot(NOISE_SCALES, y, color=mappable.to_rgba(size),
                 ls=ls_by_parameterization[parameterization])
 ax.text(0.05, 0.95, "(c)", transform=ax.transAxes, va="top")
 fig.colorbar(mappable, ax=ax, label="size $n$")
@@ -195,11 +195,12 @@ ax4t.yaxis.major.formatter._set_order_of_magnitude = types.MethodType(
 
 for ax in [ax4b, ax4t]:
     for key, value in deltas.items():
-        line, *_ = ax.errorbar(NOISE_SCALES, value.mean(axis=0), 1.96 * value.std(axis=0), 
-                               label=key, marker="o", markeredgecolor="w", ls="none", zorder=9)
+        marker = "o" if key == "sample" else "s"
+        line, *_ = ax.errorbar(NOISE_SCALES, value.mean(axis=0), value.std(axis=0),
+                               label=key, marker=marker, markeredgecolor="w", ls="none", zorder=9)
         ax.plot(NOISE_SCALES, value.mean(axis=0), color="silver", zorder=0)
     ax.axhline(0, color="k", ls=":", zorder=1)
-    
+
     ax.set_xscale("log")
     ax.ticklabel_format(axis="y", scilimits=(0, 0), useMathText=True)
 ax4b.legend(loc="lower right")
@@ -231,24 +232,24 @@ for x in [0, 1]:
         pos = ax.get_position()
         line = mpl.lines.Line2D(
             x + scale * np.cos(angle) * pm / pos.width,
-            y + scale * np.sin(angle) * pm / pos.height, 
-            transform=ax.transAxes, clip_on=False, color="k", 
+            y + scale * np.sin(angle) * pm / pos.height,
+            transform=ax.transAxes, clip_on=False, color="k",
             lw=mpl.rcParams["axes.linewidth"], in_layout=False,
         )
         ax.add_line(line)
-        
+
 # Add the figure-level legend.
 handles_labels = [
     (
         mpl.lines.Line2D([], [], linestyle=ls_by_parameterization["centered"],
-                         marker=marker_by_parameterization["centered"], color="gray", 
-                         markeredgecolor="w"), 
+                         marker=marker_by_parameterization["centered"], color="gray",
+                         markeredgecolor="w"),
         "centered",
     ),
     (
         mpl.lines.Line2D([], [], linestyle=":",
-                         marker=marker_by_parameterization["non_centered"], color="gray", 
-                         markeredgecolor="w"), 
+                         marker=marker_by_parameterization["non_centered"], color="gray",
+                         markeredgecolor="w"),
         "non-centered",
     ),
 ]
@@ -260,7 +261,7 @@ for method, color in color_by_method.items():
 bbox1 = ax1.get_position()
 bbox2 = ax2.get_position()
 bbox_to_anchor = [bbox1.xmin, 0, bbox2.xmax - bbox1.xmin, 1]
-legend = fig.legend(*zip(*handles_labels), fontsize="small", loc="upper center", 
+legend = fig.legend(*zip(*handles_labels), fontsize="small", loc="upper center",
                     ncol=5, bbox_to_anchor=bbox_to_anchor)
 
 fig.savefig("scaling.pdf", bbox_inches="tight")
