@@ -22,13 +22,15 @@ import networkx as nx
 import numpy as np
 import os
 from scipy import stats
+
+mpl.style.use("../../../jss.mplstyle")
 ```
 
 ```{code-cell} ipython3
 with open("../../../data/tube.json") as fp:
     data = json.load(fp)
-    
-    
+
+
 graph = nx.Graph()
 graph.add_nodes_from(data["nodes"].items())
 graph.add_edges_from(data["edges"])
@@ -139,12 +141,12 @@ pts2 = ax2.scatter(*X.T, c=c, vmin=-vmax, vmax=vmax,
 ax1.set_aspect("equal")
 ax2.set_aspect("equal")
 
-ax2.annotate("Canary Wharf", X[np.argmax(c)], (20, -12), ha="center", 
-             va="center", fontsize="small", 
+ax2.annotate("Canary Wharf", X[np.argmax(c)], (20, -12), ha="center",
+             va="center", fontsize="small",
              arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=-0.5"})
-ax2.annotate("Hainault\nLoop", X[np.argmin(c)], (31, 13), ha="right", 
-             va="center", fontsize="small", 
-             arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0.2", 
+ax2.annotate("Hainault\nLoop", X[np.argmin(c)], (31, 13), ha="right",
+             va="center", fontsize="small",
+             arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0.2",
                          "patchA": None, "shrinkA": 10})
 
 ax1.set_axis_off()
@@ -195,7 +197,7 @@ ax4.text(0.95, 0.95, "(d)", transform=ax4.transAxes, va="top", ha="right")
 
 
 fig.tight_layout()
-fig.savefig("tube.pdf")
+fig.savefig("tube.pdf", bbox_inches="tight")
 ```
 
 On the one hand, the three northern stations of the [Hainault Loop](https://en.wikipedia.org/wiki/Hainault_Loop) ([Roding Valley](https://en.wikipedia.org/wiki/Roding_Valley_tube_station), [Chigwell](https://en.wikipedia.org/wiki/Chigwell_tube_station), and [Grange Hill](https://en.wikipedia.org/wiki/Grange_Hill_tube_station)) are underused because they are serviced by only three trains an hour whereas nearby stations (such as [Hainault](https://en.wikipedia.org/wiki/Hainault_tube_station), [Woodford](https://en.wikipedia.org/wiki/Woodford_tube_station), and [Buckhurst Hill](https://en.wikipedia.org/wiki/Buckhurst_Hill_tube_station)) are serviced by twelve trains an hour. On the other hand, [Canary Wharf](https://en.wikipedia.org/wiki/Canary_Wharf_tube_station) at the heart of the financial district has much higher use than would be expected for a station that only serves a single line in zone 2.

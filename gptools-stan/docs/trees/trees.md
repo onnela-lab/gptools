@@ -22,7 +22,7 @@ import pandas as pd
 from scipy import ndimage, stats
 from scipy.fft import next_fast_len
 
-mpl.rcParams["image.origin"] = "lower"
+mpl.style.use("../../../jss.mplstyle")
 ```
 
 ```{code-cell} ipython3
@@ -179,4 +179,6 @@ ax.yaxis.set_label_position("right")
 ax.yaxis.tick_right()
 ax.legend(fontsize="small")
 ax.text(label_offset, 1, "(d)", transform=ax.transAxes, ha="right", va="center")
+
+fig.savefig("trees.pdf", bbox_inches="tight")
 ```

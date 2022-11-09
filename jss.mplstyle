@@ -1,0 +1,6 @@
+figure.figsize : 6.1, 4.5
+figure.dpi : 144
+font.size : 10
+legend.fontsize: small
+image.origin: lower
+animation.html: html5

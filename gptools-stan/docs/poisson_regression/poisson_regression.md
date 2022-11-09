@@ -25,6 +25,8 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
 
+mpl.style.use("../../../jss.mplstyle")
+
 
 def simulate(x: np.ndarray, kernel: Kernel, mu: float = 0) -> dict:
     """Simulate a Gaussian process Poisson model with mean mu observed at x."""
@@ -35,10 +37,10 @@ def simulate(x: np.ndarray, kernel: Kernel, mu: float = 0) -> dict:
     eta = np.random.multivariate_normal(mu * np.ones_like(x), cov)
     rate = np.exp(eta)
     y = np.random.poisson(rate)
-    # Return the results as a dictionary, including input arguments (we need to extract kernel 
+    # Return the results as a dictionary, including input arguments (we need to extract kernel
     # parameters from the `CompositeKernel`).
     return {"x": x, "X": X, "mu": mu, "y": y, "eta": eta, "y": y, "rate": rate, "n": x.size,
-            "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale, 
+            "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale,
             "epsilon": kernel.b.epsilon}
 
 
@@ -50,7 +52,7 @@ def plot_sample(sample: dict, ax: mpl.axes.Axes = None) -> mpl.axes.Axes:
                alpha=0.5)
     ax.set_xlabel("Location $x$")
     return ax
-    
+
 
 np.random.seed(0)
 n = 64
@@ -90,20 +92,20 @@ def sample_and_plot(stan_file: str, data: dict, return_fit: bool = False, **kwar
     niter = 1 if os.environ.get("CI") else 100
     kwargs = {"iter_warmup": niter, "iter_sampling": niter, "chains": 1,
               "refresh": niter // 10 or None} | kwargs
-    
+
     # Compile the model and draw posterior samples.
     model = compile_model(stan_file=stan_file)
     with Timer(f"sampled using {stan_file}"):
         fit = model.sample(data, **kwargs)
-        
+
     # Visualize the result.
     ax = plot_sample(sample)
     plot_band(x, np.exp(fit.stan_variable("eta")), label="inferred rate", ax=ax)
     ax.legend()
     if return_fit:
         return fit
-    
-    
+
+
 centered_fit = sample_and_plot("poisson_regression_centered.stan", sample, return_fit=True)
 ```
 
@@ -172,14 +174,14 @@ predecessors = lattice_predecessors((n,), k)
 
 idx = 20
 fig, ax = plt.subplots()
-ax.scatter(predecessors[idx, -1] - np.arange(3) - 1, np.zeros(3), color="silver", 
+ax.scatter(predecessors[idx, -1] - np.arange(3) - 1, np.zeros(3), color="silver",
            label="ignored nodes")
 ax.scatter(idx + np.arange(3) + 1, np.zeros(3), color="silver")
 ax.scatter(predecessors[idx, 1:], np.zeros(k), label="conditioning nodes")
 ax.scatter(idx, 0, label="target node")
 ax.legend()
 for j in predecessors[idx, :-1]:
-    ax.annotate("", xy=(j, 0), xytext=(idx, 0), 
+    ax.annotate("", xy=(j, 0), xytext=(idx, 0),
                 arrowprops={"arrowstyle": "-|>", "connectionstyle": "arc3,rad=.5"})
 ax.set_ylim(-.25, .25)
 ax.set_axis_off()
