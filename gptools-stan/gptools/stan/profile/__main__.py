@@ -8,6 +8,7 @@ import numpy as np
 import pathlib
 import pickle
 import tabulate
+from scipy import stats
 from tqdm import tqdm
 from typing import Optional
 from . import PARAMETERIZATIONS, sample_and_load_fit
@@ -22,7 +23,7 @@ def __main__(args: Optional[list[str]] = None) -> None:
     parser.add_argument("output", help="output path", nargs="?")
     parser.add_argument("--n", help="number of observations", type=int, default=100)
     parser.add_argument("--train_frac", help="fraction of points to use for training", type=float,
-                        default=0.8)
+                        default=1.0)
     parser.add_argument("--num_parents", help="number of parents for GP on graphs", type=int,
                         default=5)
     parser.add_argument("--sigma", help="scale of Gaussian process covariance", type=float,
@@ -54,14 +55,20 @@ def __main__(args: Optional[list[str]] = None) -> None:
 
     np.random.seed(args.seed)
     i = 0
+
+    # Prepare the distribution outside the loop because matrix inversion can take a while.
+    # Generate data from a Gaussian process with normal observation noise.
+    X = np.arange(args.n)[:, None]
+    kernel = ExpQuadKernel(args.sigma, args.length_scale) + DiagonalKernel(args.epsilon)
+    cov = kernel.evaluate(X)
+    dist = stats.multivariate_normal(np.zeros(args.n), cov)
+
     with Timer() as total_timer, tqdm() as progress:
         while (args.max_chains == -1 or i < args.max_chains) \
                 and (args.timeout is None or total_timer.duration < args.timeout):
-            # Generate data from a Gaussian process with normal observation noise.
-            X = np.arange(args.n)[:, None]
-            kernel = ExpQuadKernel(args.sigma, args.length_scale) + DiagonalKernel(args.epsilon)
-            cov = kernel.evaluate(X)
-            eta = np.random.multivariate_normal(np.zeros(args.n), cov)
+
+            # Sample the Gaussian process.
+            eta = dist.rvs()
             y = np.random.normal(eta, args.noise_scale)
 
             # Construct the nearest-neighbor graph.
@@ -114,10 +121,12 @@ def __main__(args: Optional[list[str]] = None) -> None:
             result.setdefault("durations", []).append(timer.duration)
             result.setdefault("timeouts", []).append(timeout)
             result.setdefault("fits", []).append(fit)
+            result.setdefault("data", []).append(data)
+            result.setdefault("etas", []).append(eta)
             progress.update()
             i += 1
 
-    for key in ["durations", "timeouts"]:
+    for key in ["durations", "timeouts", "etas"]:
         result[key] = np.asarray(result[key])
 
     if args.output:
