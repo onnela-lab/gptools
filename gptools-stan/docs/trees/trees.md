@@ -50,7 +50,7 @@ padded_cols = next_fast_len(ncols + padding)
 # Apply a random mask.
 seed = 0
 np.random.seed(seed)
-test_fraction = 0.3
+test_fraction = 0.2
 train_mask = np.random.uniform(size=frequency.shape) < (1 - test_fraction)
 
 # Prepare the data for stan.
