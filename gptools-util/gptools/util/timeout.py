@@ -1,5 +1,6 @@
 import multiprocessing
 import numbers
+import psutil
 from queue import Empty
 import traceback
 from typing import Any, Callable
@@ -39,16 +40,25 @@ def call_with_timeout(timeout: float, target: Callable, *args, **kwargs) -> Any:
     if not callable(target):
         raise TypeError("target must be callable")
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=_wrapper, args=(queue, target, *args), kwargs=kwargs)
+    process = multiprocessing.Process(target=_wrapper, args=(queue, target, *args), kwargs=kwargs,
+                                      daemon=True)
     process.start()
 
     try:
         success, result = queue.get(timeout=timeout)
     except Empty:
-        if process.is_alive():
-            process.terminate()
-        process.join()
         raise TimeoutError(f"failed to fetch result after {timeout} seconds")
+    finally:
+        if process.is_alive():
+            # Kill the process and all its children (https://stackoverflow.com/a/4229404/1150961).
+            children = psutil.Process(process.pid).children(recursive=True)
+            for child in children:
+                child.terminate()  # pragma: no cover
+            _, still_alive = psutil.wait_procs(children, timeout=3)
+            if still_alive:
+                raise RuntimeError("some processes are still alive")  # pragma: no cover
+            process.terminate()
+        process.join(timeout=5)
     if not success:
         ex, tb = result
         raise RuntimeError(tb) from ex
