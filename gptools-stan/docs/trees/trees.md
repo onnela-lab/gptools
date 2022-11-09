@@ -22,7 +22,7 @@ import pandas as pd
 from scipy import ndimage, stats
 from scipy.fft import next_fast_len
 
-mpl.rcParams["image.origin"] = "lower"
+mpl.style.use("../../../jss.mplstyle")
 ```
 
 ```{code-cell} ipython3
@@ -50,7 +50,7 @@ padded_cols = next_fast_len(ncols + padding)
 # Apply a random mask.
 seed = 0
 np.random.seed(seed)
-test_fraction = 0.3
+test_fraction = 0.2
 train_mask = np.random.uniform(size=frequency.shape) < (1 - test_fraction)
 
 # Prepare the data for stan.
@@ -179,4 +179,6 @@ ax.yaxis.set_label_position("right")
 ax.yaxis.tick_right()
 ax.legend(fontsize="small")
 ax.text(label_offset, 1, "(d)", transform=ax.transAxes, ha="right", va="center")
+
+fig.savefig("trees.pdf", bbox_inches="tight")
 ```

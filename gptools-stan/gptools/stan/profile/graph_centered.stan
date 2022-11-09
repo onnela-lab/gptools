@@ -16,5 +16,5 @@ parameters {
 
 model {
     eta ~ graph_gp(X, sigma, length_scale, epsilon, edge_index, degrees);
-    y ~ normal(eta, noise_scale);
+    y[observed_idx] ~ normal(eta[observed_idx], noise_scale);
 }

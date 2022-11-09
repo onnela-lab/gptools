@@ -1,6 +1,5 @@
 import doit_interface as di
 import itertools as it
-import numpy as np
 import pathlib
 
 
@@ -69,27 +68,45 @@ for path in pathlib.Path.cwd().glob("gptools-*/**/*.ipynb"):
     manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
             targets=[target], actions=[f"jupyter nbconvert --execute --to=html {path}"])
 
+
+def add_profile_task(method: str, parameterization: str, log10_sigma: float, size: int,
+                     max_chains: int = 20, timeout: float = 60, iter_sampling: int = 100,
+                     train_frac: float = 1, suffix: str = ""):
+    name = f"log10_noise_scale-{log10_sigma:.3f}_size-{size}{suffix}"
+    target = f"workspace/profile/{method}/{parameterization}/{name}.pkl"
+    args = [
+        "python", "-m", "gptools.stan.profile", method, parameterization, 10 ** log10_sigma, target,
+        f"--iter_sampling={iter_sampling}", f"--n={size}", f"--max_chains={max_chains}",
+        f"--timeout={timeout}", f"--train_frac={train_frac}",
+    ]
+    file_dep = [
+        "profile/__main__.py",
+        "gptools_fft.stan",
+        "gptools_graph.stan",
+        "gptools_kernels.stan",
+        "gptools_util.stan",
+        "profile/data.stan",
+        f"profile/{parameterization}.stan",
+    ]
+    prefix = pathlib.Path("gptools-stan/gptools/stan")
+    manager(basename=f"profile/{method}/{parameterization}", name=name, actions=[args],
+            targets=[target], file_dep=[prefix / x for x in file_dep])
+
+
 # Run different profiling configurations. We expect the centered parameterization to be better for
 # strong data and the non-centered parameterization to be better for weak data.
 try:
-    from gptools.stan.profile import LOG_NOISE_SCALES, PARAMETERIZATIONS, SIZES
-    for parameterization, log_sigma, size in it.product(PARAMETERIZATIONS, LOG_NOISE_SCALES, SIZES):
-        name = f"log_noise_scale-{log_sigma:.3f}_size-{size}"
-        target = f"workspace/profile/{parameterization}/{name}.pkl"
-        args = ["python", "-m", "gptools.stan.profile", parameterization, np.exp(log_sigma), target,
-                "--iter_sampling=100", f"--n={size}", "--max_chains=-1", "--timeout=30"]
-        file_dep = [
-            "profile/__main__.py",
-            "gptools_fft.stan",
-            "gptools_graph.stan",
-            "gptools_kernels.stan",
-            "gptools_util.stan",
-            "profile/data.stan",
-            f"profile/{parameterization}.stan",
-        ]
-        prefix = pathlib.Path("gptools-stan/gptools/stan")
-        manager(basename=f"profile/{parameterization}", name=name, actions=[args], targets=[target],
-                file_dep=[prefix / x for x in file_dep])
+    from gptools.stan.profile import LOG10_NOISE_SCALES, PARAMETERIZATIONS, SIZES
+    with di.group_tasks("profile"):
+        product = it.product(PARAMETERIZATIONS, LOG10_NOISE_SCALES, SIZES)
+        for parameterization, log10_sigma, size in product:
+            add_profile_task("sample", parameterization, log10_sigma, size)
+        # Add variational inference.
+        for parameterization, log10_sigma in it.product(PARAMETERIZATIONS, LOG10_NOISE_SCALES):
+            add_profile_task("variational", parameterization, log10_sigma, 1024, train_frac=0.8)
+            # Here, we use a long timeout and many samples to ensure we get the distributions right.
+            add_profile_task("sample", parameterization, log10_sigma, 1024, train_frac=0.8,
+                             suffix="-train-test", iter_sampling=500, timeout=300)
 except ModuleNotFoundError:
     pass
 

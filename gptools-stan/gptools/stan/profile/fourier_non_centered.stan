@@ -23,5 +23,5 @@ transformed parameters {
 
 model {
     eta_ ~ normal(0, 1);
-    y ~ normal(eta, noise_scale);
+    y[observed_idx] ~ normal(eta[observed_idx], noise_scale);
 }
