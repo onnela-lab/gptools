@@ -490,6 +490,38 @@ for num_nodes, edges, raises in [
     })
 
 
+# Add evaluation of likelihood on a complete graph to check values.
+n = 10
+for p in [1, 2]:
+    x = np.random.normal(0, 1, (n, p))
+    kernel = kernels.ExpQuadKernel(1.3, 0.7) + kernels.DiagonalKernel(1e-3)
+    cov = kernel.evaluate(x)
+    dist = stats.multivariate_normal(np.zeros(n), cov)
+    y = dist.rvs()
+    # Construct a complete graph.
+    edges = []
+    for i in range(n):
+        edges.append(np.transpose([np.roll(np.arange(i + 1), 1), np.ones(i + 1) * i]))
+    edges = np.concatenate(edges, axis=0).astype(int).T
+    add_configuration({
+        "stan_function": "gp_graph_exp_quad_cov_lpdf",
+        "arg_types": {
+            "p_": "int", "num_nodes_": "int", "num_edges_": "int", "y": "vector[num_nodes_]",
+            "x": "array [num_nodes_] vector[p_]", "sigma": "real", "length_scale": "real",
+            "edges": "array [2, num_edges_] int", "degrees": "array [num_nodes_] int",
+            "epsilon": "real",
+        },
+        "arg_values": {
+            "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "x": x,
+            "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale, "edges": edges + 1,
+            "degrees": np.bincount(edges[1]), "epsilon": kernel.b.epsilon
+        },
+        "result_type": "real",
+        "includes": ["gptools_util.stan", "gptools_graph.stan"],
+        "desired": dist.logpdf(y),
+    })
+
+
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
 def test_stan_python_equal(config: dict) -> None:
     assert_stan_python_allclose(**config)

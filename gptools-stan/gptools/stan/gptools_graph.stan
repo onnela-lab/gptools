@@ -45,19 +45,21 @@ Evaluate the location and scale for a node given its parents.
 :returns: Location and scale parameters for the distribution of the node at :math:`x_1` given
   nodes :math:`j > 1`.
 */
-vector conditional_loc_scale(vector y, array[] vector x, real sigma, real length_scale, real epsilon,
-                             array [] int predecessors) {
+vector conditional_loc_scale(vector y, array[] vector x, real sigma, real length_scale,
+                             int node, array [] int predecessors, real epsilon) {
     vector[2] loc_scale;
-    if (size(predecessors) == 1) {
+    real cov11 = sigma ^ 2 + epsilon;
+    if (size(predecessors) == 0) {
         loc_scale[1] = 0;
-        loc_scale[2] = sqrt(sigma ^ 2 + epsilon);
+        loc_scale[2] = sqrt(cov11);
     } else {
         // Evaluate the local covariance.
-        matrix[size(predecessors), size(predecessors)] cov = add_diag(
+        vector[size(predecessors)] cov21 = gp_exp_quad_cov({x[node]}, x[predecessors], sigma, length_scale)[1]';
+        matrix[size(predecessors), size(predecessors)] cov22 = add_diag(
             gp_exp_quad_cov(x[predecessors], sigma, length_scale), epsilon);
-        vector[size(predecessors) - 1] v = mdivide_left_spd(cov[2:, 2:], cov[2:, 1]);
-        loc_scale[1] = dot_product(v, y[predecessors[2:]]);
-        loc_scale[2] = sqrt(cov[1, 1] - dot_product(v, cov[2:, 1]));
+        vector[size(predecessors)] v = mdivide_left_spd(cov22, cov21);
+        loc_scale[1] = dot_product(v, y[predecessors]);
+        loc_scale[2] = sqrt(cov11 - dot_product(v, cov21));
     }
     return loc_scale;
 }
@@ -90,8 +92,9 @@ real gp_graph_exp_quad_cov_lpdf(vector y, array [] vector x, real sigma, real le
     int offset_ = 1;
     for (i in 1:size(x)) {
         int in_degree = degrees[i];
-        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, epsilon,
-                                                    segment(edges[1], offset_, in_degree));
+        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, i,
+                                                    segment(edges[1], offset_ + 1, in_degree - 1),
+                                                    epsilon);
         lpdf += normal_lpdf(y[i] | loc_scale[1], loc_scale[2]);
         offset_ += in_degree;
     }
@@ -122,8 +125,9 @@ vector gp_graph_exp_quad_cov_transform(vector z, array [] vector x, real sigma, 
     int offset_ = 1;
     for (i in 1:size(x)) {
         int in_degree = degrees[i];
-        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, epsilon,
-                                                    segment(edges[1], offset_, in_degree));
+        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, i,
+                                                    segment(edges[1], offset_ + 1, in_degree - 1),
+                                                    epsilon);
         y[i] = loc_scale[1] + loc_scale[2] * z[i];
         offset_ += in_degree;
     }
