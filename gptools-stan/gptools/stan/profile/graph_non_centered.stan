@@ -15,7 +15,8 @@ parameters {
 }
 
 transformed parameters {
-   vector[n] eta = graph_gp_transform(eta_, X, sigma, length_scale, epsilon, edge_index, degrees);
+   vector[n] eta = gp_graph_exp_quad_cov_transform(eta_, X, sigma, length_scale, edge_index,
+                                                   degrees, epsilon);
 }
 
 model {

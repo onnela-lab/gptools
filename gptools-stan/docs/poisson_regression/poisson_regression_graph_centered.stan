@@ -21,6 +21,6 @@ parameters {
 
 model {
     // Graph Gaussian process prior and observation model.
-    eta ~ graph_gp(X, sigma, length_scale, epsilon, edge_index, degrees);
+    eta ~ gp_graph_exp_quad_cov(X, sigma, length_scale, edge_index, degrees, epsilon);
     y ~ poisson_log(eta);
 }

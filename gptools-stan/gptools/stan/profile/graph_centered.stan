@@ -15,6 +15,6 @@ parameters {
 }
 
 model {
-    eta ~ graph_gp(X, sigma, length_scale, epsilon, edge_index, degrees);
+    eta ~ gp_graph_exp_quad_cov(X, sigma, length_scale, edge_index, degrees, epsilon);
     y[observed_idx] ~ normal(eta[observed_idx], noise_scale);
 }

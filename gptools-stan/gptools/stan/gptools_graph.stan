@@ -38,23 +38,23 @@ Evaluate the location and scale for a node given its parents.
 :param y: State of :math:`k` parents.
 :param x: Array of :math:`k + 1` locations in :math:`p` dimensions. The first row corresponds to
   the target node. Subsequent rows correspond to parents of the target node.
-:param alpha: Amplitude of the covariance matrix.
-:param rho: Correlation scale of the covariance matrix.
+:param sigma: Amplitude of the covariance matrix.
+:param length_scale: Correlation scale of the covariance matrix.
 :param epsilon: Nugget variance.
 :param predecessors: Labels of :math:`k` predecessors of the target node.
 :returns: Location and scale parameters for the distribution of the node at :math:`x_1` given
   nodes :math:`j > 1`.
 */
-vector conditional_loc_scale(vector y, array[] vector x, real alpha, real rho, real epsilon,
+vector conditional_loc_scale(vector y, array[] vector x, real sigma, real length_scale, real epsilon,
                              array [] int predecessors) {
     vector[2] loc_scale;
     if (size(predecessors) == 1) {
         loc_scale[1] = 0;
-        loc_scale[2] = sqrt(alpha ^ 2 + epsilon);
+        loc_scale[2] = sqrt(sigma ^ 2 + epsilon);
     } else {
         // Evaluate the local covariance.
         matrix[size(predecessors), size(predecessors)] cov = add_diag(
-            gp_exp_quad_cov(x[predecessors], alpha, rho), epsilon);
+            gp_exp_quad_cov(x[predecessors], sigma, length_scale), epsilon);
         vector[size(predecessors) - 1] v = mdivide_left_spd(cov[2:, 2:], cov[2:, 1]);
         loc_scale[1] = dot_product(v, y[predecessors[2:]]);
         loc_scale[2] = sqrt(cov[1, 1] - dot_product(v, cov[2:, 1]));
@@ -73,8 +73,8 @@ Evaluate the log probability of a graph Gaussian process with zero mean.
 
 :param y: State of each node.
 :param x: Position of each node.
-:param alpha: Scale parameter for the covariance.
-:param rho: Correlation length.
+:param sigma: Scale parameter for the covariance.
+:param length_scale: Correlation length.
 :param epsilon: Additional diagonal variance.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
   as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
@@ -84,13 +84,13 @@ Evaluate the log probability of a graph Gaussian process with zero mean.
 
 :returns: Log probability of the graph Gaussian process.
 */
-real graph_gp_lpdf(vector y, array [] vector x, real alpha, real rho, real epsilon,
-                   array [,] int edges, array[] int degrees) {
+real gp_graph_exp_quad_cov_lpdf(vector y, array [] vector x, real sigma, real length_scale,
+                                array [,] int edges, array[] int degrees, real epsilon) {
     real lpdf = 0;
     int offset_ = 1;
     for (i in 1:size(x)) {
         int in_degree = degrees[i];
-        vector[2] loc_scale = conditional_loc_scale(y, x, alpha, rho, epsilon,
+        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, epsilon,
                                                     segment(edges[1], offset_, in_degree));
         lpdf += normal_lpdf(y[i] | loc_scale[1], loc_scale[2]);
         offset_ += in_degree;
@@ -105,8 +105,8 @@ added after the transformation.
 
 :param z: White noise for each node.
 :param x: Position of each node.
-:param alpha: Scale parameter for the covariance.
-:param rho: Correlation length.
+:param sigma: Scale parameter for the covariance.
+:param length_scale: Correlation length.
 :param epsilon: Additional diagonal variance.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
   as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
@@ -116,14 +116,14 @@ added after the transformation.
 
 :returns: Sample from the Graph gaussian process.
 */
-vector graph_gp_transform(vector z, array [] vector x, real alpha, real rho, real epsilon,
-                          array [,] int edges, array [] int degrees) {
+vector gp_graph_exp_quad_cov_transform(vector z, array [] vector x, real sigma, real length_scale,
+                                       array [,] int edges, array [] int degrees, real epsilon) {
     vector[size(z)] y;
     int offset_ = 1;
     for (i in 1:size(x)) {
         int in_degree = degrees[i];
-        vector[2] loc_scale = conditional_loc_scale(y, x, alpha, rho, epsilon,
-                                                 segment(edges[1], offset_, in_degree));
+        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, epsilon,
+                                                    segment(edges[1], offset_, in_degree));
         y[i] = loc_scale[1] + loc_scale[2] * z[i];
         offset_ += in_degree;
     }
