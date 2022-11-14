@@ -31,6 +31,34 @@ array [] int in_degrees(int n, array [,] int edge_index) {
 }
 
 /**
+Evaluate the conditional location and scale parameter of a univariate normal random variable given
+correlated observations from a multivariate normal distribution.
+
+:param y: Observation to condition on.
+:param cov11: Marginal variance of the target random variable.
+:param cov21: Covariance between :math:`y` and the target random variable.
+:param cov22: Covariance amongst the elements of :math:`y`.
+
+:returns: Location and scale as a vector.
+*/
+vector gp_graph_cls(vector y, real cov11, vector cov21, matrix cov22) {
+    if (size(y) == 0) {
+        return [0, sqrt(cov11)]';
+    }
+    vector[size(y)] v = mdivide_left_spd(cov22, cov21);
+    return [dot_product(v, y), sqrt(cov11 - dot_product(v, cov21))]';
+}
+
+/**
+Evaluate the conditional location and scale parameter of a univariate normal random variable given
+correlated observations from a multivariate normal distribution. See
+:stan:func:`gp_graph_cls(vector, real, vector, matrix)` for details.
+*/
+vector gp_graph_cls(vector y, real cov11, matrix cov21, matrix cov22) {
+    return gp_graph_cls(y, cov11, to_vector(cov21), cov22);
+}
+
+/**
 Evaluate the location and scale for a node given its parents.
 
 :param y: State of :math:`k` parents.
@@ -43,23 +71,13 @@ Evaluate the location and scale for a node given its parents.
 :returns: Location and scale parameters for the distribution of the node at :math:`x_1` given
   nodes :math:`j > 1`.
 */
-vector conditional_loc_scale(vector y, array[] vector x, real sigma, real length_scale,
-                             int node, array [] int predecessors, real epsilon) {
-    vector[2] loc_scale;
-    real cov11 = sigma ^ 2 + epsilon;
-    if (size(predecessors) == 0) {
-        loc_scale[1] = 0;
-        loc_scale[2] = sqrt(cov11);
-    } else {
-        // Evaluate the local covariance.
-        vector[size(predecessors)] cov21 = gp_exp_quad_cov({x[node]}, x[predecessors], sigma, length_scale)[1]';
-        matrix[size(predecessors), size(predecessors)] cov22 = add_diag(
-            gp_exp_quad_cov(x[predecessors], sigma, length_scale), epsilon);
-        vector[size(predecessors)] v = mdivide_left_spd(cov22, cov21);
-        loc_scale[1] = dot_product(v, y[predecessors]);
-        loc_scale[2] = sqrt(cov11 - dot_product(v, cov21));
-    }
-    return loc_scale;
+vector gp_graph_exp_quad_cov_cls(vector y, array[] vector x, real sigma, real length_scale,
+                                 int node, array [] int predecessors, real epsilon) {
+    return gp_graph_cls(
+        y[predecessors], sigma ^ 2 + epsilon,
+        gp_exp_quad_cov({x[node]}, x[predecessors], sigma, length_scale),
+        add_diag(gp_exp_quad_cov(x[predecessors], sigma, length_scale), epsilon)
+    );
 }
 
 /**
@@ -89,12 +107,10 @@ real gp_graph_exp_quad_cov_lpdf(vector y, array [] vector x, real sigma, real le
     real lpdf = 0;
     int offset_ = 1;
     for (i in 1:size(x)) {
-        int in_degree = degrees[i];
-        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, i,
-                                                    segment(edges[1], offset_, in_degree),
-                                                    epsilon);
+        vector[2] loc_scale = gp_graph_exp_quad_cov_cls(
+            y, x, sigma, length_scale, i, segment(edges[1], offset_, degrees[i]), epsilon);
         lpdf += normal_lpdf(y[i] | loc_scale[1], loc_scale[2]);
-        offset_ += in_degree;
+        offset_ += degrees[i];
     }
     return lpdf;
 }
@@ -122,12 +138,10 @@ vector gp_graph_exp_quad_cov_transform(vector z, array [] vector x, real sigma, 
     vector[size(z)] y;
     int offset_ = 1;
     for (i in 1:size(x)) {
-        int in_degree = degrees[i];
-        vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, i,
-                                                    segment(edges[1], offset_, in_degree),
-                                                    epsilon);
+        vector[2] loc_scale = gp_graph_exp_quad_cov_cls(
+            y, x, sigma, length_scale, i, segment(edges[1], offset_, degrees[i]), epsilon);
         y[i] = loc_scale[1] + loc_scale[2] * z[i];
-        offset_ += in_degree;
+        offset_ += degrees[i];
     }
     return y;
 }
