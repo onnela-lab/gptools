@@ -38,7 +38,7 @@ def assert_stan_python_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
         result_type: str, desired: Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
         includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
-        suffix: Optional[str] = None) -> None:
+        suffix: Optional[str] = None, raises: bool = False) -> None:
     """
     Assert that a Stan and Python function return the same result up to numerical inaccuracies.
     """
@@ -48,9 +48,11 @@ def assert_stan_python_allclose(
     args = [arg for arg in arg_values if not arg.endswith("_")]
     if stan_function.endswith("_lpdf"):
         x, *args = args
-        generated_quantities = f"{result_type} result = {stan_function}({x} | {', '.join(args)});"
+        generated_quantities = f"{stan_function}({x} | {', '.join(args)});"
     else:
-        generated_quantities = f"{result_type} result = {stan_function}({', '.join(args)});"
+        generated_quantities = f"{stan_function}({', '.join(args)});"
+    if result_type:
+        generated_quantities = f"{result_type} result = {generated_quantities}"
     code = "\n".join([
         "functions {", functions, "}",
         "data {", data, "}",
@@ -67,13 +69,24 @@ def assert_stan_python_allclose(
     # Compile the model and obtain the result.
     try:
         model = compile_model(stan_file=path)
-        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9)
-        result, = fit.stan_variable("result")
     except Exception as ex:
+        raise RuntimeError(f"failed to compile model for {stan_function} at {line_info}") from ex
+
+    try:
+        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9)
+        if raises:
+            raise RuntimeError("Stan sampling did not raise an error")
+    except Exception as ex:
+        if raises:
+            return
         raise RuntimeError(f"failed to get Stan result for {stan_function} at {line_info}") from ex
 
+    # Skip validation if we don't have a result type.
+    if not result_type:
+        return
     # Verify against expected value. We only check one because we have already verified that they
     # are the same.
+    result, = fit.stan_variable("result")
     if not isinstance(desired, list):
         desired = [desired]
     try:
@@ -454,6 +467,27 @@ for m in [7, 8]:
                 "includes": ["gptools_util.stan", "gptools_kernels.stan"],
                 "desired": kernel.evaluate_rfft([m, n]),
             })
+
+for num_nodes, edges, raises in [
+    (2, [np.ones(2), np.zeros(2)], True),  # Successors start at zero.
+    (3, [[1, 3, 2], [1, 3, 2]], True),  # Successors are not ordered.
+    (2, [[1, 1, 2], [1, 2, 2]], True),  # Predecessors > successors.
+    (4, [[1, 2, 1, 3, 2], [1, 2, 2, 3, 3]], True),  # Wrong number of nodes.
+    (3, [[1, 2, 1, 3, 2, 1], [1, 2, 2, 3, 3, 3]], False),  # Ok.
+    (7, [[1, 2, 1, 3, 2, 1, 4, 3, 2, 5, 4, 3, 6, 5, 4, 7, 6, 5],
+         [1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7]], False),  # Ok.
+]:
+    edges = np.asarray(edges)
+    add_configuration({
+        "stan_function": "in_degrees",
+        "arg_types": {"num_nodes": "int", "num_edges_": "int",
+                      "edges": "array [2, num_edges_] int"},
+        "arg_values": {"num_nodes": num_nodes, "num_edges_": edges.shape[1], "edges": edges},
+        "result_type": "array [num_nodes] int",
+        "includes": ["gptools_util.stan", "gptools_graph.stan"],
+        "raises": raises,
+        "desired": [],
+    })
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
