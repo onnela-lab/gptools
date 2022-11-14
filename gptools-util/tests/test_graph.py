@@ -24,7 +24,7 @@ def test_lattice_predecessors(
     # General shape check.
     rows, cols = predecessors.shape
     assert rows == np.prod(shape)
-    expected_cols = np.prod(2 * np.asarray(ks) * np.ones_like(shape) + 1)
+    expected_cols = np.prod(2 * np.asarray(ks) * np.ones_like(shape) + 1) - 1
     if compress:
         assert cols < expected_cols
     else:
@@ -61,7 +61,7 @@ def test_predecessors_to_edge_index(indexing: Literal["numpy", "stan"]) -> None:
 
 
 @pytest.mark.parametrize("predecessors, match", [
-    (np.asarray([[1], [0]]), "first element in the predecessors must be the corresponding node"),
+    (np.asarray([[0], [0]]), "self-loops are not allowed; found 1"),
     (np.arange(3), "must be a matrix"),
 ])
 def test_predecessors_to_edge_index_invalid(predecessors: np.ndarray, match: str) -> None:
@@ -73,11 +73,11 @@ def test_predecessors_to_edge_index_invalid(predecessors: np.ndarray, match: str
     (np.zeros(2), None, "edge index must have shape (2, num_edges) but got (2,)"),
     (np.zeros((3, 2)), None, "edge index must have shape (2, num_edges) but got (3, 2)"),
     (np.zeros((2, 3)), "foobar", "`indexing` must be one of"),
-    (np.zeros((2, 3)), "stan", "child node indices must be consecutive starting at 1"),
-    (np.ones((2, 3)), "numpy", "child node indices must be consecutive starting at 0"),
-    ([np.ones(2), np.zeros(2)], "numpy", "the first edge of each child must be a self loop"),
-    ([[0, 2, 1], [0, 2, 1]], "numpy", "child node indices must be consecutive"),
-    ([[0, 1, 1, 2, 2, 0], [0, 0, 1, 1, 2, 2]], "numpy", "edge index induces a graph with"),
+    (np.zeros((2, 3)), "stan", "expected indexing to start at 1"),
+    (-np.ones((2, 3)), "numpy", "expected indexing to start at 0"),
+    ([np.ones(2), np.ones(2)], "numpy", "self-loops are not allowed"),
+    ([[0, 1, 2], [1, 2, 0]], "numpy", "successor indices must be non-decreasing"),
+    ([[1], [0]], "numpy", "predecessors must be less than successors"),
 ])
 def test_check_edge_index_invalid(
         edge_index: np.ndarray, indexing: Literal["numpy", "stan"],

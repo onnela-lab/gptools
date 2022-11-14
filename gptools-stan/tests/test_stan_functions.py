@@ -56,7 +56,7 @@ def assert_stan_python_allclose(
     code = "\n".join([
         "functions {", functions, "}",
         "data {", data, "}",
-        "generated quantities {", generated_quantities, "}",
+        "generated quantities {", generated_quantities, "real success = 1;", "}",
     ])
 
     # Write to file if it does not already exist.
@@ -74,12 +74,16 @@ def assert_stan_python_allclose(
 
     try:
         fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9)
-        if raises:
-            raise RuntimeError("Stan sampling did not raise an error")
+        success = fit.stan_variable("success")[0] == 1
+        if not success:
+            raise RuntimeError("failed to sample from model")
     except Exception as ex:
         if raises:
             return
         raise RuntimeError(f"failed to get Stan result for {stan_function} at {line_info}") from ex
+
+    if raises:
+        raise RuntimeError("Stan sampling did not raise an error")
 
     # Skip validation if we don't have a result type.
     if not result_type:
@@ -470,12 +474,14 @@ for m in [7, 8]:
 
 for num_nodes, edges, raises in [
     (2, [np.ones(2), np.zeros(2)], True),  # Successors start at zero.
-    (3, [[1, 3, 2], [1, 3, 2]], True),  # Successors are not ordered.
-    (2, [[1, 1, 2], [1, 2, 2]], True),  # Predecessors > successors.
-    (4, [[1, 2, 1, 3, 2], [1, 2, 2, 3, 3]], True),  # Wrong number of nodes.
-    (3, [[1, 2, 1, 3, 2, 1], [1, 2, 2, 3, 3, 3]], False),  # Ok.
-    (7, [[1, 2, 1, 3, 2, 1, 4, 3, 2, 5, 4, 3, 6, 5, 4, 7, 6, 5],
-         [1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7]], False),  # Ok.
+    (3, [[1, 1], [3, 2]], True),  # Successors are not ordered.
+    (2, [[2], [1]], True),  # Predecessors > successors.
+    (1, [[1], [1]], True),  # Self-loop.
+    (5, [[1, 2],
+         [2, 3]], False),  # Ok.
+    (3, [[1, 2, 1], [2, 3, 3]], False),  # Ok.
+    (7, [[1, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5],
+         [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]], False),  # Ok.
 ]:
     edges = np.asarray(edges)
     add_configuration({
@@ -500,8 +506,8 @@ for p in [1, 2]:
     y = dist.rvs()
     # Construct a complete graph.
     edges = []
-    for i in range(n):
-        edges.append(np.transpose([np.roll(np.arange(i + 1), 1), np.ones(i + 1) * i]))
+    for i in range(1, n):
+        edges.append(np.transpose([np.roll(np.arange(i), 1), np.ones(i) * i]))
     edges = np.concatenate(edges, axis=0).astype(int).T
     add_configuration({
         "stan_function": "gp_graph_exp_quad_cov_lpdf",
@@ -514,7 +520,7 @@ for p in [1, 2]:
         "arg_values": {
             "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "x": x,
             "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale, "edges": edges + 1,
-            "degrees": np.bincount(edges[1]), "epsilon": kernel.b.epsilon
+            "degrees": np.bincount(edges[1], minlength=n), "epsilon": kernel.b.epsilon
         },
         "result_type": "real",
         "includes": ["gptools_util.stan", "gptools_graph.stan"],

@@ -177,7 +177,7 @@ fig, ax = plt.subplots()
 ax.scatter(predecessors[idx, -1] - np.arange(3) - 1, np.zeros(3), color="silver",
            label="ignored nodes")
 ax.scatter(idx + np.arange(3) + 1, np.zeros(3), color="silver")
-ax.scatter(predecessors[idx, 1:], np.zeros(k), label="conditioning nodes")
+ax.scatter(predecessors[idx], np.zeros(k), label="conditioning nodes")
 ax.scatter(idx, 0, label="target node")
 ax.legend()
 for j in predecessors[idx, :-1]:

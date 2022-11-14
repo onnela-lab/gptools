@@ -1,11 +1,11 @@
 /**
 Evaluate the in-degree of nodes in the directed acyclic graph induced by :code:`edges`. The node
-labels of children must be ordered and each node must at least have a self loop. The function does
-not check whether the graph is acyclic.
+labels of successors must be ordered and predecessors must have index less than successors.
 
 :param n: Number of nodes.
-:param edge_index: Directed edges as a tuple of parent and child indices, i.e. the node labelled
-  :code:`edge_index[1, i]` is the parent of the node labelled :code:`edge_index[2, i]`.
+:param edge_index: Directed edges as a tuple of predecessor and successor indices, i.e. the node
+    labelled :code:`edge_index[1, i]` is the predecessor of the node labelled
+    :code:`edge_index[2, i]`.
 
 :returns: In-degree of each node.
 */
@@ -15,19 +15,17 @@ array [] int in_degrees(int n, array [,] int edge_index) {
     for (i in 1:size(edge_index[2])) {
         int current = edge_index[2, i];
         if (previous > current) {
-            reject("nodes are not ordered: ", previous, " > ", current);
+            reject("nodes are not ordered: ", previous, " > ", current, " at ", i);
         }
-        if (previous != current && edge_index[1, i] != current) {
-            reject("first edge of node ", i, " is not a self loop");
+        if (edge_index[1, i] == current) {
+            reject("self-loops are not allowed: ", current, " at ", i);
         }
-        if (previous > 0 && count[previous] < 1) {
-            reject("node ", i, " has no edges");
+        if (edge_index[1, i] > current) {
+            reject("predecessor is greater than successor: ", edge_index[1, i], " > ", current,
+                   " at ", i);
         }
         count[current] += 1;
         previous = current;
-    }
-    if (previous != n) {
-        reject("expected ", n, " nodes but found ", previous);
     }
     return count;
 }
@@ -93,7 +91,7 @@ real gp_graph_exp_quad_cov_lpdf(vector y, array [] vector x, real sigma, real le
     for (i in 1:size(x)) {
         int in_degree = degrees[i];
         vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, i,
-                                                    segment(edges[1], offset_ + 1, in_degree - 1),
+                                                    segment(edges[1], offset_, in_degree),
                                                     epsilon);
         lpdf += normal_lpdf(y[i] | loc_scale[1], loc_scale[2]);
         offset_ += in_degree;
@@ -126,7 +124,7 @@ vector gp_graph_exp_quad_cov_transform(vector z, array [] vector x, real sigma, 
     for (i in 1:size(x)) {
         int in_degree = degrees[i];
         vector[2] loc_scale = conditional_loc_scale(y, x, sigma, length_scale, i,
-                                                    segment(edges[1], offset_ + 1, in_degree - 1),
+                                                    segment(edges[1], offset_, in_degree),
                                                     epsilon);
         y[i] = loc_scale[1] + loc_scale[2] * z[i];
         offset_ += in_degree;
