@@ -501,8 +501,9 @@ n = 10
 for p in [1, 2]:
     x = np.random.normal(0, 1, (n, p))
     kernel = kernels.ExpQuadKernel(1.3, 0.7) + kernels.DiagonalKernel(1e-3)
+    mu = np.random.normal(0, 1, n)
     cov = kernel.evaluate(x)
-    dist = stats.multivariate_normal(np.zeros(n), cov)
+    dist = stats.multivariate_normal(mu, cov)
     y = dist.rvs()
     # Construct a complete graph.
     edges = []
@@ -515,10 +516,10 @@ for p in [1, 2]:
             "p_": "int", "num_nodes_": "int", "num_edges_": "int", "y": "vector[num_nodes_]",
             "x": "array [num_nodes_] vector[p_]", "sigma": "real", "length_scale": "real",
             "edges": "array [2, num_edges_] int", "degrees": "array [num_nodes_] int",
-            "epsilon": "real",
+            "epsilon": "real", "mu": "vector[num_nodes_]",
         },
         "arg_values": {
-            "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "x": x,
+            "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "mu": mu, "x": x,
             "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale, "edges": edges + 1,
             "degrees": np.bincount(edges[1], minlength=n), "epsilon": kernel.b.epsilon
         },

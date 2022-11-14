@@ -34,8 +34,8 @@ parameters {
 }
 
 transformed parameters {
-    vector[num_nodes] eta = gp_graph_exp_quad_cov_transform(eta_, X, sigma, length_scale,
-                                                            edge_index, degrees, epsilon);
+    vector[num_nodes] eta = gp_graph_exp_quad_cov_transform(
+        eta_, zeros_vector(num_nodes), X, sigma, length_scale, edge_index, degrees, epsilon);
     vector[num_nodes] rate = exp(
         mu + eta
         + include_zone_effect * one_hot_zones * zone_effect

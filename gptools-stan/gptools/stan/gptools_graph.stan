@@ -83,13 +83,8 @@ vector gp_graph_exp_quad_cov_cls(vector y, array[] vector x, real sigma, real le
 /**
 Evaluate the log probability of a graph Gaussian process with zero mean.
 
-.. warning::
-
-    If a non-zero mean is required, it should be subtracted from the node states :math:`y`. This
-    implementation mixes *centered* and *non-centered* parameterizations--an issue that should be
-    fixed.
-
 :param y: State of each node.
+:param mu: Mean for each node.
 :param x: Position of each node.
 :param sigma: Scale parameter for the covariance.
 :param length_scale: Correlation length.
@@ -102,14 +97,16 @@ Evaluate the log probability of a graph Gaussian process with zero mean.
 
 :returns: Log probability of the graph Gaussian process.
 */
-real gp_graph_exp_quad_cov_lpdf(vector y, array [] vector x, real sigma, real length_scale,
-                                array [,] int edges, array[] int degrees, real epsilon) {
+real gp_graph_exp_quad_cov_lpdf(vector y, vector mu, array [] vector x, real sigma,
+                                real length_scale, array [,] int edges, array[] int degrees,
+                                real epsilon) {
     real lpdf = 0;
     int offset_ = 1;
+    vector[size(y)] z = y - mu;
     for (i in 1:size(x)) {
         vector[2] loc_scale = gp_graph_exp_quad_cov_cls(
-            y, x, sigma, length_scale, i, segment(edges[1], offset_, degrees[i]), epsilon);
-        lpdf += normal_lpdf(y[i] | loc_scale[1], loc_scale[2]);
+            z, x, sigma, length_scale, i, segment(edges[1], offset_, degrees[i]), epsilon);
+        lpdf += normal_lpdf(z[i] | loc_scale[1], loc_scale[2]);
         offset_ += degrees[i];
     }
     return lpdf;
@@ -121,6 +118,7 @@ Transform white noise to a sample from a graph Gaussian process with zero mean. 
 added after the transformation.
 
 :param z: White noise for each node.
+:param mu: Mean for each node.
 :param x: Position of each node.
 :param sigma: Scale parameter for the covariance.
 :param length_scale: Correlation length.
@@ -133,8 +131,9 @@ added after the transformation.
 
 :returns: Sample from the Graph gaussian process.
 */
-vector gp_graph_exp_quad_cov_transform(vector z, array [] vector x, real sigma, real length_scale,
-                                       array [,] int edges, array [] int degrees, real epsilon) {
+vector gp_graph_exp_quad_cov_transform(vector z, vector mu, array [] vector x, real sigma,
+                                       real length_scale, array [,] int edges, array [] int degrees,
+                                       real epsilon) {
     vector[size(z)] y;
     int offset_ = 1;
     for (i in 1:size(x)) {
@@ -143,5 +142,5 @@ vector gp_graph_exp_quad_cov_transform(vector z, array [] vector x, real sigma, 
         y[i] = loc_scale[1] + loc_scale[2] * z[i];
         offset_ += degrees[i];
     }
-    return y;
+    return y + mu;
 }
