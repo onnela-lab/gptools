@@ -2,9 +2,9 @@
 // I.e., x[1:3] includes x[1] to x[3]. More generally, x[i:j] comprises j - i + 1 elements. It could
 // at least have been exclusive on the right...
 
-vector gp_evaluate_rfft_scale(vector rfft_, int n) {
+vector gp_evaluate_rfft_scale(vector cov_rfft, int n) {
     int nrfft = n %/% 2 + 1;
-    vector[nrfft] result = n * rfft_ / 2;
+    vector[nrfft] result = n * cov_rfft / 2;
     // Check positive-definiteness.
     real minval = min(result);
     if (minval < 0) {
@@ -18,18 +18,6 @@ vector gp_evaluate_rfft_scale(vector rfft_, int n) {
         result[nrfft] *= 2;
     }
     return sqrt(result);
-}
-
-/**
-Evaluate the scale of Fourier coefficients.
-
-The Fourier coefficients of a zero-mean Gaussian process with even covariance function are
-uncorrelated Gaussian random variables with zero mean. This function evaluates their scale.
-
-:param cov: Covariance between the origin and the rest of the domain.
-*/
-vector gp_evaluate_rfft_scale(vector cov) {
-    return gp_evaluate_rfft_scale(get_real(rfft(cov)), size(cov));
 }
 
 
@@ -50,15 +38,16 @@ vector gp_unpack_rfft(complex_vector x, int n) {
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */
-vector gp_transform_rfft(vector y, vector loc, vector rfft_scale) {
-    return gp_unpack_rfft(rfft(y - loc) ./ rfft_scale, size(y));
+vector gp_transform_rfft(vector y, vector loc, vector cov_rfft) {
+    return gp_unpack_rfft(rfft(y - loc) ./ gp_evaluate_rfft_scale(cov_rfft, size(y)), size(y));
 }
 
 
 /**
 Evaluate the log absolute determinant of the Jacobian associated with :stan:func:`gp_transform_rfft`.
 */
-real gp_rfft_log_abs_det_jacobian(vector rfft_scale, int n) {
+real gp_rfft_log_abs_det_jacobian(vector cov_rfft, int n) {
+    vector[n %/% 2 + 1] rfft_scale = gp_evaluate_rfft_scale(cov_rfft, n);
     return - sum(log(rfft_scale[1:n %/% 2 + 1])) -sum(log(rfft_scale[2:(n + 1) %/% 2]))
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }
@@ -70,16 +59,15 @@ space.
 
 :param y: Random variable whose likelihood to evaluate.
 :param loc: Mean of the Gaussian process.
-:param cov: Covariance between the origin and the rest of the domain (see
-    :stan:func:`gp_evaluate_rfft_scale(vector)` for details).
+:param cov_rfft: Real fast Fourier transform of the covariancer kernel.
 
 :returns: Log probability of the Gaussian process.
 */
-real gp_rfft_lpdf(vector y, vector loc, vector rfft_scale) {
+real gp_rfft_lpdf(vector y, vector loc, vector cov_rfft) {
     int n = size(y);
     int nrfft = n %/% 2 + 1;
-    vector[n] z = gp_transform_rfft(y, loc, rfft_scale);
-    return std_normal_lpdf(z) + gp_rfft_log_abs_det_jacobian(rfft_scale, n);
+    vector[n] z = gp_transform_rfft(y, loc, cov_rfft);
+    return std_normal_lpdf(z) + gp_rfft_log_abs_det_jacobian(cov_rfft, n);
 }
 
 
@@ -114,11 +102,12 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 
 :param z: Fourier-domain white noise comprising :math:`n` elements.
 :param loc: Mean of the Gaussian process.
-:param cov: Covariance between the origin and the rest of the domain (see
-    :stan:func:`gp_evaluate_rfft_scale(vector)` for details).
+:param cov: Real fast Fourier transform of the covariance kernel.
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
-vector gp_transform_inv_rfft(vector z, vector loc, vector rfft_scale) {
-    return get_real(inv_rfft(rfft_scale .* gp_pack_rfft(z), size(z))) + loc;
+vector gp_transform_inv_rfft(vector z, vector loc, vector cov_rfft) {
+    int n = size(z);
+    vector[n %/% 2 + 1] rfft_scale = gp_evaluate_rfft_scale(cov_rfft, n);
+    return get_real(inv_rfft(rfft_scale .* gp_pack_rfft(z), n)) + loc;
 }

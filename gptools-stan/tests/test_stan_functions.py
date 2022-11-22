@@ -159,13 +159,14 @@ for n in [7, 8]:
         + kernels.DiagonalKernel(.1, 1)
     cov = kernel.evaluate(np.arange(n)[:, None])
     lincov = cov[0]
+    cov_rfft = np.fft.rfft(lincov).real
     rfft_scale = fft.evaluate_rfft_scale(cov=lincov)
     z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
-                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
+                      "cov_rfft": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": z,
@@ -175,8 +176,8 @@ for n in [7, 8]:
     add_configuration({
         "stan_function": "gp_transform_inv_rfft",
         "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]",
-                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "z": z, "loc": loc, "rfft_scale": rfft_scale},
+                      "cov_rfft": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "z": z, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": [y, fft.transform_irfft(z, loc, rfft_scale=rfft_scale)],
@@ -186,8 +187,8 @@ for n in [7, 8]:
     add_configuration({
         "stan_function": "gp_rfft_lpdf",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
-                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
+                      "cov_rfft": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "real",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
