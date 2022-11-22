@@ -7,45 +7,43 @@ functions {
 data {
     // Number of rows and columns of the frequency map and the padded number of rows and columns. We
     // pad to overcome the periodic boundary conditions inherent in fast Fourier transform methods.
-    int n, m, np, mp;
+    int num_rows, num_cols, num_rows_padded, num_cols_padded;
     // Number of trees in each quadrant. Masked quadrants are indicated by a negative value.
-    array [n, m] int frequency;
+    array [num_rows, num_cols] int frequency;
     // Nugget variance.
     real<lower=0> epsilon;
 }
 
 parameters {
     // "Raw" parameter for the non-centered parameterization.
-    matrix[np, mp] eta_;
+    matrix[num_rows_padded, num_cols_padded] z;
     // Mean log rate for the trees.
     real mu;
-    // Overdispersion parameter for the negative binomial distribution.
-    real<lower=0> phi;
-    // Kernel parameters.
-    real<lower=0> sigma;
-    real<lower=0> length_scale;
+    // Kernel parameters and averdispersion parameter for the negative binomial distribution.
+    real<lower=0> sigma, length_scale, phi;
 }
 
 transformed parameters {
     // Evaluate the RFFT of the Matern 3/2 kernel on the padded grid.
-    matrix[np, mp %/% 2 + 1] rfft2_cov = epsilon +
-        gp_periodic_matern_cov_rfft2(1.5, np, mp, sigma, ones_vector(2) * length_scale, [np, mp]');
+    matrix[num_rows_padded, num_cols_padded %/% 2 + 1] rfft2_cov = epsilon +
+        gp_periodic_matern_cov_rfft2(1.5, num_rows_padded, num_cols_padded, sigma,
+        ones_vector(2) * length_scale, [num_rows_padded, num_cols_padded]');
     // Transform from white-noise to a Gaussian process realization.
-    matrix[np, mp] eta = gp_transform_irfft2(eta_, mu + zeros_matrix(np, mp),
-                                             gp_evaluate_rfft2_scale(rfft2_cov, mp));
+    matrix[num_rows_padded, num_cols_padded] f = gp_transform_irfft2(z, mu + zeros_matrix(num_rows_padded, num_cols_padded),
+                                             gp_evaluate_rfft2_scale(rfft2_cov, num_cols_padded));
 }
 
 model {
     // Observation model with masking for negative values.
-    for (i in 1:n) {
-        for (j in 1:m) {
+    for (i in 1:num_rows) {
+        for (j in 1:num_cols) {
             if (frequency[i, j] >= 0) {
-                frequency[i, j] ~ neg_binomial_2(exp(eta[i, j]), 1 / phi);
+                frequency[i, j] ~ neg_binomial_2(exp(f[i, j]), 1 / phi);
             }
         }
     }
     // Implies that eta ~ gp_rfft(mu, rfft2_cov) is a realization of the Gaussian process.
-    eta_ ~ std_normal();
+    z ~ std_normal();
     // We bound the correlation length below because the likelihood is flat and place an upper bound
     // of 200m correlation which is broad enough to avoid the posterior samples hitting the
     // boundary.
