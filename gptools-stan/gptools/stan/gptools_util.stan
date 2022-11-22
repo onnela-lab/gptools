@@ -36,7 +36,8 @@ int is_close(real actual, real desired, real rtol, real atol) {
 }
 
 /**
-Assert that two values are close. See :stan:func:`is_close` for description of parameters.
+Assert that two values are close. See :stan:func:`is_close(real, real, real, real)` for a
+description of the parameters.
 */
 void assert_close(real actual, real desired, real rtol, real atol) {
     if (!is_close(actual, desired, rtol, atol)) {
@@ -45,7 +46,8 @@ void assert_close(real actual, real desired, real rtol, real atol) {
 }
 
 /**
-Assert that two values are close. See :stan:func:`is_close` for description of parameters.
+Assert that two values are close. See :stan:func:`is_close(real, real, real, real)` for a
+description of the parameters.
 */
 void assert_close(real actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
@@ -70,7 +72,8 @@ int is_finite(complex x) {
 // Vectors -----------------------------------------------------------------------------------------
 
 /**
-Assert that two vectors are close. See :stan:func:`is_close` for description of parameters.
+Assert that two vectors are close. See :stan:func:`is_close(real, real, real, real)` for a
+description of the parameters.
 */
 void assert_close(vector actual, vector desired, real rtol, real atol) {
     int n = size(desired);

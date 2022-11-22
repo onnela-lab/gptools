@@ -11,6 +11,8 @@ kernelspec:
   name: python3
 ---
 
+# Density of T. panamensis on a 50 ha plot in Panama
+
 ```{code-cell} ipython3
 from gptools import util
 from gptools.stan import compile_model
@@ -89,8 +91,8 @@ def evaluate_error(actual, prediction, error, num_bs=1000):
         return (np.square(bs_actual - bs_prediction) / np.maximum(bs_actual, 1)).mean(axis=-1)
     else:
         raise ValueError(error)
-        
-        
+
+
 def filter_estimate(frequency, train_mask, scale):
     smoothed_mask = ndimage.gaussian_filter(train_mask.astype(float), scale)
     smoothed_masked_frequency = ndimage.gaussian_filter(np.where(train_mask, frequency, 0), scale)
@@ -167,7 +169,7 @@ cax.xaxis.set_ticks_position("top")
 cax.xaxis.set_label_position("top")
 
 ax3 = fig.add_subplot(gs2[0])
-ax3.scatter(fit.length_scale * delta * 1e3, fit.sigma, marker=".", 
+ax3.scatter(fit.length_scale * delta * 1e3, fit.sigma, marker=".",
             alpha=0.25)
 ax3.set_xlabel(r"correlation length $\ell$ (m)")
 ax3.set_ylabel(r"marginal scale $\sigma$")

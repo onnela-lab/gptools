@@ -11,6 +11,8 @@ kernelspec:
   name: python3
 ---
 
+# Profiling of different methods and parameterizations
+
 ```{code-cell} ipython3
 import cmdstanpy
 import itertools as it

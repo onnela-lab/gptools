@@ -11,6 +11,8 @@ kernelspec:
   name: python3
 ---
 
+# Passengers on the London Underground network
+
 ```{code-cell} ipython3
 from gptools.stan import compile_model
 from gptools.util import encode_one_hot
@@ -93,7 +95,7 @@ data = {
 ```{code-cell} ipython3
 niter = 3 if "CI" in os.environ else 1000
 model_with_gp = compile_model(stan_file="tube.stan")
-fit_with_gp = model_with_gp.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter, 
+fit_with_gp = model_with_gp.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter,
                                    seed=seed, adapt_delta=0.9)
 print(fit_with_gp.diagnose())
 ```
@@ -208,7 +210,7 @@ Let's compare the predictive performance on the held out data with and without t
 ```{code-cell} ipython3
 model_without_gp = compile_model(stan_file="tube_without_gp.stan")
 niter = 3 if "CI" in os.environ else 1000
-fit_without_gp = model_without_gp.sample(data, chains=1, iter_warmup=niter, 
+fit_without_gp = model_without_gp.sample(data, chains=1, iter_warmup=niter,
                                          iter_sampling=niter, seed=seed, adapt_delta=0.9)
 print(fit_without_gp.diagnose())
 ```
@@ -225,13 +227,13 @@ bs_samples = []
 for label, fit in [("with GP", fit_with_gp), ("without GP", fit_without_gp)]:
     log_mean = fit.stan_variable("log_mean")[..., ~train_mask]
     kappa = fit.stan_variable("kappa")
-    
+
     # Evaluate the score and bootstrapped error.
     log_score = stats.norm(log_mean, kappa[:, None]).logpdf(test).mean(axis=0)
     x = np.random.dirichlet(np.ones(log_score.shape[0]), 1000) @ log_score
     print(f"{label}: {log_score.mean():.3f} +- {np.std(x):.3f}")
     bs_samples.append(x)
-    
+
     ax.errorbar(test, log_mean.mean(axis=0), log_mean.std(axis=0), ls="none", marker=".", label=label)
 
 ax.legend(fontsize="small")

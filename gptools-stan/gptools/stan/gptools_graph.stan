@@ -114,8 +114,7 @@ real gp_graph_exp_quad_cov_lpdf(vector y, vector mu, array [] vector x, real sig
 
 
 /**
-Transform white noise to a sample from a graph Gaussian process with zero mean. A mean can be
-added after the transformation.
+Transform white noise to a sample from a graph Gaussian process with zero mean.
 
 :param z: White noise for each node.
 :param mu: Mean for each node.
@@ -143,4 +142,15 @@ vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector 
         offset_ += degrees[i];
     }
     return y + mu;
+}
+
+/**
+Transform white noise to a sample from a graph Gaussian process with zero mean. See
+:stan:func:`gp_transform_inv_graph_exp_quad_cov(vector, vector, array [] vector, real, real,
+array [,] int, array [] int, real)` for details.
+*/
+vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
+                                           real length_scale, array [,] int edges) {
+    return gp_transform_inv_graph_exp_quad_cov(z, mu, x, sigma, length_scale, edges,
+                                               in_degrees(size(z), edges), 0.0);
 }

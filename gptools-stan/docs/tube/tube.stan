@@ -29,7 +29,7 @@ parameters {
 
 transformed parameters {
     vector[num_stations] f = gp_transform_inv_graph_exp_quad_cov(
-        z, zeros_vector(num_stations), station_locations, sigma, length_scale, edge_index, degrees, epsilon);
+        z, zeros_vector(num_stations), station_locations, sigma, length_scale, edge_index);
     vector[num_stations] log_mean = mu + f
         + include_zone_effect * one_hot_zones * zone_effect
         + include_degree_effect * one_hot_degrees * degree_effect;
