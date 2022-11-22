@@ -20,17 +20,17 @@ parameters {
     // Mean log rate for the trees.
     real mu;
     // Kernel parameters and averdispersion parameter for the negative binomial distribution.
-    real<lower=0> sigma, length_scale, phi;
+    real<lower=0> sigma, length_scale, kappa;
 }
 
 transformed parameters {
     // Evaluate the RFFT of the Matern 3/2 kernel on the padded grid.
     matrix[num_rows_padded, num_cols_padded %/% 2 + 1] rfft2_cov = epsilon +
         gp_periodic_matern_cov_rfft2(1.5, num_rows_padded, num_cols_padded, sigma,
-        ones_vector(2) * length_scale, [num_rows_padded, num_cols_padded]');
+        length_scale, [num_rows_padded, num_cols_padded]');
     // Transform from white-noise to a Gaussian process realization.
     matrix[num_rows_padded, num_cols_padded] f = gp_transform_inv_rfft2(
-        z, mu + zeros_matrix(num_rows_padded, num_cols_padded), rfft2_cov);
+        z, rep_matrix(mu, num_rows_padded, num_cols_padded), rfft2_cov);
 }
 
 model {
@@ -38,7 +38,7 @@ model {
     for (i in 1:num_rows) {
         for (j in 1:num_cols) {
             if (frequency[i, j] >= 0) {
-                frequency[i, j] ~ neg_binomial_2(exp(f[i, j]), 1 / phi);
+                frequency[i, j] ~ neg_binomial_2(exp(f[i, j]), 1 / kappa);
             }
         }
     }
@@ -55,5 +55,5 @@ model {
     // functions. So we use slightly lighter tail than the Cauchy to constrain the sampler.
     sigma ~ student_t(2, 0, 1);
     // The overdispersion parameter again has a weak prior.
-    phi ~ cauchy(0, 1);
+    kappa ~ cauchy(0, 1);
 }
