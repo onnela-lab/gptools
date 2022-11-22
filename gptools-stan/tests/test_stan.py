@@ -10,7 +10,7 @@ def test_include(filename: str) -> None:
     assert include.is_file()
 
 
-def test_needs_compilation(tmp_path: pathlib.Path, caplog: pytest.LogCaptureFixture):
+def test_needs_compilation(tmp_path: pathlib.Path):
     # Create files.
     include_file = tmp_path / "include.stan"
     with include_file.open("w") as fp:
@@ -40,7 +40,5 @@ def test_needs_compilation(tmp_path: pathlib.Path, caplog: pytest.LogCaptureFixt
 
     # Remove the include file and check we get an error.
     include_file.unlink()
-    with caplog.at_level("DEBUG"):
+    with pytest.raises(ValueError):
         stan.compile_model(stan_file=stan_file)
-    assert any("--info" in record.message and "returned non-zero exit status 1" for record in
-               caplog.records)
