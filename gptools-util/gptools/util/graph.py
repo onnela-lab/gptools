@@ -73,7 +73,7 @@ def lattice_predecessors(
     predecessors = np.ravel_multi_index(np.moveaxis(predecessors, -1, 0), shape)
     # Ensure all nodes are predecessors so the graph is acyclic.
     mask &= predecessors <= np.arange(coords.shape[0])[:, None]
-    predecessors = np.where(mask, predecessors, -1)
+    predecessors = np.where(mask, predecessors, -1)[:, 1:]
     if compress:
         predecessors = compress_predecessors(predecessors)
     return predecessors
@@ -85,13 +85,13 @@ def num_lattice_predecessors(k: int, bounds: LatticeBounds, p: int) -> int:
     """
     bounds = LatticeBounds(bounds)
     if p == 1:
-        return k + 1
+        return k
     elif p == 2 and bounds == LatticeBounds.CUBE:
-        return 2 * k * (k + 1) + 1
+        return 2 * k * (k + 1)
     elif p == 2 and bounds == LatticeBounds.DIAMOND:
-        return k * (k + 1) + 1
+        return k * (k + 1)
     elif p == 2 and bounds == LatticeBounds.ELLIPSE:
-        return (GAUSS_PROBLEM_SEQUENCE[k] - 1) // 2 + 1
+        return (GAUSS_PROBLEM_SEQUENCE[k] - 1) // 2
     else:
         raise NotImplementedError(f"k = {k}; bounds = {bounds}; p = {p}")
 
@@ -140,8 +140,9 @@ def predecessors_to_edge_index(predecessors: np.ndarray,
     """
     if predecessors.ndim != 2:
         raise ValueError("predecessors must be a matrix")
-    if (predecessors[:, 0] != np.arange(predecessors.shape[0])).any():
-        raise ValueError("first element in the predecessors must be the corresponding node")
+    nodes = np.arange(predecessors.shape[0])
+    if num_self_loops := (predecessors == nodes[:, None]).sum():
+        raise ValueError(f"self-loops are not allowed; found {num_self_loops}")
 
     edge_index = np.transpose([(parent, child) for child, parents in enumerate(predecessors) for
                                parent in parents if parent >= 0])
@@ -168,38 +169,32 @@ def check_edge_index(edge_index: np.ndarray, indexing: Literal["numpy", "stan"] 
         raise ValueError(f"edge index must have shape (2, num_edges) but got {edge_index.shape}")
 
     # Check that child nodes start with the proper value.
-    expected = 0 if _check_indexing(indexing) == "numpy" else 1
-    parents, children = edge_index
+    expected_min = 0 if _check_indexing(indexing) == "numpy" else 1
+    if (actual_min := edge_index.min()) < expected_min:
+        raise ValueError(f"expected indexing to start at {expected_min}; found {actual_min}")
+    predecessors, successors = edge_index
 
-    # Check that child labels are consecutive.
-    unique, index = np.unique(children, return_index=True)
-    if (np.diff(index) < 0).any() or (unique != np.arange(unique.size) + expected).any():
-        raise ValueError(f"child node indices must be consecutive starting at {expected} for "
-                         f"{indexing} indexing")
+    # Check that child labels are non-decreasing.
+    if (np.diff(successors) < 0).any():
+        raise ValueError("successor indices must be non-decreasing")
 
-    # Check that the first edge of each node is a self-loop.
-    if (children[index] != parents[index]).any():
-        raise ValueError("the first edge of each child must be a self loop")
+    # Check that there are no self-loops.
+    if num_self_loops := (successors == predecessors).sum():
+        raise ValueError(f"self-loops are not allowed; found {num_self_loops}")
 
-    # Check that there are no cycles after removing self-loops.
-    graph = edge_index_to_graph(edge_index)
-    import networkx as nx
-    try:
-        cycle = nx.find_cycle(graph)
-        raise ValueError(f"edge index induces a graph with the cycle: {cycle}")
-    except nx.NetworkXNoCycle:
-        pass
+    # Check that predecessors are less than successors.
+    if (predecessors >= successors).any():
+        raise ValueError("predecessors must be less than successors")
 
     return edge_index
 
 
-def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) -> "nx.DiGraph":
+def edge_index_to_graph(edge_index: np.ndarray) -> "nx.DiGraph":
     """
     Convert edge indices to a directed graph.
 
     Args:
         edge_index: Tuple of parent and child node labels.
-        remove_self_loops: Whether to remove self loops.
 
     Returns:
         graph: Directed graph induced by the edge indices.
@@ -207,13 +202,11 @@ def edge_index_to_graph(edge_index: np.ndarray, remove_self_loops: bool = True) 
     import networkx as nx
     graph = nx.DiGraph()
     graph.add_edges_from(edge_index.T)
-    graph.remove_edges_from(nx.selfloop_edges(graph))
     return graph
 
 
-def graph_to_edge_index(graph: "nx.Graph", add_self_loops: bool = True,
-                        return_mapping: bool = False, indexing: Literal["numpy", "stan"] = "stan") \
-        -> np.ndarray:
+def graph_to_edge_index(graph: "nx.Graph", return_mapping: bool = False,
+                        indexing: Literal["numpy", "stan"] = "stan") -> np.ndarray:
     """
     Convert a graph to edge indices.
 
@@ -232,8 +225,6 @@ def graph_to_edge_index(graph: "nx.Graph", add_self_loops: bool = True,
     for node in sorted(graph):
         neighbors = graph.neighbors(node)
         node = mapping[node]
-        if add_self_loops:
-            edge_index.append((node, node))
         for neighbor in neighbors:
             neighbor = mapping[neighbor]
             if neighbor < node:

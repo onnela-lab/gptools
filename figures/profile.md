@@ -156,17 +156,17 @@ for i, ax in [(0, ax1), (-1, ax2)]:
         line.set_markeredgecolor("w")
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.text(0.05, 0.95, fr"({'ab'[i]}) $\sigma=10^{{{LOG10_NOISE_SCALES[i]:.0f}}}$",
+    ax.text(0.05, 0.95, fr"({'ab'[i]}) $\kappa=10^{{{LOG10_NOISE_SCALES[i]:.0f}}}$",
             transform=ax.transAxes, va="top")
     ax.set_xlabel("size $n$")
     ax.set_ylabel("duration (seconds)")
 
 
 ax = ax3
-ax.set_xlabel(r"noise scale $\sigma$")
+ax.set_xlabel(r"noise scale $\kappa$")
 ax.set_ylabel(r"runtime (seconds)")
 
-ax.set_xlabel(r"noise scale $\sigma$")
+ax.set_xlabel(r"noise scale $\kappa$")
 ax.set_ylabel("duration (seconds)")
 ax.set_xscale("log")
 mappable = mpl.cm.ScalarMappable(norm=mpl.colors.LogNorm(SIZES.min(), SIZES.max()),
@@ -180,7 +180,7 @@ ax.text(0.05, 0.95, "(c)", transform=ax.transAxes, va="top")
 fig.colorbar(mappable, ax=ax, label="size $n$")
 
 ax = ax4b
-ax.set_xlabel(r"noise scale $\sigma$")
+ax.set_xlabel(r"noise scale $\kappa$")
 ax.spines["top"].set_visible(False)
 
 # Monkeypatch for fixed order of magnitude.

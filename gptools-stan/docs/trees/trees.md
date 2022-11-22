@@ -55,20 +55,21 @@ train_mask = np.random.uniform(size=frequency.shape) < (1 - test_fraction)
 
 # Prepare the data for stan.
 data = {
-    "n": nrows,
-    "np": padded_rows,
-    "m": ncols,
-    "mp": padded_cols,
+    "num_rows": nrows,
+    "num_rows_padded": padded_rows,
+    "num_cols": ncols,
+    "num_cols_padded": padded_cols,
     "frequency": np.where(train_mask, frequency, -1).astype(int),
-    "epsilon": 1e-6,
+    "epsilon": 0,
 }
+padded_rows, padded_cols
 ```
 
 ```{code-cell} ipython3
 # Compile and fit the model.
 model = compile_model(stan_file="trees.stan")
 niter = 3 if "CI" in os.environ else 500
-fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter, seed=seed)
+fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=2 * niter, seed=seed)
 print(fit.diagnose())
 ```
 
@@ -88,6 +89,12 @@ def evaluate_error(actual, prediction, error, num_bs=1000):
         return (np.square(bs_actual - bs_prediction) / np.maximum(bs_actual, 1)).mean(axis=-1)
     else:
         raise ValueError(error)
+        
+        
+def filter_estimate(frequency, train_mask, scale):
+    smoothed_mask = ndimage.gaussian_filter(train_mask.astype(float), scale)
+    smoothed_masked_frequency = ndimage.gaussian_filter(np.where(train_mask, frequency, 0), scale)
+    return smoothed_masked_frequency / smoothed_mask
 
 
 # Evaluate predictions and errors using Gaussian filtering.
@@ -96,43 +103,37 @@ test_mask = ~train_mask
 smoothed_errors = []
 sigmas = np.logspace(-0.8, 1)
 for sigma in sigmas:
-    smoothed_mask = ndimage.gaussian_filter(train_mask.astype(float), sigma)
-    smoothed_masked_frequency = ndimage.gaussian_filter(np.where(train_mask, frequency, 0), sigma)
-    smoothed_prediction = smoothed_masked_frequency / smoothed_mask
+    smoothed_prediction = filter_estimate(frequency, train_mask, sigma)
     smoothed_errors.append(evaluate_error(frequency[test_mask], smoothed_prediction[test_mask], error))
 smoothed_errors = np.asarray(smoothed_errors)
 
 
 # Also evaluate the errors for the Gaussian process rates.
-rates = np.exp(fit.stan_variable("eta")[:, :nrows, :ncols])
+rates = np.exp(fit.stan_variable("f")[:, :nrows, :ncols])
 gp_errors = evaluate_error(frequency[test_mask], np.median(rates, axis=0)[test_mask], error)
 
-def plot_errors(smoothed_errors, gp_errors, ax = None):
+def plot_errors(smoothed_errors, gp_errors, ax = None, scale = 20):
     ax = ax or plt.gca()
     smoothed_loc = smoothed_errors.mean(axis=-1)
     smoothed_scale = smoothed_errors.std(axis=-1)
-    line, = ax.plot(sigmas, smoothed_loc, label="Gaussian filter", color="C1")
-    ax.fill_between(sigmas, smoothed_loc - smoothed_scale, smoothed_loc + smoothed_scale,
+    line, = ax.plot(scale * sigmas, smoothed_loc, label="Gaussian\nfilter", color="C1")
+    ax.fill_between(scale * sigmas, smoothed_loc - smoothed_scale, smoothed_loc + smoothed_scale,
                     alpha=0.5, color=line.get_color())
 
     gp_loc = gp_errors.mean()
     gp_scale = gp_errors.std()
-    line = ax.axhline(gp_loc, label="Gaussian process")
+    line = ax.axhline(gp_loc, label="Gaussian\nprocess")
     ax.axhspan(gp_loc - gp_scale, gp_loc + gp_scale, alpha=0.5, color=line.get_color())
 
     ax.set_xscale("log")
 
-plot_errors(smoothed_errors, gp_errors)
+fig, (ax1, ax2) = plt.subplots(1, 2)
+plot_errors(smoothed_errors, gp_errors, ax1)
+sigma0 = sigmas[np.argmin(smoothed_errors.mean(axis=-1))]
+ax2.imshow(filter_estimate(frequency, train_mask, sigma0))
 ```
 
 ```{code-cell} ipython3
-# Show the summary figure for the paper.
-fig = plt.figure(figsize=(6.4, 4.4))
-wspace = 0.15
-gs_main = mpl.gridspec.GridSpec(2, 2, height_ratios=[0.03, 1], figure=fig, wspace=wspace,
-                                hspace=0.05)
-gs = mpl.gridspec.GridSpecFromSubplotSpec(2, 2, gs_main[1, :], wspace=wspace, hspace=0.4)
-
 rate = np.median(rates, axis=0)
 cmap = mpl.cm.viridis.copy()
 cmap.set_under("silver")
@@ -142,43 +143,51 @@ kwargs = {
     "cmap": cmap,
     "norm": mpl.colors.Normalize(0, rate.max()),
 }
-label_offset = -0.03
 
-ax = ax1 = fig.add_subplot(gs[0, 0])
-im = ax.imshow(frequency, **kwargs)
-ax.set_ylabel("northing (km)")
-ax.set_xlabel("easting (km)")
-ax.xaxis.set_ticks([0, 0.5, 1])
-ax.yaxis.set_ticks([0, 0.3])
-ax.text(label_offset, 1, "(a)", transform=ax.transAxes, ha="right", va="center")
+fig = plt.figure()
+fig.set_layout_engine("constrained", w_pad=0.1)
+gs = fig.add_gridspec(1, 2, width_ratios=[4, 3])
+gs1 = mpl.gridspec.GridSpecFromSubplotSpec(3, 1, gs[0], height_ratios=[0.075, 1, 1])
+gs2 = mpl.gridspec.GridSpecFromSubplotSpec(2, 1, gs[1])
 
-ax = fig.add_subplot(gs[0, 1], sharex=ax, sharey=ax)
-im = ax.imshow(data["frequency"], **kwargs)
-plt.setp(ax.get_yticklabels(), visible=False)
-ax.set_xlabel("easting (km)")
-ax.text(label_offset, 1, "(b)", transform=ax.transAxes, ha="right", va="center")
+cax = fig.add_subplot(gs1[0])
+ax1 = fig.add_subplot(gs1[1])
+ax1.set_ylabel("northing (km)")
+ax1.set_xlabel("easting (km)")
+im = ax1.imshow(data["frequency"], **kwargs)
 
-ax = fig.add_subplot(gs[1, 0], sharex=ax, sharey=ax)
-im = ax.imshow(rate, **kwargs)
-ax.set_ylabel("northing (km)")
-ax.set_xlabel("easting (km)")
-ax.text(label_offset, 1, "(c)", transform=ax.transAxes, ha="right", va="center")
+ax2 = fig.add_subplot(gs1[2], sharex=ax1, sharey=ax1)
+ax2.set_xlabel("easting (km)")
+ax2.set_ylabel("northing (km)")
+im = ax2.imshow(rate, **kwargs)
 
-cax = fig.add_subplot(gs_main[0])
-fig.colorbar(im, cax=cax, orientation="horizontal", label="tree density", extend="max")
+cb = fig.colorbar(im, cax=cax, extend="max", orientation="horizontal")
+cb.set_label("tree density")
 cax.xaxis.set_ticks_position("top")
 cax.xaxis.set_label_position("top")
 
-ax = fig.add_subplot(gs[1, 1])
-plot_errors(smoothed_errors, gp_errors, ax)
+ax3 = fig.add_subplot(gs2[0])
+ax3.scatter(fit.length_scale * delta * 1e3, fit.sigma, marker=".", 
+            alpha=0.25)
+ax3.set_xlabel(r"correlation length $\ell$ (m)")
+ax3.set_ylabel(r"marginal scale $\sigma$")
 
-ax.set_xscale("log")
-ax.set_xlabel("smoothing scale")
-ax.set_ylabel("scaled mean\nsquared error")
-ax.yaxis.set_label_position("right")
-ax.yaxis.tick_right()
-ax.legend(fontsize="small")
-ax.text(label_offset, 1, "(d)", transform=ax.transAxes, ha="right", va="center")
+ax4 = fig.add_subplot(gs2[1])
+plot_errors(smoothed_errors, gp_errors, ax4)
+
+ax4.set_xscale("log")
+ax4.set_xlabel(r"smoothing scale $\lambda$")
+ax4.set_ylabel("scaled mean-\nsquared error $S$")
+ax4.legend(fontsize="small", loc=(0.05, 0.425))
+
+fig.draw_without_rendering()
+
+text = ax1.get_yticklabels()[0]
+ax1.text(0, 0.5, "(a)", transform=text.get_transform(), ha="right", va="center")
+text = ax2.get_yticklabels()[0]
+ax2.text(0, 0.5, "(c)", transform=text.get_transform(), ha="right", va="center")
+ax3.text(0.05, 0.95, "(b)", va="top", transform=ax3.transAxes)
+ax4.text(0.05, 0.95, "(d)", va="top", transform=ax4.transAxes)
 
 fig.savefig("trees.pdf", bbox_inches="tight")
 ```

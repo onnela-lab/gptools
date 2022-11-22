@@ -38,7 +38,7 @@ def assert_stan_python_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
         result_type: str, desired: Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
         includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
-        suffix: Optional[str] = None) -> None:
+        suffix: Optional[str] = None, raises: bool = False) -> None:
     """
     Assert that a Stan and Python function return the same result up to numerical inaccuracies.
     """
@@ -48,13 +48,15 @@ def assert_stan_python_allclose(
     args = [arg for arg in arg_values if not arg.endswith("_")]
     if stan_function.endswith("_lpdf"):
         x, *args = args
-        generated_quantities = f"{result_type} result = {stan_function}({x} | {', '.join(args)});"
+        generated_quantities = f"{stan_function}({x} | {', '.join(args)});"
     else:
-        generated_quantities = f"{result_type} result = {stan_function}({', '.join(args)});"
+        generated_quantities = f"{stan_function}({', '.join(args)});"
+    if result_type:
+        generated_quantities = f"{result_type} result = {generated_quantities}"
     code = "\n".join([
         "functions {", functions, "}",
         "data {", data, "}",
-        "generated quantities {", generated_quantities, "}",
+        "generated quantities {", generated_quantities, "real success = 1;", "}",
     ])
 
     # Write to file if it does not already exist.
@@ -67,13 +69,28 @@ def assert_stan_python_allclose(
     # Compile the model and obtain the result.
     try:
         model = compile_model(stan_file=path)
-        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9)
-        result, = fit.stan_variable("result")
     except Exception as ex:
+        raise RuntimeError(f"failed to compile model for {stan_function} at {line_info}") from ex
+
+    try:
+        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9)
+        success = fit.stan_variable("success")[0] == 1
+        if not success:
+            raise RuntimeError("failed to sample from model")
+    except Exception as ex:
+        if raises:
+            return
         raise RuntimeError(f"failed to get Stan result for {stan_function} at {line_info}") from ex
 
+    if raises:
+        raise RuntimeError("Stan sampling did not raise an error")
+
+    # Skip validation if we don't have a result type.
+    if not result_type:
+        return
     # Verify against expected value. We only check one because we have already verified that they
     # are the same.
+    result, = fit.stan_variable("result")
     if not isinstance(desired, list):
         desired = [desired]
     try:
@@ -454,6 +471,62 @@ for m in [7, 8]:
                 "includes": ["gptools_util.stan", "gptools_kernels.stan"],
                 "desired": kernel.evaluate_rfft([m, n]),
             })
+
+for num_nodes, edges, raises in [
+    (2, [np.ones(2), np.zeros(2)], True),  # Successors start at zero.
+    (3, [[1, 1], [3, 2]], True),  # Successors are not ordered.
+    (2, [[2], [1]], True),  # Predecessors > successors.
+    (1, [[1], [1]], True),  # Self-loop.
+    (5, [[1, 2],
+         [2, 3]], False),  # Ok.
+    (3, [[1, 2, 1], [2, 3, 3]], False),  # Ok.
+    (7, [[1, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5],
+         [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]], False),  # Ok.
+]:
+    edges = np.asarray(edges)
+    add_configuration({
+        "stan_function": "in_degrees",
+        "arg_types": {"num_nodes": "int", "num_edges_": "int",
+                      "edges": "array [2, num_edges_] int"},
+        "arg_values": {"num_nodes": num_nodes, "num_edges_": edges.shape[1], "edges": edges},
+        "result_type": "array [num_nodes] int",
+        "includes": ["gptools_util.stan", "gptools_graph.stan"],
+        "raises": raises,
+        "desired": [],
+    })
+
+
+# Add evaluation of likelihood on a complete graph to check values.
+n = 10
+for p in [1, 2]:
+    x = np.random.normal(0, 1, (n, p))
+    kernel = kernels.ExpQuadKernel(1.3, 0.7) + kernels.DiagonalKernel(1e-3)
+    mu = np.random.normal(0, 1, n)
+    cov = kernel.evaluate(x)
+    dist = stats.multivariate_normal(mu, cov)
+    y = dist.rvs()
+    # Construct a complete graph.
+    edges = []
+    for i in range(1, n):
+        edges.append(np.transpose([np.roll(np.arange(i), 1), np.ones(i) * i]))
+    edges = np.concatenate(edges, axis=0).astype(int).T
+    add_configuration({
+        "stan_function": "gp_graph_exp_quad_cov_lpdf",
+        "arg_types": {
+            "p_": "int", "num_nodes_": "int", "num_edges_": "int", "y": "vector[num_nodes_]",
+            "x": "array [num_nodes_] vector[p_]", "sigma": "real", "length_scale": "real",
+            "edges": "array [2, num_edges_] int", "degrees": "array [num_nodes_] int",
+            "epsilon": "real", "mu": "vector[num_nodes_]",
+        },
+        "arg_values": {
+            "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "mu": mu, "x": x,
+            "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale, "edges": edges + 1,
+            "degrees": np.bincount(edges[1], minlength=n), "epsilon": kernel.b.epsilon
+        },
+        "result_type": "real",
+        "includes": ["gptools_util.stan", "gptools_graph.stan"],
+        "desired": dist.logpdf(y),
+    })
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())

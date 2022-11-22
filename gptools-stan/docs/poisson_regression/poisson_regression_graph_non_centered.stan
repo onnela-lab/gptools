@@ -21,11 +21,12 @@ parameters {
 
 transformed parameters {
     // Transform white noise to a sample from the graph Gaussian process.
-    vector[n] eta = graph_gp_transform(z, X, sigma, length_scale, epsilon, edge_index, degrees);
+    vector[n] eta = gp_graph_exp_quad_cov_transform(
+        z, zeros_vector(n), X, sigma, length_scale, edge_index, degrees, epsilon);
 }
 
 model {
-    // White noise prior (implies eta ~ graph_gp(...)) and observation model.
+    // White noise prior (implies eta ~ gp_graph_exp_quad_cov(...)) and observation model.
     z ~ normal(0, 1);
     y ~ poisson_log(eta);
 }

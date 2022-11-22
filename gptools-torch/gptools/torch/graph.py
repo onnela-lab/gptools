@@ -12,8 +12,7 @@ class GraphGaussianProcess(th.distributions.Distribution):
         coords: Coordinates of nodes.
         predecessors: Matrix of node labels with shape `(num_nodes, max_degree)`. The row
             `predecessors[i]` denotes the predecessors of node `i` in the graph. Any unused slots
-            should be set to -1. The first predecessor of each node must be itself, i.e., a self
-            loop.
+            should be set to -1.
         kernel: Callable to evaluate the covariance which takes node coordinates as the only
             argument.
         lstsq_rcond: Threshold for rounding singular values to zero when solving the least squares
@@ -42,7 +41,9 @@ class GraphGaussianProcess(th.distributions.Distribution):
         self.num_nodes = loc.shape[-1]
         self.loc = th.as_tensor(loc)
         self.coords = th.as_tensor(coords)
-        self.predecessors = th.as_tensor(predecessors)
+        # Prefix the self-loops for the predecessors.
+        self.predecessors = th.hstack([th.arange(self.num_nodes)[:, None],
+                                       th.as_tensor(predecessors)])
         self.kernel = kernel
         batch_shape = loc.shape[:-1]
         event_shape = loc.shape[-1:]

@@ -177,7 +177,7 @@ fig, ax = plt.subplots()
 ax.scatter(predecessors[idx, -1] - np.arange(3) - 1, np.zeros(3), color="silver",
            label="ignored nodes")
 ax.scatter(idx + np.arange(3) + 1, np.zeros(3), color="silver")
-ax.scatter(predecessors[idx, 1:], np.zeros(k), label="conditioning nodes")
+ax.scatter(predecessors[idx], np.zeros(k), label="conditioning nodes")
 ax.scatter(idx, 0, label="target node")
 ax.legend()
 for j in predecessors[idx, :-1]:
@@ -188,7 +188,7 @@ ax.set_axis_off()
 fig.tight_layout()
 ```
 
-The function `lattice_predecessors` constructs a nearest neighbor matrix `predecessors` with shape `(n, k + 1)` such that the first `k` elements of the $i^\text{th}$ row are the predecessors of node $i$ and the last element is the node itself. The corresponding Stan program is shown below. The distribution `graph_gp` encodes the Gaussian process.
+The function `lattice_predecessors` constructs a nearest neighbor matrix `predecessors` with shape `(n, k + 1)` such that the first `k` elements of the $i^\text{th}$ row are the predecessors of node $i$ and the last element is the node itself. The corresponding Stan program is shown below. The distribution `gp_graph_exp_quad_cov_lpdf` encodes the Gaussian process.
 
 ```{literalinclude} poisson_regression_graph_centered.stan
    :language: stan
