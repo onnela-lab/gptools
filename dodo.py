@@ -57,7 +57,7 @@ manager(basename="requirements", name="sync", file_dep=[target], actions=[["pip-
 
 # Build documentation at the root level (we don't have namespace-package-level documentation).
 with di.defaults(basename="docs"):
-    manager(name="html", actions=["sphinx-build . docs/_build"])
+    manager(name="html", actions=["sphinx-build -n . docs/_build"])
     manager(name="tests", actions=["sphinx-build -b doctest . docs/_build"])
 
 # Compile example notebooks to create html reports.
