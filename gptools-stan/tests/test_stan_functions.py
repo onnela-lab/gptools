@@ -487,7 +487,7 @@ for num_nodes, edges, raises in [
 ]:
     edges = np.asarray(edges)
     add_configuration({
-        "stan_function": "in_degrees",
+        "stan_function": "out_degrees",
         "arg_types": {"num_nodes": "int", "num_edges_": "int",
                       "edges": "array [2, num_edges_] int"},
         "arg_values": {"num_nodes": num_nodes, "num_edges_": edges.shape[1], "edges": edges},

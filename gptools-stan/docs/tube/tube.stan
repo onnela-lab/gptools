@@ -16,7 +16,7 @@ data {
 }
 
 transformed data {
-    array [num_stations] int degrees = in_degrees(num_stations, edge_index);
+    array [num_stations] int degrees = out_degrees(num_stations, edge_index);
 }
 
 parameters {

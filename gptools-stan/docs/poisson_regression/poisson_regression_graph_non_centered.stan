@@ -12,7 +12,7 @@ data {
 }
 
 transformed data {
-    array [n] int degrees = in_degrees(n, edge_index);
+    array [n] int degrees = out_degrees(n, edge_index);
 }
 
 parameters {

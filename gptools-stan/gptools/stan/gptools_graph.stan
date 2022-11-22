@@ -1,5 +1,5 @@
 /**
-Evaluate the in-degree of nodes in the directed acyclic graph induced by :code:`edges`. The node
+Evaluate the out-degree of nodes in the directed acyclic graph induced by :code:`edges`. The node
 labels of successors must be ordered and predecessors must have index less than successors.
 
 :param n: Number of nodes.
@@ -9,7 +9,7 @@ labels of successors must be ordered and predecessors must have index less than 
 
 :returns: In-degree of each node.
 */
-array [] int in_degrees(int n, array [,] int edge_index) {
+array [] int out_degrees(int n, array [,] int edge_index) {
     array [n] int count = rep_array(0, n);
     int previous = 0;
     for (i in 1:size(edge_index[2])) {
@@ -152,5 +152,5 @@ array [,] int, array [] int, real)` for details.
 vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
                                            real length_scale, array [,] int edges) {
     return gp_transform_inv_graph_exp_quad_cov(z, mu, x, sigma, length_scale, edges,
-                                               in_degrees(size(z), edges), 0.0);
+                                               out_degrees(size(z), edges), 0.0);
 }
