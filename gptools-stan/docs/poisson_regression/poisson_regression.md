@@ -218,7 +218,7 @@ The non-centered parameterization of the graph Gaussian process is even faster, 
 
 ## Gaussian process using fast Fourier transforms
 
-If, as in this example, observations are regularly spaced, we can evaluate the likelihood using the fast Fourier transform. Similarly, we can construct a non-centered parameterization by transforming Fourier coefficients with {stan:func}`gp_transform_irfft`.
+If, as in this example, observations are regularly spaced, we can evaluate the likelihood using the fast Fourier transform. Similarly, we can construct a non-centered parameterization by transforming Fourier coefficients with {stan:func}`gp_transform_inv_rfft`.
 
 ```{literalinclude} poisson_regression_fourier_centered.stan
    :language: stan

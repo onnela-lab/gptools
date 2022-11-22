@@ -90,7 +90,7 @@ matrix gp_transform_rfft2(matrix y, matrix loc, matrix rfft2_scale) {
 /**
 Transform white noise in the Fourier domain to a Gaussian process realization.
 */
-matrix gp_transform_irfft2(matrix z, matrix loc, matrix rfft2_scale) {
+matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix rfft2_scale) {
     complex_matrix[rows(z), cols(z) %/% 2 + 1] y = gp_pack_rfft2(z) .* rfft2_scale;
     return inv_rfft2(y, cols(z)) + loc;
 }

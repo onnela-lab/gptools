@@ -15,7 +15,7 @@ parameters {
 }
 
 transformed parameters {
-   vector[n] eta = gp_graph_exp_quad_cov_transform(
+   vector[n] eta = gp_transform_inv_graph_exp_quad_cov(
     eta_, zeros_vector(n), X, sigma, length_scale, edge_index, degrees, epsilon);
 }
 

@@ -173,7 +173,7 @@ for n in [7, 8]:
 
     # ... and back again.
     add_configuration({
-        "stan_function": "gp_transform_irfft",
+        "stan_function": "gp_transform_inv_rfft",
         "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]",
                       "rfft_scale": "vector[n_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "z": z, "loc": loc, "rfft_scale": rfft_scale},
@@ -259,7 +259,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
 
     # ... and back again.
     add_configuration({
-        "stan_function": "gp_transform_irfft2",
+        "stan_function": "gp_transform_inv_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "z": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
                       "rfft2_scale": "matrix[n_, m_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "rfft2_scale": rfft2_scale},

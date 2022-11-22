@@ -131,9 +131,9 @@ added after the transformation.
 
 :returns: Sample from the Graph gaussian process.
 */
-vector gp_graph_exp_quad_cov_transform(vector z, vector mu, array [] vector x, real sigma,
-                                       real length_scale, array [,] int edges, array [] int degrees,
-                                       real epsilon) {
+vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
+                                           real length_scale, array [,] int edges,
+                                           array [] int degrees, real epsilon) {
     vector[size(z)] y;
     int offset_ = 1;
     for (i in 1:size(x)) {

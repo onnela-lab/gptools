@@ -119,6 +119,6 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
-vector gp_transform_irfft(vector z, vector loc, vector rfft_scale) {
+vector gp_transform_inv_rfft(vector z, vector loc, vector rfft_scale) {
     return get_real(inv_rfft(rfft_scale .* gp_pack_rfft(z), size(z))) + loc;
 }

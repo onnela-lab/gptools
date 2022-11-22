@@ -29,7 +29,7 @@ transformed parameters {
         gp_periodic_matern_cov_rfft2(1.5, num_rows_padded, num_cols_padded, sigma,
         ones_vector(2) * length_scale, [num_rows_padded, num_cols_padded]');
     // Transform from white-noise to a Gaussian process realization.
-    matrix[num_rows_padded, num_cols_padded] f = gp_transform_irfft2(z, mu + zeros_matrix(num_rows_padded, num_cols_padded),
+    matrix[num_rows_padded, num_cols_padded] f = gp_transform_inv_rfft2(z, mu + zeros_matrix(num_rows_padded, num_cols_padded),
                                              gp_evaluate_rfft2_scale(rfft2_cov, num_cols_padded));
 }
 
