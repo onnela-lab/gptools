@@ -59,7 +59,7 @@ space.
 
 :param y: Random variable whose likelihood to evaluate.
 :param loc: Mean of the Gaussian process.
-:param cov_rfft: Real fast Fourier transform of the covariancer kernel.
+:param cov_rfft: Real fast Fourier transform of the covariance kernel.
 
 :returns: Log probability of the Gaussian process.
 */
@@ -102,7 +102,7 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 
 :param z: Fourier-domain white noise comprising :math:`n` elements.
 :param loc: Mean of the Gaussian process.
-:param cov: Real fast Fourier transform of the covariance kernel.
+:param cov_rfft: Real fast Fourier transform of the covariance kernel.
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */

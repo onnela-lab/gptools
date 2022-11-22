@@ -131,7 +131,7 @@ Evaluate the log probability of a two-dimensional Gaussian process with zero mea
 
 :param y: Random variable whose likelihood to evaluate.
 :param loc: Mean of the Gaussian process.
-:param cov: First row of the covariance matrix.
+:param cov_rfft2: Real fast Fourier transform of the covariance kernel.
 
 :returns: Log probability of the Gaussian process.
 */
