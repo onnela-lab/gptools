@@ -6,6 +6,7 @@ import os
 import pathlib
 import pytest
 from typing import Any
+from unittest import mock
 
 
 def run_myst_notebook(path: str) -> Any:
@@ -19,8 +20,9 @@ def run_myst_notebook(path: str) -> Any:
         content = fp.read()
     reader: NbReader = create_nb_reader(path, md_config, nb_config, content)
     notebook = reader.read(content)
-    preprocessor = ExecutePreprocessor(timeout=timeout)
-    return preprocessor.preprocess(notebook, {"metadata": {"path": pathlib.Path(path).parent}})
+    with mock.patch.dict(os.environ, CI="true"):
+        preprocessor = ExecutePreprocessor(timeout=timeout)
+        return preprocessor.preprocess(notebook, {"metadata": {"path": pathlib.Path(path).parent}})
 
 
 notebooks = []
