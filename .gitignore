@@ -141,3 +141,4 @@ workspace/
 *.o
 *.ipynb
 .cmdstanpy_cache
+*.pdf
