@@ -2,12 +2,12 @@
 // I.e., x[1:3] includes x[1] to x[3]. More generally, x[i:j] comprises j - i + 1 elements. It could
 // at least have been exclusive on the right...
 
-matrix gp_evaluate_rfft2_scale(matrix rfft2_, int width) {
-    int height = rows(rfft2_);
+matrix gp_evaluate_rfft2_scale(matrix cov_rfft2, int width) {
+    int height = rows(cov_rfft2);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
-    matrix[height, fftwidth] fftscale = n * rfft2_ / 2;
+    matrix[height, fftwidth] fftscale = n * cov_rfft2 / 2;
     // Check positive-definiteness.
     real minval = min(fftscale);
     if (minval < 0) {
@@ -29,13 +29,6 @@ matrix gp_evaluate_rfft2_scale(matrix rfft2_, int width) {
         fftscale[fftheight, fftwidth] *= 2;
     }
     return sqrt(fftscale);
-}
-
-/**
-Evaluate the scale of Fourier coefficients.
-*/
-matrix gp_evaluate_rfft2_scale(matrix cov) {
-    return gp_evaluate_rfft2_scale(get_real(rfft2(cov)), cols(cov));
 }
 
 
@@ -82,16 +75,17 @@ complex_matrix gp_pack_rfft2(matrix z) {
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 */
-matrix gp_transform_rfft2(matrix y, matrix loc, matrix rfft2_scale) {
-    return gp_unpack_rfft2(rfft2(y - loc) ./ rfft2_scale, cols(y));
+matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov_rfft2) {
+    return gp_unpack_rfft2(rfft2(y - loc) ./ gp_evaluate_rfft2_scale(cov_rfft2, cols(y)), cols(y));
 }
 
 
 /**
 Transform white noise in the Fourier domain to a Gaussian process realization.
 */
-matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix rfft2_scale) {
-    complex_matrix[rows(z), cols(z) %/% 2 + 1] y = gp_pack_rfft2(z) .* rfft2_scale;
+matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix cov_rfft2) {
+    complex_matrix[rows(z), cols(z) %/% 2 + 1] y = gp_pack_rfft2(z)
+        .* gp_evaluate_rfft2_scale(cov_rfft2, cols(z));
     return inv_rfft2(y, cols(z)) + loc;
 }
 
@@ -99,12 +93,12 @@ matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix rfft2_scale) {
 /**
 Evaluate the log absolute determinant of the Jacobian associated with :stan:func:`gp_transform_rfft`.
 */
-real gp_rfft2_log_abs_det_jacobian(int width, matrix rfft2_scale) {
-    int height = rows(rfft2_scale);
+real gp_rfft2_log_abs_det_jacobian(matrix cov_rfft2, int width) {
+    int height = rows(cov_rfft2);
     int n = width * height;
     int fftwidth = width %/% 2 + 1;
     int fftheight = height %/% 2 + 1;
-    matrix[height, fftwidth] log_rfft2_scale = log(rfft2_scale);
+    matrix[height, fftwidth] log_rfft2_scale = log(gp_evaluate_rfft2_scale(cov_rfft2, width));
     real ladj = 0;
 
     // For the real part, we always use the full height of the non-redundant part. For the imaginary
@@ -141,7 +135,7 @@ Evaluate the log probability of a two-dimensional Gaussian process with zero mea
 
 :returns: Log probability of the Gaussian process.
 */
-real gp_rfft2_lpdf(matrix y, matrix loc, matrix rfft2_scale) {
-    return std_normal_lpdf(gp_transform_rfft2(y, loc, rfft2_scale))
-        + gp_rfft2_log_abs_det_jacobian(cols(y), rfft2_scale);
+real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov_rfft2) {
+    return std_normal_lpdf(gp_transform_rfft2(y, loc, cov_rfft2))
+        + gp_rfft2_log_abs_det_jacobian(cov_rfft2, cols(y));
 }
