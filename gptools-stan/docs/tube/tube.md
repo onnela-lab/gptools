@@ -23,6 +23,7 @@ from matplotlib import pyplot as plt
 import networkx as nx
 import numpy as np
 import os
+from scipy.spatial.distance import pdist
 from scipy import stats
 
 mpl.style.use("../../../jss.mplstyle")
@@ -76,6 +77,7 @@ one_hot_degrees = encode_one_hot(degrees.clip(max=max_degree) - 1)
 np.random.seed(seed)
 train_mask = np.random.uniform(0, 1, y.size) < train_frac
 
+distances = pdist(X)
 data = {
     "num_stations": graph.number_of_nodes(),
     "num_edges": edge_index.shape[1],
@@ -89,6 +91,8 @@ data = {
     "epsilon": 0,
     "include_zone_effect": 1,
     "include_degree_effect": 1,
+    "length_scale_lower": 2 * distances.min(),
+    "length_scale_upper": distances.max() / 2,
 }
 ```
 

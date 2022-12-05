@@ -9,10 +9,10 @@ data {
     array [2, num_edges] int edge_index;
     matrix[num_stations, num_zones] one_hot_zones;
     matrix[num_stations, num_degrees] one_hot_degrees;
-    real<lower=0> epsilon;
+    real<lower=0> epsilon, length_scale_lower;
+    real<lower=length_scale_lower> length_scale_upper;
 
-    int include_zone_effect;
-    int include_degree_effect;
+    int include_zone_effect, include_degree_effect;
 }
 
 transformed data {
@@ -22,12 +22,14 @@ transformed data {
 parameters {
     vector[num_stations] z;
     real mu;
-    real<lower=0> sigma, length_scale, kappa;
+    real<lower=0> sigma, kappa;
+    real<lower=log(length_scale_lower), upper=log(length_scale_upper)> log_length_scale;
     vector[num_zones] zone_effect;
     vector[num_degrees] degree_effect;
 }
 
 transformed parameters {
+    real length_scale = exp(log_length_scale);
     vector[num_stations] f = gp_transform_inv_graph_exp_quad_cov(
         z, zeros_vector(num_stations), station_locations, sigma, length_scale, edge_index);
     vector[num_stations] log_mean = mu + f
@@ -39,7 +41,6 @@ transformed parameters {
 model {
     z ~ std_normal();
     sigma ~ student_t(2, 0, 1);
-    length_scale ~ inv_gamma(2.0, 2.5);
     zone_effect ~ student_t(2, 0, 1);
     degree_effect ~ student_t(2, 0, 1);
     kappa ~ student_t(2, 0, 1);
