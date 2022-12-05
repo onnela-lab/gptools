@@ -41,6 +41,7 @@ ax.set_xlabel("easting (km)")
 ax.set_ylabel("northing (km)")
 fig.colorbar(im, ax=ax, location="top", label="tree density")
 fig.tight_layout()
+frequency.shape
 ```
 
 ```{code-cell} ipython3
@@ -63,6 +64,8 @@ data = {
     "num_cols_padded": padded_cols,
     "frequency": np.where(train_mask, frequency, -1).astype(int),
     "epsilon": 0,
+    "length_scale_lower": 2,
+    "length_scale_upper": 12.5,
 }
 padded_rows, padded_cols
 ```

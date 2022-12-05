@@ -11,7 +11,8 @@ data {
     // Number of trees in each quadrant. Masked quadrants are indicated by a negative value.
     array [num_rows, num_cols] int frequency;
     // Nugget variance.
-    real<lower=0> epsilon;
+    real<lower=0> epsilon, length_scale_lower;
+    real<lower=length_scale_lower> length_scale_upper;
 }
 
 parameters {
@@ -20,10 +21,12 @@ parameters {
     // Mean log rate for the trees.
     real mu;
     // Kernel parameters and averdispersion parameter for the negative binomial distribution.
-    real<lower=0> sigma, length_scale, kappa;
+    real<lower=0> sigma, kappa;
+    real<lower=log(length_scale_lower), upper=log(length_scale_upper)> log_length_scale;
 }
 
 transformed parameters {
+    real length_scale = exp(log_length_scale);
     // Evaluate the RFFT of the Matern 3/2 kernel on the padded grid.
     matrix[num_rows_padded, num_cols_padded %/% 2 + 1] rfft2_cov = epsilon +
         gp_periodic_matern_cov_rfft2(1.5, num_rows_padded, num_cols_padded, sigma,
