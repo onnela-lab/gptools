@@ -64,8 +64,6 @@ data = {
     "num_cols_padded": padded_cols,
     "frequency": np.where(train_mask, frequency, -1).astype(int),
     "epsilon": 0,
-    "length_scale_lower": 2,
-    "length_scale_upper": 12.5,
 }
 padded_rows, padded_cols
 ```
@@ -73,8 +71,8 @@ padded_rows, padded_cols
 ```{code-cell} ipython3
 # Compile and fit the model.
 model = compile_model(stan_file="trees.stan")
-niter = 3 if "CI" in os.environ else 500
-fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=2 * niter, seed=seed)
+niter = 3 if "CI" in os.environ else 1000
+fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter, seed=seed)
 print(fit.diagnose())
 ```
 
