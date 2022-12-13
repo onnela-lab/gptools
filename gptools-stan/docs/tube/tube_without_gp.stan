@@ -23,9 +23,9 @@ transformed parameters {
 }
 
 model {
-    zone_effect ~ cauchy(0, 1);
-    degree_effect ~ cauchy(0, 1);
-    kappa ~ cauchy(0, 1);
+    zone_effect ~ student_t(2, 0, 1);
+    degree_effect ~ student_t(2, 0, 1);
+    kappa ~ student_t(2, 0, 1);
     for (i in 1:num_stations) {
         if (passengers[i] >= 0) {
             log(passengers[i]) ~ normal(log_mean[i], kappa);

@@ -9,8 +9,7 @@ data {
     array [2, num_edges] int edge_index;
     matrix[num_stations, num_zones] one_hot_zones;
     matrix[num_stations, num_degrees] one_hot_degrees;
-    real<lower=0> epsilon, length_scale_lower;
-    real<lower=length_scale_lower> length_scale_upper;
+    real<lower=0> epsilon;
 
     int include_zone_effect, include_degree_effect;
 }
@@ -23,7 +22,7 @@ parameters {
     vector[num_stations] z;
     real mu;
     real<lower=0> sigma, kappa;
-    real<lower=log(length_scale_lower), upper=log(length_scale_upper)> log_length_scale;
+    real<lower=log(0.32), upper=log(31)> log_length_scale;
     vector[num_zones] zone_effect;
     vector[num_degrees] degree_effect;
 }

@@ -91,9 +91,8 @@ data = {
     "epsilon": 0,
     "include_zone_effect": 1,
     "include_degree_effect": 1,
-    "length_scale_lower": 2 * distances.min(),
-    "length_scale_upper": distances.max() / 2,
 }
+distances.min(), distances.max()
 ```
 
 ```{code-cell} ipython3
@@ -246,5 +245,5 @@ ax.set_aspect("equal")
 fig.tight_layout()
 
 delta = np.diff(bs_samples, axis=0).squeeze()
-delta.mean(), delta.std()
+print(f"difference: {delta.mean():.3f} +- {delta.std():.3f}")
 ```
