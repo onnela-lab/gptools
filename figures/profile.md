@@ -127,16 +127,15 @@ ls_by_parameterization = {
     "non_centered": "--",
 }
 
-fig = plt.figure(layout="constrained")
+fig = plt.figure()
 # First ratio is manually fiddled to match the heights of ax1 and ax3
 gs = fig.add_gridspec(2, 2)
 ax1 = fig.add_subplot(gs[0, 0])
 ax2 = fig.add_subplot(gs[0, 1], sharex=ax1, sharey=ax1)
 ax3 = fig.add_subplot(gs[1, 0], sharey=ax1)
 
-gs4 = mpl.gridspec.GridSpecFromSubplotSpec(2, 1, gs[1, 1], hspace=0,
-                                           wspace=0,
-                                           height_ratios=[2, 1])
+gs4 = mpl.gridspec.GridSpecFromSubplotSpec(2, 1, gs[1, 1], height_ratios=[2, 1],
+                                           hspace=0.1)
 ax4t = fig.add_subplot(gs4[0])
 ax4b = fig.add_subplot(gs4[1])
 
@@ -163,7 +162,6 @@ for i, ax in [(0, ax1), (-1, ax2)]:
     ax.set_xlabel("size $n$")
     ax.set_ylabel("duration (seconds)")
 
-
 ax = ax3
 ax.set_xlabel(r"noise scale $\kappa$")
 ax.set_ylabel(r"runtime (seconds)")
@@ -179,7 +177,8 @@ for parameterization in ["non_centered", "centered"]:
         ax.plot(NOISE_SCALES, y, color=mappable.to_rgba(size),
                 ls=ls_by_parameterization[parameterization])
 ax.text(0.05, 0.95, "(c)", transform=ax.transAxes, va="top")
-fig.colorbar(mappable, ax=ax, label="size $n$")
+ax.set_ylim(top=150)
+# We'll add the colorbar later below after laying out the figure.
 
 ax = ax4b
 ax.set_xlabel(r"noise scale $\kappa$")
@@ -206,23 +205,21 @@ for ax in [ax4b, ax4t]:
     ax.set_xscale("log")
     ax.ticklabel_format(axis="y", scilimits=(0, 0), useMathText=True)
 ax4b.legend(loc="lower right")
-ax4b.set_ylim(-10e3, -7e3)
+ax4b.set_ylim(-10e3, -6.5e3)
 ax4t.set_ylim(-1300, 600)
 ax4b.yaxis.get_offset_text().set_visible(False)
-ax4b.set_yticks([-10e3, -8e3])
+ax4b.set_yticks([-9e3, -7e3])
 
 # Visibility adjustment must happen after plotting.
-ax4t.set_ylabel(r"log p.p.d. difference $\Delta$", y=0.2)
+ax4t.set_ylabel(r"log p.d. difference $\Delta$", y=0.2)
 ax4t.set_xticklabels([])
 ax4t.spines["bottom"].set_visible(False)
 plt.setp(ax.xaxis.get_majorticklines(), visible=False)
 plt.setp(ax.xaxis.get_minorticklines(), visible=False)
 ax4t.text(0.05, 0.95, "(d)", transform=ax.transAxes, va="top")
 
-# Disable automatic layout.
-fig.get_layout_engine().set(rect=[0, 0, 1, 0.93])
-fig.draw_without_rendering()
-fig.set_layout_engine(None)
+# Lay out the figure before adding extra elements.
+gs.tight_layout(fig, rect=[0, 0, 1, 0.93], h_pad=0)
 
 # Add the broken axis markers.
 angle = np.deg2rad(30)
@@ -258,13 +255,26 @@ handles_labels = [
 for method, color in color_by_method.items():
     handles_labels.append((
         mpl.lines.Line2D([], [], color=color),
-        method,
+        "Fourier" if method == "fourier" else method,
     ))
 bbox1 = ax1.get_position()
 bbox2 = ax2.get_position()
 bbox_to_anchor = [bbox1.xmin, 0, bbox2.xmax - bbox1.xmin, 1]
 legend = fig.legend(*zip(*handles_labels), fontsize="small", loc="upper center",
                     ncol=5, bbox_to_anchor=bbox_to_anchor)
+
+# Finally add the colorbar.
+rect = ax3.get_position() 
+rect = (
+    rect.xmin + 0.525 * rect.width, 
+    rect.ymin + rect.height * 0.89, 
+    rect.width * 0.45,
+    rect.height * 0.06,
+)
+cax = fig.add_axes(rect)  # rect=(left, bottom, width, height)
+cb = fig.colorbar(mappable, cax=cax, orientation="horizontal")
+cax.tick_params(labelsize="small")
+cax.set_ylabel("size $n$", fontsize="small", rotation=0, ha="right", va="center")
 
 fig.savefig("scaling.pdf", bbox_inches="tight")
 fig.savefig("scaling.png", bbox_inches="tight")
