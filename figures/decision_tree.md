@@ -91,4 +91,5 @@ ax.text(-1, 0, "(a)", ha="center", va="center")
 ax.text(1.8, 0, "(b)", ha="center", va="center")
 fig.tight_layout()
 fig.savefig("decision_tree.pdf", bbox_inches="tight")
+fig.savefig("decision_tree.png", bbox_inches="tight")
 ```

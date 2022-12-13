@@ -267,4 +267,5 @@ legend = fig.legend(*zip(*handles_labels), fontsize="small", loc="upper center",
                     ncol=5, bbox_to_anchor=bbox_to_anchor)
 
 fig.savefig("scaling.pdf", bbox_inches="tight")
+fig.savefig("scaling.png", bbox_inches="tight")
 ```

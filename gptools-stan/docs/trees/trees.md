@@ -195,4 +195,5 @@ ax3.text(0.05, 0.95, "(b)", va="top", transform=ax3.transAxes)
 ax4.text(0.05, 0.95, "(d)", va="top", transform=ax4.transAxes)
 
 fig.savefig("trees.pdf", bbox_inches="tight")
+fig.savefig("trees.png", bbox_inches="tight")
 ```
