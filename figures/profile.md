@@ -147,6 +147,7 @@ ax.set_xlabel(r"size $n$")
 ax.set_ylabel(r"runtime (seconds)")
 
 for i, ax in [(0, ax1), (-1, ax2)]:
+    print(f"kappa = {LOG10_NOISE_SCALES[i]}")
     for key, value in durations.items():
         method, parameterization = key.split("_", 1)
         line, = ax.plot(
@@ -155,12 +156,19 @@ for i, ax in [(0, ax1), (-1, ax2)]:
             ls=ls_by_parameterization[parameterization],
         )
         line.set_markeredgecolor("w")
+        
+        f = np.isfinite(value[i])
+        fit = np.polynomial.Polynomial.fit(np.log(SIZES[f])[-3:], np.log(value[i][f])[-3:], 1)
+        fit = fit.convert()
+        print(f"{key}: n ** {fit.coef[1]:.3f}")
+        
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.text(0.05, 0.95, fr"({'ab'[i]}) $\kappa=10^{{{LOG10_NOISE_SCALES[i]:.0f}}}$",
             transform=ax.transAxes, va="top")
     ax.set_xlabel("size $n$")
     ax.set_ylabel("duration (seconds)")
+    print()
 
 ax = ax3
 ax.set_xlabel(r"noise scale $\kappa$")
@@ -278,4 +286,12 @@ cax.set_ylabel("size $n$", fontsize="small", rotation=0, ha="right", va="center"
 
 fig.savefig("scaling.pdf", bbox_inches="tight")
 fig.savefig("scaling.png", bbox_inches="tight")
+```
+
+```{code-cell} ipython3
+# Show the typical runtimes for the "compromise" noise scale for the standard approach.
+np.transpose([
+    SIZES,
+    durations["standard_centered"][LOG10_NOISE_SCALES.size // 2],
+])
 ```
