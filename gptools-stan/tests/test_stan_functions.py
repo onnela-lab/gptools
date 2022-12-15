@@ -159,13 +159,14 @@ for n in [7, 8]:
         + kernels.DiagonalKernel(.1, 1)
     cov = kernel.evaluate(np.arange(n)[:, None])
     lincov = cov[0]
+    cov_rfft = np.fft.rfft(lincov).real
     rfft_scale = fft.evaluate_rfft_scale(cov=lincov)
     z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
-                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
+                      "cov_rfft": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": z,
@@ -173,10 +174,10 @@ for n in [7, 8]:
 
     # ... and back again.
     add_configuration({
-        "stan_function": "gp_transform_irfft",
+        "stan_function": "gp_transform_inv_rfft",
         "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]",
-                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "z": z, "loc": loc, "rfft_scale": rfft_scale},
+                      "cov_rfft": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "z": z, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": [y, fft.transform_irfft(z, loc, rfft_scale=rfft_scale)],
@@ -186,8 +187,8 @@ for n in [7, 8]:
     add_configuration({
         "stan_function": "gp_rfft_lpdf",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
-                      "rfft_scale": "vector[n_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "y": y, "loc": loc, "rfft_scale": rfft_scale},
+                      "cov_rfft": "vector[n_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "real",
         "includes": ["gptools_util.stan", "gptools_fft1.stan"],
         "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
@@ -245,13 +246,14 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     xs = coordgrid(np.arange(n), np.arange(m))
     cov = kernel.evaluate(xs)
     lincov = cov[0].reshape((n, m))
+    cov_rfft2 = np.fft.rfft2(lincov).real
     rfft2_scale = fft.evaluate_rfft2_scale(lincov)
     z = fft.transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
     add_configuration({
         "stan_function": "gp_transform_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
-                      "rfft2_scale": "matrix[n_, m_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "rfft2_scale": rfft2_scale},
+                      "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
         "desired": z,
@@ -259,10 +261,10 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
 
     # ... and back again.
     add_configuration({
-        "stan_function": "gp_transform_irfft2",
+        "stan_function": "gp_transform_inv_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "z": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
-                      "rfft2_scale": "matrix[n_, m_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "rfft2_scale": rfft2_scale},
+                      "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
         "desired": [y, fft.transform_irfft2(z, loc, rfft2_scale=rfft2_scale)],
@@ -272,8 +274,8 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     add_configuration({
         "stan_function": "gp_rfft2_lpdf",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
-                      "rfft2_scale": "matrix[n_, m_ %/% 2 + 1]"},
-        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "rfft2_scale": rfft2_scale},
+                      "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
+        "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "real",
         "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
@@ -485,7 +487,7 @@ for num_nodes, edges, raises in [
 ]:
     edges = np.asarray(edges)
     add_configuration({
-        "stan_function": "in_degrees",
+        "stan_function": "out_degrees",
         "arg_types": {"num_nodes": "int", "num_edges_": "int",
                       "edges": "array [2, num_edges_] int"},
         "arg_values": {"num_nodes": num_nodes, "num_edges_": edges.shape[1], "edges": edges},

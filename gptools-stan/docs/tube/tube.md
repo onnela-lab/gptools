@@ -11,6 +11,8 @@ kernelspec:
   name: python3
 ---
 
+# Passengers on the London Underground network
+
 ```{code-cell} ipython3
 from gptools.stan import compile_model
 from gptools.util import encode_one_hot
@@ -21,6 +23,7 @@ from matplotlib import pyplot as plt
 import networkx as nx
 import numpy as np
 import os
+from scipy.spatial.distance import pdist
 from scipy import stats
 
 mpl.style.use("../../../jss.mplstyle")
@@ -74,6 +77,7 @@ one_hot_degrees = encode_one_hot(degrees.clip(max=max_degree) - 1)
 np.random.seed(seed)
 train_mask = np.random.uniform(0, 1, y.size) < train_frac
 
+distances = pdist(X)
 data = {
     "num_stations": graph.number_of_nodes(),
     "num_edges": edge_index.shape[1],
@@ -88,12 +92,13 @@ data = {
     "include_zone_effect": 1,
     "include_degree_effect": 1,
 }
+distances.min(), distances.max()
 ```
 
 ```{code-cell} ipython3
 niter = 3 if "CI" in os.environ else 1000
 model_with_gp = compile_model(stan_file="tube.stan")
-fit_with_gp = model_with_gp.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter, 
+fit_with_gp = model_with_gp.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter,
                                    seed=seed, adapt_delta=0.9)
 print(fit_with_gp.diagnose())
 ```
@@ -199,6 +204,7 @@ ax4.text(0.95, 0.95, "(d)", transform=ax4.transAxes, va="top", ha="right")
 
 fig.tight_layout()
 fig.savefig("tube.pdf", bbox_inches="tight")
+fig.savefig("tube.png", bbox_inches="tight")
 ```
 
 On the one hand, the three northern stations of the [Hainault Loop](https://en.wikipedia.org/wiki/Hainault_Loop) ([Roding Valley](https://en.wikipedia.org/wiki/Roding_Valley_tube_station), [Chigwell](https://en.wikipedia.org/wiki/Chigwell_tube_station), and [Grange Hill](https://en.wikipedia.org/wiki/Grange_Hill_tube_station)) are underused because they are serviced by only three trains an hour whereas nearby stations (such as [Hainault](https://en.wikipedia.org/wiki/Hainault_tube_station), [Woodford](https://en.wikipedia.org/wiki/Woodford_tube_station), and [Buckhurst Hill](https://en.wikipedia.org/wiki/Buckhurst_Hill_tube_station)) are serviced by twelve trains an hour. On the other hand, [Canary Wharf](https://en.wikipedia.org/wiki/Canary_Wharf_tube_station) at the heart of the financial district has much higher use than would be expected for a station that only serves a single line in zone 2.
@@ -208,7 +214,7 @@ Let's compare the predictive performance on the held out data with and without t
 ```{code-cell} ipython3
 model_without_gp = compile_model(stan_file="tube_without_gp.stan")
 niter = 3 if "CI" in os.environ else 1000
-fit_without_gp = model_without_gp.sample(data, chains=1, iter_warmup=niter, 
+fit_without_gp = model_without_gp.sample(data, chains=1, iter_warmup=niter,
                                          iter_sampling=niter, seed=seed, adapt_delta=0.9)
 print(fit_without_gp.diagnose())
 ```
@@ -225,13 +231,13 @@ bs_samples = []
 for label, fit in [("with GP", fit_with_gp), ("without GP", fit_without_gp)]:
     log_mean = fit.stan_variable("log_mean")[..., ~train_mask]
     kappa = fit.stan_variable("kappa")
-    
+
     # Evaluate the score and bootstrapped error.
     log_score = stats.norm(log_mean, kappa[:, None]).logpdf(test).mean(axis=0)
     x = np.random.dirichlet(np.ones(log_score.shape[0]), 1000) @ log_score
     print(f"{label}: {log_score.mean():.3f} +- {np.std(x):.3f}")
     bs_samples.append(x)
-    
+
     ax.errorbar(test, log_mean.mean(axis=0), log_mean.std(axis=0), ls="none", marker=".", label=label)
 
 ax.legend(fontsize="small")
@@ -239,5 +245,5 @@ ax.set_aspect("equal")
 fig.tight_layout()
 
 delta = np.diff(bs_samples, axis=0).squeeze()
-delta.mean(), delta.std()
+print(f"difference: {delta.mean():.3f} +- {delta.std():.3f}")
 ```

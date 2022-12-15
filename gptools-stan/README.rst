@@ -6,6 +6,7 @@
 
     docs/poisson_regression/poisson_regression
     docs/trees/trees
+    docs/tube/tube
 
 The interface definitions below provide a comprehensive overview of the functionality offered by the Stan library. Please see the example :doc:`docs/poisson_regression/poisson_regression` for an illustration of how to use the library.
 

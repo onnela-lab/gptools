@@ -12,7 +12,7 @@ data {
 }
 
 transformed data {
-    array [n] int degrees = in_degrees(n, edge_index);
+    array [n] int degrees = out_degrees(n, edge_index);
 }
 
 parameters {
@@ -21,7 +21,7 @@ parameters {
 
 transformed parameters {
     // Transform white noise to a sample from the graph Gaussian process.
-    vector[n] eta = gp_graph_exp_quad_cov_transform(
+    vector[n] eta = gp_transform_inv_graph_exp_quad_cov(
         z, zeros_vector(n), X, sigma, length_scale, edge_index, degrees, epsilon);
 }
 

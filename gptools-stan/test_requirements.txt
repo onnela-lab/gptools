@@ -45,7 +45,7 @@ charset-normalizer==2.1.1
     # via requests
 cloudpickle==2.2.0
     # via doit
-cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@develop
+cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@1612c04
     # via
     #   -r gptools-stan/test_requirements.in
     #   gp-tools-stan

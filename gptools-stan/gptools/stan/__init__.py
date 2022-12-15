@@ -18,12 +18,14 @@ def compile_model(
         exe_file: OptionalPath = None, compile: Union[bool, str] = True,
         stanc_options: Optional[dict[str, Any]] = None,
         cpp_options: Optional[dict[str, Any]] = None,
-        user_header: OptionalPath = None) -> cmdstanpy.CmdStanModel:
+        user_header: OptionalPath = None, **kwargs) -> cmdstanpy.CmdStanModel:
     # Add gptools includes by default.
     stanc_options = stanc_options or {}
     stanc_options.setdefault("include-paths", []).append(get_include())
-    return cmdstanpy.CmdStanModel(model_name, stan_file, exe_file, compile, stanc_options,
-                                  cpp_options, user_header)
+    return cmdstanpy.CmdStanModel(
+        model_name=model_name, stan_file=stan_file, exe_file=exe_file, compile=compile,
+        stanc_options=stanc_options, cpp_options=cpp_options, user_header=user_header, **kwargs,
+    )
 
 
 if __name__ == "__main__":

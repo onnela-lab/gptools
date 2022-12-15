@@ -20,7 +20,7 @@ plot_formats = [
 ]
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
-exclude_patterns = ["docs/_build", "docs/jupyter_execute", ".pytest_cache", "playground"]
+exclude_patterns = ["docs/_build", "docs/jupyter_execute", ".pytest_cache", "playground", "figures"]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False

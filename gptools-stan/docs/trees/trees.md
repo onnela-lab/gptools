@@ -11,6 +11,8 @@ kernelspec:
   name: python3
 ---
 
+# Density of T. panamensis on a 50 ha plot in Panama
+
 ```{code-cell} ipython3
 from gptools import util
 from gptools.stan import compile_model
@@ -39,6 +41,7 @@ ax.set_xlabel("easting (km)")
 ax.set_ylabel("northing (km)")
 fig.colorbar(im, ax=ax, location="top", label="tree density")
 fig.tight_layout()
+frequency.shape
 ```
 
 ```{code-cell} ipython3
@@ -68,8 +71,8 @@ padded_rows, padded_cols
 ```{code-cell} ipython3
 # Compile and fit the model.
 model = compile_model(stan_file="trees.stan")
-niter = 3 if "CI" in os.environ else 500
-fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=2 * niter, seed=seed)
+niter = 3 if "CI" in os.environ else 1000
+fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter, seed=seed)
 print(fit.diagnose())
 ```
 
@@ -89,8 +92,8 @@ def evaluate_error(actual, prediction, error, num_bs=1000):
         return (np.square(bs_actual - bs_prediction) / np.maximum(bs_actual, 1)).mean(axis=-1)
     else:
         raise ValueError(error)
-        
-        
+
+
 def filter_estimate(frequency, train_mask, scale):
     smoothed_mask = ndimage.gaussian_filter(train_mask.astype(float), scale)
     smoothed_masked_frequency = ndimage.gaussian_filter(np.where(train_mask, frequency, 0), scale)
@@ -167,7 +170,7 @@ cax.xaxis.set_ticks_position("top")
 cax.xaxis.set_label_position("top")
 
 ax3 = fig.add_subplot(gs2[0])
-ax3.scatter(fit.length_scale * delta * 1e3, fit.sigma, marker=".", 
+ax3.scatter(fit.length_scale * delta * 1e3, fit.sigma, marker=".",
             alpha=0.25)
 ax3.set_xlabel(r"correlation length $\ell$ (m)")
 ax3.set_ylabel(r"marginal scale $\sigma$")
@@ -190,4 +193,5 @@ ax3.text(0.05, 0.95, "(b)", va="top", transform=ax3.transAxes)
 ax4.text(0.05, 0.95, "(d)", va="top", transform=ax4.transAxes)
 
 fig.savefig("trees.pdf", bbox_inches="tight")
+fig.savefig("trees.png", bbox_inches="tight")
 ```

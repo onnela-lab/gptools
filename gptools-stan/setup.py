@@ -12,6 +12,8 @@ setup(
     packages=find_namespace_packages(),
     version="0.1.0",
     install_requires=[
+        # Required because of a bug in how complex numbers are handled (see
+        # https://github.com/stan-dev/cmdstanpy/pull/612).
         "cmdstanpy>=1.0.7",
         "gp-tools-util",
         "numpy",

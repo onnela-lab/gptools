@@ -151,3 +151,8 @@ matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, vector l
         * tgamma(dof + ndim / 2) / tgamma(dof)
         * result .^ -(dof + ndim / 2) * prod(to_array_1d(length_scale ./ period));
 }
+
+matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, real length_scale,
+                                    vector period) {
+    return gp_periodic_matern_cov_rfft2(dof, m, n, sigma, [length_scale, length_scale]', period);
+}

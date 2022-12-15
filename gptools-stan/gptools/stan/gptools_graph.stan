@@ -1,5 +1,5 @@
 /**
-Evaluate the in-degree of nodes in the directed acyclic graph induced by :code:`edges`. The node
+Evaluate the out-degree of nodes in the directed acyclic graph induced by :code:`edges`. The node
 labels of successors must be ordered and predecessors must have index less than successors.
 
 :param n: Number of nodes.
@@ -9,7 +9,7 @@ labels of successors must be ordered and predecessors must have index less than 
 
 :returns: In-degree of each node.
 */
-array [] int in_degrees(int n, array [,] int edge_index) {
+array [] int out_degrees(int n, array [,] int edge_index) {
     array [n] int count = rep_array(0, n);
     int previous = 0;
     for (i in 1:size(edge_index[2])) {
@@ -114,8 +114,7 @@ real gp_graph_exp_quad_cov_lpdf(vector y, vector mu, array [] vector x, real sig
 
 
 /**
-Transform white noise to a sample from a graph Gaussian process with zero mean. A mean can be
-added after the transformation.
+Transform white noise to a sample from a graph Gaussian process with zero mean.
 
 :param z: White noise for each node.
 :param mu: Mean for each node.
@@ -131,9 +130,9 @@ added after the transformation.
 
 :returns: Sample from the Graph gaussian process.
 */
-vector gp_graph_exp_quad_cov_transform(vector z, vector mu, array [] vector x, real sigma,
-                                       real length_scale, array [,] int edges, array [] int degrees,
-                                       real epsilon) {
+vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
+                                           real length_scale, array [,] int edges,
+                                           array [] int degrees, real epsilon) {
     vector[size(z)] y;
     int offset_ = 1;
     for (i in 1:size(x)) {
@@ -143,4 +142,15 @@ vector gp_graph_exp_quad_cov_transform(vector z, vector mu, array [] vector x, r
         offset_ += degrees[i];
     }
     return y + mu;
+}
+
+/**
+Transform white noise to a sample from a graph Gaussian process with zero mean. See
+:stan:func:`gp_transform_inv_graph_exp_quad_cov(vector, vector, array [] vector, real, real,
+array [,] int, array [] int, real)` for details.
+*/
+vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
+                                           real length_scale, array [,] int edges) {
+    return gp_transform_inv_graph_exp_quad_cov(z, mu, x, sigma, length_scale, edges,
+                                               out_degrees(size(z), edges), 0.0);
 }
