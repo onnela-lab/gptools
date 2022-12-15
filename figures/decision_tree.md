@@ -74,7 +74,7 @@ def connect(xy1, xy2, frac=0.25, color="k", label=None):
             }
         }
         ax.text(x2, (y1 - frac + y2) / 2, label, **kwargs)
-    
+
 connect((0, 0), (-1, -1), label="weak")
 connect((0, 0), (0, -1), label="strong")
 connect((0, 0), (1, -1), label="very\nstrong")
