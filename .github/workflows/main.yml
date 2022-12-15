@@ -77,7 +77,5 @@ jobs:
         run: pip install -r doc_requirements.txt
       - name: Install cmdstanpy
         run: python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
-      - name: Test the example notebooks
-        run: pytest docs/test_examples.py -v
-      - name: Build the documentation
+      - name: Build the documentation, including example notebooks
         run: doit docs
