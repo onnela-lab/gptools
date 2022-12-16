@@ -15,7 +15,7 @@ parameters {
 transformed parameters {
     vector[n] eta;
     {
-        vector[n %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(n, sigma, length_scale, n, 10);
+        vector[n %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(n, sigma, length_scale, n);
         eta = gp_transform_inv_rfft(eta_, zeros_vector(n), cov_rfft);
     }
 }

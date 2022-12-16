@@ -16,7 +16,7 @@ parameters {
 
 transformed parameters {
     // Evaluate covariance of the point at zero with everything else.
-    vector[n %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(n, sigma, length_scale, n, 10)
+    vector[n %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(n, sigma, length_scale, n)
         + epsilon;
 }
 

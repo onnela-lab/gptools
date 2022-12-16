@@ -13,7 +13,7 @@ parameters {
 }
 
 model {
-    vector[n %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(n, sigma, length_scale, n, 10);
+    vector[n %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(n, sigma, length_scale, n);
     eta ~ gp_rfft(zeros_vector(n), cov_rfft);
     y[observed_idx] ~ normal(eta[observed_idx], noise_scale);
 }

@@ -1,74 +1,12 @@
 import math
-import numbers
 import numpy as np
 import operator
-from typing import Callable, Optional
+from typing import Callable
 from . import ArrayOrTensor, ArrayOrTensorDispatch, coordgrid, OptionalArrayOrTensor
 from .fft import expand_rfft
 
 
 dispatch = ArrayOrTensorDispatch()
-
-
-def _jtheta_num_terms(q: ArrayOrTensor, rtol: float = 1e-9) -> int:
-    return math.ceil(math.log(rtol) / math.log(dispatch.max(q)))
-
-
-def jtheta(z: ArrayOrTensor, q: ArrayOrTensor, nterms: Optional[int] = None,
-           max_batch_size: int = 1e6) -> ArrayOrTensor:
-    r"""
-    Evaluate the Jacobi theta function using a series approximation.
-
-    .. math::
-
-        \vartheta_3\left(q,z\right) = 1 + 2 \sum_{n=1}^\infty q^{n^2} \cos\left(2\pi n z\right)
-
-    Args:
-        z: Argument of the theta function.
-        q: Nome of the theta function with modulus less than one.
-        nterms: Number of terms in the series approximation (defaults to achieve a relative
-            tolerance of :math:`10^{-9}`, 197 terms for `q = 0.9`).
-        max_batch_size: Maximum number of terms per batch.
-    """
-    # TODO: fix for torch.
-    q, z = np.broadcast_arrays(q, z)
-    nterms = nterms or _jtheta_num_terms(q)
-    # If the dimensions of q and z are large and the number of terms is large, we can run into
-    # memory issues here. We batch the evaluation if necessary to overcome this issue. The maximum
-    # number of terms should be no more than 10 ^ 6 elements (about 8MB at 64-bit precision).
-    batch_size = int(max(1, max_batch_size / (q.size * nterms)))
-    series = 0.0
-    for offset in range(0, nterms, batch_size):
-        size = min(batch_size, nterms - offset)
-        n = 1 + offset + dispatch[z].arange(size)
-        series = series \
-            + (q[..., None] ** (n ** 2) * dispatch.cos(2 * math.pi * z[..., None] * n)).sum(axis=-1)
-
-    return 1 + 2 * series
-
-
-def jtheta_rfft(nz: int, q: ArrayOrTensor, nterms: Optional[int] = None) -> ArrayOrTensor:
-    """
-    Evaluate the real fast Fourier transform of the Jacobi theta function evaluated on the unit
-    interval with `nz` grid points.
-
-    The :func:`jtheta` and :func:`jtheta_rfft` functions are related by
-
-    >>> nz = ...
-    >>> q = ...
-    >>> z = np.linspace(0, 1, nz, endpoint=False)
-    >>> np.fft.rfft(jtheta(z, q)) == jtheta_rfft(nz, q)
-
-    Args:
-        nz: Number of grid points.
-        q: Nome of the theta function with modulus less than one.
-        nterms: Number of terms in the series approximation (defaults to achieve a relative
-            tolerance of :math:`10^{-9}`, 197 terms for `q = 0.9`).
-    """
-    nterms = nterms or _jtheta_num_terms(q)
-    k = np.arange(nz // 2 + 1)
-    ns = nz * np.arange(nterms)[:, None]
-    return nz * ((q ** ((k + ns) ** 2)).sum(axis=0) + (q ** ((nz - k + ns) ** 2)).sum(axis=0))
 
 
 def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
@@ -290,45 +228,28 @@ class ExpQuadKernel(Kernel):
         sigma: Scale of the covariance.
         length_scale: Correlation length.
         period: Period for circular boundary conditions.
-        num_terms: Number of terms in the series approximation of the heat equation solution.
     """
-    def __init__(self, sigma: float, length_scale: float, period: OptionalArrayOrTensor = None,
-                 num_terms: Optional[int] = None) -> None:
+    def __init__(self, sigma: float, length_scale: float, period: OptionalArrayOrTensor = None) \
+            -> None:
         super().__init__(period)
         self.sigma = sigma
         self.length_scale = length_scale
-        if self.is_periodic:
-            # Evaluate the effective relaxation time of the heat kernel.
-            self.time = 2 * (math.pi * self.length_scale / self.period) ** 2
-            if num_terms is None:
-                num_terms = _jtheta_num_terms(dispatch.exp(-self.time).max())
-            if not isinstance(num_terms, numbers.Number):
-                num_terms = max(num_terms)
-            self.num_terms = int(num_terms)
-        else:
-            self.time = self.num_terms = None
 
     def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        if self.is_periodic:
-            # The residuals will have shape `(..., num_dims)`.
-            residuals = evaluate_residuals(x, y, self.period) / self.period
-            value = jtheta(residuals, dispatch.exp(-self.time), self.num_terms) \
-                * (self.time / math.pi) ** 0.5
-            cov = self.sigma ** 2 * value.prod(axis=-1)
-            return cov
-        else:
-            residuals = evaluate_residuals(x, y) / self.length_scale
-            exponent = - dispatch.square(residuals).sum(axis=-1) / 2
-            return self.sigma * self.sigma * dispatch.exp(exponent)
+        residuals = evaluate_residuals(x, y, self.period) / self.length_scale
+        exponent = - dispatch.square(residuals).sum(axis=-1) / 2
+        return self.sigma * self.sigma * dispatch.exp(exponent)
 
     def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
         if not self.is_periodic:
-            raise ValueError("kernel must be periodic")
+            raise NotImplementedError
         ndim = len(shape)
-        time = self.time * np.ones(ndim)
+        rescaled_length_scale = self.length_scale * np.ones(ndim) / self.period
         value = None
         for i, size in enumerate(shape):
-            part = jtheta_rfft(size, np.exp(-time[i])) * (time[i] / math.pi) ** 0.5
+            xi = np.arange(size // 2 + 1)
+            part = size * rescaled_length_scale[i] * (2 * math.pi) ** 0.5 \
+                * np.exp(-2 * (math.pi * xi * rescaled_length_scale[i]) ** 2)
             if i != ndim - 1:
                 part = expand_rfft(part, size)
             if value is None:
@@ -359,22 +280,19 @@ class MaternKernel(Kernel):
         self.dof = dof
 
     def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
-        if self.is_periodic:
-            raise NotImplementedError
+        residuals = evaluate_residuals(x, y, self.period) / self.length_scale
+        distance = (2 * self.dof * residuals * residuals).sum(axis=-1) ** 0.5
+        if self.dof == 3 / 2:
+            value = 1 + distance
+        elif self.dof == 5 / 2:
+            value = 1 + distance + distance * distance / 3
         else:
-            residuals = evaluate_residuals(x, y) / self.length_scale
-            distance = (2 * self.dof * residuals * residuals).sum(axis=-1) ** 0.5
-            if self.dof == 3 / 2:
-                value = 1 + distance
-            elif self.dof == 5 / 2:
-                value = 1 + distance + distance * distance / 3
-            else:
-                raise NotImplementedError
-            return self.sigma * self.sigma * value * dispatch.exp(-distance)
+            raise NotImplementedError
+        return self.sigma * self.sigma * value * dispatch.exp(-distance)
 
     def evaluate_rfft(self, shape: tuple[int]):
         if not self.is_periodic:
-            raise ValueError("kernel must be periodic")
+            raise NotImplementedError
         from scipy import special
 
         # Construct the grid to evaluate on.

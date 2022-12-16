@@ -236,9 +236,7 @@ Given the substantial performance improvements, we can readily increase the samp
 
 ```{code-cell} ipython3
 x = np.arange(1024)
-num_terms = 3 if os.environ.get("CI") else None
-kernel = ExpQuadKernel(sigma=1.2, length_scale=15, period=x.size, num_terms=num_terms) \
-    + DiagonalKernel(1e-3, x.size)
+kernel = ExpQuadKernel(sigma=1.2, length_scale=15, period=x.size) + DiagonalKernel(1e-3, x.size)
 sample = simulate(x, kernel)
 plot_sample(sample).legend()
 ```
