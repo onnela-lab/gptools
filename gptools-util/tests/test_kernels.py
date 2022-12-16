@@ -1,36 +1,10 @@
 from gptools.util import coordgrid, kernels
 from gptools.util.testing import KernelConfiguration
 import itertools as it
-import mpmath
 import numpy as np
 import pytest
 from scipy.spatial.distance import cdist
 import torch as th
-
-
-@pytest.mark.parametrize("q", [0.1, 0.8])
-def test_jtheta(q: float) -> None:
-    z = np.linspace(0, 1, 7, endpoint=False)
-    actual = kernels.jtheta(z, q, max_batch_size=3)
-    desired = np.vectorize(mpmath.jtheta)(3, np.pi * z, q).astype(float)
-    np.testing.assert_allclose(actual, desired)
-
-
-def test_jtheta_batching() -> None:
-    z = np.linspace(0, 1, 7, endpoint=False)
-    result = kernels.jtheta(0.5, z, nterms=13)
-    for max_batch_size in [7, 13, 14, 21]:
-        np.testing.assert_allclose(result, kernels.jtheta(0.5, z, nterms=13,
-                                                          max_batch_size=max_batch_size))
-
-
-@pytest.mark.parametrize("nz", [5, 6])
-@pytest.mark.parametrize("q", [0.1, 0.8])
-def test_jtheta_rfft(nz: int, q: float) -> None:
-    jtheta = kernels.jtheta(np.linspace(0, 1, nz, endpoint=False), q)
-    actual = kernels.jtheta_rfft(nz, q)
-    desired = np.fft.rfft(jtheta)
-    np.testing.assert_allclose(actual, desired)
 
 
 @pytest.mark.parametrize("shape", [(7,), (2, 3)])
@@ -55,7 +29,7 @@ def test_periodic(kernel_configuration: KernelConfiguration):
     kernel = kernel_configuration()
     if not kernel.is_periodic:
         # Ensure the rfft cannot be evaluated and skip the rest.
-        with pytest.raises((NotImplementedError, ValueError)):
+        with pytest.raises(NotImplementedError):
             kernel.evaluate_rfft(tuple(range(13, 13 + len(kernel_configuration.dims))))
         return
 
@@ -85,8 +59,9 @@ def test_periodic(kernel_configuration: KernelConfiguration):
         fftcov = np.fft.rfft(cov) if dim == 1 else np.fft.rfft2(cov)
         np.testing.assert_allclose(fftcov.imag, 0, atol=1e-9)
 
-        # Ensure the numeric rfft matches the manual evaluation.
-        np.testing.assert_allclose(fftcov.real, kernel.evaluate_rfft(shape), atol=1e-9)
+        # We may want to check that the numerical and theoretic FFT match, but this requires a more
+        # "proper" implementation of the periodic kernels involving infinite sums (see
+        # https://github.com/tillahoffmann/gp-tools/issues/59 for details).
 
 
 def test_kernel_composition():
@@ -134,15 +109,6 @@ def test_periodic_exp_quad_rfft(shape: int) -> None:
         raise ValueError
     assert rfft.shape == (*head, tail // 2 + 1,)
     np.testing.assert_allclose(rfft.imag, 0, atol=1e-9)
-    rfft = rfft.real
-    predicted = kernel.evaluate_rfft(shape)
-    np.testing.assert_allclose(rfft, predicted, atol=1e-9)
-
-
-@pytest.mark.parametrize("num_terms", [None, 7, np.arange(4)])
-def test_periodic_exp_quad_kernel_num_terms(num_terms) -> None:
-    kernel = kernels.ExpQuadKernel(1, .5, 1, num_terms)
-    assert kernel.num_terms >= 1
 
 
 def test_matern_invalid_dof() -> None:

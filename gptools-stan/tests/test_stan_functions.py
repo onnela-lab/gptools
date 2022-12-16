@@ -359,26 +359,6 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": np.zeros((m, n)),
     })
 
-for n in [5, 8]:
-    z = np.linspace(0, 1, n, endpoint=False)
-    q = np.random.uniform(0.25, 0.75, n)
-    add_configuration({
-        "stan_function": "jtheta",
-        "arg_types": {"n_": "int", "z": "vector[n_]", "q": "vector[n_]", "nterms": "int"},
-        "arg_values": {"n_": n, "z": z, "q": q, "nterms": 10},
-        "result_type": "vector[n_]",
-        "includes": ["gptools_util.stan"],
-        "desired": kernels.jtheta(z, q),
-    })
-    add_configuration({
-        "stan_function": "jtheta_rfft",
-        "arg_types": {"n": "int", "q": "real", "nterms": "int"},
-        "arg_values": {"n": n, "q": q[0], "nterms": 10},
-        "result_type": "vector[n %/% 2 + 1]",
-        "includes": ["gptools_util.stan"],
-        "desired": kernels.jtheta_rfft(n, q[0]),
-    })
-
 for ndim in [1, 2, 3]:
     n = 1 + np.random.poisson(50)
     m = 1 + np.random.poisson(50)
@@ -392,9 +372,9 @@ for ndim in [1, 2, 3]:
         "stan_function": "gp_periodic_exp_quad_cov",
         "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
                       "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
-                      "period": "vector[p_]", "nterms": "int"},
+                      "period": "vector[p_]"},
         "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale, "period": period, "nterms": 100},
+                       "length_scale": length_scale, "period": period},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools_util.stan", "gptools_kernels.stan"],
         "desired": kernel.evaluate(x[:, None], y[None]),
@@ -428,10 +408,8 @@ for m in [7, 8]:
     period = np.random.gamma(100, 0.1)
     add_configuration({
         "stan_function": "gp_periodic_exp_quad_cov_rfft",
-        "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real",
-                      "nterms": "int"},
-        "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period,
-                       "nterms": 100},
+        "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real"},
+        "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period},
         "result_type": "vector[m %/% 2 + 1]",
         "includes": ["gptools_util.stan", "gptools_kernels.stan"],
         "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
@@ -453,9 +431,9 @@ for m in [7, 8]:
         add_configuration({
             "stan_function": "gp_periodic_exp_quad_cov_rfft2",
             "arg_types": {"m": "int", "n": "int", "sigma": "real", "length_scale": "vector[2]",
-                          "period": "vector[2]", "nterms": "int"},
+                          "period": "vector[2]"},
             "arg_values": {"m": m, "n": n, "sigma": sigma, "length_scale": length_scale,
-                           "period": period, "nterms": 100},
+                           "period": period},
             "result_type": "matrix[m, n %/% 2 + 1]",
             "includes": ["gptools_util.stan", "gptools_kernels.stan"],
             "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)

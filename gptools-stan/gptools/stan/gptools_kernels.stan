@@ -80,39 +80,27 @@ matrix dist2(array [] vector x, vector period, vector scale) {
 Evaluate the periodic squared exponential kernel.
 */
 matrix gp_periodic_exp_quad_cov(array [] vector x1, array [] vector x2, real sigma,
-                                vector length_scale, vector period, int nterms) {
+                                vector length_scale, vector period) {
     int m = size(x1);
     int n = size(x2);
-    matrix[m, n] result;
-    vector[size(length_scale)] time = 2 * (pi() * length_scale ./ period) ^ 2;
-    vector[size(length_scale)] q = exp(-time);
-    real scale = sigma * sigma * prod(sqrt(time / pi()));
-    for (i in 1:m) {
-        for (j in 1:n) {
-            result[i, j] = scale * prod(jtheta(evaluate_residuals(x1[i], x2[j], period, period), q, nterms));
-        }
-    }
-    return result;
+    return sigma * sigma * exp(-dist2(x1, x2, period, length_scale) / 2);
 }
 
 /**
 Evaluate the real fast Fourier transform of the periodic squared exponential kernel.
 */
-vector gp_periodic_exp_quad_cov_rfft(int n, real sigma, real length_scale, real period,
-                                     int nterms) {
-    real time = 2 * (pi() * length_scale / period) ^ 2;
-    return sigma * sigma * jtheta_rfft(n, exp(-time), nterms) * sqrt(time / pi());
+vector gp_periodic_exp_quad_cov_rfft(int n, real sigma, real length_scale, real period) {
+    int nrfft = n %/% 2 + 1;
+    return n * sigma ^ 2 * length_scale / period * sqrt(2 * pi())
+        * exp(-2 * (pi() * linspaced_vector(nrfft, 0, nrfft - 1) * length_scale / period) ^ 2);
 }
 
 /**
 Evaluate the two-dimensional real fast Fourier transform of the periodic squared exponential kernel.
 */
-matrix gp_periodic_exp_quad_cov_rfft2(int m, int n, real sigma, vector length_scale, vector period,
-                                      int nterms) {
-    vector[m %/% 2 + 1] rfftm = gp_periodic_exp_quad_cov_rfft(m, sigma, length_scale[1], period[1],
-                                                              nterms);
-    vector[n %/% 2 + 1] rfftn = gp_periodic_exp_quad_cov_rfft(n, 1, length_scale[2], period[2],
-                                                              nterms);
+matrix gp_periodic_exp_quad_cov_rfft2(int m, int n, real sigma, vector length_scale, vector period) {
+    vector[m %/% 2 + 1] rfftm = gp_periodic_exp_quad_cov_rfft(m, sigma, length_scale[1], period[1]);
+    vector[n %/% 2 + 1] rfftn = gp_periodic_exp_quad_cov_rfft(n, 1, length_scale[2], period[2]);
     return get_real(expand_rfft(rfftm, m)) * rfftn';
 }
 

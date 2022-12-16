@@ -502,10 +502,6 @@ more-itertools==9.0.0
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
     #   jaraco-classes
-mpmath==1.2.1
-    # via
-    #   -r doc_requirements.txt
-    #   -r gptools-util/test_requirements.txt
 myst-nb==0.17.1
     # via -r doc_requirements.txt
 myst-parser==0.18.1
