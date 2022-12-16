@@ -68,7 +68,7 @@ def test_evaluate_log_prob_rfft2(batch_shape: tuple[int], rfft2_shape: int, use_
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
         + kernels.DiagonalKernel(1e-2, 1)
     cov = kernel.evaluate(xs)
-    np.fill_diagonal(cov, np.diag(cov) + 1e-9)
+    np.fill_diagonal(cov, np.diag(cov) + 1e-6)
     loc = np.random.normal(0, 1, xs.shape[0])
     dist = stats.multivariate_normal(loc, cov)
     y = dist.rvs(batch_shape)
@@ -80,7 +80,7 @@ def test_evaluate_log_prob_rfft2(batch_shape: tuple[int], rfft2_shape: int, use_
         y2 = th.as_tensor(y2)
         loc2 = th.as_tensor(loc2)
         cov2 = th.as_tensor(cov2)
-    log_prob_rfft2 = fft.evaluate_log_prob_rfft2(y2, loc2, cov=cov2) + 1e-9
+    log_prob_rfft2 = fft.evaluate_log_prob_rfft2(y2, loc2, cov=cov2)
     np.testing.assert_allclose(log_prob, log_prob_rfft2)
 
 
