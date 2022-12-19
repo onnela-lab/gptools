@@ -156,12 +156,12 @@ for i, ax in [(0, ax1), (-1, ax2)]:
             ls=ls_by_parameterization[parameterization],
         )
         line.set_markeredgecolor("w")
-        
+
         f = np.isfinite(value[i])
         fit = np.polynomial.Polynomial.fit(np.log(SIZES[f])[-3:], np.log(value[i][f])[-3:], 1)
         fit = fit.convert()
         print(f"{key}: n ** {fit.coef[1]:.3f}")
-        
+
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.text(0.05, 0.95, fr"({'ab'[i]}) $\kappa=10^{{{LOG10_NOISE_SCALES[i]:.0f}}}$",
@@ -185,7 +185,7 @@ for parameterization in ["non_centered", "centered"]:
         ax.plot(NOISE_SCALES, y, color=mappable.to_rgba(size),
                 ls=ls_by_parameterization[parameterization])
 ax.text(0.05, 0.95, "(c)", transform=ax.transAxes, va="top")
-ax.set_ylim(top=150)
+ax.set_ylim(top=100)
 # We'll add the colorbar later below after laying out the figure.
 
 ax = ax4b
@@ -214,7 +214,7 @@ for ax in [ax4b, ax4t]:
     ax.ticklabel_format(axis="y", scilimits=(0, 0), useMathText=True)
 ax4b.legend(loc="lower right")
 ax4b.set_ylim(-10e3, -6.5e3)
-ax4t.set_ylim(-1300, 600)
+ax4t.set_ylim(-1300, 1100)
 ax4b.yaxis.get_offset_text().set_visible(False)
 ax4b.set_yticks([-9e3, -7e3])
 
@@ -272,10 +272,10 @@ legend = fig.legend(*zip(*handles_labels), fontsize="small", loc="upper center",
                     ncol=5, bbox_to_anchor=bbox_to_anchor)
 
 # Finally add the colorbar.
-rect = ax3.get_position() 
+rect = ax3.get_position()
 rect = (
-    rect.xmin + 0.525 * rect.width, 
-    rect.ymin + rect.height * 0.89, 
+    rect.xmin + 0.525 * rect.width,
+    rect.ymin + rect.height * 0.89,
     rect.width * 0.45,
     rect.height * 0.06,
 )
@@ -289,9 +289,11 @@ fig.savefig("scaling.png", bbox_inches="tight")
 ```
 
 ```{code-cell} ipython3
-# Show the typical runtimes for the "compromise" noise scale for the standard approach.
-np.transpose([
-    SIZES,
-    durations["standard_centered"][LOG10_NOISE_SCALES.size // 2],
-])
+# Fit a linear model on the log-log scale. We use the last three data points to get a rough idea of
+# "asymptotic" scaling.
+idx = LOG10_NOISE_SCALES.size // 2
+print(f"log noise-scale: {LOG10_NOISE_SCALES[idx]}")
+y = durations["standard_centered"][idx]
+f = np.isfinite(y)
+np.polynomial.Polynomial.fit(np.log(SIZES[f][-3:]), np.log(y[f][-3:]), 1).convert()
 ```
