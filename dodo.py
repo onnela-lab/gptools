@@ -39,8 +39,10 @@ for module in modules:
     actions = [
         f"sphinx-build -n gptools-{module} gptools-{module}/docs/_build",
         f"sphinx-build -b doctest gptools-{module} gptools-{module}/docs/_build",
-        f"pytest docs -k gptools-{module}",
     ]
+    # Util package does not currently have notebooks to test.
+    if module != "util":
+        actions.append(f"pytest docs -k gptools-{module}")
     manager(basename="docs", name=module, actions=actions)
 
 # Generate dev requirements.
