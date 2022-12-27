@@ -27,7 +27,7 @@ for module in modules:
     )
     requirements_txt.append(target)
 
-    # Tasks for linting, tests, and building a distribution.
+    # Tasks for linting, tests, building a distribution, and project-specific documentation.
     manager(basename="lint", name=module, actions=[["flake8", prefix]])
     action = ["pytest", "-v", f"--cov=gptools.{module}", "--cov-report=term-missing",
               "--cov-report=html", "--cov-fail-under=100", "--durations=5", prefix]
@@ -36,6 +36,9 @@ for module in modules:
         di.actions.SubprocessAction("python setup.py sdist", cwd=prefix),
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
+    action = di.actions.SubprocessAction(f"sphinx-build -n . docs/_build/{module}",
+                                         env={"PROJECT": f"gptools-{module}"})
+    manager(basename="docs", name=module, actions=[action])
 
 # Generate dev and doc requirements.
 target = "doc_requirements.txt"
@@ -57,7 +60,7 @@ manager(basename="requirements", name="sync", file_dep=[target], actions=[["pip-
 
 # Build documentation at the root level (we don't have namespace-package-level documentation).
 with di.defaults(basename="docs"):
-    manager(name="html", actions=["sphinx-build -n . docs/_build"])
+    manager(name="html", actions=["sphinx-build -n . docs/_build/main"])
     manager(name="tests", actions=["sphinx-build -b doctest . docs/_build", "pytest docs"])
 
 # Compile example notebooks to create html reports.

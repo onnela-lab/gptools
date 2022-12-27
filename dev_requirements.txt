@@ -903,6 +903,8 @@ sphinx==5.3.0
     #   myst-parser
     #   sphinx-rtd-theme
     #   sphinx-stan
+sphinx-multiproject==1.0.0rc1
+    # via -r doc_requirements.txt
 sphinx-rtd-theme==1.0.0
     # via -r doc_requirements.txt
 sphinx-stan==0.1.5

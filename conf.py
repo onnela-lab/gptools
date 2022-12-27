@@ -6,6 +6,7 @@ from sphinx.application import Sphinx
 master_doc = "README"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
+    "multiproject",
     "myst_nb",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
@@ -13,7 +14,33 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinxcontrib.stan",
 ]
-project = "gptools"
+multiproject_projects = {
+    "gptools": {
+        "path": ".",
+        "use_config_file": False,
+        "config": {
+            "project": "gptools",
+        },
+    },
+    "gptools-stan": {
+        "use_config_file": False,
+        "config": {
+            "project": "gptools: Stan",
+        },
+    },
+    "gptools-torch": {
+        "use_config_file": False,
+        "config": {
+            "project": "gptools: Torch",
+        }
+    },
+    "gptools-util": {
+        "use_config_file": False,
+        "config": {
+            "project": "gptools: Utilities",
+        }
+    },
+}
 napoleon_custom_sections = [("Returns", "params_style")]
 plot_formats = [
     ("png", 144),
