@@ -19,6 +19,15 @@ setup(
         "numpy",
     ],
     extras_require={
+        "docs": [
+            "myst-nb",
+            "networkx",
+            "openpyxl",
+            "pyproj",
+            "sphinx",
+            "sphinx_rtd_theme",
+            "sphinx-stan>=0.1.5",
+        ],
         "tests": [
             "doit-interface",
             "flake8",

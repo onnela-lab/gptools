@@ -1,5 +1,4 @@
 # Include all requirements that are also used in CI.
--r doc_requirements.txt
 -r gptools-stan/test_requirements.txt
 -r gptools-torch/test_requirements.txt
 -r gptools-util/test_requirements.txt

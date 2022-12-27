@@ -41,6 +41,8 @@ jobs:
         run: doit tests:${{ matrix.module }}
       - name: Lint the code
         run: doit lint:${{ matrix.module }}
+      - name: Build the documentation
+        run: doit docs:${{ matrix.module }}
       - name: Build the package
         run: doit package:${{ matrix.module }}
       - name: Upload the package to test pypi
@@ -57,25 +59,3 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages_dir: gptools-${{ matrix.module }}/dist
           skip_existing: true
-  docs:
-    name: Documentation
-    runs-on: "ubuntu-latest"
-    steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.10"
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ${{ env.pythonLocation }}
-            /home/runner/.cmdstan
-          key: ${{ env.pythonLocation }}-${{ hashFiles(format('doc_requirements.txt', matrix.module)) }}-v1
-      - name: Install pandoc
-        run: sudo apt-get install pandoc
-      - name: Install python dependencies
-        run: pip install -r doc_requirements.txt
-      - name: Install cmdstanpy
-        run: python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
-      - name: Build the documentation, including example notebooks
-        run: doit docs

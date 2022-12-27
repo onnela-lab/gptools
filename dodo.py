@@ -27,7 +27,7 @@ for module in modules:
     )
     requirements_txt.append(target)
 
-    # Tasks for linting, tests, and building a distribution.
+    # Tasks for linting, tests, building a distribution, and project-specific documentation.
     manager(basename="lint", name=module, actions=[["flake8", prefix]])
     action = ["pytest", "-v", f"--cov=gptools.{module}", "--cov-report=term-missing",
               "--cov-report=html", "--cov-fail-under=100", "--durations=5", prefix]
@@ -36,33 +36,28 @@ for module in modules:
         di.actions.SubprocessAction("python setup.py sdist", cwd=prefix),
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
+    actions = [
+        f"sphinx-build -n gptools-{module} gptools-{module}/docs/_build",
+        f"sphinx-build -b doctest gptools-{module} gptools-{module}/docs/_build",
+    ]
+    # Util package does not currently have notebooks to test.
+    if module != "util":
+        actions.append(f"pytest docs -k gptools-{module}")
+    manager(basename="docs", name=module, actions=actions)
 
-# Generate dev and doc requirements.
-target = "doc_requirements.txt"
-requirements_in = "doc_requirements.in"
-manager(
-    basename="requirements", name="doc", targets=[target],
-    file_dep=[requirements_in] + [f"gptools-{module}/setup.py" for module in modules],
-    actions=[f"pip-compile -v -o {target} {requirements_in}"]
-)
-
+# Generate dev requirements.
 target = "dev_requirements.txt"
 requirements_in = "dev_requirements.in"
 manager(
     basename="requirements", name="dev", targets=[target],
-    file_dep=[requirements_in, "doc_requirements.txt", *requirements_txt],
+    file_dep=[requirements_in, *requirements_txt],
     actions=[f"pip-compile -v -o {target} {requirements_in}"]
 )
 manager(basename="requirements", name="sync", file_dep=[target], actions=[["pip-sync", target]])
 
-# Build documentation at the root level (we don't have namespace-package-level documentation).
-with di.defaults(basename="docs"):
-    manager(name="html", actions=["sphinx-build -n . docs/_build"])
-    manager(name="tests", actions=["sphinx-build -b doctest . docs/_build", "pytest docs"])
-
 # Compile example notebooks to create html reports.
 for path in pathlib.Path.cwd().glob("gptools-*/**/*.ipynb"):
-    if ".ipynb_checkpoints" in path.parts:
+    if ".ipynb_checkpoints" in path.parts or "jupyter_execute" in path.parts:
         continue
     target = path.with_suffix(".html")
     manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],

@@ -1,2 +1,2 @@
--e file:gptools-util[tests]
+-e file:gptools-util[docs,tests]
 -r ../shared_requirements.in
