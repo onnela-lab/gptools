@@ -1,0 +1,2 @@
+-e file:util[docs,tests]
+-r ../shared_requirements.in

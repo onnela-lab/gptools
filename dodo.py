@@ -17,7 +17,7 @@ modules = ["stan", "torch", "util"]
 requirements_txt = []
 for module in modules:
     # Generate requirement files.
-    prefix = pathlib.Path(f"gptools-{module}")
+    prefix = pathlib.Path(module)
     target = prefix / "test_requirements.txt"
     requirements_in = prefix / "test_requirements.in"
     manager(
@@ -37,13 +37,22 @@ for module in modules:
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
     actions = [
-        f"sphinx-build -n gptools-{module} gptools-{module}/docs/_build",
-        f"sphinx-build -b doctest gptools-{module} gptools-{module}/docs/_build",
+        f"sphinx-build -n {module} {module}/docs/_build",
+        f"sphinx-build -b doctest {module} {module}/docs/_build",
     ]
     # Util package does not currently have notebooks to test.
     if module != "util":
-        actions.append(f"pytest docs -k gptools-{module}")
+        actions.append(f"pytest docs -k {module}")
     manager(basename="docs", name=module, actions=actions)
+
+    # Compile example notebooks to create html reports.
+    for path in pathlib.Path.cwd().glob(f"{module}/**/*.ipynb"):
+        if ".ipynb_checkpoints" in path.parts or "jupyter_execute" in path.parts:
+            continue
+        target = path.with_suffix(".html")
+        manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
+                targets=[target], actions=[f"jupyter nbconvert --execute --to=html {path}"])
+
 
 # Generate dev requirements.
 target = "dev_requirements.txt"
@@ -54,14 +63,6 @@ manager(
     actions=[f"pip-compile -v -o {target} {requirements_in}"]
 )
 manager(basename="requirements", name="sync", file_dep=[target], actions=[["pip-sync", target]])
-
-# Compile example notebooks to create html reports.
-for path in pathlib.Path.cwd().glob("gptools-*/**/*.ipynb"):
-    if ".ipynb_checkpoints" in path.parts or "jupyter_execute" in path.parts:
-        continue
-    target = path.with_suffix(".html")
-    manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
-            targets=[target], actions=[f"jupyter nbconvert --execute --to=html {path}"])
 
 
 def add_profile_task(method: str, parameterization: str, log10_sigma: float, size: int,
@@ -83,7 +84,7 @@ def add_profile_task(method: str, parameterization: str, log10_sigma: float, siz
         "profile/data.stan",
         f"profile/{parameterization}.stan",
     ]
-    prefix = pathlib.Path("gptools-stan/gptools/stan")
+    prefix = pathlib.Path("stan/gptools/stan")
     manager(basename=f"profile/{method}/{parameterization}", name=name, actions=[args],
             targets=[target], file_dep=[prefix / x for x in file_dep])
 
