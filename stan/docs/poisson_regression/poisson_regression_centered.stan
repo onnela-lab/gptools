@@ -4,8 +4,8 @@
 functions {
     // Include so we can evaluate kernels with periodic boundary conditions and use convenience
     // functions such as `zeros`.
-    #include gptools_util.stan
-    #include gptools_kernels.stan
+    #include gptools/util.stan
+    #include gptools/kernels.stan
 }
 
 data {

@@ -1,5 +1,5 @@
 functions {
-    #include gptools_graph.stan
+    #include gptools/graph.stan
 }
 
 data {

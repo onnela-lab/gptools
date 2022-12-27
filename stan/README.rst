@@ -18,20 +18,20 @@ The Stan library is organized as multiple files each comprising related function
 ⚙️ Utility functions
 ^^^^^^^^^^^^^^^^^^^^
 
-.. stan:autodoc:: gptools/stan/gptools_util.stan
+.. stan:autodoc:: gptools/stan/gptools/util.stan
 
 ⏩ Likelihood evaluations based on fast Fourier transforms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. stan:autodoc:: gptools/stan/gptools_fft1.stan
-.. stan:autodoc:: gptools/stan/gptools_fft2.stan
+.. stan:autodoc:: gptools/stan/gptools/fft1.stan
+.. stan:autodoc:: gptools/stan/gptools/fft2.stan
 
 📏 Kernel functions with periodic boundary conditions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. stan:autodoc:: gptools/stan/gptools_kernels.stan
+.. stan:autodoc:: gptools/stan/gptools/kernels.stan
 
 🕸️ Gaussian processes on graphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. stan:autodoc:: gptools/stan/gptools_graph.stan
+.. stan:autodoc:: gptools/stan/gptools/graph.stan

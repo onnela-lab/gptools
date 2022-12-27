@@ -118,7 +118,7 @@ for n in [7, 8]:
         "arg_types": {"n_": "int", "a": "vector[n_]"},
         "arg_values": {"n_": n, "a": y},
         "result_type": "complex_vector[n_ %/% 2 + 1]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": z,
     })
 
@@ -128,7 +128,7 @@ for n in [7, 8]:
         "arg_types": {"n": "int", "a": "complex_vector[n %/% 2 + 1]"},
         "arg_values": {"a": z, "n": n},
         "result_type": "vector[n]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": [np.fft.irfft(z, n), y],
     })
 
@@ -139,7 +139,7 @@ for n in [7, 8]:
         "arg_types": {"size": "int", "z": "complex_vector[size %/% 2 + 1]"},
         "arg_values": {"z": z, "size": n},
         "result_type": "vector[size]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan"],
         "desired": unpacked_z,
     })
 
@@ -149,7 +149,7 @@ for n in [7, 8]:
         "arg_types": {"n_": "int", "z": "vector[n_]"},
         "arg_values": {"n_": n, "z": unpacked_z},
         "result_type": "complex_vector[n_ %/% 2 + 1]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan"],
         "desired": [z, fft.pack_rfft(unpacked_z)],
     })
 
@@ -168,7 +168,7 @@ for n in [7, 8]:
                       "cov_rfft": "vector[n_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan"],
         "desired": z,
     })
 
@@ -179,7 +179,7 @@ for n in [7, 8]:
                       "cov_rfft": "vector[n_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "z": z, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan"],
         "desired": [y, fft.transform_irfft(z, loc, rfft_scale=rfft_scale)],
     })
 
@@ -190,7 +190,7 @@ for n in [7, 8]:
                       "cov_rfft": "vector[n_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "real",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan"],
         "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
@@ -204,7 +204,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m_": "int", "a": "matrix[n_, m_]"},
         "arg_values": {"n_": n, "m_": m, "a": y},
         "result_type": "complex_matrix[n_, m_ %/% 2 + 1]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": z,
     })
 
@@ -214,7 +214,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m": "int", "a": "complex_matrix[n_, m %/% 2 + 1]"},
         "arg_values": {"a": z, "n_": n, "m": m},
         "result_type": "matrix[n_, m]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": [y, np.fft.irfft2(z, (n, m))],
     })
 
@@ -225,7 +225,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m": "int", "z": "complex_matrix[n_, m %/% 2 + 1]"},
         "arg_values": {"z": z, "n_": n, "m": m},
         "result_type": "matrix[n_, m]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
         "desired": unpacked_z,
     })
 
@@ -235,7 +235,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m_": "int", "z": "matrix[n_, m_]"},
         "arg_values": {"n_": n, "m_": m, "z": unpacked_z},
         "result_type": "complex_matrix[n_, m_ %/% 2 + 1]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
         "desired": [z, fft.pack_rfft2(unpacked_z)],
     })
 
@@ -255,7 +255,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
                       "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "matrix[n_, m_]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
         "desired": z,
     })
 
@@ -266,7 +266,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
                       "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "matrix[n_, m_]",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
         "desired": [y, fft.transform_irfft2(z, loc, rfft2_scale=rfft2_scale)],
     })
 
@@ -277,7 +277,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
                       "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "real",
-        "includes": ["gptools_util.stan", "gptools_fft1.stan", "gptools_fft2.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
                     fft.evaluate_log_prob_rfft2(y, loc, rfft2_scale=rfft2_scale)],
     })
@@ -288,7 +288,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]"},
         "arg_values": {"n_": n, "m_": m, "y": y},
         "result_type": "vector[n_ * m_]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": y.T.ravel(),
     })
 
@@ -298,7 +298,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m_": "int", "y": "array [n_, m_] real"},
         "arg_values": {"n_": n, "m_": m, "y": y},
         "result_type": "array [n_ * m_] real",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": y.ravel(),
     })
 
@@ -308,7 +308,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]"},
         "arg_values": {"n_": n, "m_": m, "y": y},
         "result_type": "vector[n_ * m_]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": y.ravel(),
         "suffix": "vector",
     })
@@ -317,7 +317,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n_": "int", "m_": "int", "y": "array [n_, m_] real"},
         "arg_values": {"n_": n, "m_": m, "y": y},
         "result_type": "array [n_ * m_] real",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": y.ravel(),
         "suffix": "array",
     })
@@ -328,7 +328,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n": "int", "m": "int", "y": "matrix[n, m]"},
         "arg_values": {"y": y, "m": m, "n": n},
         "result_type": "matrix[m, n]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": y.reshape((m, n)),
         "suffix": "matrix",
     })
@@ -337,7 +337,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n": "int", "m": "int", "y": "vector[n * m]"},
         "arg_values": {"y": y.ravel(), "m": m, "n": n},
         "result_type": "matrix[m, n]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": y.reshape((m, n)),
         "suffix": "vector",
     })
@@ -346,7 +346,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"n": "int", "m": "int", "y": "row_vector[n * m]"},
         "arg_values": {"y": y.ravel(), "m": m, "n": n},
         "result_type": "matrix[m, n]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": y.reshape((m, n)),
         "suffix": "row_vector",
     })
@@ -355,7 +355,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_types": {"m": "int", "n": "int"},
         "arg_values": {"m": m, "n": n},
         "result_type": "matrix[m, n]",
-        "includes": ["gptools_util.stan"],
+        "includes": ["gptools/util.stan"],
         "desired": np.zeros((m, n)),
     })
 
@@ -376,7 +376,7 @@ for ndim in [1, 2, 3]:
         "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
                        "length_scale": length_scale, "period": period},
         "result_type": "matrix[n_, m_]",
-        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+        "includes": ["gptools/util.stan", "gptools/kernels.stan"],
         "desired": kernel.evaluate(x[:, None], y[None]),
     })
 
@@ -411,7 +411,7 @@ for m in [7, 8]:
         "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real"},
         "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period},
         "result_type": "vector[m %/% 2 + 1]",
-        "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+        "includes": ["gptools/util.stan", "gptools/kernels.stan"],
         "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
     })
     for dof in [3 / 2, 5 / 2]:
@@ -422,7 +422,7 @@ for m in [7, 8]:
             "arg_values": {"dof": dof, "m": n, "sigma": sigma, "length_scale": length_scale,
                            "period": period},
             "result_type": "vector[m %/% 2 + 1]",
-            "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+            "includes": ["gptools/util.stan", "gptools/kernels.stan"],
             "desired": kernels.MaternKernel(dof, sigma, length_scale, period).evaluate_rfft([n]),
         })
     for n in [9, 10]:
@@ -435,7 +435,7 @@ for m in [7, 8]:
             "arg_values": {"m": m, "n": n, "sigma": sigma, "length_scale": length_scale,
                            "period": period},
             "result_type": "matrix[m, n %/% 2 + 1]",
-            "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+            "includes": ["gptools/util.stan", "gptools/kernels.stan"],
             "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)
             .evaluate_rfft([m, n]),
         })
@@ -448,7 +448,7 @@ for m in [7, 8]:
                 "arg_values": {"dof": dof, "m": m, "n": n, "sigma": sigma,
                                "length_scale": length_scale, "period": period},
                 "result_type": "matrix[m, n %/% 2 + 1]",
-                "includes": ["gptools_util.stan", "gptools_kernels.stan"],
+                "includes": ["gptools/util.stan", "gptools/kernels.stan"],
                 "desired": kernel.evaluate_rfft([m, n]),
             })
 
@@ -470,7 +470,7 @@ for num_nodes, edges, raises in [
                       "edges": "array [2, num_edges_] int"},
         "arg_values": {"num_nodes": num_nodes, "num_edges_": edges.shape[1], "edges": edges},
         "result_type": "array [num_nodes] int",
-        "includes": ["gptools_util.stan", "gptools_graph.stan"],
+        "includes": ["gptools/util.stan", "gptools/graph.stan"],
         "raises": raises,
         "desired": [],
     })
@@ -504,7 +504,7 @@ for p in [1, 2]:
             "degrees": np.bincount(edges[1], minlength=n), "epsilon": kernel.b.epsilon
         },
         "result_type": "real",
-        "includes": ["gptools_util.stan", "gptools_graph.stan"],
+        "includes": ["gptools/util.stan", "gptools/graph.stan"],
         "desired": dist.logpdf(y),
     })
 
