@@ -261,6 +261,8 @@ nest-asyncio==1.5.6
     #   nbclassic
     #   nbclient
     #   notebook
+networkx==2.8.8
+    # via gp-tools-stan
 notebook==6.5.2
     # via jupyter
 notebook-shim==0.2.2

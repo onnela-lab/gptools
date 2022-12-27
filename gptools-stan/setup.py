@@ -21,6 +21,7 @@ setup(
     extras_require={
         "docs": [
             "myst-nb",
+            "networkx",
             "openpyxl",
             "pyproj",
             "sphinx",

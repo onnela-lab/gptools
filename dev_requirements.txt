@@ -560,6 +560,7 @@ nest-asyncio==1.5.6
     #   notebook
 networkx==2.8.8
     # via
+    #   -r gptools-stan/test_requirements.txt
     #   -r gptools-torch/test_requirements.txt
     #   -r gptools-util/test_requirements.txt
 notebook==6.5.2
