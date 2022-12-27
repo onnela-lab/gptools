@@ -14,6 +14,7 @@ setup(
     ],
     extras_require={
         "docs": [
+            "myst-nb",
             "sphinx",
             "sphinx_rtd_theme",
         ],
