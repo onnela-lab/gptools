@@ -1,46 +1,15 @@
-import cmdstanpy
-import logging
 from sphinx.application import Sphinx
 
 
 master_doc = "README"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
-    "multiproject",
     "myst_nb",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
-    "sphinxcontrib.stan",
 ]
-multiproject_projects = {
-    "gptools": {
-        "path": ".",
-        "use_config_file": False,
-        "config": {
-            "project": "gptools",
-        },
-    },
-    "gptools-stan": {
-        "use_config_file": False,
-        "config": {
-            "project": "gptools: Stan",
-        },
-    },
-    "gptools-torch": {
-        "use_config_file": False,
-        "config": {
-            "project": "gptools: Torch",
-        }
-    },
-    "gptools-util": {
-        "use_config_file": False,
-        "config": {
-            "project": "gptools: Utilities",
-        }
-    },
-}
 napoleon_custom_sections = [("Returns", "params_style")]
 plot_formats = [
     ("png", 144),
@@ -58,16 +27,11 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
-    "torch": ("https://pytorch.org/docs/stable/", None),
 }
 
 source_suffix = {
     '.rst': 'restructuredtext',
 }
-
-cmdstanpy_logger = cmdstanpy.utils.get_logger()
-for handler in cmdstanpy_logger.handlers:
-    handler.setLevel(logging.WARNING)
 
 nb_execution_mode = "off"
 myst_enable_extensions = [

@@ -13,6 +13,10 @@ setup(
         "numpy",
     ],
     extras_require={
+        "docs": [
+            "sphinx",
+            "sphinx_rtd_theme",
+        ],
         "tests": [
             "doit-interface",
             "flake8",
