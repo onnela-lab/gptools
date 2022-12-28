@@ -1,0 +1,1 @@
+include gptools/stan/gptools/*.stan

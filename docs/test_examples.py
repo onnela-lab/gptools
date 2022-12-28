@@ -27,7 +27,7 @@ def run_myst_notebook(path: str) -> Any:
 
 notebooks = []
 for package in ["stan", "torch", "util"]:
-    notebooks.extend(str(path) for path in pathlib.Path(f"gptools-{package}/docs").glob("**/*.md")
+    notebooks.extend(str(path) for path in (pathlib.Path(package) / "docs").glob("**/*.md")
                      if ".ipynb_checkpoints" not in path.parts)
 
 

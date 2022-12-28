@@ -1,4 +1,0 @@
--e file:gptools-stan[docs,tests]
--e file:gptools-util
--r ../shared_requirements.in
-cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@1612c04
