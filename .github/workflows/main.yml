@@ -43,6 +43,8 @@ jobs:
         run: doit lint:${{ matrix.module }}
       - name: Build the documentation
         run: doit docs:${{ matrix.module }}
+      - name: Compile examples
+        run: doit examples:${{ matrix.module }}
       - name: Build the package
         run: doit package:${{ matrix.module }}
       - name: Upload the package to test pypi
