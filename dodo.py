@@ -43,8 +43,8 @@ for module in modules:
     manager(basename="docs", name=module, actions=actions)
 
     # Util package does not currently have notebooks to test.
-    if module != "util":
-        manager(basename="examples", name=module, actions=[f"pytest docs -k {module}"])
+    manager(basename="examples", name=module,
+            actions=[] if module == "util" else [f"pytest docs -k {module}"])
 
     # Compile example notebooks to create html reports.
     for path in pathlib.Path.cwd().glob(f"{module}/**/*.ipynb"):
