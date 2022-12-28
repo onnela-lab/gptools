@@ -37,13 +37,14 @@ for module in modules:
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
     actions = [
-        f"sphinx-build -n {module} {module}/docs/_build",
+        f"sphinx-build -n -W {module} {module}/docs/_build",
         f"sphinx-build -b doctest {module} {module}/docs/_build",
     ]
-    # Util package does not currently have notebooks to test.
-    if module != "util":
-        actions.append(f"pytest docs -k {module}")
     manager(basename="docs", name=module, actions=actions)
+
+    # Util package does not currently have notebooks to test.
+    manager(basename="examples", name=module,
+            actions=[] if module == "util" else [f"pytest docs -k {module}"])
 
     # Compile example notebooks to create html reports.
     for path in pathlib.Path.cwd().glob(f"{module}/**/*.ipynb"):
