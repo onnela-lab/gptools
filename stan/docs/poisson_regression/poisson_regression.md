@@ -87,7 +87,7 @@ import os
 def sample_and_plot(stan_file: str, data: dict, return_fit: bool = False, **kwargs) -> CmdStanMCMC:
     """Draw samples from the posterior and visualize them."""
     # Set default parameters. We use a small number of samples during testing.
-    niter = 1 if os.environ.get("CI") else 100
+    niter = 10 if os.environ.get("CI") else 100
     kwargs = {"iter_warmup": niter, "iter_sampling": niter, "chains": 1,
               "refresh": niter // 10 or None} | kwargs
 
