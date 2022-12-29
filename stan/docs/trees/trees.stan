@@ -10,8 +10,6 @@ data {
     int num_rows, num_cols, num_rows_padded, num_cols_padded;
     // Number of trees in each quadrant. Masked quadrants are indicated by a negative value.
     array [num_rows, num_cols] int frequency;
-    // Nugget variance.
-    real<lower=0> epsilon;
 }
 
 parameters {
@@ -27,7 +25,7 @@ parameters {
 transformed parameters {
     real<lower=0> length_scale = exp(log_length_scale);
     // Evaluate the RFFT of the Matern 3/2 kernel on the padded grid.
-    matrix[num_rows_padded, num_cols_padded %/% 2 + 1] rfft2_cov = epsilon +
+    matrix[num_rows_padded, num_cols_padded %/% 2 + 1] rfft2_cov =
         gp_periodic_matern_cov_rfft2(1.5, num_rows_padded, num_cols_padded, sigma,
         length_scale, [num_rows_padded, num_cols_padded]');
     // Transform from white-noise to a Gaussian process realization.
