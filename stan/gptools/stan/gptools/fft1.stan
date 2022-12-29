@@ -7,7 +7,7 @@ Evaluate the scale of Fourier coefficients.
 
 :param cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
     `(..., n %/% 2 + 1)`.
-:param n: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
+:param n: Size of the real signal. Necessary because the size cannot be inferred from `cov_rfft`.
 :returns: Scale of Fourier coefficients with shape `(..., n %/% 2 + 1)`.
 */
 vector gp_evaluate_rfft_scale(vector cov_rfft, int n) {
@@ -29,7 +29,7 @@ vector gp_evaluate_rfft_scale(vector cov_rfft, int n) {
 }
 
 
-/*
+/**
 Unpack the Fourier coefficients of a real Fourier transform with `n %/% 2 + 1` elements to a vector
 of `n` elements.
 
@@ -97,7 +97,7 @@ real gp_rfft_lpdf(vector y, vector loc, vector cov_rfft) {
 }
 
 
-/*
+/**
 Transform a real vector with `n` elements to a vector of complex Fourier coefficients with `n`
 elements ready for inverse real fast Fourier transformation.
 */

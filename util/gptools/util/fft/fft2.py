@@ -31,6 +31,7 @@ def evaluate_rfft2_scale(*, cov_rfft2: OptionalArrayOrTensor = None,
             `(..., height, width // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., height, width)`.
+        width: Number of columns of the signal (cannot be inferred from the Fourier coefficients).
 
     Returns:
         scale: Scale of Fourier coefficients with shape `(..., height, width // 2 + 1)`.
@@ -108,8 +109,7 @@ def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
     Fourier transformation in two dimensions.
 
     Args:
-        z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
-            details.
+        z: Unpacked matrices with shape `(..., height, width)`.
 
     Returns:
         rfft: Two-dimensional real Fourier transform coefficients.
@@ -181,9 +181,10 @@ def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov_rfft2: OptionalArrayO
                                         cov: OptionalArrayOrTensor = None,
                                         rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
-    Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
+    Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft2`.
 
     Args:
+        width: Number of columns of the signal (cannot be inferred from the Fourier coefficients).
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
             `(..., height, width // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
@@ -192,7 +193,7 @@ def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov_rfft2: OptionalArrayO
             `(..., height, width // 2 + 1)`.
 
     Returns:
-        log_abs_det_jacobian
+        log_abs_det_jacobian: Log absolute determinant of the Jacobian.
     """
     rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, width)
     height = rfft2_scale.shape[-2]
