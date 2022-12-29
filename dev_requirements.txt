@@ -13,8 +13,8 @@
     #   -r stan/test_requirements.txt
     #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
-    #   gp-tools-stan
-    #   gp-tools-torch
+    #   gptools-stan
+    #   gptools-torch
 alabaster==0.7.12
     # via
     #   -r stan/test_requirements.txt
@@ -130,7 +130,7 @@ cloudpickle==2.2.0
 cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@1612c04
     # via
     #   -r stan/test_requirements.txt
-    #   gp-tools-stan
+    #   gptools-stan
 colorama==0.4.6
     # via
     #   -r stan/test_requirements.txt
@@ -582,9 +582,9 @@ numpy==1.24.1
     #   -r util/test_requirements.txt
     #   cmdstanpy
     #   contourpy
-    #   gp-tools-stan
-    #   gp-tools-torch
-    #   gp-tools-util
+    #   gptools-stan
+    #   gptools-torch
+    #   gptools-util
     #   matplotlib
     #   pandas
     #   scipy
@@ -987,7 +987,7 @@ torch==1.13.1
     # via
     #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
-    #   gp-tools-torch
+    #   gptools-torch
 tornado==6.2
     # via
     #   -r stan/test_requirements.txt

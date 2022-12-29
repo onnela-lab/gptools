@@ -8,7 +8,7 @@ long_description = re.sub(".. doctest::", ".. code-block::", long_description)
 long_description = re.sub(":(doc|class|func|ref):", ":code:", long_description)
 
 setup(
-    name="gp-tools-stan",
+    name="gptools-stan",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     packages=find_namespace_packages(),
@@ -17,7 +17,7 @@ setup(
         # Required because of a bug in how complex numbers are handled (see
         # https://github.com/stan-dev/cmdstanpy/pull/612).
         "cmdstanpy>=1.0.7",
-        "gp-tools-util",
+        "gptools-util",
         "numpy",
     ],
     extras_require={

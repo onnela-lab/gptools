@@ -1,8 +1,8 @@
 📈 Tools for Gaussian processes
 ================================
 
-.. image:: https://github.com/tillahoffmann/gp-tools/actions/workflows/main.yml/badge.svg
-  :target: https://github.com/tillahoffmann/gp-tools/actions/workflows/main.yml
+.. image:: https://github.com/tillahoffmann/gptools/actions/workflows/main.yml/badge.svg
+  :target: https://github.com/tillahoffmann/gptools/actions/workflows/main.yml
 
 This collection of packages provides tools for inference using Gaussian processes with a focus on:
 
@@ -25,4 +25,4 @@ The collection includes three packages:
 ▶️ Installation
 ---------------
 
-Each package can be installed using pip by running :code:`pip install gp-tools-[package name]` from the command line.
+Each package can be installed using pip by running :code:`pip install gptools-[package name]` from the command line.

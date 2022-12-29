@@ -61,7 +61,7 @@ def test_periodic(kernel_configuration: KernelConfiguration):
 
         # We may want to check that the numerical and theoretic FFT match, but this requires a more
         # "proper" implementation of the periodic kernels involving infinite sums (see
-        # https://github.com/tillahoffmann/gp-tools/issues/59 for details). For now, let's verify we
+        # https://github.com/tillahoffmann/gptools/issues/59 for details). For now, let's verify we
         # have a positive-definite kernel.
         np.testing.assert_array_less(-1e-12, kernel.evaluate_rfft(shape))
 
