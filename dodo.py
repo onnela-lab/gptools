@@ -38,12 +38,13 @@ for module in modules:
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
     # Documentation and doctests.
+    rm_build_action = f"rm -rf {module}/docs/_build"
     action = SubprocessAction(f"sphinx-build -n -W . {module}/docs/_build",
                               env={"PROJECT": module})
-    manager(basename="docs", name=module, actions=[action])
+    manager(basename="docs", name=module, actions=[rm_build_action, action])
     action = SubprocessAction(f"sphinx-build -b doctest . {module}/docs/_build",
                               env={"PROJECT": module})
-    manager(basename="doctest", name=module, actions=[action])
+    manager(basename="doctest", name=module, actions=[rm_build_action, action])
 
     # Util package does not currently have notebooks to test.
     manager(basename="examples", name=module,
