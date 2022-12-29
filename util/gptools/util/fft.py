@@ -37,6 +37,7 @@ def evaluate_rfft_scale(*, cov: OptionalArrayOrTensor = None,
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
             `(..., size // 2 + 1)`.
         cov: First row of the covariance matrix with shape `(..., size)`.
+        size: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
 
     Returns:
         scale: Scale of Fourier coefficients with shape `(..., size // 2 + 1)`.
@@ -156,7 +157,7 @@ def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov_rfft: OptionalAr
         rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
 
     Returns:
-        z: Fourier-domain white noise with shape `(..., size)`.. See :func:`transform_irrft` for
+        z: Fourier-domain white noise with shape `(..., size)`. See :func:`transform_irrft` for
             details.
     """
     rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, size=y.shape[-1])
@@ -201,7 +202,7 @@ def evaluate_rfft_log_abs_det_jacobian(size: int, *, cov_rfft: OptionalArrayOrTe
         rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
 
     Returns:
-        log_abs_det_jacobian
+        log_abs_det_jacobian: Log absolute determinant of the Jacobian.
     """
     imagidx = (size + 1) // 2
     rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, size)
