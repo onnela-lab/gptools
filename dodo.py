@@ -36,11 +36,11 @@ for module in modules:
         di.actions.SubprocessAction("python setup.py sdist", cwd=prefix),
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
-    actions = [
-        f"sphinx-build -n -W {module} {module}/docs/_build",
-        f"sphinx-build -b doctest {module} {module}/docs/_build",
-    ]
-    manager(basename="docs", name=module, actions=actions)
+    # Documentation and doctests.
+    manager(basename="docs", name=module,
+            actions=[f"sphinx-build -n -W {module} {module}/docs/_build"])
+    manager(basename="doctest", name=module,
+            actions=[f"sphinx-build -b doctest {module} {module}/docs/_build"])
 
     # Util package does not currently have notebooks to test.
     manager(basename="examples", name=module,
