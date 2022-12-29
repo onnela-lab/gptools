@@ -1,15 +1,18 @@
+from multiproject.utils import get_project
 from sphinx.application import Sphinx
 
 
 master_doc = "README"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
+    "multiproject",
     "myst_nb",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
 ]
+
 napoleon_custom_sections = [("Returns", "params_style")]
 plot_formats = [
     ("png", 144),
@@ -57,6 +60,33 @@ mathjax3_config = {
         }
     }
 }
+
+multiproject_projects = {
+    project: {
+        "use_config_file": False,
+        "config": {
+            "project": f"gptools-{project}",
+        },
+    } for project in ["stan", "torch", "util"]
+}
+current_project = get_project(multiproject_projects)
+
+if current_project == "stan":
+    import cmdstanpy
+    import logging
+    extensions.append("sphinxcontrib.stan")
+    intersphinx_mapping["cmdstanpy"] = \
+        (f"https://cmdstanpy.readthedocs.io/en/v{cmdstanpy.__version__}", None)
+
+    cmdstanpy_logger = cmdstanpy.utils.get_logger()
+    for handler in cmdstanpy_logger.handlers:
+        handler.setLevel(logging.WARNING)
+elif current_project == "torch":
+    intersphinx_mapping["torch"] = ("https://pytorch.org/docs/stable/", None)
+elif current_project == "util":
+    pass
+else:
+    raise ValueError(current_project)
 
 
 def setup(app: Sphinx) -> None:

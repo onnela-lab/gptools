@@ -1,4 +1,5 @@
 import doit_interface as di
+from doit_interface.actions import SubprocessAction
 import itertools as it
 import pathlib
 
@@ -6,7 +7,7 @@ import pathlib
 manager = di.Manager.get_instance()
 
 # Prevent each process from parallelizing which can lead to competition across processes.
-di.SubprocessAction.set_global_env({
+SubprocessAction.set_global_env({
     "NUMEXPR_NUM_THREADS": 1,
     "OPENBLAS_NUM_THREADS": 1,
     "OMP_NUM_THREADS": 1,
@@ -33,14 +34,16 @@ for module in modules:
               "--cov-report=html", "--cov-fail-under=100", "--durations=5", prefix]
     manager(basename="tests", name=module, actions=[action])
     manager(basename="package", name=module, actions=[
-        di.actions.SubprocessAction("python setup.py sdist", cwd=prefix),
+        SubprocessAction("python setup.py sdist", cwd=prefix),
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
     # Documentation and doctests.
-    manager(basename="docs", name=module,
-            actions=[f"sphinx-build -n -W {module} {module}/docs/_build"])
-    manager(basename="doctest", name=module,
-            actions=[f"sphinx-build -b doctest {module} {module}/docs/_build"])
+    action = SubprocessAction(f"sphinx-build -n -W . {module}/docs/_build",
+                              env={"PROJECT": module})
+    manager(basename="docs", name=module, actions=[action])
+    action = SubprocessAction(f"sphinx-build -b doctest . {module}/docs/_build",
+                              env={"PROJECT": module})
+    manager(basename="doctest", name=module, actions=[action])
 
     # Util package does not currently have notebooks to test.
     manager(basename="examples", name=module,

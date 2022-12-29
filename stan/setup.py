@@ -27,6 +27,7 @@ setup(
             "openpyxl",
             "pyproj",
             "sphinx",
+            "sphinx-multiproject",
             "sphinx_rtd_theme",
             "sphinx-stan>=0.1.5",
         ],

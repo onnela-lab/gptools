@@ -422,6 +422,8 @@ sphinx==5.3.0
     #   myst-parser
     #   sphinx-rtd-theme
     #   sphinx-stan
+sphinx-multiproject==1.0.0rc1
+    # via gptools-stan
 sphinx-rtd-theme==1.1.1
     # via gptools-stan
 sphinx-stan==0.1.5

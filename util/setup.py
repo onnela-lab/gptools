@@ -16,6 +16,7 @@ setup(
         "docs": [
             "myst-nb",
             "sphinx",
+            "sphinx-multiproject",
             "sphinx_rtd_theme",
         ],
         "tests": [

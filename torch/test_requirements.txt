@@ -402,6 +402,8 @@ sphinx==5.3.0
     #   myst-nb
     #   myst-parser
     #   sphinx-rtd-theme
+sphinx-multiproject==1.0.0rc1
+    # via gptools-torch
 sphinx-rtd-theme==1.1.1
     # via gptools-torch
 sphinxcontrib-applehelp==1.0.2
