@@ -6,7 +6,7 @@ Scalable Gaussian process inference with *Stan*
 
     docs/background
     docs/examples
-    docs/function_reference
+    docs/interface
 
 Gaussian processes (GPs) are flexible distributions to model functional data. Whilst theoretically appealing, they are computationally cumbersome except for small datasets. This package implements two methods for scaling GP inference in *Stan*:
 
@@ -25,7 +25,7 @@ The library is loaded with *Stan*'s :code:`#include` statement, and methods to e
 .. literalinclude:: docs/getting_started/getting_started.stan
     :language: stan
 
-You can learn more by following the :doc:`docs/examples` or delving into the :doc:`docs/function_reference`. The :doc:`docs/background` section offers a deeper explanation of the methods used to evaluate likelihoods and the pros and cons of different parameterizations. See the `accompanying publication "Scalable Gaussian process inference with Stan" <https://arxiv.org/abs/xxxx.xxxxx>`_ for further details.
+You can learn more by following the :doc:`docs/examples` or delving into the :doc:`docs/interface`. The :doc:`docs/background` section offers a deeper explanation of the methods used to evaluate likelihoods and the pros and cons of different parameterizations. See the `accompanying publication "Scalable Gaussian process inference with Stan" <https://arxiv.org/abs/xxxx.xxxxx>`_ for further details.
 
 Installation
 ^^^^^^^^^^^^
