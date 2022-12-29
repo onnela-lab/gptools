@@ -133,7 +133,7 @@ for n in [7, 8]:
     })
 
     # Unpack truncated Fourier coefficients to a real vector ...
-    unpacked_z = fft.unpack_rfft(z, n)
+    unpacked_z = fft.fft1.unpack_rfft(z, n)
     add_configuration({
         "stan_function": "gp_unpack_rfft",
         "arg_types": {"size": "int", "z": "complex_vector[size %/% 2 + 1]"},
@@ -150,7 +150,7 @@ for n in [7, 8]:
         "arg_values": {"n_": n, "z": unpacked_z},
         "result_type": "complex_vector[n_ %/% 2 + 1]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan"],
-        "desired": [z, fft.pack_rfft(unpacked_z)],
+        "desired": [z, fft.fft1.pack_rfft(unpacked_z)],
     })
 
     # Transforming to whitened Fourier coefficients ...
@@ -160,8 +160,7 @@ for n in [7, 8]:
     cov = kernel.evaluate(np.arange(n)[:, None])
     lincov = cov[0]
     cov_rfft = np.fft.rfft(lincov).real
-    rfft_scale = fft.evaluate_rfft_scale(cov=lincov)
-    z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
+    z = fft.transform_rfft(y, loc, cov_rfft=cov_rfft)
     add_configuration({
         "stan_function": "gp_transform_rfft",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
@@ -180,7 +179,7 @@ for n in [7, 8]:
         "arg_values": {"n_": n, "z": z, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan"],
-        "desired": [y, fft.transform_irfft(z, loc, rfft_scale=rfft_scale)],
+        "desired": [y, fft.transform_irfft(z, loc, cov_rfft=cov_rfft)],
     })
 
     # Evaluate the likelihood.
@@ -191,7 +190,7 @@ for n in [7, 8]:
         "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "real",
         "includes": ["gptools/util.stan", "gptools/fft1.stan"],
-        "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
+        "desired": [fft.evaluate_log_prob_rfft(y, loc, cov_rfft=cov_rfft),
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
 
@@ -219,7 +218,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     })
 
     # Unpack truncated Fourier coefficients to a real vector ...
-    unpacked_z = fft.unpack_rfft2(z, (n, m))
+    unpacked_z = fft.fft2.unpack_rfft2(z, (n, m))
     add_configuration({
         "stan_function": "gp_unpack_rfft2",
         "arg_types": {"n_": "int", "m": "int", "z": "complex_matrix[n_, m %/% 2 + 1]"},
@@ -236,7 +235,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_values": {"n_": n, "m_": m, "z": unpacked_z},
         "result_type": "complex_matrix[n_, m_ %/% 2 + 1]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
-        "desired": [z, fft.pack_rfft2(unpacked_z)],
+        "desired": [z, fft.fft2.pack_rfft2(unpacked_z)],
     })
 
     # Transforming to whitened Fourier coefficients ...

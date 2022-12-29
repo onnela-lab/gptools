@@ -101,15 +101,15 @@ def test_pack_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, use_tor
         z = th.as_tensor(z)
 
     # Unpacked Fourier to Fourier and back.
-    y = fft.pack_rfft2(z)
-    x = fft.unpack_rfft2(y, z.shape)
+    y = fft.fft2.pack_rfft2(z)
+    x = fft.fft2.unpack_rfft2(y, z.shape)
     np.testing.assert_allclose(z, x)
 
     # Fourier to unpacked Fourier and back.
     dispatch = ArrayOrTensorDispatch()
     z = dispatch[z].fft.rfft2(z)
-    y = fft.unpack_rfft2(z, rfft2_shape)
-    x = fft.pack_rfft2(y)
+    y = fft.fft2.unpack_rfft2(z, rfft2_shape)
+    x = fft.fft2.pack_rfft2(y)
     np.testing.assert_allclose(z, x)
 
 
