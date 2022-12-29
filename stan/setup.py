@@ -1,11 +1,11 @@
+import re
 from setuptools import find_namespace_packages, setup
 
 with open("README.rst") as fp:
     long_description = fp.read()
-long_description = long_description.replace(".. stan:autodoc:: ", ".. ")\
-    .replace(".. toctree::", "..").replace(":doc:", ":code:").replace(":ref:", ":code:")\
-    .replace(".. literalinclude::", "..").replace(":func:", ":code:").replace(":class:", ":code:")\
-    .replace(".. testsetup::", "..").replace(".. doctest::", ".. code-block::")
+long_description = re.sub(r".. (literalinclude|testsetup|toctree)", "..", long_description)
+long_description = re.sub(".. doctest::", ".. code-block::", long_description)
+long_description = re.sub(":(doc|class|func|ref):", ":code:", long_description)
 
 setup(
     name="gp-tools-stan",
