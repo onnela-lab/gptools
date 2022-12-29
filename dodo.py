@@ -48,7 +48,8 @@ for module in modules:
 
     # Compile example notebooks to create html reports.
     for path in pathlib.Path.cwd().glob(f"{module}/**/*.ipynb"):
-        if ".ipynb_checkpoints" in path.parts or "jupyter_execute" in path.parts:
+        exclude = [".ipynb_checkpoints", "jupyter_execute", ".jupyter_cache"]
+        if any(x in path.parts for x in exclude):
             continue
         target = path.with_suffix(".html")
         manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],

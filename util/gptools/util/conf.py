@@ -16,7 +16,8 @@ plot_formats = [
 ]
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
-exclude_patterns = ["docs/_build", "docs/jupyter_execute", ".pytest_cache", "playground", "figures"]
+exclude_patterns = ["docs/_build", "docs/jupyter_execute", ".pytest_cache", "playground", "figures",
+                    "**.ipynb_checkpoints"]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
@@ -30,10 +31,10 @@ intersphinx_mapping = {
 }
 
 source_suffix = {
-    '.rst': 'restructuredtext',
+    ".rst": "restructuredtext",
 }
 
-nb_execution_mode = "off"
+nb_execution_mode = "cache"
 myst_enable_extensions = [
     "amsmath",
     "dollarmath",
