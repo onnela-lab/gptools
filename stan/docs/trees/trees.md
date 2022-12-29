@@ -36,7 +36,12 @@ fig.tight_layout()
 frequency.shape
 ```
 
-The FFT assumes periodic boundary conditions, but, of course, these do not apply to trees. We thus pad the domain to attenuate correlation between quadrants at opposite sides of the plot. A padding of 10 quadrants corresponds to 200 meters.
+The FFT assumes periodic boundary conditions, but, of course, these do not apply to trees. We thus pad the domain to attenuate correlation between quadrants at opposite sides of the plot. A padding of 10 quadrants corresponds to 200 meters. The model is shown below.
+
+```{literalinclude} trees.stan
+   :language: stan
+```
+
 
 ```{code-cell} ipython3
 from gptools.stan import compile_model
@@ -127,7 +132,7 @@ smoothed_errors = []
 sigmas = np.logspace(-0.8, 1)
 for sigma in sigmas:
     smoothed_prediction = filter_estimate(frequency, train_mask, sigma)
-    smoothed_errors.append(evaluate_scaled_error(frequency[~train_mask], 
+    smoothed_errors.append(evaluate_scaled_error(frequency[~train_mask],
                                                  smoothed_prediction[~train_mask]))
 smoothed_errors = np.asarray(smoothed_errors)
 
@@ -142,7 +147,7 @@ def plot_errors(smoothed_errors, gp_errors, ax=None):
     """
     scale = delta * 1e3  # Show smoothing scale in meters.
     ax = ax or plt.gca()
-    
+
     # Gaussian filter errors.
     smoothed_loc = smoothed_errors.mean(axis=-1)
     smoothed_scale = smoothed_errors.std(axis=-1)
