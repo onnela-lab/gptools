@@ -25,8 +25,6 @@ import numpy as np
 import os
 from scipy.spatial.distance import pdist
 from scipy import stats
-
-mpl.style.use("../../../jss.mplstyle")
 ```
 
 ```{code-cell} ipython3

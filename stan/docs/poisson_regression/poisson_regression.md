@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -24,8 +24,6 @@ from gptools.util.kernels import DiagonalKernel, ExpQuadKernel, Kernel
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
-
-mpl.style.use("../../../jss.mplstyle")
 
 
 def simulate(x: np.ndarray, kernel: Kernel, mu: float = 0) -> dict:
