@@ -40,6 +40,23 @@ myst_enable_extensions = [
 ]
 myst_dmath_double_inline = True
 
+mathjax3_config = {
+    "tex": {
+        "macros": {
+            "BigO": r"\mathcal{O}",
+            "braces": [r"\left\{#1\right\}", 1],
+            "cov": r"\operatorname{cov}",
+            "dist": r"\sim",
+            "E": [r"\mathbb{E}\parenth{#1}", 1],
+            "imag": r"\mathrm{i}",
+            "mat": [r"\mathbf{#1}", 1],
+            "parenth": [r"\left(#1\right)", 1],
+            "pred": r"\mathcal{P}",
+            "proba": [r"p\parenth{#1}", 1],
+        }
+    }
+}
+
 
 def setup(app: Sphinx) -> None:
     # Ignore .ipynb and .html files (cf. https://github.com/executablebooks/MyST-NB/issues/363).
