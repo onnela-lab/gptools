@@ -1,7 +1,7 @@
 import cmdstanpy
 from cmdstanpy.model import OptionalPath
 import os
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 
 def get_include() -> str:
@@ -16,7 +16,8 @@ def compile_model(
         exe_file: OptionalPath = None, compile: Union[bool, str] = True,
         stanc_options: Optional[dict[str, Any]] = None,
         cpp_options: Optional[dict[str, Any]] = None,
-        user_header: OptionalPath = None, **kwargs) -> cmdstanpy.CmdStanModel:
+        user_header: OptionalPath = None, cls: Optional[Type] = None, **kwargs) \
+            -> cmdstanpy.CmdStanModel:
     """
     Create a :class:`cmdstanpy.CmdStanModel` and configure include paths for gptools.
 
@@ -32,6 +33,7 @@ def compile_model(
             `here <https://mc-stan.org/docs/stan-users-guide/stanc-args.html>`__ for details).
         cpp_options: C++ compiler options.
         user_header: Path to a C++ header file to include during compilation.
+        cls: Subclass of :class:`cmdstanpy.CmdStanModel` if a custom implementation should be used.
         **kwargs: Keyword arguments passed to the :class:`cmdstanpy.CmdStanModel` constructor.
 
     Returns:
@@ -40,7 +42,8 @@ def compile_model(
     # Add gptools includes by default.
     stanc_options = stanc_options or {}
     stanc_options.setdefault("include-paths", []).append(get_include())
-    return cmdstanpy.CmdStanModel(
+    cls = cls or cmdstanpy.CmdStanModel
+    return cls(
         model_name=model_name, stan_file=stan_file, exe_file=exe_file, compile=compile,
         stanc_options=stanc_options, cpp_options=cpp_options, user_header=user_header, **kwargs,
     )
