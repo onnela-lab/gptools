@@ -116,12 +116,13 @@ class FourierGaussianProcess2DTransform(th.distributions.Transform):
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
-        loc: Mean of the Gaussian process with shape `(..., size)`.
+        loc: Mean of the Gaussian process with shape `(..., height, width)`.
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft2_scale: Precomputed real fast Fourier transform scale with shape
-            `(..., size // 2 + 1)`.
+            `(..., height, width // 2 + 1)`.
+        cov: Covariance between the first grid point and the remainder of the grid with shape
+            `(..., height, width)`.
+        rfft2_scale: Optional precomputed scale of Fourier coefficients with shape
+            `(..., height, width // 2 + 1)`.
     """
     bijective = True
     domain = real_matrix
@@ -158,12 +159,13 @@ class FourierGaussianProcess2D(th.distributions.TransformedDistribution):
     Fourier-based Gaussian process in two dimensions.
 
     Args:
-        loc: Mean of the Gaussian process with shape `(..., size)`.
+        loc: Mean of the Gaussian process with shape `(..., height, width)`.
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale2: Precomputed real fast Fourier transform scale with shape
-            `(..., size // 2 + 1)`.
+            `(..., height, width // 2 + 1)`.
+        cov: Covariance between the first grid point and the remainder of the grid with shape
+            `(..., height, width)`.
+        rfft2_scale: Optional precomputed scale of Fourier coefficients with shape
+            `(..., height, width // 2 + 1)`.
     """
     arg_constraints = {
         "loc": real_matrix,
