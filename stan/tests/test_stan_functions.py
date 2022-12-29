@@ -247,8 +247,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     cov = kernel.evaluate(xs)
     lincov = cov[0].reshape((n, m))
     cov_rfft2 = np.fft.rfft2(lincov).real
-    rfft2_scale = fft.evaluate_rfft2_scale(lincov)
-    z = fft.transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
+    z = fft.transform_rfft2(y, loc, cov_rfft2=cov_rfft2)
     add_configuration({
         "stan_function": "gp_transform_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
@@ -267,7 +266,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
-        "desired": [y, fft.transform_irfft2(z, loc, rfft2_scale=rfft2_scale)],
+        "desired": [y, fft.transform_irfft2(z, loc, cov_rfft2=cov_rfft2)],
     })
 
     # Evaluate the likelihood.
@@ -279,7 +278,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "result_type": "real",
         "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
-                    fft.evaluate_log_prob_rfft2(y, loc, rfft2_scale=rfft2_scale)],
+                    fft.evaluate_log_prob_rfft2(y, loc, cov_rfft2=cov_rfft2)],
     })
 
     # Using `to_vector` is different from numpy's `ravel` in terms of ordering ...

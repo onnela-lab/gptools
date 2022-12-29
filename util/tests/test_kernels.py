@@ -89,8 +89,9 @@ def test_diagonal_kernel():
         kernel.evaluate(x, x)
 
 
-@pytest.mark.parametrize("shape", [(5,), (6,), (5, 7), (5, 6), (6, 5), (6, 8)])
-def test_periodic_exp_quad_rfft(shape: int) -> None:
+@pytest.mark.parametrize("size", [500, (501,), (500, 502), (500, 501), (501, 500), (501, 503)])
+def test_periodic_exp_quad_rfft(size: int) -> None:
+    shape = [size] if isinstance(size, int) else size
     *head, tail = shape
     ndim = len(shape)
     # Use a large number of terms to evaluate the kernel.
@@ -102,7 +103,7 @@ def test_periodic_exp_quad_rfft(shape: int) -> None:
         raise ValueError
     xs = coordgrid(*[np.linspace(0, period, n, endpoint=False) for n, period in
                      zip(shape, kernel.period * np.ones(ndim))])
-    cov = kernel.evaluate(xs)[0].reshape(shape)
+    cov = kernel.evaluate(0, xs).reshape(size)
     if ndim == 1:
         rfft = np.fft.rfft(cov)
     elif ndim == 2:
@@ -112,6 +113,12 @@ def test_periodic_exp_quad_rfft(shape: int) -> None:
     assert rfft.shape == (*head, tail // 2 + 1,)
     np.testing.assert_allclose(rfft.imag, 0, atol=1e-9)
 
+    direct_rfft = kernel.evaluate_rfft(size)
+    poly = np.polynomial.Polynomial.fit(rfft.ravel(), direct_rfft.ravel(), 1).convert()
+    bias, slope = poly.coef
+    assert abs(bias) < 1e-2
+    assert abs(slope - 1) < 1e-2
+
 
 def test_matern_invalid_dof() -> None:
     with pytest.raises(ValueError):
@@ -119,9 +126,10 @@ def test_matern_invalid_dof() -> None:
 
 
 @pytest.mark.parametrize("dof", [3 / 2, 5 / 2])
-@pytest.mark.parametrize("shape", [(500,), (501,), (500, 502), (500, 501), (501, 500), (501, 503)])
-def test_matern_approximate_rfft(dof: float, shape: tuple[int]) -> None:
+@pytest.mark.parametrize("size", [500, (501,), (500, 502), (500, 501), (501, 500), (501, 503)])
+def test_matern_approximate_rfft(dof: float, size: tuple[int]) -> None:
     sigma = 1.2
+    shape = [size] if isinstance(size, int) else size
     ndim = len(shape)
     period = np.asarray([2.1, 1.7])[:ndim]
     length_scale = np.asarray([0.01, 0.02])[:ndim]
@@ -138,7 +146,7 @@ def test_matern_approximate_rfft(dof: float, shape: tuple[int]) -> None:
         raise ValueError(ndim)
     np.testing.assert_allclose(rfft.imag, 0, atol=1e-9)
     rfft = rfft.real
-    direct_rfft = periodic_kernel.evaluate_rfft(shape)
+    direct_rfft = periodic_kernel.evaluate_rfft(size)
     poly = np.polynomial.Polynomial.fit(rfft.ravel(), direct_rfft.ravel(), 1).convert()
     bias, slope = poly.coef
     assert abs(bias) < 1e-2

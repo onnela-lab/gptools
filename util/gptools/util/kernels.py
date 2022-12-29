@@ -1,7 +1,7 @@
 import math
 import numpy as np
 import operator
-from typing import Callable
+from typing import Callable, Iterable, Union
 from . import ArrayOrTensor, ArrayOrTensorDispatch, coordgrid, OptionalArrayOrTensor
 from .fft import expand_rfft
 
@@ -157,7 +157,7 @@ class Kernel:
         """
         raise NotImplementedError
 
-    def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
+    def evaluate_rfft(self, shape: Union[int, tuple[int]]) -> ArrayOrTensor:
         """
         Evaluate the real fast Fourier transform of the kernel.
 
@@ -240,9 +240,11 @@ class ExpQuadKernel(Kernel):
         exponent = - dispatch.square(residuals).sum(axis=-1) / 2
         return self.sigma * self.sigma * dispatch.exp(exponent)
 
-    def evaluate_rfft(self, shape: tuple[int]) -> ArrayOrTensor:
+    def evaluate_rfft(self, shape: Union[int, tuple[int]]) -> ArrayOrTensor:
         if not self.is_periodic:
             raise NotImplementedError
+        if not isinstance(shape, Iterable):
+            shape = [shape]
         ndim = len(shape)
         rescaled_length_scale = self.length_scale * np.ones(ndim) / self.period
         value = None
@@ -293,6 +295,8 @@ class MaternKernel(Kernel):
     def evaluate_rfft(self, shape: tuple[int]):
         if not self.is_periodic:
             raise NotImplementedError
+        if not isinstance(shape, Iterable):
+            shape = [shape]
         from scipy import special
 
         # Construct the grid to evaluate on.

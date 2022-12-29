@@ -9,12 +9,14 @@ log2 = 0.6931471805599453
 log2pi = 1.8378770664093453
 
 
-def _get_rfft_scale(cov: OptionalArrayOrTensor, rfft_scale: OptionalArrayOrTensor) -> ArrayOrTensor:
-    if (cov is None) == (rfft_scale is None):  # pragma: no cover
-        raise ValueError("exactly one of `cov` and `rfft_scale` must be given")
+def _get_rfft_scale(cov_rfft: OptionalArrayOrTensor, cov: OptionalArrayOrTensor,
+                    rfft_scale: OptionalArrayOrTensor, size: Optional[int]) -> ArrayOrTensor:
+    num_given = sum([cov_rfft is not None, cov is not None, rfft_scale is not None])
+    if num_given != 1:  # pragma: no cover
+        raise ValueError("exactly one of `cov_rfft`, `cov`, or `rfft_scale` must be given")
     if rfft_scale is not None:
         return rfft_scale
-    return evaluate_rfft_scale(cov=cov)
+    return evaluate_rfft_scale(cov_rfft=cov_rfft, cov=cov, size=size)
 
 
 def log_prob_stdnorm(y: ArrayOrTensor) -> ArrayOrTensor:
@@ -24,23 +26,25 @@ def log_prob_stdnorm(y: ArrayOrTensor) -> ArrayOrTensor:
     return - (log2pi + y * y) / 2
 
 
-@mutually_exclusive_kwargs("cov", ("rfft", "size"))
-def evaluate_rfft_scale(*, cov: OptionalArrayOrTensor = None, rfft: OptionalArrayOrTensor = None,
-                        size: Optional[int] = None) -> ArrayOrTensor:
+@mutually_exclusive_kwargs("cov", "cov_rfft")
+def evaluate_rfft_scale(*, cov: OptionalArrayOrTensor = None,
+                        cov_rfft: OptionalArrayOrTensor = None, size: Optional[int] = None) \
+        -> ArrayOrTensor:
     """
     Evaluate the scale of Fourier coefficients.
 
     Args:
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., n)`.
+        TODO: docs
 
     Returns:
         scale: Scale of Fourier coefficients with shape `(..., n // 2 + 1)`.
     """
-    if rfft is None:
+    if cov_rfft is None:
         *_, size = cov.shape
-        rfft = dispatch[cov].fft.rfft(cov).real
-    scale: ArrayOrTensor = dispatch.sqrt(size * rfft / 2)
+        cov_rfft = dispatch[cov].fft.rfft(cov).real
+    scale: ArrayOrTensor = dispatch.sqrt(size * cov_rfft / 2)
     # Rescale for the real-only zero frequency term.
     scale[0] *= sqrt2
     if size % 2 == 0:
@@ -115,44 +119,52 @@ def pack_rfft(z: ArrayOrTensor, full_fft: bool = False) -> ArrayOrTensor:
     return dispatch.concatenate([rfft, dispatch.flip(rfft[..., 1:ncomplex + 1].conj(), (-1,))], -1)
 
 
-def transform_irfft(z: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
-                    rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def transform_irfft(z: ArrayOrTensor, loc: ArrayOrTensor, *, cov_rfft: OptionalArrayOrTensor = None,
+                    cov: OptionalArrayOrTensor = None, rfft_scale: OptionalArrayOrTensor = None) \
+        -> ArrayOrTensor:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
 
     Args:
         z: Fourier-domain white noise with shape `(..., size)`. See :func:`unpack_rfft` for details.
         loc: Mean of the Gaussian process with shape `(..., size)`.
+        cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
+            `(..., size // 2 + 1)`.
         cov: First row of the covariance matrix with shape `(..., size)`.
         rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
 
     Returns:
         y: Realization of the Gaussian process with shape `(..., size)`.
     """
-    rfft_scale = _get_rfft_scale(cov, rfft_scale)
+    rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, z.shape[-1])
     rfft = pack_rfft(z) * rfft_scale
     return dispatch[rfft].fft.irfft(rfft, z.shape[-1]) + loc
 
 
-def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
-                   rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov_rfft: OptionalArrayOrTensor = None,
+                   cov: OptionalArrayOrTensor = None, rfft_scale: OptionalArrayOrTensor = None) \
+        -> ArrayOrTensor:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
         y: Realization of the Gaussian process with shape `(..., size)`.
         loc: Mean of the Gaussian process with shape `(..., size)`.
+        cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
+            `(..., size // 2 + 1)`.
         cov: First row of the covariance matrix with shape `(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
 
     Returns:
         z: Fourier-domain white noise with shape `(..., size)`.. See :func:`transform_irrft` for
             details.
     """
-    rfft_scale = _get_rfft_scale(cov, rfft_scale)
+    rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, size=y.shape[-1])
     return unpack_rfft(dispatch[y].fft.rfft(y - loc) / rfft_scale, y.shape[-1])
 
 
 def evaluate_log_prob_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *,
+                           cov_rfft: OptionalArrayOrTensor = None,
                            cov: OptionalArrayOrTensor = None,
                            rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
@@ -162,62 +174,75 @@ def evaluate_log_prob_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *,
         y: Realization of a Gaussian process with shape `(..., size)`, where `...` is the batch
             shape and `size` is the number of grid points.
         loc: Mean of the Gaussian process with shape `(..., size)`.
-        cov: Covariance between the first grid point and the remainder of the grid with shape
-            `(..., size)`.
+        cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
+            `(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape `(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
 
     Returns:
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
-    rfft_scale = _get_rfft_scale(cov, rfft_scale)
+    rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, y.shape[-1])
     rfft = transform_rfft(y, loc, rfft_scale=rfft_scale)
     return log_prob_stdnorm(rfft).sum(axis=-1) \
         + evaluate_rfft_log_abs_det_jacobian(y.shape[-1], rfft_scale=rfft_scale)
 
 
-def evaluate_rfft_log_abs_det_jacobian(size: int, *, cov: OptionalArrayOrTensor = None,
+def evaluate_rfft_log_abs_det_jacobian(size: int, *, cov_rfft: OptionalArrayOrTensor = None,
+                                       cov: OptionalArrayOrTensor = None,
                                        rfft_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
 
     Args:
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale: Optional precomputed scale of Fourier coefficients with shape
+        cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
             `(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape `(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
 
     Returns:
         log_abs_det_jacobian
     """
     imagidx = (size + 1) // 2
-    rfft_scale = _get_rfft_scale(cov, rfft_scale)
+    rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, size)
     assert rfft_scale.shape[-1] == size // 2 + 1
     return - dispatch.log(rfft_scale).sum(axis=-1) \
         - dispatch.log(rfft_scale[1:imagidx]).sum(axis=-1) - log2 * ((size - 1) // 2) \
         + size * math.log(size) / 2
 
 
-def _get_rfft2_scale(cov: OptionalArrayOrTensor, rfft2_scale: OptionalArrayOrTensor) \
-        -> ArrayOrTensor:
-    if (cov is None) == (rfft2_scale is None):  # pragma: no cover
-        raise ValueError("exactly one of `cov` and `rfft2_scale` must be given")
+def _get_rfft2_scale(cov_rfft2: OptionalArrayOrTensor, cov: OptionalArrayOrTensor,
+                     rfft2_scale: OptionalArrayOrTensor, width: Optional[int]) -> ArrayOrTensor:
+    num_given = sum([cov_rfft2 is not None, cov is not None, rfft2_scale is not None])
+    if num_given != 1:  # pragma: no cover
+        raise ValueError("exactly one of `cov_rfft2`, `cov`, or `rfft2_scale` must be given")
     if rfft2_scale is not None:
         return rfft2_scale
-    return evaluate_rfft2_scale(cov)
+    return evaluate_rfft2_scale(cov_rfft2=cov_rfft2, cov=cov, width=width)
 
 
-def evaluate_rfft2_scale(cov: ArrayOrTensor) -> ArrayOrTensor:
+@mutually_exclusive_kwargs("cov", "cov_rfft2")
+def evaluate_rfft2_scale(*, cov: OptionalArrayOrTensor = None,
+                         cov_rfft2: OptionalArrayOrTensor = None, width: Optional[int] = None) \
+        -> ArrayOrTensor:
     """
     Evaluate the scale of Fourier coefficients.
 
     Args:
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., height, width)`.
+        TODO: docs
 
     Returns:
         scale: Scale of Fourier coefficients with shape `(..., height, width // 2 + 1)`.
     """
-    *_, height, width = cov.shape
+    if cov is not None:
+        *_, height, width = cov.shape
+        cov_rfft2 = dispatch[cov].fft.rfft2(cov).real
+    else:
+        *_, height, _ = cov_rfft2.shape
     size = width * height
-    rfft2_scale = size * dispatch[cov].fft.rfft2(cov).real / 2
+    rfft2_scale = size * cov_rfft2 / 2
 
     # Recall how the two-dimensional RFFT is computed. We first take an RFFT of rows of the matrix.
     # This leaves us with a real first column (zero frequency term) and a real last column if the
@@ -305,7 +330,8 @@ def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
     return rfft2
 
 
-def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
+def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, *,
+                     cov_rfft2: OptionalArrayOrTensor = None, cov: OptionalArrayOrTensor = None,
                      rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
@@ -314,17 +340,19 @@ def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArray
         z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
             details.
         loc: Mean of the Gaussian process with shape `(..., size)`.
+        TODO: docs
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., n, m)`.
 
     Returns:
         y: Realization of the Gaussian process.
     """
-    rfft2 = pack_rfft2(z) * _get_rfft2_scale(cov, rfft2_scale)
+    rfft2 = pack_rfft2(z) * _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, z.shape[-1])
     return dispatch[rfft2].fft.irfft2(rfft2, z.shape[-2:]) + loc
 
 
-def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayOrTensor = None,
+def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
+                    cov_rfft2: OptionalArrayOrTensor = None, cov: OptionalArrayOrTensor = None,
                     rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
@@ -339,16 +367,18 @@ def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov: OptionalArrayO
         z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
             details.
     """
-    rfft2_scale = _get_rfft2_scale(cov, rfft2_scale)
+    rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, y.shape[-1])
     return unpack_rfft2(dispatch[y].fft.rfft2(y - loc) / rfft2_scale, y.shape)
 
 
 def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov: OptionalArrayOrTensor = None,
+                                        cov_rfft2: OptionalArrayOrTensor = None,
                                         rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft`.
 
     Args:
+        TODO: docs.
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., height, width)`.
         rfft_scale: Optional precomputed scale of Fourier coefficients with shape
@@ -357,7 +387,7 @@ def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov: OptionalArrayOrTenso
     Returns:
         log_abs_det_jacobian
     """
-    rfft2_scale = _get_rfft2_scale(cov, rfft2_scale)
+    rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, width)
     height = rfft2_scale.shape[-2]
     assert rfft2_scale.shape[-1] == width // 2 + 1
     ncomplex_horizontal = (width - 1) // 2
@@ -386,6 +416,7 @@ def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov: OptionalArrayOrTenso
 
 
 def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
+                            cov_rfft2: OptionalArrayOrTensor = None,
                             cov: OptionalArrayOrTensor = None,
                             rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
@@ -395,13 +426,15 @@ def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
         y: Realization of a Gaussian process with shape `(..., n, m)`, where `...` is the batch
             shape, `n` is the number of rows, and `m` is the number of columns.
         loc: Mean of the Gaussian process with shape `(..., size)`.
+        cov_rfft: Real fast Fourier transform of the covariance between the first grid point and the
+            remainder of the grid with shape `(..., n, m // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
             `(..., n, m)`.
 
     Returns:
         log_prob: Log probability of the Gaussian process realization with shape `(...)`.
     """
-    rfft2_scale = _get_rfft2_scale(cov, rfft2_scale)
+    rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, y.shape[-1])
     rfft2 = transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
     return log_prob_stdnorm(rfft2).sum(axis=(-2, -1)) \
         + evaluate_rfft2_log_abs_det_jacobian(y.shape[-1], rfft2_scale=rfft2_scale)

@@ -39,9 +39,13 @@ def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torc
     dist = stats.multivariate_normal(loc, cov)
     y = dist.rvs(batch_shape)
     log_prob = dist.logpdf(y)
-    log_prob_rfft = fft.evaluate_log_prob_rfft(
-        th.as_tensor(y) if use_torch else y, th.as_tensor(loc) if use_torch else loc,
-        cov=th.as_tensor(cov[0]) if use_torch else cov[0])
+    y = th.as_tensor(y) if use_torch else y
+    loc = th.as_tensor(loc) if use_torch else loc
+    cov = th.as_tensor(cov[0]) if use_torch else cov[0]
+    log_prob_rfft = fft.evaluate_log_prob_rfft(y, loc, cov=cov)
+    np.testing.assert_allclose(log_prob, log_prob_rfft)
+    cov_rfft = ArrayOrTensorDispatch()[cov].fft.rfft(cov)
+    log_prob_rfft = fft.evaluate_log_prob_rfft(y, loc, cov_rfft=cov_rfft)
     np.testing.assert_allclose(log_prob, log_prob_rfft)
 
 
@@ -53,9 +57,10 @@ def test_transform_rfft_roundtrip(batch_shape: tuple[int], rfft_num: int, use_to
     loc = np.random.normal(0, 1, rfft_num)
     cov = kernel.evaluate(x[:, None])
     cov = cov[0]
-    loc = th.as_tensor(loc) if use_torch else loc
-    z = th.as_tensor(z) if use_torch else z
-    cov = th.as_tensor(cov) if use_torch else cov
+    if use_torch:
+        loc = th.as_tensor(loc)
+        z = th.as_tensor(z)
+        cov = th.as_tensor(cov)
     y = fft.transform_irfft(z, loc, cov=cov)
     x = fft.transform_rfft(y, loc, cov=cov)
     # Verify that the inverse of the transform is the input.
@@ -85,6 +90,9 @@ def test_evaluate_log_prob_rfft2(kernel: kernels.Kernel, batch_shape: tuple[int]
         cov2 = th.as_tensor(cov2)
     log_prob_rfft2 = fft.evaluate_log_prob_rfft2(y2, loc2, cov=cov2)
     np.testing.assert_allclose(log_prob, log_prob_rfft2)
+    cov_rfft2 = ArrayOrTensorDispatch()[cov].fft.rfft2(cov2)
+    log_prob_rfft = fft.evaluate_log_prob_rfft2(y2, loc2, cov_rfft2=cov_rfft2)
+    np.testing.assert_allclose(log_prob, log_prob_rfft)
 
 
 def test_pack_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, use_torch: bool) -> None:
