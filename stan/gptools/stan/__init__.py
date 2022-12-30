@@ -6,7 +6,7 @@ from typing import Any, Optional, Type, Union
 
 def get_include() -> str:
     """
-    Get the include directory for the graph Gaussian process library.
+    Get the include directory for the library.
     """
     return os.path.dirname(__file__)
 
