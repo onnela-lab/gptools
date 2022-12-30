@@ -23,10 +23,7 @@ def batch_shape(request: pytest.FixtureRequest) -> tuple[int]:
 
 
 def test_log_prob_norm(use_torch: bool) -> None:
-    if use_torch:
-        x = th.randn([])
-    else:
-        x = np.random.normal()
+    x = th.randn([]) if use_torch else np.random.normal()
     np.testing.assert_allclose(stats.norm(0, 1).logpdf(x), fft.log_prob_stdnorm(x))
 
 
@@ -39,12 +36,14 @@ def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torc
     dist = stats.multivariate_normal(loc, cov)
     y = dist.rvs(batch_shape)
     log_prob = dist.logpdf(y)
-    y = th.as_tensor(y) if use_torch else y
-    loc = th.as_tensor(loc) if use_torch else loc
-    cov = th.as_tensor(cov[0]) if use_torch else cov[0]
-    log_prob_rfft = fft.evaluate_log_prob_rfft(y, loc, cov=cov)
+    lincov = cov[0]
+    if use_torch:
+        y = th.as_tensor(y)
+        loc = th.as_tensor(loc)
+        lincov = th.as_tensor(lincov)
+    log_prob_rfft = fft.evaluate_log_prob_rfft(y, loc, cov=lincov)
     np.testing.assert_allclose(log_prob, log_prob_rfft)
-    cov_rfft = ArrayOrTensorDispatch()[cov].fft.rfft(cov)
+    cov_rfft = ArrayOrTensorDispatch()[cov].fft.rfft(lincov)
     log_prob_rfft = fft.evaluate_log_prob_rfft(y, loc, cov_rfft=cov_rfft)
     np.testing.assert_allclose(log_prob, log_prob_rfft)
 
@@ -122,8 +121,9 @@ def test_transform_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, us
     cov = cov[0].reshape(rfft2_shape)
     loc = np.random.normal(0, 1, rfft2_shape)
     z = np.random.normal(0, 1, batch_shape + rfft2_shape)
-    z = th.as_tensor(z) if use_torch else z
-    cov = th.as_tensor(cov) if use_torch else cov
+    if use_torch:
+        z = th.as_tensor(z)
+        cov = th.as_tensor(cov)
     y = fft.transform_irfft2(z, loc, cov=cov)
     x = fft.transform_rfft2(y, loc, cov=cov)
     # Verify that the inverse of the transform is the input.
