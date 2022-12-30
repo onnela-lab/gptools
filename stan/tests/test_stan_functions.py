@@ -2,6 +2,7 @@ from gptools.stan import compile_model
 from gptools.util import coordgrid, fft, kernels
 import hashlib
 import inspect
+import itertools as it
 import numpy as np
 import pathlib
 import pytest
@@ -433,28 +434,43 @@ for num_nodes, edges, raises in [
 
 # Add evaluation of likelihood on a complete graph to check values.
 n = 10
-for p in [1, 2]:
+for p, kernel in it.product([1, 2], [
+        kernels.ExpQuadKernel(1.3, 0.7),
+        kernels.MaternKernel(1.5, 1.3, 0.7),
+        kernels.MaternKernel(2.5, 1.3, 0.7),
+        ]):
     x = np.random.normal(0, 1, (n, p))
-    kernel = kernels.ExpQuadKernel(1.3, 0.7) + kernels.DiagonalKernel(1e-3)
-    mu = np.random.normal(0, 1, n)
+    kernel = kernel + kernels.DiagonalKernel(1e-3)
+    loc = np.random.normal(0, 1, n)
     cov = kernel.evaluate(x)
-    dist = stats.multivariate_normal(mu, cov)
+    dist = stats.multivariate_normal(loc, cov)
     y = dist.rvs()
     # Construct a complete graph.
     edges = []
     for i in range(1, n):
         edges.append(np.transpose([np.roll(np.arange(i), 1), np.ones(i) * i]))
     edges = np.concatenate(edges, axis=0).astype(int).T
+    if isinstance(kernel.a, kernels.ExpQuadKernel):
+        stan_function = "gp_graph_exp_quad_cov_lpdf"
+    elif isinstance(kernel.a, kernels.MaternKernel):
+        if kernel.a.dof == 1.5:
+            stan_function = "gp_graph_matern32_cov_lpdf"
+        elif kernel.a.dof == 2.5:
+            stan_function = "gp_graph_matern52_cov_lpdf"
+        else:
+            raise ValueError(kernel.a.dof)
+    else:
+        raise TypeError(kernel.a)
     add_configuration({
-        "stan_function": "gp_graph_exp_quad_cov_lpdf",
+        "stan_function": stan_function,
         "arg_types": {
             "p_": "int", "num_nodes_": "int", "num_edges_": "int", "y": "vector[num_nodes_]",
             "x": "array [num_nodes_] vector[p_]", "sigma": "real", "length_scale": "real",
             "edges": "array [2, num_edges_] int", "degrees": "array [num_nodes_] int",
-            "epsilon": "real", "mu": "vector[num_nodes_]",
+            "epsilon": "real", "loc": "vector[num_nodes_]",
         },
         "arg_values": {
-            "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "mu": mu, "x": x,
+            "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "loc": loc, "x": x,
             "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale, "edges": edges + 1,
             "degrees": np.bincount(edges[1], minlength=n), "epsilon": kernel.b.epsilon
         },
