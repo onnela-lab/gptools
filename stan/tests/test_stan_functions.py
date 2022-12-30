@@ -440,9 +440,9 @@ for p, kernel in it.product([1, 2], [
         kernels.MaternKernel(2.5, 1.3, 0.7),
         ]):
     x = np.random.normal(0, 1, (n, p))
-    kernel = kernel + kernels.DiagonalKernel(1e-3)
+    epsilon = 1e-3
     loc = np.random.normal(0, 1, n)
-    cov = kernel.evaluate(x)
+    cov = kernel.evaluate(x) + epsilon * np.eye(n)
     dist = stats.multivariate_normal(loc, cov)
     y = dist.rvs()
     # Construct a complete graph.
@@ -450,17 +450,17 @@ for p, kernel in it.product([1, 2], [
     for i in range(1, n):
         edges.append(np.transpose([np.roll(np.arange(i), 1), np.ones(i) * i]))
     edges = np.concatenate(edges, axis=0).astype(int).T
-    if isinstance(kernel.a, kernels.ExpQuadKernel):
+    if isinstance(kernel, kernels.ExpQuadKernel):
         stan_function = "gp_graph_exp_quad_cov_lpdf"
-    elif isinstance(kernel.a, kernels.MaternKernel):
-        if kernel.a.dof == 1.5:
+    elif isinstance(kernel, kernels.MaternKernel):
+        if kernel.dof == 1.5:
             stan_function = "gp_graph_matern32_cov_lpdf"
-        elif kernel.a.dof == 2.5:
+        elif kernel.dof == 2.5:
             stan_function = "gp_graph_matern52_cov_lpdf"
         else:
-            raise ValueError(kernel.a.dof)
+            raise ValueError(kernel.dof)
     else:
-        raise TypeError(kernel.a)
+        raise TypeError(kernel)
     add_configuration({
         "stan_function": stan_function,
         "arg_types": {
@@ -471,8 +471,8 @@ for p, kernel in it.product([1, 2], [
         },
         "arg_values": {
             "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "loc": loc, "x": x,
-            "sigma": kernel.a.sigma, "length_scale": kernel.a.length_scale, "edges": edges + 1,
-            "degrees": np.bincount(edges[1], minlength=n), "epsilon": kernel.b.epsilon
+            "sigma": kernel.sigma, "length_scale": kernel.length_scale, "edges": edges + 1,
+            "degrees": np.bincount(edges[1], minlength=n), "epsilon": epsilon
         },
         "result_type": "real",
         "includes": ["gptools/util.stan", "gptools/graph.stan"],
