@@ -34,7 +34,7 @@ transformed parameters {
 
 model {
     // Implies that eta ~ gp_rfft(mu, rfft2_cov) is a realization of the Gaussian process.
-    z ~ std_normal();
+    to_vector(z) ~ std_normal();
     // Weakish priors on all other parameters.
     mu ~ student_t(2, 0, 1);
     sigma ~ student_t(2, 0, 1);

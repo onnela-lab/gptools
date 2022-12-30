@@ -416,17 +416,7 @@ matrix zeros_matrix(int m, int n) {
     return rep_matrix(0, m, n);
 }
 
-// Custom likelihoods ------------------------------------------------------------------------------
-
-real std_normal_lpdf(complex_vector z) {
-    return std_normal_lpdf(get_real(z)) + std_normal_lpdf(get_imag(z));
-}
-
-real std_normal_lpdf(matrix z) {
-    return std_normal_lpdf(to_vector(z));
-}
-
-// Conditional distributions -----------------------------------------------------------------------
+// Conditional location and scale parameters for multivariate normal distributions -----------------
 
 /**
 Evaluate the conditional location and scale parameter of a univariate normal random variable given

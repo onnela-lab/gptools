@@ -184,7 +184,7 @@ Evaluate the log probability of a two-dimensional Gaussian process realization i
 :returns: Log probability of the Gaussian process realization.
 */
 real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov_rfft2) {
-    return std_normal_lpdf(gp_transform_rfft2(y, loc, cov_rfft2))
+    return std_normal_lpdf(to_vector(gp_transform_rfft2(y, loc, cov_rfft2)))
         + gp_rfft2_log_abs_det_jacobian(cov_rfft2, cols(y));
 }
 
