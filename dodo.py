@@ -83,9 +83,8 @@ def add_profile_task(method: str, parameterization: str, log10_sigma: float, siz
     ]
     file_dep = [
         "profile/__main__.py",
-        "gptools/fft.stan",
+        "gptools/fft1.stan",
         "gptools/graph.stan",
-        "gptools/kernels.stan",
         "gptools/util.stan",
         "profile/data.stan",
         f"profile/{parameterization}.stan",

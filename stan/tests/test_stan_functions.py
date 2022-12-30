@@ -357,49 +357,6 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": np.zeros((m, n)),
     })
 
-for ndim in [1, 2, 3]:
-    n = 1 + np.random.poisson(50)
-    m = 1 + np.random.poisson(50)
-    sigma = np.random.gamma(10, 0.1)
-    length_scale = np.random.gamma(10, 0.1, ndim)
-    period = np.random.gamma(100, 0.1, ndim)
-    x = np.random.uniform(0, period, (n, ndim))
-    y = np.random.uniform(0, period, (m, ndim))
-    kernel = kernels.ExpQuadKernel(sigma, length_scale, period=period)
-    add_configuration({
-        "stan_function": "gp_periodic_exp_quad_cov",
-        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
-                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
-                      "period": "vector[p_]"},
-        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale, "period": period},
-        "result_type": "matrix[n_, m_]",
-        "includes": ["gptools/util.stan", "gptools/kernels.stan"],
-        "desired": kernel.evaluate(x[:, None], y[None]),
-    })
-
-    # Verify two 3/2 and 5/2 Matern kernels.
-    kernel = kernels.MaternKernel(3 / 2, sigma, length_scale[0])
-    add_configuration({
-        "stan_function": "gp_matern32_cov",
-        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
-                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "real"},
-        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale[0]},
-        "result_type": "matrix[n_, m_]",
-        "desired": kernel.evaluate(x[:, None], y[None]),
-    })
-    kernel = kernels.MaternKernel(5 / 2, sigma, length_scale[0])
-    add_configuration({
-        "stan_function": "gp_matern52_cov",
-        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
-                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "real"},
-        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale[0]},
-        "result_type": "matrix[n_, m_]",
-        "desired": kernel.evaluate(x[:, None], y[None]),
-    })
-
 for m in [7, 8]:
     sigma = np.random.gamma(10, 0.1)
     length_scale = np.random.gamma(10, 0.1)
@@ -409,7 +366,7 @@ for m in [7, 8]:
         "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real"},
         "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period},
         "result_type": "vector[m %/% 2 + 1]",
-        "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan"],
         "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
     })
     for dof in [3 / 2, 5 / 2]:
@@ -420,7 +377,7 @@ for m in [7, 8]:
             "arg_values": {"dof": dof, "m": n, "sigma": sigma, "length_scale": length_scale,
                            "period": period},
             "result_type": "vector[m %/% 2 + 1]",
-            "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+            "includes": ["gptools/util.stan", "gptools/fft1.stan"],
             "desired": kernels.MaternKernel(dof, sigma, length_scale, period).evaluate_rfft([n]),
         })
     for n in [9, 10]:
@@ -433,7 +390,7 @@ for m in [7, 8]:
             "arg_values": {"m": m, "n": n, "sigma": sigma, "length_scale": length_scale,
                            "period": period},
             "result_type": "matrix[m, n %/% 2 + 1]",
-            "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+            "includes": ["gptools/util.stan", "gptools/fft.stan"],
             "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)
             .evaluate_rfft([m, n]),
         })
@@ -446,7 +403,7 @@ for m in [7, 8]:
                 "arg_values": {"dof": dof, "m": m, "n": n, "sigma": sigma,
                                "length_scale": length_scale, "period": period},
                 "result_type": "matrix[m, n %/% 2 + 1]",
-                "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+                "includes": ["gptools/util.stan", "gptools/fft.stan"],
                 "desired": kernel.evaluate_rfft([m, n]),
             })
 

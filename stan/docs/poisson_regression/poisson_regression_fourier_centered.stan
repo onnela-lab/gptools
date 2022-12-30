@@ -3,7 +3,6 @@
 functions {
     #include gptools/util.stan
     #include gptools/fft1.stan
-    #include gptools/kernels.stan
 }
 
 data {

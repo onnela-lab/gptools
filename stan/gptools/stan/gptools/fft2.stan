@@ -187,3 +187,46 @@ real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov_rfft2) {
     return std_normal_lpdf(gp_transform_rfft2(y, loc, cov_rfft2))
         + gp_rfft2_log_abs_det_jacobian(cov_rfft2, cols(y));
 }
+
+
+
+
+/**
+Evaluate the two-dimensional real fast Fourier transform of the periodic squared exponential kernel.
+*/
+matrix gp_periodic_exp_quad_cov_rfft2(int m, int n, real sigma, vector length_scale, vector period) {
+    vector[m %/% 2 + 1] rfftm = gp_periodic_exp_quad_cov_rfft(m, sigma, length_scale[1], period[1]);
+    vector[n %/% 2 + 1] rfftn = gp_periodic_exp_quad_cov_rfft(n, 1, length_scale[2], period[2]);
+    return get_real(expand_rfft(rfftm, m)) * rfftn';
+}
+
+
+/**
+Evaluate the real fast Fourier transform of the two-dimensional periodic Matern kernel.
+*/
+matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, vector length_scale,
+                                    vector period) {
+    int nrfft = n %/% 2 + 1;
+    matrix[m, nrfft] result;
+    real ndim = 2;
+    row_vector[nrfft] col_part = (linspaced_row_vector(nrfft, 0, nrfft - 1) * length_scale[2]
+                                  / period[2]) ^ 2;
+    // We only iterate up to m %/% 2 + 1 because the kernel is symmetric in positive and negative
+    // frequencies.
+    for (i in 1:m %/% 2 + 1) {
+        int krow = i - 1;
+        result[i] = 1 + 2 / dof * pi() ^ 2 * ((krow * length_scale[1] / period[1]) ^ 2 + col_part);
+        if (i > 1) {
+            result[m - i + 2] = result[i];
+        }
+    }
+    return sigma ^ 2 * m * n * 2 ^ ndim * (pi() / (2 * dof)) ^ (ndim / 2)
+        * tgamma(dof + ndim / 2) / tgamma(dof)
+        * result .^ -(dof + ndim / 2) * prod(to_array_1d(length_scale ./ period));
+}
+
+
+matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, real length_scale,
+                                    vector period) {
+    return gp_periodic_matern_cov_rfft2(dof, m, n, sigma, [length_scale, length_scale]', period);
+}

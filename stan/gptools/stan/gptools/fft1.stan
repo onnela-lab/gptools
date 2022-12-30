@@ -137,3 +137,23 @@ vector gp_transform_inv_rfft(vector z, vector loc, vector cov_rfft) {
     vector[n %/% 2 + 1] rfft_scale = gp_evaluate_rfft_scale(cov_rfft, n);
     return get_real(inv_rfft(rfft_scale .* gp_pack_rfft(z), n)) + loc;
 }
+
+/**
+Evaluate the real fast Fourier transform of the periodic squared exponential kernel.
+*/
+vector gp_periodic_exp_quad_cov_rfft(int n, real sigma, real length_scale, real period) {
+    int nrfft = n %/% 2 + 1;
+    return n * sigma ^ 2 * length_scale / period * sqrt(2 * pi())
+        * exp(-2 * (pi() * linspaced_vector(nrfft, 0, nrfft - 1) * length_scale / period) ^ 2);
+}
+
+/**
+Evaluate the real fast Fourier transform of the periodic Matern kernel.
+*/
+vector gp_periodic_matern_cov_rfft(real dof, int n, real sigma, real length_scale, real period) {
+    int nrfft = n %/% 2 + 1;
+    vector[nrfft] k = linspaced_vector(nrfft, 0, nrfft - 1);
+    return sigma ^ 2 * n * sqrt(2 * pi() / dof) * tgamma(dof + 0.5) / tgamma(dof)
+        * (1 + 2 / dof * (pi() * length_scale / period * k) ^ 2) ^ -(dof + 0.5) * length_scale
+        / period;
+}
