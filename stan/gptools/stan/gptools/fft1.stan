@@ -60,14 +60,14 @@ Transform a Gaussian process realization to white noise in the Fourier domain.
 :returns: Fourier-domain white noise with shape `(..., n)`. See :stan:func:`gp_unpack_rfft` for
     details on the data structure.
 */
-vector gp_transform_rfft(vector y, vector loc, vector cov_rfft) {
+vector gp_rfft(vector y, vector loc, vector cov_rfft) {
     return gp_unpack_rfft(rfft(y - loc) ./ gp_evaluate_rfft_scale(cov_rfft, size(y)), size(y));
 }
 
 
 /**
 Evaluate the log absolute determinant of the Jacobian associated with
-:stan:func:`gp_transform_rfft`.
+:stan:func:`gp_rfft`.
 
 :param cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
     `(..., n %/% 2 + 1)`.
@@ -92,7 +92,7 @@ Evaluate the log probability of a one-dimensional Gaussian process realization i
 real gp_rfft_lpdf(vector y, vector loc, vector cov_rfft) {
     int n = size(y);
     int nrfft = n %/% 2 + 1;
-    vector[n] z = gp_transform_rfft(y, loc, cov_rfft);
+    vector[n] z = gp_rfft(y, loc, cov_rfft);
     return std_normal_lpdf(z) + gp_rfft_log_abs_det_jacobian(cov_rfft, n);
 }
 
@@ -132,7 +132,7 @@ with structure expected by the fast Fourier transform. The input vector :math:`z
 
 :returns: Realization of the Gaussian process with :math:`n` elements.
 */
-vector gp_transform_inv_rfft(vector z, vector loc, vector cov_rfft) {
+vector gp_inv_rfft(vector z, vector loc, vector cov_rfft) {
     int n = size(z);
     vector[n %/% 2 + 1] rfft_scale = gp_evaluate_rfft_scale(cov_rfft, n);
     return get_real(inv_rfft(rfft_scale .* gp_pack_rfft(z), n)) + loc;

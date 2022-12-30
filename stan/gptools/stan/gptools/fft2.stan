@@ -109,7 +109,7 @@ Transform a Gaussian process realization to white noise in the Fourier domain.
     `(height, width %/% 2 + 1)`.
 :returns: Unpacked matrix with shape `(height, width)`.
 */
-matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov_rfft2) {
+matrix gp_rfft2(matrix y, matrix loc, matrix cov_rfft2) {
     return gp_unpack_rfft2(rfft2(y - loc) ./ gp_evaluate_rfft2_scale(cov_rfft2, cols(y)), cols(y));
 }
 
@@ -123,7 +123,7 @@ Transform white noise in the Fourier domain to a Gaussian process realization.
     `(height, width %/% 2 + 1)`.
 :returns: Realization of the Gaussian process.
 */
-matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix cov_rfft2) {
+matrix gp_inv_rfft2(matrix z, matrix loc, matrix cov_rfft2) {
     complex_matrix[rows(z), cols(z) %/% 2 + 1] y = gp_pack_rfft2(z)
         .* gp_evaluate_rfft2_scale(cov_rfft2, cols(z));
     return inv_rfft2(y, cols(z)) + loc;
@@ -132,7 +132,7 @@ matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix cov_rfft2) {
 
 /**
 Evaluate the log absolute determinant of the Jacobian associated with
-:stan:func:`gp_transform_rfft2`.
+:stan:func:`gp_rfft2`.
 
 :param cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
     `(height, width %/% 2 + 1)`.
@@ -184,7 +184,7 @@ Evaluate the log probability of a two-dimensional Gaussian process realization i
 :returns: Log probability of the Gaussian process realization.
 */
 real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov_rfft2) {
-    return std_normal_lpdf(to_vector(gp_transform_rfft2(y, loc, cov_rfft2)))
+    return std_normal_lpdf(to_vector(gp_rfft2(y, loc, cov_rfft2)))
         + gp_rfft2_log_abs_det_jacobian(cov_rfft2, cols(y));
 }
 

@@ -18,7 +18,7 @@ The conditional structure can be encoded by a directed acyclic graph (DAG) whose
 
 .. note::
 
-    :stan:func:`gp_graph_exp_quad_cov_lpdf(vector, vector, array [] vector, real, real, array [,] int)` evaluates the likelihood of a GP on a DAG. :code:`gp_graph_matern32_cov_lpdf` and :code:`gp_graph_matern52_cov_lpdf` evaluate the corresponding likelihoods for Matérn kernels. Transformations for non-centered `parameterizations`_ are implemented as :stan:func:`gp_transform_inv_graph_exp_quad_cov(vector, vector, array [] vector, real, real, array[,] int)`, :code:`gp_transform_inv_graph_matern32_cov`, and :code:`gp_transform_inv_graph_matern52_cov`.
+    :stan:func:`gp_graph_exp_quad_cov_lpdf(vector, vector, array [] vector, real, real, array [,] int)` evaluates the likelihood of a GP on a DAG. :code:`gp_graph_matern32_cov_lpdf` and :code:`gp_graph_matern52_cov_lpdf` evaluate the corresponding likelihoods for Matérn kernels. Transformations for non-centered `parameterizations`_ are implemented as :stan:func:`gp_inv_graph_exp_quad_cov(vector, vector, array [] vector, real, real, array[,] int)`, :code:`gp_inv_graph_matern32_cov`, and :code:`gp_inv_graph_matern52_cov`.
 
 .. _Fourier-methods:
 
@@ -44,7 +44,7 @@ where we changed variables to :math:`x=\Delta + x'` and factorized the integrals
 
 .. note::
 
-    :stan:func:`gp_rfft_lpdf` and :stan:func:`gp_rfft2_lpdf` evaluate the likelihood of a GP on one- and two-dimensional grids, respectively. Transformations for non-centered `parameterizations`_ are implemented as :stan:func:`gp_transform_inv_rfft` and :stan:func:`gp_transform_inv_rfft2`.
+    :stan:func:`gp_rfft_lpdf` and :stan:func:`gp_rfft2_lpdf` evaluate the likelihood of a GP on one- and two-dimensional grids, respectively. Transformations for non-centered `parameterizations`_ are implemented as :stan:func:`gp_inv_rfft` and :stan:func:`gp_inv_rfft2`.
 
 .. _parameterizations:
 

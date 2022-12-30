@@ -1,15 +1,15 @@
 Likelihood Evaluations Based on Fast Fourier Transforms
 =======================================================
 
-The module implements :ref:`fourier-methods` for `one-dimensional signals`_ and `two-dimensional signals`_. The functions of immediate use to practitioners are :stan:func:`gp_rfft_lpdf` to evaluate the likelihood of a one-dimensional signal and :stan:func:`gp_transform_inv_rfft` to construct a :ref:`non-centered parameterization <parameterizations>` using white noise. The two-dimensional analogues are :stan:func:`gp_rfft2_lpdf` and :stan:func:`gp_transform_inv_rfft2`. The module also provides functions to evaluate kernels directly in the Fourier domain [#]_, including :stan:func:`gp_periodic_exp_quad_cov_rfft` and :stan:func:`gp_periodic_matern_cov_rfft`.
+The module implements :ref:`fourier-methods` for `one-dimensional signals`_ and `two-dimensional signals`_. The functions of immediate use to practitioners are :stan:func:`gp_rfft_lpdf` to evaluate the likelihood of a one-dimensional signal and :stan:func:`gp_inv_rfft` to construct a :ref:`non-centered parameterization <parameterizations>` using white noise. The two-dimensional analogues are :stan:func:`gp_rfft2_lpdf` and :stan:func:`gp_inv_rfft2`. The module also provides functions to evaluate kernels directly in the Fourier domain [#]_, including :stan:func:`gp_periodic_exp_quad_cov_rfft` and :stan:func:`gp_periodic_matern_cov_rfft`.
 
 Utility Functions
 -----------------
 
 The following functions, and their two-dimensional analogues, primarily exist as utility functions but may be useful for more complex models.
 
-- :stan:func:`gp_transform_rfft` transforms Gaussian process realizations to the Fourier domain and scales the coefficients such that they are white noise under the Gaussian process prior.
-- :stan:func:`gp_rfft_log_abs_det_jacobian` evaluates the log absolute determinant of the Jacobian associated with the transformations :stan:func:`gp_transform_rfft`.
+- :stan:func:`gp_rfft` transforms Gaussian process realizations to the Fourier domain and scales the coefficients such that they are white noise under the Gaussian process prior.
+- :stan:func:`gp_rfft_log_abs_det_jacobian` evaluates the log absolute determinant of the Jacobian associated with the transformations :stan:func:`gp_rfft`.
 
 Together, these two functions are used by :stan:func:`gp_rfft_lpdf` to evaluate the likelihood.
 

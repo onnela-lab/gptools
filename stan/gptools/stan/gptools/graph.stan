@@ -138,7 +138,7 @@ Transform white noise to a sample from a graph Gaussian process
 :param epsilon: Nugget variance for numerical stability.
 :returns: Sample from the Graph gaussian process.
 */
-vector gp_transform_inv_graph(vector z, vector mu, array [] vector x, int kernel, real sigma,
+vector gp_inv_graph(vector z, vector mu, array [] vector x, int kernel, real sigma,
                               real length_scale, array [,] int edges, array [] int degrees,
                               real epsilon) {
     vector[size(z)] y;
@@ -168,9 +168,9 @@ Transform white noise to a sample from a graph Gaussian process
     row must be sorted.
 :returns: Sample from the Graph gaussian process.
 */
-vector gp_transform_inv_graph(vector z, vector mu, array [] vector x, int kernel, real sigma,
+vector gp_inv_graph(vector z, vector mu, array [] vector x, int kernel, real sigma,
                               real length_scale, array [,] int edges) {
-    return gp_transform_inv_graph(z, mu, x, kernel, sigma, length_scale, edges,
+    return gp_inv_graph(z, mu, x, kernel, sigma, length_scale, edges,
                                   out_degrees(size(z), edges), 1e-12);
 }
 
@@ -235,10 +235,10 @@ Transform white noise to a sample from a graph Gaussian process with squared exp
 :param epsilon: Nugget variance for numerical stability.
 :returns: Sample from the Graph gaussian process.
 */
-vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
+vector gp_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
                                            real length_scale, array [,] int edges,
                                            array [] int degrees, real epsilon) {
-    return gp_transform_inv_graph(z, mu, x, 0, sigma, length_scale, edges, degrees, epsilon);
+    return gp_inv_graph(z, mu, x, 0, sigma, length_scale, edges, degrees, epsilon);
 }
 
 
@@ -256,7 +256,7 @@ Transform white noise to a sample from a graph Gaussian process with squared exp
     row must be sorted.
 :returns: Sample from the Graph gaussian process.
 */
-vector gp_transform_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
+vector gp_inv_graph_exp_quad_cov(vector z, vector mu, array [] vector x, real sigma,
                                            real length_scale, array [,] int edges) {
-    return gp_transform_inv_graph(z, mu, x, 0, sigma, length_scale, edges);
+    return gp_inv_graph(z, mu, x, 0, sigma, length_scale, edges);
 }
