@@ -63,7 +63,7 @@ def test_log_prob_fft(data: dict) -> None:
     np.testing.assert_allclose(dist.log_prob(data["y"]), data["log_prob"])
 
 
-def test_fft_gp_transform_roundtrip(data: dict) -> None:
+def test_fft_gp_roundtrip(data: dict) -> None:
     z = th.randn(data["shape"])
     transform = data["transform_cls"](data["loc"], cov=data["cov"])
     y = transform(z)

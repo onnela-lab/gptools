@@ -19,7 +19,7 @@ parameters {
 
 transformed parameters {
     // Transform from white noise to a GP realization.
-    vector[n] f = gp_transform_inv_rfft(z, zeros_vector(n), cov_rfft);
+    vector[n] f = gp_inv_rfft(z, zeros_vector(n), cov_rfft);
 }
 
 model {

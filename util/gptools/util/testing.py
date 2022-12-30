@@ -10,7 +10,7 @@ class KernelConfiguration:
     Kernel configuration for testing.
 
     Args:
-        dims: Sequence of dimension domains. `None` indicates an unbounded domain.
+        dims: Sequence of dimension domains. :code:`None` indicates an unbounded domain.
         kernel_cls: Class of the kernel to create.
         **kwargs: Keyword arguments passed to the kernel.
     """

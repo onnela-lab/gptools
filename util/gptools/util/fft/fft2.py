@@ -28,13 +28,13 @@ def evaluate_rfft2_scale(*, cov_rfft2: OptionalArrayOrTensor = None,
 
     Args:
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
-            `(..., height, width)`.
+            :code:`(..., height, width)`.
         width: Number of columns of the signal (cannot be inferred from the Fourier coefficients).
 
     Returns:
-        scale: Scale of Fourier coefficients with shape `(..., height, width // 2 + 1)`.
+        scale: Scale of Fourier coefficients with shape :code:`(..., height, width // 2 + 1)`.
     """
     if cov is not None:
         *_, height, width = cov.shape
@@ -76,17 +76,18 @@ def evaluate_rfft2_scale(*, cov_rfft2: OptionalArrayOrTensor = None,
 def unpack_rfft2(z: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
     """
     Unpack the Fourier coefficients of a two-dimensional real Fourier transform with shape
-    `(..., height, width // 2 + 1)` to a batch of matrices with shape `(..., height, width)`.
+    :code:`(..., height, width // 2 + 1)` to a batch of matrices with shape
+    :code:`(..., height, width)`.
 
     TODO: add details on packing structure.
 
     Args:
         z: Two-dimensional real Fourier transform coefficients.
         shape: Shape of the real signal. Necessary because the number of columns cannot be inferred
-            from `rfft2`.
+            from :code:`rfft2`.
 
     Returns:
-        z: Unpacked matrices with shape `(..., height, width)`.
+        z: Unpacked matrices with shape :code:`(..., height, width)`.
     """
     *_, height, width = shape
     ncomplex = (width - 1) // 2
@@ -104,12 +105,12 @@ def unpack_rfft2(z: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
 
 def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
     """
-    Transform a batch of real matrices with shape `(..., height, width)` to a batch of complex
-    Fourier coefficients with shape `(..., height, width // 2 + 1)` ready for inverse real fast
-    Fourier transformation in two dimensions.
+    Transform a batch of real matrices with shape :code:`(..., height, width)` to a batch of complex
+    Fourier coefficients with shape :code:`(..., height, width // 2 + 1)` ready for inverse real
+    fast Fourier transformation in two dimensions.
 
     Args:
-        z: Unpacked matrices with shape `(..., height, width)`.
+        z: Unpacked matrices with shape :code:`(..., height, width)`.
 
     Returns:
         rfft: Two-dimensional real Fourier transform coefficients.
@@ -136,15 +137,15 @@ def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, *,
     Transform white noise in the Fourier domain to a Gaussian process realization.
 
     Args:
-        z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
+        z: Unpacked matrices with shape :code:`(..., height, width)`. See :func:`unpack_rfft2` for
             details.
-        loc: Mean of the Gaussian process with shape `(..., height, width)`.
+        loc: Mean of the Gaussian process with shape :code:`(..., height, width)`.
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
-            `(..., height, width)`.
+            :code:`(..., height, width)`.
         rfft2_scale: Optional precomputed scale of Fourier coefficients with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
 
     Returns:
         y: Realization of the Gaussian process.
@@ -161,16 +162,16 @@ def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
 
     Args:
         y: Realization of the Gaussian process.
-        loc: Mean of the Gaussian process with shape `(..., height, width)`.
+        loc: Mean of the Gaussian process with shape :code:`(..., height, width)`.
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
-            `(..., height, width)`.
+            :code:`(..., height, width)`.
         rfft2_scale: Optional precomputed scale of Fourier coefficients with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
 
     Returns:
-        z: Unpacked matrices with shape `(..., height, width)`. See :func:`unpack_rfft2` for
+        z: Unpacked matrices with shape :code:`(..., height, width)`. See :func:`unpack_rfft2` for
             details.
     """
     rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, y.shape[-1])
@@ -186,11 +187,11 @@ def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov_rfft2: OptionalArrayO
     Args:
         width: Number of columns of the signal (cannot be inferred from the Fourier coefficients).
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
-            `(..., height, width)`.
+            :code:`(..., height, width)`.
         rfft2_scale: Optional precomputed scale of Fourier coefficients with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
 
     Returns:
         log_abs_det_jacobian: Log absolute determinant of the Jacobian.
@@ -231,18 +232,19 @@ def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
     Evaluate the log probability of a two-dimensional Gaussian process realization in Fourier space.
 
     Args:
-        y: Realization of a Gaussian process with shape `(..., height, width)`, where `...` is the
-            batch shape, `height` is the number of rows, and `width` is the number of columns.
-        loc: Mean of the Gaussian process with shape `(..., height, width)`.
+        y: Realization of a Gaussian process with shape :code:`(..., height, width)`, where
+            :code:`...` is the batch shape, :code:`height` is the number of rows, and :code:`width`
+            is the number of columns.
+        loc: Mean of the Gaussian process with shape :code:`(..., height, width)`.
         cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
         cov: Covariance between the first grid point and the remainder of the grid with shape
-            `(..., height, width)`.
+            :code:`(..., height, width)`.
         rfft2_scale: Optional precomputed scale of Fourier coefficients with shape
-            `(..., height, width // 2 + 1)`.
+            :code:`(..., height, width // 2 + 1)`.
 
     Returns:
-        log_prob: Log probability of the Gaussian process realization with shape `(...)`.
+        log_prob: Log probability of the Gaussian process realization with shape :code:`(...)`.
     """
     rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, y.shape[-1])
     rfft2 = transform_rfft2(y, loc, rfft2_scale=rfft2_scale)

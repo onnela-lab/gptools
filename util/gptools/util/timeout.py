@@ -26,11 +26,11 @@ def call_with_timeout(timeout: float, target: Callable, *args, **kwargs) -> Any:
     Args:
         timeout: Number of seconds to wait for a result.
         target: Function to call.
-        *args: Positional arguments passed to `target`.
-        **kwargs: Keyword arguments passed to `target`.
+        *args: Positional arguments passed to :code:`target`.
+        **kwargs: Keyword arguments passed to :code:`target`.
 
     Returns:
-        result: Return value of `target`.
+        result: Return value of :code:`target`.
 
     Raises:
         TimeoutError: If the target does not complete within the timeout.

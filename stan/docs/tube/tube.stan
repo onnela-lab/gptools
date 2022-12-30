@@ -15,7 +15,7 @@ data {
 
 parameters {
     vector[num_stations] z;
-    real mu;
+    real loc;
     real<lower=0> sigma, kappa;
     real<lower=log(0.32), upper=log(31)> log_length_scale;
     vector[num_zones] zone_effect;
@@ -24,12 +24,11 @@ parameters {
 
 transformed parameters {
     real length_scale = exp(log_length_scale);
-    vector[num_stations] f = gp_transform_inv_graph_exp_quad_cov(
+    vector[num_stations] f = gp_inv_graph_exp_quad_cov(
         z, zeros_vector(num_stations), station_locations, sigma, length_scale, edge_index);
-    vector[num_stations] log_mean = mu + f
+    vector[num_stations] log_mean = loc + f
         + include_zone_effect * one_hot_zones * zone_effect
         + include_degree_effect * one_hot_degrees * degree_effect;
-
 }
 
 model {

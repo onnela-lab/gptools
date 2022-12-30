@@ -6,9 +6,9 @@
 Evaluate the scale of Fourier coefficients.
 
 :param cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-    `(height, width %/% 2 + 1)`.
+    :code:`(height, width %/% 2 + 1)`.
 :param width: Number of columns of the signal (cannot be inferred from the Fourier coefficients).
-:returns: Scale of Fourier coefficients with shape `(height, width %/% 2 + 1)`.
+:returns: Scale of Fourier coefficients with shape :code:`(height, width %/% 2 + 1)`.
 */
 matrix gp_evaluate_rfft2_scale(matrix cov_rfft2, int width) {
     int height = rows(cov_rfft2);
@@ -42,15 +42,15 @@ matrix gp_evaluate_rfft2_scale(matrix cov_rfft2, int width) {
 
 /**
 Unpack the complex Fourier coefficients of a two-dimensional real Fourier transform with shape to a
-real matrix with shape `(height, width)`.
+real matrix with shape :code:`(height, width)`.
 
 TODO: add details on packing structure.
 
 :param z: Two-dimensional real Fourier transform coefficients with shape
-    `(height, width %/% 2 + 1)`.
+    :code:`(height, width %/% 2 + 1)`.
 :param width: Number of columns of the signal (cannot be inferred from the Fourier coefficients
-    `z`).
-:returns: Unpacked matrix with shape `(height, width)`.
+    :code:`z`).
+:returns: Unpacked matrix with shape :code:`(height, width)`.
 */
 matrix gp_unpack_rfft2(complex_matrix z, int m) {
     int height = rows(z);
@@ -75,11 +75,11 @@ matrix gp_unpack_rfft2(complex_matrix z, int m) {
 
 
 /**
-Transform a real matrix with shape `(height, width)` to a matrix of complex Fourier coefficients
-with shape `(height, width %/% 2 + 1)` ready for inverse real fast Fourier transformation in two
-dimensions.
+Transform a real matrix with shape :code:`(height, width)` to a matrix of complex Fourier
+coefficients with shape :code:`(height, width %/% 2 + 1)` ready for inverse real fast Fourier
+transformation in two dimensions.
 
-:param z: Unpacked matrices with shape `(height, width)`.
+:param z: Unpacked matrices with shape :code:`(height, width)`.
 :returns: Two-dimensional real Fourier transform coefficients.
 */
 complex_matrix gp_pack_rfft2(matrix z) {
@@ -103,13 +103,13 @@ complex_matrix gp_pack_rfft2(matrix z) {
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 
-:param y: Realization of the Gaussian process with shape `(height, width)`.
-:param loc: Mean of the Gaussian process with shape `(height, width)`.
+:param y: Realization of the Gaussian process with shape :code:`(height, width)`.
+:param loc: Mean of the Gaussian process with shape :code:`(height, width)`.
 :param cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-    `(height, width %/% 2 + 1)`.
-:returns: Unpacked matrix with shape `(height, width)`.
+    :code:`(height, width %/% 2 + 1)`.
+:returns: Unpacked matrix with shape :code:`(height, width)`.
 */
-matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov_rfft2) {
+matrix gp_rfft2(matrix y, matrix loc, matrix cov_rfft2) {
     return gp_unpack_rfft2(rfft2(y - loc) ./ gp_evaluate_rfft2_scale(cov_rfft2, cols(y)), cols(y));
 }
 
@@ -117,13 +117,13 @@ matrix gp_transform_rfft2(matrix y, matrix loc, matrix cov_rfft2) {
 /**
 Transform white noise in the Fourier domain to a Gaussian process realization.
 
-:param z: Unpacked matrix with shape `(height, width)`.
-:param loc: Mean of the Gaussian process with shape `(height, width)`.
+:param z: Unpacked matrix with shape :code:`(height, width)`.
+:param loc: Mean of the Gaussian process with shape :code:`(height, width)`.
 :param cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-    `(height, width %/% 2 + 1)`.
+    :code:`(height, width %/% 2 + 1)`.
 :returns: Realization of the Gaussian process.
 */
-matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix cov_rfft2) {
+matrix gp_inv_rfft2(matrix z, matrix loc, matrix cov_rfft2) {
     complex_matrix[rows(z), cols(z) %/% 2 + 1] y = gp_pack_rfft2(z)
         .* gp_evaluate_rfft2_scale(cov_rfft2, cols(z));
     return inv_rfft2(y, cols(z)) + loc;
@@ -132,12 +132,12 @@ matrix gp_transform_inv_rfft2(matrix z, matrix loc, matrix cov_rfft2) {
 
 /**
 Evaluate the log absolute determinant of the Jacobian associated with
-:stan:func:`gp_transform_rfft2`.
+:stan:func:`gp_rfft2`.
 
 :param cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-    `(height, width %/% 2 + 1)`.
+    :code:`(height, width %/% 2 + 1)`.
 :param width: Number of columns of the signal (cannot be inferred from the precomputed kernel
-    Fourier transform `cov_rfft2`).
+    Fourier transform :code:`cov_rfft2`).
 :returns: Log absolute determinant of the Jacobian.
 */
 real gp_rfft2_log_abs_det_jacobian(matrix cov_rfft2, int width) {
@@ -176,15 +176,15 @@ real gp_rfft2_log_abs_det_jacobian(matrix cov_rfft2, int width) {
 /**
 Evaluate the log probability of a two-dimensional Gaussian process realization in Fourier space.
 
-:param y: Realization of a Gaussian process with shape `(height, width)`, where `height` is the
-    number of rows, and `width` is the number of columns.
-:param loc: Mean of the Gaussian process with shape `(height, width)`.
+:param y: Realization of a Gaussian process with shape :code:`(height, width)`, where :code:`height`
+    is the number of rows, and :code:`width` is the number of columns.
+:param loc: Mean of the Gaussian process with shape :code:`(height, width)`.
 :param cov_rfft2: Precomputed real fast Fourier transform of the kernel with shape
-    `(height, width %/% 2 + 1)`.
+    :code:`(height, width %/% 2 + 1)`.
 :returns: Log probability of the Gaussian process realization.
 */
 real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov_rfft2) {
-    return std_normal_lpdf(to_vector(gp_transform_rfft2(y, loc, cov_rfft2)))
+    return std_normal_lpdf(to_vector(gp_rfft2(y, loc, cov_rfft2)))
         + gp_rfft2_log_abs_det_jacobian(cov_rfft2, cols(y));
 }
 
@@ -198,7 +198,7 @@ Evaluate the two-dimensional real fast Fourier transform of the periodic squared
 :param length_scale: Correlation lengths in each dimension.
 :param period: Periods for circular boundary conditions in each dimension.
 :returns: Fourier transform of the periodic squared exponential kernel with shape
-    `(height, width %/% 2 + 1`).
+    :code:`(height, width %/% 2 + 1`).
 */
 matrix gp_periodic_exp_quad_cov_rfft2(int height, int width, real sigma, vector length_scale,
                                       vector period) {
@@ -220,7 +220,7 @@ Evaluate the two-dimensional real fast Fourier transform of the periodic Matern 
 :param length_scale: Correlation lengths in each dimension.
 :param period: Periods for circular boundary conditions in each dimension.
 :returns: Fourier transform of the periodic Matern kernel with shape
-    `(height, width %/% 2 + 1`).
+    :code:`(height, width %/% 2 + 1`).
 */
 matrix gp_periodic_matern_cov_rfft2(real nu, int height, int width, real sigma, vector length_scale,
                                     vector period) {

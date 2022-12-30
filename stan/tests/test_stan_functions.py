@@ -162,7 +162,7 @@ for n in [7, 8]:
     cov_rfft = np.fft.rfft(lincov).real
     z = fft.transform_rfft(y, loc, cov_rfft=cov_rfft)
     add_configuration({
-        "stan_function": "gp_transform_rfft",
+        "stan_function": "gp_rfft",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
                       "cov_rfft": "vector[n_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
@@ -173,7 +173,7 @@ for n in [7, 8]:
 
     # ... and back again.
     add_configuration({
-        "stan_function": "gp_transform_inv_rfft",
+        "stan_function": "gp_inv_rfft",
         "arg_types": {"n_": "int", "z": "vector[n_]", "loc": "vector[n_]",
                       "cov_rfft": "vector[n_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "z": z, "loc": loc, "cov_rfft": cov_rfft},
@@ -248,7 +248,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     cov_rfft2 = np.fft.rfft2(lincov).real
     z = fft.transform_rfft2(y, loc, cov_rfft2=cov_rfft2)
     add_configuration({
-        "stan_function": "gp_transform_rfft2",
+        "stan_function": "gp_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
                       "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "m_": m, "y": y, "loc": loc, "cov_rfft2": cov_rfft2},
@@ -259,7 +259,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
 
     # ... and back again.
     add_configuration({
-        "stan_function": "gp_transform_inv_rfft2",
+        "stan_function": "gp_inv_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "z": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
                       "cov_rfft2": "matrix[n_, m_ %/% 2 + 1]"},
         "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "cov_rfft2": cov_rfft2},

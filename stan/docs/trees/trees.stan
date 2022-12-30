@@ -15,7 +15,7 @@ parameters {
     // "Raw" parameter for the non-centered parameterization.
     matrix[num_rows_padded, num_cols_padded] z;
     // Mean log rate for the trees.
-    real mu;
+    real loc;
     // Kernel parameters and averdispersion parameter for the negative binomial distribution.
     real<lower=0> sigma, kappa;
     real<lower=log(2), upper=log(28)> log_length_scale;
@@ -28,15 +28,15 @@ transformed parameters {
         gp_periodic_matern_cov_rfft2(1.5, num_rows_padded, num_cols_padded, sigma,
         [length_scale, length_scale]', [num_rows_padded, num_cols_padded]');
     // Transform from white-noise to a Gaussian process realization.
-    matrix[num_rows_padded, num_cols_padded] f = gp_transform_inv_rfft2(
-        z, rep_matrix(mu, num_rows_padded, num_cols_padded), rfft2_cov);
+    matrix[num_rows_padded, num_cols_padded] f = gp_inv_rfft2(
+        z, rep_matrix(loc, num_rows_padded, num_cols_padded), rfft2_cov);
 }
 
 model {
-    // Implies that eta ~ gp_rfft(mu, rfft2_cov) is a realization of the Gaussian process.
+    // Implies that eta ~ gp_rfft(loc, rfft2_cov) is a realization of the Gaussian process.
     to_vector(z) ~ std_normal();
     // Weakish priors on all other parameters.
-    mu ~ student_t(2, 0, 1);
+    loc ~ student_t(2, 0, 1);
     sigma ~ student_t(2, 0, 1);
     kappa ~ student_t(2, 0, 1);
     // Observation model with masking for negative values.

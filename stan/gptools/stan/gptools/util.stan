@@ -16,15 +16,16 @@ void assert_equal(int actual, int desired) {
 /**
 Check whether two values are close.
 
-The actual value :math:`x` and desired value :math:`y` may differ by at most :math:`\theta=r y + a`,
-where :math:`r` is the relative tolerance, and :math:`a` is the absolute tolerance. The tolerance
-:math:`\theta` is clipped below at :math:`10^{-15}` to avoid rejection due to rounding errors.
+The actual value :code:`x` and desired value :code:`y` may differ by at most
+:code:`tol = rtol * y + atol`, where :code:`rtol` is the relative tolerance, and :code:`atol` is the
+absolute tolerance. The tolerance :code:`tol` is clipped below at :math:`10^{-15}` to avoid
+rejection due to rounding errors.
 
-:param actual: Actual value :math:`x`.
-:param desired: Desired value :math:`y`.
-:param rtol: Relative tolerance :math:`r`.
-:param atol: Absolute tolerance :math:`a`.
-:returns: `1` if the values are close, `0` otherwise.
+:param actual: Actual value :code:`x`.
+:param desired: Desired value :code:`y`.
+:param rtol: Relative tolerance :code:`r`.
+:param atol: Absolute tolerance :code:`a`.
+:returns: :code:`1` if the values are close, :code:`0` otherwise.
 */
 int is_close(real actual, real desired, real rtol, real atol) {
     // We always allow a tolerance of at least 1e-15 in case there are rounding errors.
@@ -57,7 +58,7 @@ void assert_close(real actual, real desired) {
 Check whether a possibly complex value is finite.
 
 :param x: Value to check.
-:returns: `1` if the value is finite, `0` otherwise.
+:returns: :code:`1` if the value is finite, :code:`0` otherwise.
 */
 int is_finite(complex x) {
     real rx = get_real(x);
@@ -113,7 +114,7 @@ void assert_close(vector actual, real desired) {
 Check whether all elements of a vector are finite.
 
 :param x: Vector to check.
-:returns: `1` if all elements of the vector are finite, `0` otherwise.
+:returns: :code:`1` if all elements of the vector are finite, :code:`0` otherwise.
 */
 int is_finite(vector x) {
     for (i in 1:size(x)) {
@@ -340,8 +341,8 @@ complex_matrix conjugate(complex_matrix x) {
 /**
 Compute the one-dimensional discrete Fourier transform for real input.
 
-:param y: Real signal with `n` elements to transform.
-:returns: Truncated vector of Fourier coefficients with `n %/% 2 + 1` elements.
+:param y: Real signal with :code:`n` elements to transform.
+:returns: Truncated vector of Fourier coefficients with :code:`n %/% 2 + 1` elements.
 */
 complex_vector rfft(vector y) {
     return fft(y)[:size(y) %/% 2 + 1];
@@ -366,10 +367,10 @@ complex_vector expand_rfft(complex_vector y, int n) {
 /**
 Compute the one-dimensional inverse discrete Fourier transform for real output.
 
-:param z: Truncated vector of Fourier coefficents with `n %/% 2 + 1` elements.
+:param z: Truncated vector of Fourier coefficents with :code:`n %/% 2 + 1` elements.
 :param n: Length of the signal (required because the length of the signal cannot be determined from
-    `z` alone).
-:returns: Real signal with `n` elements.
+    :code:`z` alone).
+:returns: Real signal with :code:`n` elements.
 */
 vector inv_rfft(complex_vector z, int n) {
     return get_real(inv_fft(expand_rfft(z, n)));
@@ -378,8 +379,9 @@ vector inv_rfft(complex_vector z, int n) {
 /**
 Compute the two-dimensional discrete Fourier transform for real input.
 
-:param y: Real signal with `n` rows and `m` columns to transform.
-:returns: Truncated vector of Fourier coefficients with `n` rows and `m %/% 2 + 1` elements.
+:param y: Real signal with :code:`n` rows and :code:`m` columns to transform.
+:returns: Truncated vector of Fourier coefficients with :code:`n` rows and :code:`m %/% 2 + 1`
+    elements.
 */
 complex_matrix rfft2(matrix y) {
     return fft2(y)[:, :cols(y) %/% 2 + 1];
@@ -388,10 +390,11 @@ complex_matrix rfft2(matrix y) {
 /**
 Compute the two-dimensional inverse discrete Fourier transform for real output.
 
-:param z: Truncated vector of Fourier coefficients with `n` rows and `m %/% 2 + 1` elements.
+:param z: Truncated vector of Fourier coefficients with :code:`n` rows and :code:`m %/% 2 + 1`
+    elements.
 :param m: Number of columns of the signal (required because the number of columns cannot be
-    determined from `z` alone).
-:returns: Real signal with `n` rows and `m` columns.
+    determined from :code:`z` alone).
+:returns: Real signal with :code:`n` rows and :code:`m` columns.
 */
 matrix inv_rfft2(complex_matrix z, int m) {
     int n = rows(z);
@@ -424,8 +427,8 @@ correlated observations from a multivariate normal distribution.
 
 :param y: Observation to condition on.
 :param cov11: Marginal variance of the target random variable.
-:param cov21: Covariance between :math:`y` and the target random variable.
-:param cov22: Covariance amongst the elements of :math:`y`.
+:param cov21: Covariance between :code:`y` and the target random variable.
+:param cov22: Covariance amongst the elements of :code:`y`.
 :returns: Location and scale as a vector.
 */
 vector gp_conditional_loc_scale(vector y, real cov11, vector cov21, matrix cov22) {
