@@ -34,7 +34,7 @@ def get_configuration_ids() -> Iterable[str]:
     return configuration_ids
 
 
-def assert_stan_python_allclose(
+def assert_stan_function_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
         result_type: str, desired: Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
         includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
@@ -465,5 +465,5 @@ for p in [1, 2]:
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
-def test_stan_python_equal(config: dict) -> None:
-    assert_stan_python_allclose(**config)
+def test_stan_function(config: dict) -> None:
+    assert_stan_function_allclose(**config)
