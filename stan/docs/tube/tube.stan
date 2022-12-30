@@ -10,12 +10,7 @@ data {
     array [2, num_edges] int edge_index;
     matrix[num_stations, num_zones] one_hot_zones;
     matrix[num_stations, num_degrees] one_hot_degrees;
-
     int include_zone_effect, include_degree_effect;
-}
-
-transformed data {
-    array [num_stations] int degrees = out_degrees(num_stations, edge_index);
 }
 
 parameters {
