@@ -201,3 +201,22 @@ class TerminateOnPlateau:
         return f"TerminateOnPlateau(patience={self.patience}, " \
             f"max_num_steps={self.max_num_steps}, elapsed={self.elapsed}, " \
             f"num_steps={self.num_steps}, best_value={self.best_value})"
+
+
+class optional(constraints.Constraint):
+    """
+    Validate a constraint if the value is not missing.
+    """
+    def __init__(self, constraint: constraints.Constraint) -> None:
+        super().__init__()
+        self.constraint = constraint
+        self.event_dim = constraint.event_dim
+        self.is_discrete = constraint.is_discrete
+
+    def check(self, value):
+        if value is None:
+            return th.scalar_tensor(True)
+        return self.constraint.check(value)
+
+
+real_matrix = constraints.independent(constraints.real, 2)

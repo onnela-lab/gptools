@@ -4,7 +4,7 @@ with open("README.rst") as fp:
     long_description = fp.read()
 
 setup(
-    name="gp-tools-util",
+    name="gptools-util",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     packages=find_namespace_packages(),
@@ -16,6 +16,7 @@ setup(
         "docs": [
             "myst-nb",
             "sphinx",
+            "sphinx-multiproject",
             "sphinx_rtd_theme",
         ],
         "tests": [

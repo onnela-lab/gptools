@@ -34,7 +34,7 @@ def get_configuration_ids() -> Iterable[str]:
     return configuration_ids
 
 
-def assert_stan_python_allclose(
+def assert_stan_function_allclose(
         stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
         result_type: str, desired: Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
         includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
@@ -133,7 +133,7 @@ for n in [7, 8]:
     })
 
     # Unpack truncated Fourier coefficients to a real vector ...
-    unpacked_z = fft.unpack_rfft(z, n)
+    unpacked_z = fft.fft1.unpack_rfft(z, n)
     add_configuration({
         "stan_function": "gp_unpack_rfft",
         "arg_types": {"size": "int", "z": "complex_vector[size %/% 2 + 1]"},
@@ -150,7 +150,7 @@ for n in [7, 8]:
         "arg_values": {"n_": n, "z": unpacked_z},
         "result_type": "complex_vector[n_ %/% 2 + 1]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan"],
-        "desired": [z, fft.pack_rfft(unpacked_z)],
+        "desired": [z, fft.fft1.pack_rfft(unpacked_z)],
     })
 
     # Transforming to whitened Fourier coefficients ...
@@ -160,8 +160,7 @@ for n in [7, 8]:
     cov = kernel.evaluate(np.arange(n)[:, None])
     lincov = cov[0]
     cov_rfft = np.fft.rfft(lincov).real
-    rfft_scale = fft.evaluate_rfft_scale(cov=lincov)
-    z = fft.transform_rfft(y, loc, rfft_scale=rfft_scale)
+    z = fft.transform_rfft(y, loc, cov_rfft=cov_rfft)
     add_configuration({
         "stan_function": "gp_transform_rfft",
         "arg_types": {"n_": "int", "y": "vector[n_]", "loc": "vector[n_]",
@@ -180,7 +179,7 @@ for n in [7, 8]:
         "arg_values": {"n_": n, "z": z, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "vector[n_]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan"],
-        "desired": [y, fft.transform_irfft(z, loc, rfft_scale=rfft_scale)],
+        "desired": [y, fft.transform_irfft(z, loc, cov_rfft=cov_rfft)],
     })
 
     # Evaluate the likelihood.
@@ -191,7 +190,7 @@ for n in [7, 8]:
         "arg_values": {"n_": n, "y": y, "loc": loc, "cov_rfft": cov_rfft},
         "result_type": "real",
         "includes": ["gptools/util.stan", "gptools/fft1.stan"],
-        "desired": [fft.evaluate_log_prob_rfft(y, loc, rfft_scale=rfft_scale),
+        "desired": [fft.evaluate_log_prob_rfft(y, loc, cov_rfft=cov_rfft),
                     stats.multivariate_normal(loc, cov).logpdf(y)],
     })
 
@@ -219,7 +218,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     })
 
     # Unpack truncated Fourier coefficients to a real vector ...
-    unpacked_z = fft.unpack_rfft2(z, (n, m))
+    unpacked_z = fft.fft2.unpack_rfft2(z, (n, m))
     add_configuration({
         "stan_function": "gp_unpack_rfft2",
         "arg_types": {"n_": "int", "m": "int", "z": "complex_matrix[n_, m %/% 2 + 1]"},
@@ -236,7 +235,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_values": {"n_": n, "m_": m, "z": unpacked_z},
         "result_type": "complex_matrix[n_, m_ %/% 2 + 1]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
-        "desired": [z, fft.pack_rfft2(unpacked_z)],
+        "desired": [z, fft.fft2.pack_rfft2(unpacked_z)],
     })
 
     # Transforming to whitened Fourier coefficients ...
@@ -247,8 +246,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
     cov = kernel.evaluate(xs)
     lincov = cov[0].reshape((n, m))
     cov_rfft2 = np.fft.rfft2(lincov).real
-    rfft2_scale = fft.evaluate_rfft2_scale(lincov)
-    z = fft.transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
+    z = fft.transform_rfft2(y, loc, cov_rfft2=cov_rfft2)
     add_configuration({
         "stan_function": "gp_transform_rfft2",
         "arg_types": {"n_": "int", "m_": "int", "y": "matrix[n_, m_]", "loc": "matrix[n_, m_]",
@@ -267,7 +265,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "arg_values": {"n_": n, "m_": m, "z": z, "loc": loc, "cov_rfft2": cov_rfft2},
         "result_type": "matrix[n_, m_]",
         "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
-        "desired": [y, fft.transform_irfft2(z, loc, rfft2_scale=rfft2_scale)],
+        "desired": [y, fft.transform_irfft2(z, loc, cov_rfft2=cov_rfft2)],
     })
 
     # Evaluate the likelihood.
@@ -279,7 +277,7 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "result_type": "real",
         "includes": ["gptools/util.stan", "gptools/fft1.stan", "gptools/fft2.stan"],
         "desired": [stats.multivariate_normal(loc.ravel(), cov).logpdf(y.ravel()),
-                    fft.evaluate_log_prob_rfft2(y, loc, rfft2_scale=rfft2_scale)],
+                    fft.evaluate_log_prob_rfft2(y, loc, cov_rfft2=cov_rfft2)],
     })
 
     # Using `to_vector` is different from numpy's `ravel` in terms of ordering ...
@@ -359,49 +357,6 @@ for n, m in [(5, 7), (5, 8), (6, 7), (6, 8)]:
         "desired": np.zeros((m, n)),
     })
 
-for ndim in [1, 2, 3]:
-    n = 1 + np.random.poisson(50)
-    m = 1 + np.random.poisson(50)
-    sigma = np.random.gamma(10, 0.1)
-    length_scale = np.random.gamma(10, 0.1, ndim)
-    period = np.random.gamma(100, 0.1, ndim)
-    x = np.random.uniform(0, period, (n, ndim))
-    y = np.random.uniform(0, period, (m, ndim))
-    kernel = kernels.ExpQuadKernel(sigma, length_scale, period=period)
-    add_configuration({
-        "stan_function": "gp_periodic_exp_quad_cov",
-        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
-                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "vector[p_]",
-                      "period": "vector[p_]"},
-        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale, "period": period},
-        "result_type": "matrix[n_, m_]",
-        "includes": ["gptools/util.stan", "gptools/kernels.stan"],
-        "desired": kernel.evaluate(x[:, None], y[None]),
-    })
-
-    # Verify two 3/2 and 5/2 Matern kernels.
-    kernel = kernels.MaternKernel(3 / 2, sigma, length_scale[0])
-    add_configuration({
-        "stan_function": "gp_matern32_cov",
-        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
-                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "real"},
-        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale[0]},
-        "result_type": "matrix[n_, m_]",
-        "desired": kernel.evaluate(x[:, None], y[None]),
-    })
-    kernel = kernels.MaternKernel(5 / 2, sigma, length_scale[0])
-    add_configuration({
-        "stan_function": "gp_matern52_cov",
-        "arg_types": {"n_": "int", "m_": "int", "p_": "int", "x": "array [n_] vector[p_]",
-                      "y": "array [m_] vector[p_]", "sigma": "real", "length_scale": "real"},
-        "arg_values": {"n_": n, "m_": m, "p_": ndim, "x": x, "y": y, "sigma": sigma,
-                       "length_scale": length_scale[0]},
-        "result_type": "matrix[n_, m_]",
-        "desired": kernel.evaluate(x[:, None], y[None]),
-    })
-
 for m in [7, 8]:
     sigma = np.random.gamma(10, 0.1)
     length_scale = np.random.gamma(10, 0.1)
@@ -411,7 +366,7 @@ for m in [7, 8]:
         "arg_types": {"m": "int", "sigma": "real", "length_scale": "real", "period": "real"},
         "arg_values": {"m": n, "sigma": sigma, "length_scale": length_scale, "period": period},
         "result_type": "vector[m %/% 2 + 1]",
-        "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+        "includes": ["gptools/util.stan", "gptools/fft1.stan"],
         "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period).evaluate_rfft([n]),
     })
     for dof in [3 / 2, 5 / 2]:
@@ -422,7 +377,7 @@ for m in [7, 8]:
             "arg_values": {"dof": dof, "m": n, "sigma": sigma, "length_scale": length_scale,
                            "period": period},
             "result_type": "vector[m %/% 2 + 1]",
-            "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+            "includes": ["gptools/util.stan", "gptools/fft1.stan"],
             "desired": kernels.MaternKernel(dof, sigma, length_scale, period).evaluate_rfft([n]),
         })
     for n in [9, 10]:
@@ -435,7 +390,7 @@ for m in [7, 8]:
             "arg_values": {"m": m, "n": n, "sigma": sigma, "length_scale": length_scale,
                            "period": period},
             "result_type": "matrix[m, n %/% 2 + 1]",
-            "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+            "includes": ["gptools/util.stan", "gptools/fft.stan"],
             "desired": kernels.ExpQuadKernel(sigma, length_scale, period=period)
             .evaluate_rfft([m, n]),
         })
@@ -448,7 +403,7 @@ for m in [7, 8]:
                 "arg_values": {"dof": dof, "m": m, "n": n, "sigma": sigma,
                                "length_scale": length_scale, "period": period},
                 "result_type": "matrix[m, n %/% 2 + 1]",
-                "includes": ["gptools/util.stan", "gptools/kernels.stan"],
+                "includes": ["gptools/util.stan", "gptools/fft.stan"],
                 "desired": kernel.evaluate_rfft([m, n]),
             })
 
@@ -510,5 +465,5 @@ for p in [1, 2]:
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
-def test_stan_python_equal(config: dict) -> None:
-    assert_stan_python_allclose(**config)
+def test_stan_function(config: dict) -> None:
+    assert_stan_function_allclose(**config)

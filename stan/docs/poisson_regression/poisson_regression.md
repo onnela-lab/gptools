@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -24,8 +24,6 @@ from gptools.util.kernels import DiagonalKernel, ExpQuadKernel, Kernel
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
-
-mpl.style.use("../../../jss.mplstyle")
 
 
 def simulate(x: np.ndarray, kernel: Kernel, mu: float = 0) -> dict:
@@ -89,7 +87,7 @@ import os
 def sample_and_plot(stan_file: str, data: dict, return_fit: bool = False, **kwargs) -> CmdStanMCMC:
     """Draw samples from the posterior and visualize them."""
     # Set default parameters. We use a small number of samples during testing.
-    niter = 1 if os.environ.get("CI") else 100
+    niter = 10 if os.environ.get("CI") else 100
     kwargs = {"iter_warmup": niter, "iter_sampling": niter, "chains": 1,
               "refresh": niter // 10 or None} | kwargs
 
@@ -188,7 +186,7 @@ ax.set_axis_off()
 fig.tight_layout()
 ```
 
-The function `lattice_predecessors` constructs a nearest neighbor matrix `predecessors` with shape `(n, k + 1)` such that the first `k` elements of the $i^\text{th}$ row are the predecessors of node $i$ and the last element is the node itself. The corresponding Stan program is shown below. The distribution {stan:func}`gp_graph_exp_quad_cov_lpdf` encodes the Gaussian process.
+The function `lattice_predecessors` constructs a nearest neighbor matrix `predecessors` with shape `(n, k + 1)` such that the first `k` elements of the $i^\text{th}$ row are the predecessors of node $i$ and the last element is the node itself. The corresponding Stan program is shown below. The distribution {stan:func}`gp_graph_exp_quad_cov_lpdf(vector, vector, array [] vector, real, real, array [,] int)` encodes the Gaussian process.
 
 ```{literalinclude} poisson_regression_graph_centered.stan
    :language: stan

@@ -141,5 +141,6 @@ workspace/
 *.o
 *.ipynb
 .cmdstanpy_cache
+.jupyter_cache
 *.pdf
 *.png

@@ -416,12 +416,31 @@ matrix zeros_matrix(int m, int n) {
     return rep_matrix(0, m, n);
 }
 
-// Custom likelihoods ------------------------------------------------------------------------------
+// Conditional location and scale parameters for multivariate normal distributions -----------------
 
-real std_normal_lpdf(complex_vector z) {
-    return std_normal_lpdf(get_real(z)) + std_normal_lpdf(get_imag(z));
+/**
+Evaluate the conditional location and scale parameter of a univariate normal random variable given
+correlated observations from a multivariate normal distribution.
+
+:param y: Observation to condition on.
+:param cov11: Marginal variance of the target random variable.
+:param cov21: Covariance between :math:`y` and the target random variable.
+:param cov22: Covariance amongst the elements of :math:`y`.
+:returns: Location and scale as a vector.
+*/
+vector gp_conditional_loc_scale(vector y, real cov11, vector cov21, matrix cov22) {
+    if (size(y) == 0) {
+        return [0, sqrt(cov11)]';
+    }
+    vector[size(y)] v = mdivide_left_spd(cov22, cov21);
+    return [dot_product(v, y), sqrt(cov11 - dot_product(v, cov21))]';
 }
 
-real std_normal_lpdf(matrix z) {
-    return std_normal_lpdf(to_vector(z));
+/**
+Evaluate the conditional location and scale parameter of a univariate normal random variable given
+correlated observations from a multivariate normal distribution. See
+:stan:func:`gp_conditional_loc_scale(vector, real, vector, matrix)` for details.
+*/
+vector gp_conditional_loc_scale(vector y, real cov11, matrix cov21, matrix cov22) {
+    return gp_conditional_loc_scale(y, cov11, to_vector(cov21), cov22);
 }

@@ -1,4 +1,5 @@
 import doit_interface as di
+from doit_interface.actions import SubprocessAction
 import itertools as it
 import pathlib
 
@@ -6,7 +7,7 @@ import pathlib
 manager = di.Manager.get_instance()
 
 # Prevent each process from parallelizing which can lead to competition across processes.
-di.SubprocessAction.set_global_env({
+SubprocessAction.set_global_env({
     "NUMEXPR_NUM_THREADS": 1,
     "OPENBLAS_NUM_THREADS": 1,
     "OMP_NUM_THREADS": 1,
@@ -33,14 +34,17 @@ for module in modules:
               "--cov-report=html", "--cov-fail-under=100", "--durations=5", prefix]
     manager(basename="tests", name=module, actions=[action])
     manager(basename="package", name=module, actions=[
-        di.actions.SubprocessAction("python setup.py sdist", cwd=prefix),
+        SubprocessAction("python setup.py sdist", cwd=prefix),
         f"twine check {prefix / 'dist/*.tar.gz'}",
     ])
-    actions = [
-        f"sphinx-build -n -W {module} {module}/docs/_build",
-        f"sphinx-build -b doctest {module} {module}/docs/_build",
-    ]
-    manager(basename="docs", name=module, actions=actions)
+    # Documentation and doctests.
+    rm_build_action = f"rm -rf {module}/docs/_build"
+    action = SubprocessAction(f"sphinx-build -n -W . {module}/docs/_build",
+                              env={"PROJECT": module})
+    manager(basename="docs", name=module, actions=[rm_build_action, action])
+    action = SubprocessAction(f"sphinx-build -b doctest . {module}/docs/_build",
+                              env={"PROJECT": module})
+    manager(basename="doctest", name=module, actions=[rm_build_action, action])
 
     # Util package does not currently have notebooks to test.
     manager(basename="examples", name=module,
@@ -48,7 +52,8 @@ for module in modules:
 
     # Compile example notebooks to create html reports.
     for path in pathlib.Path.cwd().glob(f"{module}/**/*.ipynb"):
-        if ".ipynb_checkpoints" in path.parts or "jupyter_execute" in path.parts:
+        exclude = [".ipynb_checkpoints", "jupyter_execute", ".jupyter_cache"]
+        if any(x in path.parts for x in exclude):
             continue
         target = path.with_suffix(".html")
         manager(basename="compile_example", name=path.with_suffix("").name, file_dep=[path],
@@ -78,9 +83,8 @@ def add_profile_task(method: str, parameterization: str, log10_sigma: float, siz
     ]
     file_dep = [
         "profile/__main__.py",
-        "gptools/fft.stan",
+        "gptools/fft1.stan",
         "gptools/graph.stan",
-        "gptools/kernels.stan",
         "gptools/util.stan",
         "profile/data.stan",
         f"profile/{parameterization}.stan",
