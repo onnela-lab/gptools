@@ -140,6 +140,12 @@ vector gp_transform_inv_rfft(vector z, vector loc, vector cov_rfft) {
 
 /**
 Evaluate the real fast Fourier transform of the periodic squared exponential kernel.
+
+:param n: Number of grid points.
+:param sigma: Scale of the covariance.
+:param length_scale: Correlation length.
+:param period: Period for circular boundary conditions.
+:returns: Fourier transform of the squared exponential kernel of size `n %/% 2 + 1`.
 */
 vector gp_periodic_exp_quad_cov_rfft(int n, real sigma, real length_scale, real period) {
     int nrfft = n %/% 2 + 1;
@@ -149,11 +155,18 @@ vector gp_periodic_exp_quad_cov_rfft(int n, real sigma, real length_scale, real 
 
 /**
 Evaluate the real fast Fourier transform of the periodic Matern kernel.
+
+:param nu: Smoothness parameter (1 / 2, 3 / 2, and 5 / 2 are typical values).
+:param n: Number of grid points.
+:param sigma: Scale of the covariance.
+:param length_scale: Correlation length.
+:param period: Period for circular boundary conditions.
+:returns: Fourier transform of the squared exponential kernel of size `n %/% 2 + 1`.
 */
-vector gp_periodic_matern_cov_rfft(real dof, int n, real sigma, real length_scale, real period) {
+vector gp_periodic_matern_cov_rfft(real nu, int n, real sigma, real length_scale, real period) {
     int nrfft = n %/% 2 + 1;
     vector[nrfft] k = linspaced_vector(nrfft, 0, nrfft - 1);
-    return sigma ^ 2 * n * sqrt(2 * pi() / dof) * tgamma(dof + 0.5) / tgamma(dof)
-        * (1 + 2 / dof * (pi() * length_scale / period * k) ^ 2) ^ -(dof + 0.5) * length_scale
+    return sigma ^ 2 * n * sqrt(2 * pi() / nu) * tgamma(nu + 0.5) / tgamma(nu)
+        * (1 + 2 / nu * (pi() * length_scale / period * k) ^ 2) ^ -(nu + 0.5) * length_scale
         / period;
 }

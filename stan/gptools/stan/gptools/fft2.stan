@@ -189,44 +189,56 @@ real gp_rfft2_lpdf(matrix y, matrix loc, matrix cov_rfft2) {
 }
 
 
-
-
 /**
 Evaluate the two-dimensional real fast Fourier transform of the periodic squared exponential kernel.
+
+:param height: Number of grid rows.
+:param width: Number of grid columns.
+:param sigma: Scale of the covariance.
+:param length_scale: Correlation lengths in each dimension.
+:param period: Periods for circular boundary conditions in each dimension.
+:returns: Fourier transform of the periodic squared exponential kernel with shape
+    `(height, width %/% 2 + 1`).
 */
-matrix gp_periodic_exp_quad_cov_rfft2(int m, int n, real sigma, vector length_scale, vector period) {
-    vector[m %/% 2 + 1] rfftm = gp_periodic_exp_quad_cov_rfft(m, sigma, length_scale[1], period[1]);
-    vector[n %/% 2 + 1] rfftn = gp_periodic_exp_quad_cov_rfft(n, 1, length_scale[2], period[2]);
-    return get_real(expand_rfft(rfftm, m)) * rfftn';
+matrix gp_periodic_exp_quad_cov_rfft2(int height, int width, real sigma, vector length_scale,
+                                      vector period) {
+    vector[height %/% 2 + 1] rfftm = gp_periodic_exp_quad_cov_rfft(height, sigma, length_scale[1],
+                                                                   period[1]);
+    vector[width %/% 2 + 1] rfftn = gp_periodic_exp_quad_cov_rfft(width, 1, length_scale[2],
+                                                                  period[2]);
+    return get_real(expand_rfft(rfftm, height)) * rfftn';
 }
 
 
 /**
-Evaluate the real fast Fourier transform of the two-dimensional periodic Matern kernel.
+Evaluate the two-dimensional real fast Fourier transform of the periodic Matern kernel.
+
+:param nu: Smoothness parameter (1 / 2, 3 / 2, and 5 / 2 are typical values).
+:param height: Number of grid rows.
+:param width: Number of grid columns.
+:param sigma: Scale of the covariance.
+:param length_scale: Correlation lengths in each dimension.
+:param period: Periods for circular boundary conditions in each dimension.
+:returns: Fourier transform of the periodic Matern kernel with shape
+    `(height, width %/% 2 + 1`).
 */
-matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, vector length_scale,
+matrix gp_periodic_matern_cov_rfft2(real nu, int height, int width, real sigma, vector length_scale,
                                     vector period) {
-    int nrfft = n %/% 2 + 1;
-    matrix[m, nrfft] result;
+    int nrfft = width %/% 2 + 1;
+    matrix[height, nrfft] result;
     real ndim = 2;
     row_vector[nrfft] col_part = (linspaced_row_vector(nrfft, 0, nrfft - 1) * length_scale[2]
                                   / period[2]) ^ 2;
-    // We only iterate up to m %/% 2 + 1 because the kernel is symmetric in positive and negative
-    // frequencies.
-    for (i in 1:m %/% 2 + 1) {
+    // We only iterate up to height %/% 2 + 1 because the kernel is symmetric in positive and
+    // negative frequencies.
+    for (i in 1:height %/% 2 + 1) {
         int krow = i - 1;
-        result[i] = 1 + 2 / dof * pi() ^ 2 * ((krow * length_scale[1] / period[1]) ^ 2 + col_part);
+        result[i] = 1 + 2 / nu * pi() ^ 2 * ((krow * length_scale[1] / period[1]) ^ 2 + col_part);
         if (i > 1) {
-            result[m - i + 2] = result[i];
+            result[height - i + 2] = result[i];
         }
     }
-    return sigma ^ 2 * m * n * 2 ^ ndim * (pi() / (2 * dof)) ^ (ndim / 2)
-        * tgamma(dof + ndim / 2) / tgamma(dof)
-        * result .^ -(dof + ndim / 2) * prod(to_array_1d(length_scale ./ period));
-}
-
-
-matrix gp_periodic_matern_cov_rfft2(real dof, int m, int n, real sigma, real length_scale,
-                                    vector period) {
-    return gp_periodic_matern_cov_rfft2(dof, m, n, sigma, [length_scale, length_scale]', period);
+    return sigma ^ 2 * height * width * 2 ^ ndim * (pi() / (2 * nu)) ^ (ndim / 2)
+        * tgamma(nu + ndim / 2) / tgamma(nu)
+        * result .^ -(nu + ndim / 2) * prod(to_array_1d(length_scale ./ period));
 }
