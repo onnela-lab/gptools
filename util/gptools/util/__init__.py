@@ -45,7 +45,7 @@ class ArrayOrTensorDispatch:
             xs: Objects to check.
 
         Returns:
-            is_tensor: `True` if `x` is a tensor; `False` otherwise.
+            is_tensor: :code:`True` if :code:`x` is a tensor; :code:`False` otherwise.
 
         Raises:
             ValueError: If the objects are a mixture of torch tensors and numpy arrays.
@@ -65,7 +65,7 @@ class ArrayOrTensorDispatch:
 
     def get_complex_dtype(self, x: ArrayOrTensor) -> Any:
         """
-        Get the complex dtype matching `x` in precision.
+        Get the complex dtype matching :code:`x` in precision.
         """
         return (1j * self[x].empty(0, dtype=x.dtype)).dtype
 
@@ -85,17 +85,19 @@ dispatch = ArrayOrTensorDispatch()
 def coordgrid(*xs: Iterable[np.ndarray], ravel: bool = True, indexing: Literal["ij", "xy"] = "ij") \
         -> np.ndarray:
     """
-    Obtain coordinates for all grid points induced by `xs`.
+    Obtain coordinates for all grid points induced by :code:`xs`.
 
     Args:
         xs: Coordinates to construct the grid.
         ravel: Whether to reshape the leading dimensions.
-        indexing: Whether to use Cartesian `xy` or matrix `ij` indexing (defaults to `ij`).
+        indexing: Whether to use Cartesian :code:`xy` or matrix :code:`ij` indexing (defaults to
+            :code:`ij`).
 
     Returns:
-        coord: Coordinates for all grid points with shape `(len(xs[0]), ..., len(xs[p - 1]), p)` if
-            `ravel` is `False`, where `p = len(xs)` is the number of dimensions. If `ravel` is
-            `True`, the shape is `(len(xs[0]) * ... * len(xs[p - 1]), p)`.
+        coord: Coordinates for all grid points with shape
+            :code:`(len(xs[0]), ..., len(xs[p - 1]), p)` if :code:`ravel` is :code:`False`, where
+            :code:`p = len(xs)` is the number of dimensions. If :code:`ravel` is :code:`True`, the
+            shape is :code:`(len(xs[0]) * ... * len(xs[p - 1]), p)`.
     """
     # Stack the coordinate matrices and move the coordinate dimension to the back.
     coords = np.moveaxis(np.stack(np.meshgrid(*xs, indexing=indexing)), 0, -1)
@@ -188,7 +190,7 @@ def encode_one_hot(z: ArrayOrTensor, p: Optional[int] = None) -> ArrayOrTensor:
 
     Args:
         z: Array of integers.
-        p: Number of classes (defaults to `max(z) + 1`).
+        p: Number of classes (defaults to :code:`max(z) + 1`).
 
     Returns:
         one_hot: One-hot encoded values.
@@ -206,7 +208,7 @@ def match_colorbar(cb: "Colorbar", ax: Optional["Axes"] = None) -> tuple[float]:
 
     Args:
         ax: Axes from which the colorbar "stole" space.
-        cb: Colorbar to match to `ax`.
+        cb: Colorbar to match to :code:`ax`.
 
     Returns:
         pos: New position of the colorbar axes.

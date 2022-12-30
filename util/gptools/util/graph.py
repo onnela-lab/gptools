@@ -17,7 +17,7 @@ class LatticeBounds(enum.Enum):
     """
     Boundary shape for the receptive field on a lattice.
 
-    - CUBE results in a hypercuboid with dimensions `2 * k + 1`.
+    - CUBE results in a hypercuboid with dimensions :code:`2 * k + 1`.
     - DIAMOND results in the highest-volume hypercuboid whose vertices are axis-aligned that can fit
         into CUBE.
     - ELLIPSE results in the highest-volume ellipsoid that can fit into CUBE.
@@ -38,14 +38,14 @@ def lattice_predecessors(
     Args:
         shape: Shape of the tensor with Gaussian process distribution.
         k: Half window width or sequence of half window widths for each dimension. Each node will
-            have a receptive field at most `k` to the "left" and "right" in each dimension.
+            have a receptive field at most :code:`k` to the "left" and "right" in each dimension.
         bounds: Bounds of the receptive field. See :class:`LatticeBounds` for details.
         compress: Whether to compress predecessors such that the number of colums is equal to the
             maximum degree.
 
     Returns:
         predecessors: Mapping from each element of the tensor to its predecessors with shape
-            `(prod(shape), l)`, where `l` is the number of predecessors.
+            :code:`(prod(shape), l)`, where :code:`l` is the number of predecessors.
     """
     bounds = LatticeBounds(bounds)
     # Convert shape and window widths to arrays and verify bounds.

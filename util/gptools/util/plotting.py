@@ -13,17 +13,18 @@ def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha:
     Plot a credible band given posterior samples.
 
     Args:
-        x: Coordinates of samples with shape `(n,)`, where `n` is the number of observations.
-        ys: Samples with shape `(m, n)`, where `m` is the number of samples.
+        x: Coordinates of samples with shape :code:`(n,)`, where :code:`n` is the number of
+            observations.
+        ys: Samples with shape :code:`(m, n)`, where :code:`m` is the number of samples.
         p: Tail probability to exclude from the credible band such that the band spans the quantiles
-            `[p / 2, 1 - p / 2]`.
+            :code:`[p / 2, 1 - p / 2]`.
         relative_alpha: Opacity of the band relative to the median line.
         ax: Axes to plot into.
-        **kwargs: Keyword arguments passed to `ax.plot` for the median line.
+        **kwargs: Keyword arguments passed to :code:`ax.plot` for the median line.
 
     Returns:
         line: Median line.
-        band: Credible band spanning the quantiles `[p / 2, 1 - p / 2]`.
+        band: Credible band spanning the quantiles :code:`[p / 2, 1 - p / 2]`.
     """
     from matplotlib import pyplot as plt
     ax = ax or plt.gca()

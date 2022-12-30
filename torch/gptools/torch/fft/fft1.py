@@ -11,11 +11,12 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
-        loc: Mean of the Gaussian process with shape `(..., size)`.
+        loc: Mean of the Gaussian process with shape :code:`(..., size)`.
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
+            :code:`(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape :code:`(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape
+            :code:`(..., size // 2 + 1)`.
     """
     bijective = True
     domain = constraints.real_vector
@@ -51,11 +52,12 @@ class FourierGaussianProcess1D(th.distributions.TransformedDistribution):
     Fourier-based Gaussian process in one dimension.
 
     Args:
-        loc: Mean of the Gaussian process with shape `(..., size)`.
+        loc: Mean of the Gaussian process with shape :code:`(..., size)`.
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
+            :code:`(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape :code:`(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape
+            :code:`(..., size // 2 + 1)`.
     """
     arg_constraints = {
         "loc": constraints.real_vector,

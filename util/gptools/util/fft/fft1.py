@@ -27,12 +27,13 @@ def evaluate_rfft_scale(*, cov: OptionalArrayOrTensor = None,
 
     Args:
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        size: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
+            :code:`(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape :code:`(..., size)`.
+        size: Size of the real signal. Necessary because the size cannot be inferred from
+            :code:`rfft`.
 
     Returns:
-        scale: Scale of Fourier coefficients with shape `(..., size // 2 + 1)`.
+        scale: Scale of Fourier coefficients with shape :code:`(..., size // 2 + 1)`.
     """
     if cov_rfft is None:
         *_, size = cov.shape
@@ -51,11 +52,11 @@ def expand_rfft(rfft: ArrayOrTensor, n: int) -> ArrayOrTensor:
     Convert truncated real Fourier coefficients to full Fourier coefficients.
 
     Args:
-        rfft: Truncated real Fourier coefficients with shape `(n // 2 + 1,)`.
+        rfft: Truncated real Fourier coefficients with shape :code:`(n // 2 + 1,)`.
         n: Number of samples.
 
     Returns:
-        fft: Full Fourier coefficients with shape `(n,)`.
+        fft: Full Fourier coefficients with shape :code:`(n,)`.
     """
     nrfft = n // 2 + 1
     ncomplex = (n - 1) // 2
@@ -67,17 +68,19 @@ def expand_rfft(rfft: ArrayOrTensor, n: int) -> ArrayOrTensor:
 
 def unpack_rfft(z: ArrayOrTensor, size: int) -> ArrayOrTensor:
     """
-    Unpack the Fourier coefficients of a real Fourier transform with `size // 2 + 1` elements to a
-    vector of `size` elements.
+    Unpack the Fourier coefficients of a real Fourier transform with :code:`size // 2 + 1` elements
+    to a vector of :code:`size` elements.
 
     Args:
         z: Real Fourier transform coefficients.
-        size: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
+        size: Size of the real signal. Necessary because the size cannot be inferred from
+            :code:`rfft`.
 
     Returns:
-        z: Unpacked vector of `size` elements comprising the `size // 2 + 1` real parts of the zero
-            frequency term, complex terms, and Nyqvist frequency term (for even `size`). The
-            subsequent `(size - 1) // 2` elements are the imaginary parts of complex coefficients.
+        z: Unpacked vector of :code:`size` elements comprising the :code:`size // 2 + 1` real parts
+            of the zero frequency term, complex terms, and Nyqvist frequency term (for even
+            :code:`size`). The subsequent :code:`(size - 1) // 2` elements are the imaginary parts
+            of complex coefficients.
     """
     ncomplex = (size - 1) // 2
     parts = [z.real, z.imag[..., 1: ncomplex + 1]]
@@ -86,11 +89,11 @@ def unpack_rfft(z: ArrayOrTensor, size: int) -> ArrayOrTensor:
 
 def pack_rfft(z: ArrayOrTensor, full_fft: bool = False) -> ArrayOrTensor:
     """
-    Transform a real vector with `size` elements to a vector of complex Fourier coefficients with
-    `size // 2 + 1` elements ready for inverse real fast Fourier transformation.
+    Transform a real vector with :code:`size` elements to a vector of complex Fourier coefficients
+    with :code:`size // 2 + 1` elements ready for inverse real fast Fourier transformation.
 
     Args:
-        z: Unpacked vector of `size` elements. See :func:`unpack_rfft` for details.
+        z: Unpacked vector of :code:`size` elements. See :func:`unpack_rfft` for details.
         full_fft: Whether to return the full set of Fourier coefficients rather than just the
             reduced representation for the real fast Fourier transform. The full representation is
             required for :func:`pack_rfft2`.
@@ -119,15 +122,17 @@ def transform_irfft(z: ArrayOrTensor, loc: ArrayOrTensor, *, cov_rfft: OptionalA
     Transform white noise in the Fourier domain to a Gaussian process realization.
 
     Args:
-        z: Fourier-domain white noise with shape `(..., size)`. See :func:`unpack_rfft` for details.
-        loc: Mean of the Gaussian process with shape `(..., size)`.
+        z: Fourier-domain white noise with shape :code:`(..., size)`. See :func:`unpack_rfft` for
+            details.
+        loc: Mean of the Gaussian process with shape :code:`(..., size)`.
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
+            :code:`(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape :code:`(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape
+            :code:`(..., size // 2 + 1)`.
 
     Returns:
-        y: Realization of the Gaussian process with shape `(..., size)`.
+        y: Realization of the Gaussian process with shape :code:`(..., size)`.
     """
     rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, z.shape[-1])
     rfft = pack_rfft(z) * rfft_scale
@@ -141,16 +146,17 @@ def transform_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *, cov_rfft: OptionalAr
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
     Args:
-        y: Realization of the Gaussian process with shape `(..., size)`.
-        loc: Mean of the Gaussian process with shape `(..., size)`.
+        y: Realization of the Gaussian process with shape :code:`(..., size)`.
+        loc: Mean of the Gaussian process with shape :code:`(..., size)`.
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
+            :code:`(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape :code:`(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape
+            :code:`(..., size // 2 + 1)`.
 
     Returns:
-        z: Fourier-domain white noise with shape `(..., size)`. See :func:`transform_irrft` for
-            details.
+        z: Fourier-domain white noise with shape :code:`(..., size)`. See :func:`transform_irrft`
+            for details.
     """
     rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, size=y.shape[-1])
     return unpack_rfft(dispatch[y].fft.rfft(y - loc) / rfft_scale, y.shape[-1])
@@ -164,16 +170,17 @@ def evaluate_log_prob_rfft(y: ArrayOrTensor, loc: ArrayOrTensor, *,
     Evaluate the log probability of a one-dimensional Gaussian process realization in Fourier space.
 
     Args:
-        y: Realization of a Gaussian process with shape `(..., size)`, where `...` is the batch
-            shape and `size` is the number of grid points.
-        loc: Mean of the Gaussian process with shape `(..., size)`.
+        y: Realization of a Gaussian process with shape :code:`(..., size)`, where :code:`...` is
+            the batch shape and :code:`size` is the number of grid points.
+        loc: Mean of the Gaussian process with shape :code:`(..., size)`.
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
+            :code:`(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape :code:`(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape
+            :code:`(..., size // 2 + 1)`.
 
     Returns:
-        log_prob: Log probability of the Gaussian process realization with shape `(...)`.
+        log_prob: Log probability of the Gaussian process realization with shape :code:`(...)`.
     """
     rfft_scale = _get_rfft_scale(cov_rfft, cov, rfft_scale, y.shape[-1])
     rfft = transform_rfft(y, loc, rfft_scale=rfft_scale)
@@ -189,9 +196,10 @@ def evaluate_rfft_log_abs_det_jacobian(size: int, *, cov_rfft: OptionalArrayOrTe
 
     Args:
         cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-            `(..., size // 2 + 1)`.
-        cov: First row of the covariance matrix with shape `(..., size)`.
-        rfft_scale: Precomputed real fast Fourier transform scale with shape `(..., size // 2 + 1)`.
+            :code:`(..., size // 2 + 1)`.
+        cov: First row of the covariance matrix with shape :code:`(..., size)`.
+        rfft_scale: Precomputed real fast Fourier transform scale with shape
+            :code:`(..., size // 2 + 1)`.
 
     Returns:
         log_abs_det_jacobian: Log absolute determinant of the Jacobian.

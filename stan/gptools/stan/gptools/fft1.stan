@@ -6,9 +6,10 @@
 Evaluate the scale of Fourier coefficients.
 
 :param cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-    `(..., n %/% 2 + 1)`.
-:param n: Size of the real signal. Necessary because the size cannot be inferred from `cov_rfft`.
-:returns: Scale of Fourier coefficients with shape `(..., n %/% 2 + 1)`.
+    :code:`(..., n %/% 2 + 1)`.
+:param n: Size of the real signal. Necessary because the size cannot be inferred from
+    :code:`cov_rfft`.
+:returns: Scale of Fourier coefficients with shape :code:`(..., n %/% 2 + 1)`.
 */
 vector gp_evaluate_rfft_scale(vector cov_rfft, int n) {
     int nrfft = n %/% 2 + 1;
@@ -30,15 +31,15 @@ vector gp_evaluate_rfft_scale(vector cov_rfft, int n) {
 
 
 /**
-Unpack the Fourier coefficients of a real Fourier transform with `n %/% 2 + 1` elements to a vector
-of `n` elements.
+Unpack the Fourier coefficients of a real Fourier transform with :code:`n %/% 2 + 1` elements to a
+vector of :code:`n` elements.
 
 :param z: Real Fourier transform coefficients.
-:param n: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
+:param n: Size of the real signal. Necessary because the size cannot be inferred from :code:`rfft`.
 
-:returns: Unpacked vector of `size` elements comprising the `n %/% 2 + 1` real parts of the zero
-    frequency term, complex terms, and Nyqvist frequency term (for even `n`). The subsequent
-    `(n - 1) %/% 2` elements are the imaginary parts of complex coefficients.
+:returns: Unpacked vector of :code:`n` elements comprising the :code:`n %/% 2 + 1` real parts of the
+    zero frequency term, complex terms, and Nyqvist frequency term (for even :code:`n`). The
+    subsequent :code:`(n - 1) %/% 2` elements are the imaginary parts of complex coefficients.
 */
 vector gp_unpack_rfft(complex_vector x, int n) {
     vector[n] z;
@@ -53,12 +54,12 @@ vector gp_unpack_rfft(complex_vector x, int n) {
 /**
 Transform a Gaussian process realization to white noise in the Fourier domain.
 
-:param y: Realization of the Gaussian process with shape `(..., n)`.
-:param loc: Mean of the Gaussian process with shape `(..., n)`.
+:param y: Realization of the Gaussian process with shape :code:`(..., n)`.
+:param loc: Mean of the Gaussian process with shape :code:`(..., n)`.
 :param cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-    `(..., n // 2 + 1)`.
-:returns: Fourier-domain white noise with shape `(..., n)`. See :stan:func:`gp_unpack_rfft` for
-    details on the data structure.
+    :code:`(..., n // 2 + 1)`.
+:returns: Fourier-domain white noise with shape :code:`(..., n)`. See :stan:func:`gp_unpack_rfft`
+    for details on the data structure.
 */
 vector gp_rfft(vector y, vector loc, vector cov_rfft) {
     return gp_unpack_rfft(rfft(y - loc) ./ gp_evaluate_rfft_scale(cov_rfft, size(y)), size(y));
@@ -70,8 +71,8 @@ Evaluate the log absolute determinant of the Jacobian associated with
 :stan:func:`gp_rfft`.
 
 :param cov_rfft: Precomputed real fast Fourier transform of the kernel with shape
-    `(..., n %/% 2 + 1)`.
-:param n: Size of the real signal. Necessary because the size cannot be inferred from `rfft`.
+    :code:`(..., n %/% 2 + 1)`.
+:param n: Size of the real signal. Necessary because the size cannot be inferred from :code:`rfft`.
 :returns: Log absolute determinant of the Jacobian.
 */
 real gp_rfft_log_abs_det_jacobian(vector cov_rfft, int n) {
@@ -84,9 +85,9 @@ real gp_rfft_log_abs_det_jacobian(vector cov_rfft, int n) {
 /**
 Evaluate the log probability of a one-dimensional Gaussian process realization in Fourier space.
 
-:param y: Realization of a Gaussian process with `n` grid points.
-:param loc: Mean of the Gaussian process of size `n`.
-:param cov_rfft: Precomputed real fast Fourier transform of the kernel of size `n %/% 2 + 1`.
+:param y: Realization of a Gaussian process with :code:`n` grid points.
+:param loc: Mean of the Gaussian process of size :code:`n`.
+:param cov_rfft: Precomputed real fast Fourier transform of the kernel of size :code:`n %/% 2 + 1`.
 :returns: Log probability of the Gaussian process realization.
 */
 real gp_rfft_lpdf(vector y, vector loc, vector cov_rfft) {
@@ -98,8 +99,8 @@ real gp_rfft_lpdf(vector y, vector loc, vector cov_rfft) {
 
 
 /**
-Transform a real vector with `n` elements to a vector of complex Fourier coefficients with `n`
-elements ready for inverse real fast Fourier transformation.
+Transform a real vector with :code:`n` elements to a vector of complex Fourier coefficients with
+:code:`n` elements ready for inverse real fast Fourier transformation.
 */
 complex_vector gp_pack_rfft(vector z) {
     int n = size(z);  // Number of observations.
@@ -118,19 +119,19 @@ complex_vector gp_pack_rfft(vector z) {
 Transform white noise in the Fourier domain to a Gaussian process realization, i.e., a
 *non-centered* parameterization in the Fourier domain.
 
-The :math:`n` real white noise variables must be assembled into a length-:math:`n` complex vector
-with structure expected by the fast Fourier transform. The input vector :math:`z` comprises
+The :code:`n` real white noise variables must be assembled into a length-:code:`n %/% 2 + 1` complex
+vector with structure expected by the fast Fourier transform. The input vector :code:`z` comprises
 
 - the real zero frequency term,
-- :math:`\text{floor}\left(\frac{n - 1}{2}\right)` real parts of positive frequency terms,
-- the real Nyqvist frequency term if :math:`n` is even,
-- and :math:`\text{floor}\left(\frac{n - 1}{2}\right)` imaginary parts of positive frequency terms.
+- :code:`(n - 1) %/% 2` real parts of positive frequency terms,
+- the real Nyqvist frequency term if :code:`n` is even,
+- and :code:`(n - 1) %/% 2` imaginary parts of positive frequency terms.
 
-:param z: Fourier-domain white noise comprising :math:`n` elements.
+:param z: Fourier-domain white noise comprising :code:`n` elements.
 :param loc: Mean of the Gaussian process.
 :param cov_rfft: Real fast Fourier transform of the covariance kernel.
 
-:returns: Realization of the Gaussian process with :math:`n` elements.
+:returns: Realization of the Gaussian process with :code:`n` elements.
 */
 vector gp_inv_rfft(vector z, vector loc, vector cov_rfft) {
     int n = size(z);
@@ -145,7 +146,7 @@ Evaluate the real fast Fourier transform of the periodic squared exponential ker
 :param sigma: Scale of the covariance.
 :param length_scale: Correlation length.
 :param period: Period for circular boundary conditions.
-:returns: Fourier transform of the squared exponential kernel of size `n %/% 2 + 1`.
+:returns: Fourier transform of the squared exponential kernel of size :code:`n %/% 2 + 1`.
 */
 vector gp_periodic_exp_quad_cov_rfft(int n, real sigma, real length_scale, real period) {
     int nrfft = n %/% 2 + 1;
@@ -161,7 +162,7 @@ Evaluate the real fast Fourier transform of the periodic Matern kernel.
 :param sigma: Scale of the covariance.
 :param length_scale: Correlation length.
 :param period: Period for circular boundary conditions.
-:returns: Fourier transform of the squared exponential kernel of size `n %/% 2 + 1`.
+:returns: Fourier transform of the squared exponential kernel of size :code:`n %/% 2 + 1`.
 */
 vector gp_periodic_matern_cov_rfft(real nu, int n, real sigma, real length_scale, real period) {
     int nrfft = n %/% 2 + 1;

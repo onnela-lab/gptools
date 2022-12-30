@@ -10,9 +10,9 @@ class GraphGaussianProcess(th.distributions.Distribution):
     Args:
         loc: Mean of the distribution.
         coords: Coordinates of nodes.
-        predecessors: Matrix of node labels with shape `(num_nodes, max_degree)`. The row
-            `predecessors[i]` denotes the predecessors of node `i` in the graph. Any unused slots
-            should be set to -1.
+        predecessors: Matrix of node labels with shape :code:`(num_nodes, max_degree)`. The row
+            :code:`predecessors[i]` denotes the predecessors of node :code:`i` in the graph. Any
+            unused slots should be set to -1.
         kernel: Callable to evaluate the covariance which takes node coordinates as the only
             argument.
         lstsq_rcond: Threshold for rounding singular values to zero when solving the least squares

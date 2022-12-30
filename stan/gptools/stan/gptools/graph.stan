@@ -77,9 +77,9 @@ Evaluate the log probability of a graph Gaussian process.
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :param degrees: Out-degree of each node.
 :param epsilon: Nugget variance for numerical stability.
 :returns: Log probability of the graph Gaussian process.
@@ -109,9 +109,9 @@ Evaluate the log probability of a graph Gaussian process.
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :returns: Log probability of the graph Gaussian process.
 */
 real gp_graph_lpdf(vector y, vector loc, array [] vector x, int kernel, real sigma,
@@ -131,9 +131,9 @@ Transform white noise to a sample from a graph Gaussian process
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :param degrees: Out-degree of each node.
 :param epsilon: Nugget variance for numerical stability.
 :returns: Sample from the Graph gaussian process.
@@ -162,9 +162,9 @@ Transform white noise to a sample from a graph Gaussian process
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :returns: Sample from the Graph gaussian process.
 */
 vector gp_inv_graph(vector z, vector loc, array [] vector x, int kernel, real sigma,
@@ -184,9 +184,9 @@ Evaluate the log probability of a graph Gaussian with squared exponential kernel
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :param degrees: Out-degree of each node.
 :param epsilon: Nugget variance for numerical stability.
 :returns: Log probability of the graph Gaussian process.
@@ -207,9 +207,9 @@ Evaluate the log probability of a graph Gaussian with squared exponential kernel
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :returns: Log probability of the graph Gaussian process.
 */
 real gp_graph_exp_quad_cov_lpdf(vector y, vector loc, array [] vector x, real sigma,
@@ -227,9 +227,9 @@ Transform white noise to a sample from a graph Gaussian process with squared exp
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :param degrees: Out-degree of each node.
 :param epsilon: Nugget variance for numerical stability.
 :returns: Sample from the Graph gaussian process.
@@ -250,9 +250,9 @@ Transform white noise to a sample from a graph Gaussian process with squared exp
 :param sigma: Marginal scale of the kernel.
 :param length_scale: Correlation length of the kernel.
 :param edges: Directed edges between nodes constituting a directed acyclic graph. Edges are stored
-    as a matrix with shape `(2, m)`, where `m` is the number of edges. The first row comprises
-    parents of children in the second row. The first row can have arbitrary order, but the second
-    row must be sorted.
+    as a matrix with shape :code:`(2, m)`, where :code:`m` is the number of edges. The first row
+    comprises parents of children in the second row. The first row can have arbitrary order, but the
+    second row must be sorted.
 :returns: Sample from the Graph gaussian process.
 */
 vector gp_inv_graph_exp_quad_cov(vector z, vector loc, array [] vector x, real sigma,

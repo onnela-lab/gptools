@@ -193,7 +193,7 @@ class TerminateOnPlateau:
 
     def __bool__(self) -> bool:
         """
-        Return `True` if training should continue.
+        Return :code:`True` if training should continue.
         """
         return self.elapsed < self.patience and self.num_steps < self.max_num_steps
 

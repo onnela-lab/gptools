@@ -14,20 +14,20 @@ def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
     """
     Evaluate the residuals between points respecting periodic boundary conditions.
 
-    If `period is not None` and boundary conditions apply, residuals have the correct "local"
+    If :code:`period is not None` and boundary conditions apply, residuals have the correct "local"
     behavior, i.e., points to the left have a negative residual and points to the right have a
-    positive residual. This leads to a discontinuity a distance `period / 2` from any reference
-    point. The discontinuity is immaterial for even kernel functions.
+    positive residual. This leads to a discontinuity a distance :code:`period / 2` from any
+    reference point. The discontinuity is immaterial for even kernel functions.
 
     Args:
-        x: Coordinates with shape `(..., p)`, where `...` is the batch shape and `p` is the number
-            of dimensions of the embedding space.
-        y: Coordinates with shape `(..., p)` which must be broadcastable to `x`. If not given, the
-            distance between the Cartesian product of `x` will be evaluated.
+        x: Coordinates with shape :code:`(..., p)`, where :code:`...` is the batch shape and
+            :code:`p` is the number of dimensions of the embedding space.
+        y: Coordinates with shape :code:`(..., p)` which must be broadcastable to :code:`x`. If not
+            given, the distance between the Cartesian product of :code:`x` will be evaluated.
         period: Period of circular boundary conditions.
 
     Returns:
-        dist2: Squared distance between `x` and `y`.
+        dist2: Squared distance between :code:`x` and :code:`y`.
 
     Example:
       .. plot::
@@ -85,14 +85,14 @@ def evaluate_squared_distance(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
     Evaluate the squared distance between points respecting periodic boundary conditions.
 
     Args:
-        x: Coordinates with shape `(..., p)`, where `...` is the batch shape and `p` is the number
-            of dimensions of the embedding space.
-        y: Coordinates with shape `(..., p)` which must be broadcastable to `x`. If not given, the
-            distance between the Cartesian product of `x` will be evaluated.
+        x: Coordinates with shape :code:`(..., p)`, where :code:`...` is the batch shape and
+            :code:`p` is the number of dimensions of the embedding space.
+        y: Coordinates with shape :code:`(..., p)` which must be broadcastable to :code:`x`. If not
+            given, the distance between the Cartesian product of :code:`x` will be evaluated.
         period: Period of circular boundary conditions.
 
     Returns:
-        dist2: Squared distance between `x` and `y`.
+        dist2: Squared distance between :code:`x` and :code:`y`.
 
     Example:
       .. plot::
@@ -150,7 +150,7 @@ class Kernel:
 
         Args:
             x: First set of points.
-            y: Second set of points (defaults to `x` for pairwise covariances).
+            y: Second set of points (defaults to :code:`x` for pairwise covariances).
 
         Returns:
             cov: Covariance between the two sets of points.
@@ -165,7 +165,7 @@ class Kernel:
             shape: Number of sample points in each dimension.
 
         Returns:
-            rfft: Fourier coefficients with shape `(*shape[:-1], shape[-1] // 2 + 1)`.
+            rfft: Fourier coefficients with shape :code:`(*shape[:-1], shape[-1] // 2 + 1)`.
         """
         raise NotImplementedError
 
