@@ -438,12 +438,3 @@ vector gp_conditional_loc_scale(vector y, real cov11, vector cov21, matrix cov22
     vector[size(y)] v = mdivide_left_spd(cov22, cov21);
     return [dot_product(v, y), sqrt(cov11 - dot_product(v, cov21))]';
 }
-
-/**
-Evaluate the conditional location and scale parameter of a univariate normal random variable given
-correlated observations from a multivariate normal distribution. See
-:stan:func:`gp_conditional_loc_scale(vector, real, vector, matrix)` for details.
-*/
-vector gp_conditional_loc_scale(vector y, real cov11, matrix cov21, matrix cov22) {
-    return gp_conditional_loc_scale(y, cov11, to_vector(cov21), cov22);
-}
