@@ -46,10 +46,6 @@ for module in modules:
                               env={"PROJECT": module})
     manager(basename="doctest", name=module, actions=[rm_build_action, action])
 
-    # Util package does not currently have notebooks to test.
-    manager(basename="examples", name=module,
-            actions=[] if module == "util" else [f"pytest docs -k {module}"])
-
     # Compile example notebooks to create html reports.
     for path in pathlib.Path.cwd().glob(f"{module}/**/*.ipynb"):
         exclude = [".ipynb_checkpoints", "jupyter_execute", ".jupyter_cache"]
