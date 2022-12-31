@@ -1,6 +1,13 @@
+from myst_parser.config.main import MdParserConfig
+from myst_nb.core.config import NbParserConfig
+from myst_nb.core.read import create_nb_reader, NbReader
+from nbconvert.preprocessors import ExecutePreprocessor
 import numpy as np
+import os
+import pathlib
 import pytest
-from typing import Type
+from typing import Any, Callable, Type
+from unittest import mock
 from .kernels import ExpQuadKernel, Kernel, MaternKernel
 from . import coordgrid, ArrayOrTensor
 
@@ -69,3 +76,37 @@ _kernel_configurations = [
 @pytest.fixture(params=_kernel_configurations)
 def kernel_configuration(request: pytest.FixtureRequest) -> KernelConfiguration:
     return request.param
+
+
+EXCLUDED_DIRECTORIES = {".ipynb_checkpoints"}
+
+
+def run_myst_notebook(path: pathlib.Path) -> Any:
+    """
+    Run a myst example notebook.
+    """
+    path = pathlib.Path(path)
+    timeout = 60 if "CI" in os.environ else None
+    md_config = MdParserConfig()
+    nb_config = NbParserConfig()
+    with open(path) as fp:
+        content = fp.read()
+    reader: NbReader = create_nb_reader(str(path), md_config, nb_config, content)
+    notebook = reader.read(content)
+    with mock.patch.dict(os.environ, CI="true"):
+        preprocessor = ExecutePreprocessor(timeout=timeout)
+        return preprocessor.preprocess(notebook, {"metadata": {"path": path.parent}})
+
+
+def parameterized_notebook_tests(file: str, rel: str) -> Callable:
+    """
+    Discover notebooks starting at a root directory and return a parameterized test to execute all.
+    """
+    root = (pathlib.Path(file).parent / rel).resolve()
+    notebooks = [str(notebook) for notebook in root.glob("**/*.md") if not
+                 any(x in notebook.parts for x in EXCLUDED_DIRECTORIES)]
+
+    @pytest.mark.parametrize("notebook", notebooks)
+    def _wrapped(notebook: str) -> None:
+        run_myst_notebook(notebook)
+    return _wrapped

@@ -45,8 +45,6 @@ jobs:
         run: doit docs:${{ matrix.module }}
       - name: Run doctests
         run: doit doctest:${{ matrix.module }}
-      - name: Compile examples
-        run: doit examples:${{ matrix.module }}
       - name: Build the package
         run: doit package:${{ matrix.module }}
       - name: Upload the package to test pypi
