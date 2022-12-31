@@ -81,7 +81,7 @@ def kernel_configuration(request: pytest.FixtureRequest) -> KernelConfiguration:
 EXCLUDED_DIRECTORIES = {".ipynb_checkpoints"}
 
 
-def run_myst_notebook(path: pathlib.Path) -> Any:
+def run_myst_notebook(path: pathlib.Path) -> Any:  # pragma: no cover
     """
     Run a myst example notebook.
     """
@@ -98,7 +98,7 @@ def run_myst_notebook(path: pathlib.Path) -> Any:
         return preprocessor.preprocess(notebook, {"metadata": {"path": path.parent}})
 
 
-def parameterized_notebook_tests(file: str, rel: str) -> Callable:
+def parameterized_notebook_tests(file: str, rel: str) -> Callable:  # pragma: no cover
     """
     Discover notebooks starting at a root directory and return a parameterized test to execute all.
     """
