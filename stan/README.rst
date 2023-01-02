@@ -2,9 +2,11 @@ Scalable Gaussian process inference with *Stan*
 ===============================================
 
 .. image:: https://github.com/tillahoffmann/gptools/actions/workflows/main.yml/badge.svg
-   :target: https://github.com/tillahoffmann/gptools/actions/workflows/main.yml
+    :target: https://github.com/tillahoffmann/gptools/actions/workflows/main.yml
+.. image:: https://readthedocs.org/projects/gptools-stan/badge/?version=latest
+    :target: https://gptools-stan.readthedocs.io/en/latest/?badge=latest
 .. image:: https://img.shields.io/pypi/v/gptools-stan
-   :target: https://pypi.org/project/gptools-stan
+    :target: https://pypi.org/project/gptools-stan
 .. image:: https://img.shields.io/static/v1?label=&message=GitHub&color=gray&logo=github
     :target: https://github.com/tillahoffmann/gptools
 
