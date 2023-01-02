@@ -10,4 +10,12 @@ build:
     jobs:
       post_install:
         - pip install -r ${PROJECT}/test_requirements.txt
-        - install_cmdstan || true  # Install cmdstan if the command is available.
+        # Download precompiled cmdstan if we're building gptools-stan.
+        - >
+            [ $CMDSTAN_VERSION ]
+            && echo ~
+            && curl -L -o cmdstan.tar.gz https://github.com/tillahoffmann/precompiled-cmdstan/releases/download/cmdstan-ubuntu-20.04-${CMDSTAN_VERSION}/cmdstan-ubuntu-20.04-${CMDSTAN_VERSION}.tar.gz
+            && mkdir -p ~/.cmdstan
+            && tar -xf cmdstan.tar.gz -C ~/.cmdstan
+            && ls -lh ~/.cmdstan
+        - python -m cmdstanpy.install_cmdstan --version=${CMDSTAN_VERSION} || true
