@@ -3,7 +3,8 @@ from setuptools import find_namespace_packages, setup
 
 with open("README.rst") as fp:
     long_description = fp.read()
-long_description = re.sub(r".. (literalinclude|testsetup|toctree)::", "..", long_description)
+long_description = re.sub(r".. (literalinclude|testsetup|toctree)::", "..\n    comment",
+                          long_description)
 long_description = re.sub(".. doctest::", ".. code-block::", long_description)
 long_description = re.sub(":(doc|class|func|ref):", ":code:", long_description)
 
