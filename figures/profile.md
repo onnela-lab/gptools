@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -21,6 +21,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pickle
 from gptools.stan.profile import PARAMETERIZATIONS, LOG10_NOISE_SCALES, SIZES
+import os
 import pandas as pd
 import re
 from scipy import stats
@@ -36,16 +37,25 @@ NOISE_SCALES = 10 ** LOG10_NOISE_SCALES
 # Load the runtimes for the sampler.
 durations = {}
 product = it.product(PARAMETERIZATIONS, LOG10_NOISE_SCALES, SIZES)
+timeout = set()
+shape = (len(LOG10_NOISE_SCALES), len(SIZES))
+
 for parameterization, log_noise_scale, size in product:
-    with open(f"../workspace/profile/sample/{parameterization}/"
-              f"log10_noise_scale-{log_noise_scale:.3f}_size-{size}.pkl", "rb") as fp:
-        result = pickle.load(fp)
+    filename = f"../workspace/profile/sample/{parameterization}/" \
+       f"log10_noise_scale-{log_noise_scale:.3f}_size-{size}.pkl"
+    if os.path.isfile(filename):
+        with open(filename, "rb") as fp:
+            result = pickle.load(fp)
         fltr = ~result["timeouts"]
         duration = result["durations"][fltr].mean() if fltr.all() else np.nan
         durations.setdefault(parameterization, []).append(duration)
+        timeout.add(result["args"]["timeout"])
+    else:
+        durations.setdefault(parameterization, []).append(np.nan)
 
-shape = (len(LOG10_NOISE_SCALES), len(SIZES))
+timeout, = timeout
 durations = {key: np.reshape(value, shape) for key, value in durations.items()}
+{key: np.nanmax(value) for key, value in durations.items()}
 ```
 
 ```{code-cell} ipython3
@@ -147,7 +157,7 @@ ax.set_xlabel(r"size $n$")
 ax.set_ylabel(r"runtime (seconds)")
 
 for i, ax in [(0, ax1), (-1, ax2)]:
-    print(f"kappa = {LOG10_NOISE_SCALES[i]}")
+    print(f"kappa = 10 ** {LOG10_NOISE_SCALES[i]}")
     for key, value in durations.items():
         method, parameterization = key.split("_", 1)
         line, = ax.plot(
@@ -164,8 +174,9 @@ for i, ax in [(0, ax1), (-1, ax2)]:
 
     ax.set_xscale("log")
     ax.set_yscale("log")
+    bbox = {"facecolor": "w", "edgecolor": "none", "alpha": 0.9}
     ax.text(0.05, 0.95, fr"({'ab'[i]}) $\kappa=10^{{{LOG10_NOISE_SCALES[i]:.0f}}}$",
-            transform=ax.transAxes, va="top")
+            transform=ax.transAxes, va="top", bbox=bbox)
     ax.set_xlabel("size $n$")
     ax.set_ylabel("duration (seconds)")
     print()
@@ -177,11 +188,14 @@ ax.set_ylabel(r"runtime (seconds)")
 ax.set_xlabel(r"noise scale $\kappa$")
 ax.set_ylabel("duration (seconds)")
 ax.set_xscale("log")
-mappable = mpl.cm.ScalarMappable(norm=mpl.colors.LogNorm(SIZES.min(), SIZES.max()),
+max_size = 4096
+mappable = mpl.cm.ScalarMappable(norm=mpl.colors.LogNorm(SIZES.min(), max_size),
                                  cmap="viridis")
 method = "fourier"
 for parameterization in ["non_centered", "centered"]:
     for size, y in zip(SIZES, durations[f"{method}_{parameterization}"].T):
+        if size > max_size:
+            continue
         ax.plot(NOISE_SCALES, y, color=mappable.to_rgba(size),
                 ls=ls_by_parameterization[parameterization])
 ax.text(0.05, 0.95, "(c)", transform=ax.transAxes, va="top")
@@ -284,6 +298,9 @@ cb = fig.colorbar(mappable, cax=cax, orientation="horizontal")
 cax.tick_params(labelsize="small")
 cax.set_ylabel("size $n$", fontsize="small", rotation=0, ha="right", va="center")
 
+for ax in [ax1, ax2]:
+    ax.axhline(timeout, ls=":", color="k", zorder=0)
+
 fig.savefig("scaling.pdf", bbox_inches="tight")
 fig.savefig("scaling.png", bbox_inches="tight")
 ```
@@ -296,4 +313,14 @@ print(f"log noise-scale: {LOG10_NOISE_SCALES[idx]}")
 y = durations["standard_centered"][idx]
 f = np.isfinite(y)
 np.polynomial.Polynomial.fit(np.log(SIZES[f][-3:]), np.log(y[f][-3:]), 1).convert()
+```
+
+```{code-cell} ipython3
+# Report the runtimes for 10k observations.
+for parameterization in ["fourier_centered", "fourier_non_centered"]:
+    filename = f"../workspace/profile/sample/{parameterization}/" \
+        "log10_noise_scale-0.000_size-10000.pkl"
+    with open(filename, "rb") as fp:
+        result = pickle.load(fp)
+    print(parameterization, result["durations"].mean())
 ```

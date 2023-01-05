@@ -95,7 +95,7 @@ def add_profile_task(method: str, parameterization: str, log10_sigma: float, siz
 try:
     from gptools.stan.profile import FOURIER_ONLY_SIZE_THRESHOLD, LOG10_NOISE_SCALES, \
         PARAMETERIZATIONS, SIZES
-    with di.group_tasks("profile"):
+    with di.group_tasks("profile") as profile_group:
         product = it.product(PARAMETERIZATIONS, LOG10_NOISE_SCALES, SIZES)
         for parameterization, log10_sigma, size in product:
             # Only run Fourier methods if the size threshold is exceeded.
@@ -110,6 +110,11 @@ try:
                              suffix="-train-test", iter_sampling=500, timeout=300)
 except ModuleNotFoundError:
     pass
+
+# Add a one-off task to calculate statistics for the abstract with 10k observations.
+with profile_group:
+    add_profile_task("sample", "fourier_centered", 0, 10_000, timeout=300)
+    add_profile_task("sample", "fourier_non_centered", 0, 10_000, timeout=300)
 
 
 # Tree data from https://datadryad.org/stash/dataset/doi:10.15146/5xcp-0d46.
