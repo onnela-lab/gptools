@@ -102,19 +102,19 @@ try:
             if size >= FOURIER_ONLY_SIZE_THRESHOLD and not parameterization.startswith("fourier"):
                 continue
             add_profile_task("sample", parameterization, log10_sigma, size)
+
         # Add variational inference.
         for parameterization, log10_sigma in it.product(PARAMETERIZATIONS, LOG10_NOISE_SCALES):
             add_profile_task("variational", parameterization, log10_sigma, 1024, train_frac=0.8)
             # Here, we use a long timeout and many samples to ensure we get the distributions right.
             add_profile_task("sample", parameterization, log10_sigma, 1024, train_frac=0.8,
                              suffix="-train-test", iter_sampling=500, timeout=300)
+
+        # Add a one-off task to calculate statistics for the abstract with 10k observations.
+        add_profile_task("sample", "fourier_centered", 0, 10_000, timeout=300)
+        add_profile_task("sample", "fourier_non_centered", 0, 10_000, timeout=300)
 except ModuleNotFoundError:
     pass
-
-# Add a one-off task to calculate statistics for the abstract with 10k observations.
-with profile_group:
-    add_profile_task("sample", "fourier_centered", 0, 10_000, timeout=300)
-    add_profile_task("sample", "fourier_non_centered", 0, 10_000, timeout=300)
 
 
 # Tree data from https://datadryad.org/stash/dataset/doi:10.15146/5xcp-0d46.
