@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -13,7 +13,7 @@ kernelspec:
 
 ```{code-cell} ipython3
 from gptools.util.kernels import ExpQuadKernel, MaternKernel
-from gptools.util.fft import transform_irfft, evaluate_rfft_scale
+from gptools.util.fft.fft1 import transform_irfft, evaluate_rfft_scale
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
@@ -43,7 +43,7 @@ for ax, (key, kernel) in zip(axes[1], kernels.items()):
     axes[0, 0].plot(x, value, color=line.get_color())
     
     for maxf, ls in [(x.size // 2 + 1, "-"), (5, "--"), (3, ":")]:
-        rfft_scale = evaluate_rfft_scale(rfft=rfft, size=x.size)
+        rfft_scale = evaluate_rfft_scale(cov_rfft=rfft, size=x.size)
         rfft_scale[maxf:] = 0
         f = transform_irfft(z, np.zeros_like(z), rfft_scale=rfft_scale)
         ax.plot(x, f, ls=ls, color=line.get_color(), label=fr"$\xi_\max={maxf}$")
