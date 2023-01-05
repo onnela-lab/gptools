@@ -1,14 +1,14 @@
 import argparse
 from gptools.stan import compile_model
 from gptools.util import Timer
-from gptools.util.kernels import ExpQuadKernel, DiagonalKernel
+from gptools.util.fft import transform_irfft
+from gptools.util.kernels import ExpQuadKernel
 from gptools.util.graph import lattice_predecessors, predecessors_to_edge_index
 from gptools.util.timeout import call_with_timeout
 import numpy as np
 import pathlib
 import pickle
 import tabulate
-from scipy import stats
 from tqdm import tqdm
 from typing import Optional
 from . import PARAMETERIZATIONS, sample_and_load_fit
@@ -56,19 +56,18 @@ def __main__(args: Optional[list[str]] = None) -> None:
     np.random.seed(args.seed)
     i = 0
 
-    # Prepare the distribution outside the loop because matrix inversion can take a while.
-    # Generate data from a Gaussian process with normal observation noise.
-    X = np.arange(args.n)[:, None]
-    kernel = ExpQuadKernel(args.sigma, args.length_scale) + DiagonalKernel(args.epsilon)
-    cov = kernel.evaluate(X)
-    dist = stats.multivariate_normal(np.zeros(args.n), cov)
+    # We draw samples with Fourier methods because generating the training data can be the main
+    # bottleneck if the sample size is large.
+    kernel = ExpQuadKernel(args.sigma, args.length_scale, args.n)
+    cov_rfft = kernel.evaluate_rfft(args.n) + args.epsilon
 
     with Timer() as total_timer, tqdm() as progress:
         while (args.max_chains == -1 or i < args.max_chains) \
                 and (args.timeout is None or total_timer.duration < args.timeout):
 
             # Sample the Gaussian process.
-            eta = dist.rvs()
+            z = np.random.normal(0, 1, args.n)
+            eta = transform_irfft(z, np.zeros_like(z), cov_rfft=cov_rfft)
             y = np.random.normal(eta, args.noise_scale)
 
             # Construct the nearest-neighbor graph.
@@ -81,7 +80,7 @@ def __main__(args: Optional[list[str]] = None) -> None:
             data = {
                 "n": args.n,
                 "num_dims": 1,
-                "X": X,
+                "X": np.arange(args.n)[:, None],
                 "y": y,
                 "sigma": args.sigma,
                 "length_scale": args.length_scale,
