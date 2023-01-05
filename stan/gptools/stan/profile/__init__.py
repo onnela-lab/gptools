@@ -3,7 +3,8 @@ import logging
 import numpy as np
 
 
-SIZES = 16 * 2 ** np.arange(9)
+SIZES = 16 * 2 ** np.arange(11)
+FOURIER_ONLY_SIZE_THRESHOLD = 16 * 2 ** 9
 LOG10_NOISE_SCALES = np.linspace(-1, 1, 7)
 PARAMETERIZATIONS = ["graph_centered", "graph_non_centered", "fourier_centered",
                      "fourier_non_centered", "standard_centered", "standard_non_centered"]

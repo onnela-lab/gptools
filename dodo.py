@@ -93,10 +93,14 @@ def add_profile_task(method: str, parameterization: str, log10_sigma: float, siz
 # Run different profiling configurations. We expect the centered parameterization to be better for
 # strong data and the non-centered parameterization to be better for weak data.
 try:
-    from gptools.stan.profile import LOG10_NOISE_SCALES, PARAMETERIZATIONS, SIZES
+    from gptools.stan.profile import FOURIER_ONLY_SIZE_THRESHOLD, LOG10_NOISE_SCALES, \
+        PARAMETERIZATIONS, SIZES
     with di.group_tasks("profile"):
         product = it.product(PARAMETERIZATIONS, LOG10_NOISE_SCALES, SIZES)
         for parameterization, log10_sigma, size in product:
+            # Only run Fourier methods if the size threshold is exceeded.
+            if size >= FOURIER_ONLY_SIZE_THRESHOLD and not parameterization.startswith("fourier"):
+                continue
             add_profile_task("sample", parameterization, log10_sigma, size)
         # Add variational inference.
         for parameterization, log10_sigma in it.product(PARAMETERIZATIONS, LOG10_NOISE_SCALES):
