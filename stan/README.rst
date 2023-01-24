@@ -1,14 +1,14 @@
 Scalable Gaussian process inference with *Stan*
 ===============================================
 
-.. image:: https://github.com/tillahoffmann/gptools/actions/workflows/main.yml/badge.svg
-    :target: https://github.com/tillahoffmann/gptools/actions/workflows/main.yml
+.. image:: https://github.com/onnela-lab/gptools/actions/workflows/main.yml/badge.svg
+    :target: https://github.com/onnela-lab/gptools/actions/workflows/main.yml
 .. image:: https://readthedocs.org/projects/gptools-stan/badge/?version=latest
     :target: https://gptools-stan.readthedocs.io/en/latest/?badge=latest
 .. image:: https://img.shields.io/pypi/v/gptools-stan
     :target: https://pypi.org/project/gptools-stan
 .. image:: https://img.shields.io/static/v1?label=&message=GitHub&color=gray&logo=github
-    :target: https://github.com/tillahoffmann/gptools
+    :target: https://github.com/onnela-lab/gptools
 
 .. toctree::
     :hidden:
@@ -60,4 +60,4 @@ from the command line. The library exposes a function :func:`gptools.stan.compil
     >>> model.name
     'getting_started'
 
-If you use `cmdstanr <https://mc-stan.org/cmdstanr/>`__ or another *Stan* `interface <https://mc-stan.org/users/interfaces/>`__, you can download the `library files from GitHub <https://github.com/tillahoffmann/gptools/tree/main/stan/gptools/stan/gptools>`__. Then add the library location to the compiler :code:`include_paths` as `described in the manual <https://mc-stan.org/docs/stan-users-guide/stanc-args.html>`__ (see `here <https://mc-stan.org/cmdstanr/reference/model-method-compile.html>`__ for cmdstanr instructions).
+If you use `cmdstanr <https://mc-stan.org/cmdstanr/>`__ or another *Stan* `interface <https://mc-stan.org/users/interfaces/>`__, you can download the `library files from GitHub <https://github.com/onnela-lab/gptools/tree/main/stan/gptools/stan/gptools>`__. Then add the library location to the compiler :code:`include_paths` as `described in the manual <https://mc-stan.org/docs/stan-users-guide/stanc-args.html>`__ (see `here <https://mc-stan.org/cmdstanr/reference/model-method-compile.html>`__ for cmdstanr instructions).

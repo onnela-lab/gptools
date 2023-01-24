@@ -2,7 +2,7 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it as below.
 title: Scalable Gaussian Process Inference with Stan
-url: "https://github.com/tillahoffmann/gptools"
+url: "https://github.com/onnela-lab/gptools"
 authors:
 - family-names: Hoffmann
   given-names: Till
