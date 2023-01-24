@@ -13,7 +13,7 @@ kernelspec:
 
 # Effect and importance of padding
 
-Contrary to most real-world scenarios, the fast Fourier transform and, consequently, {ref}`Fourier-methods` for Gaussian processes assume periodic boundary conditions. This peculiarity can be overcome by padding the domain. This example explores the effect and importance of padding for a simple Gaussian process model. We will draw a sample from a Gaussian process *without* periodic boundary conditions, $n$ observations, and squared exponential kernel with correlation length $\ell$. We will consider how well we can infer it using Fourier methods as a function of the amount of padding $q$ we use.
+Contrary to most real-world scenarios, the fast Fourier transform and, consequently, {ref}`Fourier-methods` for Gaussian processes assume periodic boundary conditions. This peculiarity can be overcome by padding the domain. This example explores the effect and importance of padding for a simple Gaussian process model. We will draw a sample from a Gaussian process *without* periodic boundary conditions, $n$ observations, and squared exponential kernel with correlation length $\ell$. We will consider how well we can infer it using Fourier methods as a function of the amount of padding $q$ we use. Padding may, in principle, be introduced anywhere because of the periodic boundary conditions. However, this library has only been tested with padding on the right, as illustrated in the example below.
 
 Before fitting GPs, let's visualize the kernel on finite domains with different paddings, i.e., we plot the correlation between a point at the origin and another position $x$.
 
