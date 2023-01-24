@@ -311,34 +311,6 @@ void assert_finite(complex_vector x) {
 // Real Fourier transforms -------------------------------------------------------------------------
 
 /**
-Evaluate the complex conjugate.
-*/
-complex conjugate(complex x) {
-    return get_real(x) - 1.0i * get_imag(x);
-}
-
-/**
-Evaluate the complex conjugate.
-*/
-complex_vector conjugate(complex_vector x) {
-    return get_real(x) - 1.0i * get_imag(x);
-}
-
-/**
-Evaluate the complex conjugate.
-*/
-complex_row_vector conjugate(complex_row_vector x) {
-    return get_real(x) - 1.0i * get_imag(x);
-}
-
-/**
-Evaluate the complex conjugate.
-*/
-complex_matrix conjugate(complex_matrix x) {
-    return get_real(x) - 1.0i * get_imag(x);
-}
-
-/**
 Compute the one-dimensional discrete Fourier transform for real input.
 
 :param y: Real signal with :code:`n` elements to transform.
@@ -360,7 +332,7 @@ complex_vector expand_rfft(complex_vector y, int n) {
     }
     int ncomplex = (n - 1) %/% 2;
     result[:nrfft] = y;
-    result[nrfft + 1:n] = conjugate(reverse(y[2:1 + ncomplex]));
+    result[nrfft + 1:n] = conj(reverse(y[2:1 + ncomplex]));
     return result;
 }
 
@@ -404,7 +376,7 @@ matrix inv_rfft2(complex_matrix z, int m) {
     x[:, 1:mrfft] = z[:, 1:mrfft];
     // Fill redundant values.
     for (i in 1:n) {
-        x[i, mrfft + 1:m] = conjugate(reverse(z[i, 2:1 + mcomplex]));
+        x[i, mrfft + 1:m] = conj(reverse(z[i, 2:1 + mcomplex]));
     }
     // Reverse the order to account for negative frequencies.
     for (i in mrfft + 1:mrfft + mcomplex) {
