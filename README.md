@@ -1,4 +1,4 @@
-# gptools: performant Gaussian processes in [Stan](https://mc-stan.org) and [pytorch](https://pytorch.org) [![CI](https://github.com/tillahoffmann/gptools/actions/workflows/main.yml/badge.svg)](https://github.com/tillahoffmann/gptools/actions/workflows/main.yml)
+# gptools: performant Gaussian processes in [Stan](https://mc-stan.org) and [pytorch](https://pytorch.org) [![CI](https://github.com/onnela-lab/gptools/actions/workflows/main.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/main.yml)
 
 This collection of packages provides tools for performant inference of Gaussian processes.
 

@@ -55,7 +55,7 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
           skip_existing: true
       - name: Upload the package to pypi on `main` only
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'tillahoffmann'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'onnela-lab'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
