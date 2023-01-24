@@ -44,7 +44,7 @@ fig.tight_layout()
 
 The correlation between opposite sides of the domain is *very* strong without padding, appreciable for padding with one or two correlation lengths $\ell$, and becomes small when we pad with three or more correlation lengths.
 
-We will draw a Gaussian process sample $f$ without periodic boundary conditions and use a normal observation model $y\sim\mathsf{Normal}\left(y,\kappa^2\right)$, where $\kappa^2$ is the observation variance. We fit the model using two methods: First, the exact but slow model without periodic boundary conditions. Second, a model using Fourier methods with different amounts of padding. We fit all models using the {func}`cmdstanpy.CmdStanModel.optimize` method to avoid discrepancies between different fits that arise purely by chance as a result of drawing posterior samples.
+We will draw a Gaussian process sample $f$ without periodic boundary conditions and use a normal observation model $y\sim\mathsf{Normal}\left(y,\kappa^2\right)$, where $\kappa^2$ is the observation variance. We fit the model using two methods: First, the exact but slow model without periodic boundary conditions. Second, a model using Fourier methods with different amounts of padding. We fit all models using the {meth}`cmdstanpy.CmdStanModel.optimize` method to avoid discrepancies between different fits that arise purely by chance as a result of drawing posterior samples.
 
 ```{code-cell} ipython3
 # Pick a seed that generates a sample with different values at opposite sides of the domain.
