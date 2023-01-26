@@ -214,48 +214,6 @@ void assert_close(matrix actual, real desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
-/**
-Ravel a matrix in the same order as numpy.
-*/
-vector ravel(matrix y) {
-    return to_vector(y');
-}
-
-/**
-Ravel a two-dimensional real array in the same order as numpy.
-*/
-array [] real ravel(array [,] real y) {
-    return to_array_1d(y);
-}
-
-/**
-Ravel a two-dimensional integer array in the same order as numpy.
-*/
-array [] int ravel(array [,] int y) {
-    return to_array_1d(y);
-}
-
-/**
-Reshape a vector in the same order as numpy.
-*/
-matrix reshape(vector y, int n, int m) {
-    return to_matrix(y, m, n)';
-}
-
-/**
-Reshape a vector in the same order as numpy.
-*/
-matrix reshape(row_vector y, int n, int m) {
-    return to_matrix(y, m, n)';
-}
-
-/**
-Reshape a matrix in the same order as numpy.
-*/
-matrix reshape(matrix y, int n, int m) {
-    return to_matrix(y', m, n)';
-}
-
 // Complex vectors ---------------------------------------------------------------------------------
 
 /**
@@ -293,20 +251,6 @@ void assert_close(complex_vector actual, complex desired) {
     assert_close(actual, desired, 1e-6, 0);
 }
 
-
-/**
-Assert that all elements of a complex vector are finite.
-
-:param: Vector to check.
-*/
-void assert_finite(complex_vector x) {
-    int n = size(x);
-    for (i in 1:n) {
-        if (!is_finite(x[i])) {
-            reject(x[i], " at index ", i, " is not finite");
-        }
-    }
-}
 
 // Real Fourier transforms -------------------------------------------------------------------------
 
@@ -383,12 +327,6 @@ matrix inv_rfft2(complex_matrix z, int m) {
         x[2:, i] = reverse(x[2:, i]);
     }
     return get_real(inv_fft2(x));
-}
-
-// Containers --------------------------------------------------------------------------------------
-
-matrix zeros_matrix(int m, int n) {
-    return rep_matrix(0, m, n);
 }
 
 // Conditional location and scale parameters for multivariate normal distributions -----------------
