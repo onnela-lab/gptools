@@ -39,6 +39,8 @@ source_suffix = {
 
 nb_execution_mode = "cache"
 nb_execution_timeout = 300  # Some examples take a while to compile and sample.
+nb_execution_allow_errors = False
+nb_execution_raise_on_error = True
 myst_enable_extensions = [
     "amsmath",
     "dollarmath",
