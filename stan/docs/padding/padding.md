@@ -103,7 +103,7 @@ The model for the second method is as follows.
 
 ```{code-cell} ipython3
 padded_model = compile_model(stan_file="padded.stan")
-padded_fits = {factor: padded_model.optimize(data | {"padding": length_scale * factor}) for factor 
+padded_fits = {factor: padded_model.optimize(data | {"padding": length_scale * factor}) for factor
                in padding_factors}
 
 fig, ax = plt.subplots()
@@ -120,4 +120,4 @@ ax.legend()
 fig.tight_layout()
 ```
 
-Ignoring the need to pad substantially affects the posterior inference, but we recover the exact MAP estimate well even if we pad with only two correlation lengths. In practice, we often don't know the correlation length ahead of time, and finding the "right" amount of padding that appropriately balances performance and the need for non-periodic boundary conditions may be an interative process. For example, we can start with a small amount of padding and increase it until the posterior inference no longer changes.
+Ignoring the need to pad substantially affects the posterior inference, but we recover the exact MAP estimate well even if we pad with only two correlation lengths. In practice, we often don't know the correlation length ahead of time, and finding the "right" amount of padding that appropriately balances performance and the need for non-periodic boundary conditions may be an iterative process. For example, we can start with a small amount of padding and increase it until the posterior inference no longer changes.
