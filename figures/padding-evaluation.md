@@ -15,7 +15,7 @@ kernelspec:
 
 ```{code-cell} ipython3
 import cmdstanpy
-from gptools.util.kernels import ExpQuadKernel
+from gptools.util.kernels import ExpQuadKernel, MaternKernel
 from gptools.stan import compile_model
 import logging
 import matplotlib as mpl
@@ -34,6 +34,11 @@ for handler in cmdstanpy_logger.handlers:
     handler.setLevel(logging.WARNING)
 ```
 
+```{raw-cell}
+# Convert this cell to a code cell to remove cached pickle files.
+!rm -f *.pkl
+```
+
 ```{code-cell} ipython3
 # Define hyperparameters and generate synthetic datasets.
 np.random.seed(0)
@@ -45,55 +50,64 @@ kappa = 1
 epsilon = 1e-5
 padding_factors = [0, 0.125, 0.25, 0.375, 0.5, 0.75, 1.0, 1.25, 1.5]
 
-# Evaluate the kernel and covariance.
-x = np.arange(n)
-kernel = ExpQuadKernel(sigma, length_scale)
-cov = kernel.evaluate(x[:, None]) + epsilon * np.eye(n)
 
+# Declare the kernels.
+x = np.arange(n)
+kernels = {
+    "ExpQuadKernel": ExpQuadKernel(sigma, length_scale),
+    "Matern32Kernel": MaternKernel(1.5, sigma, length_scale),
+}
+
+# Generate synthetic datasets.
 def sample(n, cov, kappa):
     """
-    Draw `n` saomples from the generative model with covariance `cov` and observation noise `kappa`.
+    Draw `n` samples from the generative model with covariance `cov` and observation noise `kappa`.
     """
     f = np.random.multivariate_normal(np.zeros(n), cov)
     y = np.random.normal(f, kappa)
     return f, y
 
-# Generate synthetic datasets.
-fs = []
-ys = []
-for _ in range(m):
-    f, y = sample(n, cov, kappa)
-    fs.append(f)
-    ys.append(y)
-    
-fs, ys = np.asarray([fs, ys])
+fs = {}
+ys = {}
+for key, kernel in kernels.items():
+    cov = kernel.evaluate(x[:, None]) + epsilon * np.eye(n)
+    for _ in range(m):
+        f, y = sample(n, cov, kappa)
+        fs.setdefault(key, []).append(f)
+        ys.setdefault(key, []).append(y)
 
-# Visualize one of the samples.
-fig, ax = plt.subplots()
+fs = {key: np.asarray(value) for key, value in fs.items()}
+ys = {key: np.asarray(value) for key, value in ys.items()}
+
+# Visualize one of the samples for each kernel.
+fig, axes = plt.subplots(1, 2, sharex=True, sharey=True)
 i = 0
-ax.plot(x, fs[i], label="Gaussian process $f$")
-ax.scatter(x, ys[i], label="target $y$", marker=".")
+for ax, key in zip(axes, fs):
+    ax.plot(x, fs[key][i], label="Gaussian process $f$")
+    ax.scatter(x, ys[key][i], label="target $y$", marker=".")
+    ax.set_xlabel("covariate $x$")
 ax.legend()
-ax.set_xlabel("covariate $x$")
 fig.tight_layout()
 ```
 
 ```{code-cell} ipython3
-# Fit the standard non-centered model to each dataset independently. We reuse the model from the profiling scripts.
+# Fit the standard non-centered model to each dataset independently.
 root = Path("../stan/docs/padding")
 standard_model = compile_model(stan_file=root / "exact.stan")
 fourier_model = compile_model(stan_file=root / "padded.stan")
 
 
-def get_fits(y):
-    # Fit the model (we, dirtily, take all the variables from the outer scope).
-    sample_kwargs = {
-        "iter_warmup": 500, 
-        "iter_sampling": 100, 
-        "chains": 1,
-        "show_progress": False,
-        "seed": 0,
-    }
+def get_fit(model, y, kernel, padding=0):
+    if isinstance(kernel, ExpQuadKernel):
+        kernel = 0
+    elif isinstance(kernel, MaternKernel):
+        kernel = 1
+    else:
+        raise ValueError(kernel)
+
+    if padding != int(padding):
+        raise ValueError("non-integer padding")
+
     data = {
         "x": x,
         "num_observations": n,
@@ -103,97 +117,120 @@ def get_fits(y):
         "sigma": sigma,
         "kappa": kappa,
         "epsilon": epsilon,
+        "padding": int(padding),
+        "kernel": kernel,
     }
-    fits = {}
-    for factor in padding_factors:
-        padding = factor * length_scale
-        if padding != int(padding):
-            raise ValueError("non-integer padding")
-        fits[factor] = fourier_model.sample(data | {"padding": int(padding)}, **sample_kwargs)
-    fits["std"] = standard_model.sample(data, **sample_kwargs)
-    return fits
+    return model.sample(data, iter_warmup=500, iter_sampling=100, chains=1,
+                        show_progress=False, seed=0)
 
+statistics_by_kernel = {}
+for key, kernel in kernels.items():
+    # Naive caching for log pdfs and ranks.
+    filename = f"padding-cache-{key}-{m}.pkl"
+    try:
+        with open(filename, "rb") as fp:
+            statistics_by_kernel[key] = pickle.load(fp)
+        print(f"loaded results from {filename}")
+    except FileNotFoundError:
+        for y, f in tqdm(zip(ys[key], fs[key]), desc=key, total=m):
+            # Get the fits for different models.
+            fits = {"exact": get_fit(standard_model, y, kernel)}
+            for factor in padding_factors:
+                fits[factor] = get_fit(fourier_model, y, kernel, length_scale * factor)
 
-try:  # Cheap caching.
-    with open("padding-cache.pkl", "rb") as fp:
-        logpds_by_padding = pickle.load(fp)
-except FileNotFoundError:
-    logpds_by_padding = {}
-    for f, y in tqdm(zip(fs, ys), total=m):
-        fits = get_fits(y)
-        # Let's evaluate the log posterior density for the held out point using a KDE.
-        for key, fit in fits.items():
-            # Pick n - 1 rather than - 1 because padding changes the length.
-            kde = gaussian_kde(fit.f[:, n - 1])
-            logpds_by_padding.setdefault(key, []).append(float(kde.logpdf(f[-1])))
+            # Compute the posterior density at the held out data point and its rank for each fit.
+            statistics_by_kernel.setdefault(key, []).append({
+                "lpds": {
+                    key: gaussian_kde(fit.f[:, n - 1]).logpdf(f[n - 1]).squeeze()
+                    for key, fit in fits.items()
+                },
+                "ranks": {
+                    key: np.sum(fit.f[:, n - 1] < f[n - 1])
+                    for key, fit in fits.items()
+                },
+            })
+        # Save the results.
+        with open(filename, "wb") as fp:
+            pickle.dump(statistics_by_kernel[key], fp)
+```
 
-    logpds_by_padding = {key: np.asarray(value) for key, value in logpds_by_padding.items()}
-    with open("padding-cache.pkl", "wb") as fp:
-        pickle.dump(logpds_by_padding, fp)
+```{code-cell} ipython3
+# Transpose the data for plotting. This isn't pretty but gets the job done.
+transposed = {}
+
+for key, statistics in statistics_by_kernel.items():
+    result = {}
+    for record in statistics:
+        for stat, values in record.items():
+            result.setdefault(stat, []).append(list(values.values()))
+    transposed[key] = {key: np.asarray(value) for key, value in result.items()}
 ```
 
 ```{code-cell} ipython3
 # Show an example. We sample with a seed to align legends around the plot and pick an example
 # that excacerbates the effect of periodic boundary conditions.
 np.random.seed(1)
-f, y = sample(n, cov, kappa)
-fits = get_fits(y)
+kernel = kernels["ExpQuadKernel"]
+f, y = sample(n, kernel.evaluate(x[:, None]), kappa)
+fits = {"exact": get_fit(standard_model, y, kernel)}
+for factor in padding_factors:
+    fits[factor] = get_fit(fourier_model, y, kernel, length_scale * factor)
 ```
 
 ```{code-cell} ipython3
-fig = plt.figure()
-gs = fig.add_gridspec(2, 2, width_ratios=[3, 2])
-
-ax = axeval = fig.add_subplot(gs[:, 1])
-# Show the posterior density evaluation.
-
-l = logpds_by_padding["std"].mean()
-s = logpds_by_padding["std"].std() / np.sqrt(m - 1)
-line = ax.axhline(l, color="C0", label="standard")
-ax.axhspan(l - s, l + s, color=line.get_color(), alpha=0.2)
-
-vals = np.asarray([value for key, value in logpds_by_padding.items() if key != "std"]).T
-logpds = vals.mean(axis=0)
-ax.errorbar(padding_factors, logpds, vals.std(axis=0) / np.sqrt(m - 1), 
-            label="padded Fourier", color="#666666", ls=":", marker="o", markeredgecolor="w")
-
-ax.set_xlabel(r"padding factor $w/\ell$")
-ax.set_ylabel(r"posterior density $p\left(f_n\mid y_{<n}\right)$")
-ax.legend(loc="center right", fontsize="small")
+fig, axes = plt.subplots(2, 2, sharex="col")
 
 # Show an example.
-ax = ax1 = fig.add_subplot(gs[0, 0])
+ax = axes[0, 0]
 ax.plot(x, f, color="k", label="latent GP $f$")
 pts = ax.scatter(x, y, marker=".", color="k", label="data $y$")
 plt.setp(ax.xaxis.get_ticklabels(), visible=False)
 ax.legend(loc="upper right", fontsize="small")
 
-ax = ax2 = fig.add_subplot(gs[1, 0], sharex=ax, sharey=ax)
+ax = axes[1, 0]
 ax.plot(x, f, color="k")
-keys = ["std", 0, 0.5, 1.0]
+keys = ["exact", 0, 0.5, 1.0]
 for i, key in enumerate(keys):
     color = f"C{i}"
     l = fits[key].f.mean(axis=0)
-    label = "exact" if key == "std" else fr"$w/\ell={key:.2f}$"
+    label = key if key == "exact" else fr"$w/\ell={key:.2f}$"
     ax.plot(np.arange(l.size), l, color=color, label=label, alpha=0.7)
-    if key != "std":
-        axeval.scatter(key, logpds[padding_factors.index(key)], color=color, 
-                       edgecolor="w", zorder=9)
 ax.set_xlabel("covariate $x$")
 ax.legend(fontsize="small", ncol=2, loc="upper center")
 
-for ax in [ax1, ax2]:
+for ax in axes[:, 0]:
     poly = ax.axvspan(n, 2 * n, facecolor="silver", alpha=0.2)
     poly.remove()
     ax.relim()
     ax.add_artist(poly)
-    ax.text((n + ax.get_xlim()[1]) / 2, -1, "padding", ha="center", va="center", 
+    ax.text((n + ax.get_xlim()[1]) / 2, -1, "padding", ha="center", va="center",
             rotation=90, color="gray")
-ax.set_ylim(top=2)
+    ax.set_ylim(-2.5, 2.0)
 
-ax1.text(0.05, 0.05, "(a)", transform=ax1.transAxes)
-ax2.text(0.05, 0.05, "(b)", transform=ax2.transAxes)
-axeval.text(0.95, 0.05, "(c)", transform=axeval.transAxes, ha="right")
+# Show the evaluation for the two types of kernels.
+for ax, (key, statistics) in zip(axes[:, 1], transposed.items()):
+    lpds = statistics["lpds"]
+    l = lpds.mean(axis=0)
+    s = lpds.std(axis=0) / np.sqrt(m - 1)
+    line = ax.axhline(l[0], label="exact")
+    ax.axhspan(l[0] - s[0], l[0] + s[0], alpha=0.2, color=line.get_color())
+    ax.errorbar(padding_factors, l[1:], s[1:], marker="o", markeredgecolor="w",
+                color="gray", ls=":", label="padded Fourier")
+
+    # Add the markers visualized in the example.
+    if key == "ExpQuadKernel":
+        for i, key in enumerate(keys[1:], 1):
+            ax.scatter(key, l[padding_factors.index(key) + 1], zorder=9,
+                       color=f"C{i}", edgecolor="w")
+
+axes[1, 1].set_xlabel(r"padding factor $w/\ell$")
+axes[1, 1].set_ylabel(r"log posterior density $\log p\left(f_n\mid y_{<n}\right)$", y=1.15)
+axes[0, 1].legend(loc="center right", fontsize="small")
+
+axes[0, 0].text(0.05, 0.05, "(a)", transform=axes[0, 0].transAxes)
+axes[0, 1].text(0.95, 0.05, "(b)", transform=axes[0, 1].transAxes, ha="right")
+axes[1, 0].text(0.05, 0.05, "(c)", transform=axes[1, 0].transAxes)
+axes[1, 1].text(0.95, 0.05, "(d)", transform=axes[1, 1].transAxes, ha="right")
 
 fig.tight_layout()
 fig.savefig("padding.pdf", bbox_inches="tight")

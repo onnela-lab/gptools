@@ -79,15 +79,17 @@ The model for the first method is as follows.
 exact_model = compile_model(stan_file="exact.stan")
 data = {
     "num_observations": num_observations,
-    # We don't use this feature here but consider it in the proper assessment of padding effects
-    # to hold out data. See figures/padding-evaluation.md for details.
-    "observe_first": num_observations,
     "x": x,
     "y": y,
     "kappa": kappa,
     "sigma": sigma,
     "length_scale": length_scale,
     "epsilon": 1e-9,
+    # We don't use this feature here but consider it in the proper assessment of padding effects
+    # to hold out data. See figures/padding-evaluation.md for details.
+    "observe_first": num_observations,
+    # We only use the squared exponential kernel. See figures/padding-evaluation.md for details.
+    "kernel": 0,
 }
 exact_fit = exact_model.optimize(data)
 
