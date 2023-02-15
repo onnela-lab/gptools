@@ -4,14 +4,14 @@ functions {
 }
 
 data {
-    int num_observations, padding;
+    int num_observations, padding, observe_first;
     vector[num_observations] y;
-    real<lower=0> kappa, length_scale, epsilon;
+    real<lower=0> kappa, length_scale, epsilon, sigma;
 }
 
 transformed data {
     int num = num_observations + padding;
-    vector[num %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(num, 1, length_scale, num)
+    vector[num %/% 2 + 1] cov_rfft = gp_periodic_exp_quad_cov_rfft(num, sigma, length_scale, num)
         + epsilon;
 }
 
@@ -25,5 +25,5 @@ transformed parameters {
 
 model {
     z ~ normal(0, 1);
-    y ~ normal(f[:num_observations], kappa);
+    y[:observe_first] ~ normal(f[:observe_first], kappa);
 }
