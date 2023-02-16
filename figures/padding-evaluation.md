@@ -21,9 +21,10 @@ import logging
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 from pathlib import Path
 import pickle
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, kstest
 from tqdm.notebook import tqdm
 
 mpl.style.use("../jss.mplstyle")
@@ -49,6 +50,7 @@ length_scale = 16
 kappa = 1
 epsilon = 1e-5
 padding_factors = [0, 0.125, 0.25, 0.375, 0.5, 0.75, 1.0, 1.25, 1.5]
+iter_sampling = 100
 
 
 # Declare the kernels.
@@ -120,7 +122,7 @@ def get_fit(model, y, kernel, padding=0):
         "padding": int(padding),
         "kernel": kernel,
     }
-    return model.sample(data, iter_warmup=500, iter_sampling=100, chains=1,
+    return model.sample(data, iter_warmup=500, iter_sampling=iter_sampling, chains=1,
                         show_progress=False, seed=0)
 
 statistics_by_kernel = {}
@@ -234,4 +236,15 @@ axes[1, 1].text(0.95, 0.05, "(d)", transform=axes[1, 1].transAxes, ha="right")
 
 fig.tight_layout()
 fig.savefig("padding.pdf", bbox_inches="tight")
+```
+
+```{code-cell} ipython3
+# For simulation-based calibration, we compare the ranks of the true value within the posterior
+# samples with a uniform distribution using the Kolmogorov Smirnov test and report the pvalue.
+pd.DataFrame({
+    "padding_factors": ["exact"] + padding_factors,
+} | {
+    key: [kstest(rank, "randint", (0, iter_sampling + 1)).pvalue for rank in stats["ranks"].T] 
+    for key, stats in transposed.items()
+}).round(3)
 ```
