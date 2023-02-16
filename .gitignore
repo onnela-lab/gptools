@@ -144,3 +144,4 @@ workspace/
 .jupyter_cache
 *.pdf
 *.png
+*.pkl

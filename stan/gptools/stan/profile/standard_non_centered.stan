@@ -13,7 +13,8 @@ parameters {
 transformed parameters {
     vector[n] eta;
     {
-        matrix[n, n] chol = cholesky_decompose(gp_exp_quad_cov(X, sigma, length_scale));
+        matrix[n, n] chol = cholesky_decompose(
+            add_diag(gp_exp_quad_cov(X, sigma, length_scale), epsilon));
         eta = chol * eta_;
     }
 }
