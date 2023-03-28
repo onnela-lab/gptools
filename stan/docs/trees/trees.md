@@ -42,7 +42,6 @@ The FFT assumes periodic boundary conditions, but, of course, these do not apply
    :language: stan
 ```
 
-
 ```{code-cell} ipython3
 from gptools.stan import compile_model
 import os

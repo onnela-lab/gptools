@@ -152,12 +152,12 @@ import matplotlib as mpl
 
 fig, axes = plt.subplots(2, 2, gridspec_kw={"width_ratios": [2, 1]}, figsize=(6, 6))
 ax1, ax2 = axes[:, 0]
-cmap = mpl.cm.viridis.copy()
-cmap.set_under("gray")
 kwargs = {"marker": "o", "s": 10}
 
-pts1 = ax1.scatter(*X.T, c=np.where(train_mask, y, 0.1), norm=mpl.colors.LogNorm(vmin=np.min(y)),
-                   **kwargs, cmap=cmap)
+
+ax1.scatter(*X[~train_mask].T, facecolor="w", edgecolor="gray", **kwargs)
+pts1 = ax1.scatter(*X[train_mask].T, c=y[train_mask], norm=mpl.colors.LogNorm(vmin=np.min(y)),
+                   **kwargs)
 
 c = fit_with_gp.stan_variable("f").mean(axis=0)
 vmax = np.abs(c).max()
