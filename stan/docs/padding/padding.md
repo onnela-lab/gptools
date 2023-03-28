@@ -27,6 +27,7 @@ import numpy as np
 # Declare the number of observations, correlation lengths, and the paddings we want to consider.
 num_observations = 128
 length_scale = 16
+sigma = 1
 padding_factors = np.arange(5)
 
 # Then show the kernels with periodic boundary conditions.
@@ -52,7 +53,7 @@ np.random.seed(1)
 
 # Generate a Gaussian process sample.
 x = np.arange(num_observations)
-kernel = ExpQuadKernel(1, length_scale)
+kernel = ExpQuadKernel(sigma, length_scale)
 cov = kernel.evaluate(x[:, None])
 f = np.random.multivariate_normal(np.zeros_like(x), cov)
 
@@ -81,8 +82,14 @@ data = {
     "x": x,
     "y": y,
     "kappa": kappa,
+    "sigma": sigma,
     "length_scale": length_scale,
     "epsilon": 1e-9,
+    # We don't use this feature here but consider it in the proper assessment of padding effects
+    # to hold out data. See figures/padding-evaluation.md for details.
+    "observe_first": num_observations,
+    # We only use the squared exponential kernel. See figures/padding-evaluation.md for details.
+    "kernel": 0,
 }
 exact_fit = exact_model.optimize(data)
 
