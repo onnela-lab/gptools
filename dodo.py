@@ -175,8 +175,17 @@ for notebook in Path.cwd().glob("figures/*.md"):
             env={"WORKSPACE": workspace}
         ),
     ]
+    # The profile target only exists for the Stan module.
+    task_dep = []
+
+    if name == "profile":
+        try:
+            import gptools.stan  # noqa: F401
+            task_dep = ["profile"]
+        except ModuleNotFoundError:
+            pass
     manager(basename="figures", name=name, file_dep=[notebook], targets=[pdf, html],
-            actions=actions, task_dep=["profile"] if name == "profile" else [])
+            actions=actions, task_dep=task_dep)
 
 # Meta target to generate all results for Stan.
 manager(basename="results", name="stan", task_dep=["profile", "docs:stan", "figures"])
