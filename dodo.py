@@ -1,9 +1,10 @@
 import doit_interface as di
 from doit_interface.actions import SubprocessAction
 import itertools as it
-import pathlib
+import os
+from pathlib import Path
 
-
+workspace = Path(os.environ.get("WORKSPACE", "workspace")).resolve()
 manager = di.Manager.get_instance()
 
 # Prevent each process from parallelizing which can lead to competition across processes.
@@ -18,7 +19,7 @@ modules = ["stan", "torch", "util"]
 requirements_txt = []
 for module in modules:
     # Generate requirement files.
-    prefix = pathlib.Path(module)
+    prefix = Path(module)
     target = prefix / "test_requirements.txt"
     requirements_in = prefix / "test_requirements.in"
     manager(
@@ -39,15 +40,15 @@ for module in modules:
     ])
     # Documentation and doctests.
     rm_build_action = f"rm -rf {module}/docs/_build"
-    action = SubprocessAction(f"sphinx-build -n -W . {module}/docs/_build",
+    action = SubprocessAction(f"sphinx-build -n -W . {workspace}/docs/{module}",
                               env={"PROJECT": module})
     manager(basename="docs", name=module, actions=[rm_build_action, action])
-    action = SubprocessAction(f"sphinx-build -b doctest . {module}/docs/_build",
+    action = SubprocessAction(f"sphinx-build -b doctest . {workspace}/docs/{module}",
                               env={"PROJECT": module})
     manager(basename="doctest", name=module, actions=[rm_build_action, action])
 
     # Compile example notebooks to create html reports.
-    for path in pathlib.Path.cwd().glob(f"{module}/**/*.ipynb"):
+    for path in Path.cwd().glob(f"{module}/**/*.ipynb"):
         exclude = [".ipynb_checkpoints", "jupyter_execute", ".jupyter_cache"]
         if any(x in path.parts for x in exclude):
             continue
@@ -71,7 +72,7 @@ def add_profile_task(method: str, parameterization: str, log10_sigma: float, siz
                      max_chains: int = 20, timeout: float = 60, iter_sampling: int = 100,
                      train_frac: float = 1, suffix: str = ""):
     name = f"log10_noise_scale-{log10_sigma:.3f}_size-{size}{suffix}"
-    target = f"workspace/profile/{method}/{parameterization}/{name}.pkl"
+    target = workspace / f"profile/{method}/{parameterization}/{name}.pkl"
     args = [
         "python", "-m", "gptools.stan.profile", method, parameterization, 10 ** log10_sigma, target,
         f"--iter_sampling={iter_sampling}", f"--n={size}", f"--max_chains={max_chains}",
@@ -85,7 +86,7 @@ def add_profile_task(method: str, parameterization: str, log10_sigma: float, siz
         "profile/data.stan",
         f"profile/{parameterization}.stan",
     ]
-    prefix = pathlib.Path("stan/gptools/stan")
+    prefix = Path("stan/gptools/stan")
     manager(basename=f"profile/{method}/{parameterization}", name=name, actions=[args],
             targets=[target], file_dep=[prefix / x for x in file_dep])
 
@@ -157,3 +158,25 @@ with di.defaults(basename="tube"):
     target = "data/tube.json"
     manager(name="graph", targets=[target], file_dep=[entry_exit_target],
             actions=[["$!", "data/construct_tube_network.py", entry_exit_target, target]])
+
+
+# Produce dedicated figures that aren't part of the documentation.
+for notebook in Path.cwd().glob("figures/*.md"):
+    # First use jupytext to convert to a classic notebook. Then execute.
+    name = notebook.with_suffix("").name
+    ipynb = notebook.with_suffix(".tmp.ipynb")
+    pdf = workspace / f"{name}.pdf"
+    html = workspace / f"{name}.tmp.html"
+    actions = [
+        f"jupytext --from md --to ipynb --output {ipynb} {notebook}",
+        SubprocessAction(
+            f"jupyter nbconvert --execute --ExecutePreprocessor.timeout=-1 --to=html "
+            f"--output-dir={workspace} {ipynb}",
+            env={"WORKSPACE": workspace}
+        ),
+    ]
+    manager(basename="figures", name=name, file_dep=[notebook], targets=[pdf, html],
+            actions=actions, task_dep=["profile"] if name == "profile" else [])
+
+# Meta target to generate all results for Stan.
+manager(basename="results", name="stan", task_dep=["profile", "docs:stan", "figures"])

@@ -17,6 +17,10 @@ from gptools.util.fft.fft1 import transform_irfft, evaluate_rfft_scale
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
+import os
+from pathlib import Path
+
+workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
 
 
 mpl.style.use("../jss.mplstyle")
@@ -82,6 +86,6 @@ for ax in [axes[0, 0], *axes[1]]:
     ax.xaxis.set_ticks([0, 0.5, 1])
 
 fig.tight_layout()
-fig.savefig("kernels.pdf", bbox_inches="tight")
-fig.savefig("kernels.png", bbox_inches="tight")
+fig.savefig(workspace / "kernels.pdf", bbox_inches="tight")
+fig.savefig(workspace / "kernels.png", bbox_inches="tight")
 ```

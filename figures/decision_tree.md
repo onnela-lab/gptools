@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -15,6 +15,10 @@ kernelspec:
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
+import os
+from pathlib import Path
+
+workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
 
 
 mpl.style.use("../jss.mplstyle")
@@ -90,6 +94,6 @@ ax.set_axis_off()
 ax.text(-1, 0, "(a)", ha="center", va="center")
 ax.text(1.8, 0, "(b)", ha="center", va="center")
 fig.tight_layout()
-fig.savefig("decision_tree.pdf", bbox_inches="tight")
-fig.savefig("decision_tree.png", bbox_inches="tight")
+fig.savefig(workspace / "decision_tree.pdf", bbox_inches="tight")
+fig.savefig(workspace / "decision_tree.png", bbox_inches="tight")
 ```

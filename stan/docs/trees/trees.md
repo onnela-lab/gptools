@@ -16,8 +16,13 @@ kernelspec:
 Trees on 50 ha plot on [Barro Colorado Island](https://en.wikipedia.org/wiki/Barro_Colorado_Island) have been [censused regularly since 1982](https://datadryad.org/stash/dataset/doi:10.15146/5xcp-0d46). The data are publicly available, and we use them here for a demonstration of a Gaussian process using the two-dimensional fast Fourier transform. For a given species, the data comprise the frequency $y$ of trees in each of 20 by 20 meter quadrants. For this example, we pick *T. panamensis* because its distribution is relatively heterogeneous over the plot. We load and visualize the data below.
 
 ```{code-cell} ipython3
-import numpy as np
 from matplotlib import pyplot as plt
+import numpy as np
+import os
+from pathlib import Path
+
+workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
+
 
 # Load the matrix of tree frequencies.
 species = "tachve"
@@ -174,7 +179,6 @@ Let's assemble the parts to produce the figure in the accompanying publication.
 ```{code-cell} ipython3
 import matplotlib as mpl
 
-
 cmap = mpl.cm.viridis.copy()
 cmap.set_under("silver")
 kwargs = {
@@ -226,6 +230,6 @@ ax2.text(0, 0.5, "(c)", transform=text.get_transform(), ha="right", va="center")
 ax3.text(0.05, 0.95, "(b)", va="top", transform=ax3.transAxes)
 ax4.text(0.05, 0.95, "(d)", va="top", transform=ax4.transAxes)
 
-fig.savefig("trees.pdf", bbox_inches="tight")
-fig.savefig("trees.png", bbox_inches="tight")
+fig.savefig(workspace / "trees.pdf", bbox_inches="tight")
+fig.savefig(workspace / "trees.png", bbox_inches="tight")
 ```
