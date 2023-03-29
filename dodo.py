@@ -180,7 +180,7 @@ for notebook in Path.cwd().glob("figures/*.md"):
 
     if name == "profile":
         try:
-            import gptools.stan  # noqa: F401
+            import gptools.stan as _  # noqa: F401
             task_dep = ["profile"]
         except ModuleNotFoundError:
             pass
@@ -188,4 +188,8 @@ for notebook in Path.cwd().glob("figures/*.md"):
             actions=actions, task_dep=task_dep)
 
 # Meta target to generate all results for Stan.
-manager(basename="results", name="stan", task_dep=["profile", "docs:stan", "figures"])
+try:
+    import gptools.stan as _  # noqa: F401, F811
+    manager(basename="results", name="stan", task_dep=["profile", "docs:stan", "figures"])
+except ModuleNotFoundError:
+    pass
