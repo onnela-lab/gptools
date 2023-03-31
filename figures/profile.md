@@ -26,6 +26,9 @@ import pandas as pd
 import re
 from scipy import stats
 import types
+from pathlib import Path
+
+workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
 
 mpl.style.use("../jss.mplstyle")
 fig_width, fig_height = mpl.rcParams["figure.figsize"]
@@ -41,7 +44,7 @@ timeout = set()
 shape = (len(LOG10_NOISE_SCALES), len(SIZES))
 
 for parameterization, log_noise_scale, size in product:
-    filename = f"../workspace/profile/sample/{parameterization}/" \
+    filename = workspace / f"profile/sample/{parameterization}/" \
        f"log10_noise_scale-{log_noise_scale:.3f}_size-{size}.pkl"
     if os.path.isfile(filename):
         with open(filename, "rb") as fp:
@@ -104,7 +107,7 @@ product = it.product(methods, parameterizations, LOG10_NOISE_SCALES)
 lps = {}
 for method, parameterization, log_noise_scale in product:
     suffix = "-train-test"  if method == "sample" else ""
-    filename = f"../workspace/profile/{method}/{parameterization}/" \
+    filename = workspace / f"profile/{method}/{parameterization}/" \
         f"log10_noise_scale-{log_noise_scale:.3f}_size-{size}{suffix}.pkl"
     lps.setdefault((method, parameterization), []).append(load_lps(filename))
 
@@ -301,8 +304,8 @@ cax.set_ylabel("size $n$", fontsize="small", rotation=0, ha="right", va="center"
 for ax in [ax1, ax2]:
     ax.axhline(timeout, ls=":", color="k", zorder=0)
 
-fig.savefig("scaling.pdf", bbox_inches="tight")
-fig.savefig("scaling.png", bbox_inches="tight")
+fig.savefig(workspace / "profile.pdf", bbox_inches="tight")
+fig.savefig(workspace / "profile.png", bbox_inches="tight")
 ```
 
 ```{code-cell} ipython3
@@ -318,7 +321,7 @@ np.polynomial.Polynomial.fit(np.log(SIZES[f][-3:]), np.log(y[f][-3:]), 1).conver
 ```{code-cell} ipython3
 # Report the runtimes for 10k observations.
 for parameterization in ["fourier_centered", "fourier_non_centered"]:
-    filename = f"../workspace/profile/sample/{parameterization}/" \
+    filename = workspace / f"profile/sample/{parameterization}/" \
         "log10_noise_scale-0.000_size-10000.pkl"
     with open(filename, "rb") as fp:
         result = pickle.load(fp)

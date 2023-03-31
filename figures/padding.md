@@ -21,12 +21,14 @@ import logging
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 import pandas as pd
 from pathlib import Path
 import pickle
 from scipy.stats import gaussian_kde, kstest
 from tqdm.notebook import tqdm
 
+workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
 mpl.style.use("../jss.mplstyle")
 
 # Disable cmdstan logging because we have a lot of fits.
@@ -128,7 +130,7 @@ def get_fit(model, y, kernel, padding=0):
 statistics_by_kernel = {}
 for key, kernel in kernels.items():
     # Naive caching for log pdfs and ranks.
-    filename = f"padding-cache-{key}-{m}.pkl"
+    filename = workspace / f"padding-cache-{key}-{m}.pkl"
     try:
         with open(filename, "rb") as fp:
             statistics_by_kernel[key] = pickle.load(fp)
@@ -235,7 +237,8 @@ axes[1, 0].text(0.05, 0.05, "(c)", transform=axes[1, 0].transAxes)
 axes[1, 1].text(0.95, 0.05, "(d)", transform=axes[1, 1].transAxes, ha="right")
 
 fig.tight_layout()
-fig.savefig("padding.pdf", bbox_inches="tight")
+fig.savefig(workspace / "padding.pdf", bbox_inches="tight")
+fig.savefig(workspace / "padding.png", bbox_inches="tight")
 ```
 
 ```{code-cell} ipython3
