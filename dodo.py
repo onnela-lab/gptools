@@ -168,11 +168,11 @@ for notebook in Path.cwd().glob("figures/*.md"):
     pdf = workspace / f"{name}.pdf"
     html = workspace / f"{name}.tmp.html"
     actions = [
-        f"jupytext --from md --to ipynb --output {ipynb} {notebook}",
         SubprocessAction(
-            f"jupyter nbconvert --execute --ExecutePreprocessor.timeout=-1 --to=html "
+            f"jupytext --from md --to ipynb --output {ipynb} {notebook} "
+            f"&& jupyter nbconvert --execute --ExecutePreprocessor.timeout=-1 --to=html "
             f"--output-dir={workspace} {ipynb}",
-            env={"WORKSPACE": workspace}
+            env={"WORKSPACE": workspace}, shell=True,
         ),
     ]
     # The profile target only exists for the Stan module.
