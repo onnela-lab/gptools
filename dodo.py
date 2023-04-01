@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 workspace = Path(os.environ.get("WORKSPACE", "workspace")).resolve()
+fast = "CI" in os.environ
 manager = di.Manager.get_instance()
 
 # Prevent each process from parallelizing which can lead to competition across processes.
@@ -69,8 +70,11 @@ manager(basename="requirements", name="sync", file_dep=[target], actions=[["pip-
 
 
 def add_profile_task(method: str, parameterization: str, log10_sigma: float, size: int,
-                     max_chains: int = 20, timeout: float = 60, iter_sampling: int = 100,
+                     max_chains: int = None, timeout: float = None, iter_sampling: int = None,
                      train_frac: float = 1, suffix: str = ""):
+    timeout = timeout or (10 if fast else 60)
+    max_chains = max_chains or (2 if fast else 20)
+    iter_sampling = iter_sampling or (10 if fast else 100)
     name = f"log10_noise_scale-{log10_sigma:.3f}_size-{size}{suffix}"
     target = workspace / f"profile/{method}/{parameterization}/{name}.pkl"
     args = [

@@ -29,6 +29,7 @@ from scipy.stats import gaussian_kde, kstest
 from tqdm.notebook import tqdm
 
 workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
+fast = "CI" in os.environ
 mpl.style.use("../jss.mplstyle")
 
 # Disable cmdstan logging because we have a lot of fits.
@@ -45,14 +46,14 @@ for handler in cmdstanpy_logger.handlers:
 ```{code-cell} ipython3
 # Define hyperparameters and generate synthetic datasets.
 np.random.seed(0)
-m = 100
+m = 10 if fast else 100
+iter_sampling = 10 if fast else 100
 n = 128
 sigma = 1
 length_scale = 16
 kappa = 1
 epsilon = 1e-5
 padding_factors = [0, 0.125, 0.25, 0.375, 0.5, 0.75, 1.0, 1.25, 1.5]
-iter_sampling = 100
 
 
 # Declare the kernels.
@@ -124,7 +125,7 @@ def get_fit(model, y, kernel, padding=0):
         "padding": int(padding),
         "kernel": kernel,
     }
-    return model.sample(data, iter_warmup=500, iter_sampling=iter_sampling, chains=1,
+    return model.sample(data, iter_warmup=5 * iter_sampling, iter_sampling=iter_sampling, chains=1,
                         show_progress=False, seed=0)
 
 statistics_by_kernel = {}
@@ -247,7 +248,7 @@ fig.savefig(workspace / "padding.png", bbox_inches="tight")
 pd.DataFrame({
     "padding_factors": ["exact"] + padding_factors,
 } | {
-    key: [kstest(rank, "randint", (0, iter_sampling + 1)).pvalue for rank in stats["ranks"].T] 
+    key: [kstest(rank, "randint", (0, iter_sampling + 1)).pvalue for rank in stats["ranks"].T]
     for key, stats in transposed.items()
 }).round(3)
 ```
