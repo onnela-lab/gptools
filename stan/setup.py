@@ -13,7 +13,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/x-rst",
     packages=find_namespace_packages(),
-    version="0.1.1",
+    version="0.1.2",
     install_requires=[
         # Required because of a bug in how complex numbers are handled (see
         # https://github.com/stan-dev/cmdstanpy/pull/612).
