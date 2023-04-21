@@ -10,11 +10,11 @@ import pathlib
 import pickle
 import tabulate
 from tqdm import tqdm
-from typing import Optional
+from typing import List, Optional
 from . import PARAMETERIZATIONS, sample_and_load_fit
 
 
-def __main__(args: Optional[list[str]] = None) -> None:
+def __main__(args: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("method", help="inference method to use", choices={"sample", "variational"})
     parser.add_argument("parameterization", help="parameterization of the model",
@@ -141,9 +141,10 @@ def __main__(args: Optional[list[str]] = None) -> None:
     for fit, timeout in zip(result["fits"], result["timeouts"]):
         if not timeout:
             break
-    values = vars(args) | {
+    values = vars(args)
+    values.update({
         "duration": f"{timer.duration:.3f}",
-    }
+    })
     if args.method == "sample":
         values.update({
             "divergences": f"{fit.divergences.sum()} / {fit.num_draws_sampling} "

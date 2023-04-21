@@ -4,7 +4,7 @@ import numbers
 import numpy as np
 import pytest
 import re
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Tuple, Union
 
 
 @pytest.mark.parametrize("shape, ks", [
@@ -17,7 +17,7 @@ from typing import Literal, Optional, Union
 @pytest.mark.parametrize("bounds", graph.LatticeBounds)
 @pytest.mark.parametrize("compress", [False, True])
 def test_lattice_predecessors(
-        shape: tuple[int], ks: Union[int, tuple[int]], bounds: graph.LatticeBounds,
+        shape: Tuple[int], ks: Union[int, Tuple[int]], bounds: graph.LatticeBounds,
         compress: bool) -> None:
     predecessors = graph.lattice_predecessors(shape, ks, bounds, compress)
 
@@ -41,7 +41,7 @@ def test_lattice_predecessors(
     ((10, 6), 2, "invalid-shape", "'invalid-shape' is not a valid LatticeBounds"),
 ])
 def test_lattice_predecessors_invalid(
-        shape: tuple[int], ks: tuple[int], bounds: graph.LatticeBounds, match: str) -> None:
+        shape: Tuple[int], ks: Tuple[int], bounds: graph.LatticeBounds, match: str) -> None:
     with pytest.raises(ValueError, match=re.escape(match)):
         graph.lattice_predecessors(shape, ks, bounds=bounds)
 

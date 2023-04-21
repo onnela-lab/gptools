@@ -1,5 +1,4 @@
 import argparse
-import itertools as it
 import json
 import logging
 import networkx as nx
@@ -9,7 +8,7 @@ from pyproj import CRS, Transformer
 import re
 import requests
 from tqdm import tqdm
-from typing import Optional
+from typing import List, Optional
 
 
 BASE_URL = "https://api.tfl.gov.uk"
@@ -88,7 +87,7 @@ def encode_set(x: set) -> list:
     raise TypeError(type(x))
 
 
-def __main__(args: Optional[list[str]] = None) -> None:
+def __main__(args: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--app_key", help="TfL app key (see https://api-portal.tfl.gov.uk/faq for "
                         "details)")
@@ -110,7 +109,8 @@ def __main__(args: Optional[list[str]] = None) -> None:
     for line in lines:
         line_id = line["lineId"]
         for stop_point_sequence in line["stopPointSequences"]:
-            for stop_points in it.pairwise(stop_point_sequence["stopPoint"]):
+            for stop_points in zip(stop_point_sequence["stopPoint"],
+                                   stop_point_sequence["stopPoint"][1:]):
                 stop_ids = []
                 for station in stop_points:
                     zones = [int(zone) for zone in re.split(r"[/+]", station["zone"])]

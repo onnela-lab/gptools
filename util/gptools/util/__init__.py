@@ -4,7 +4,7 @@ import inspect
 import numpy as np
 import os
 import time
-from typing import Any, Callable, Iterable, Literal, Optional, Union
+from typing import Any, Callable, Iterable, Literal, Optional, Tuple, Union
 
 
 # This tricks pylance into thinking that the imports *could* happen for type checking.
@@ -71,7 +71,7 @@ class ArrayOrTensorDispatch:
 
     @ft.wraps(np.concatenate)
     def concatenate(self, arrays: Iterable[ArrayOrTensor],
-                    axis: Optional[Union[int, tuple[int]]] = None) -> ArrayOrTensor:
+                    axis: Optional[Union[int, Tuple[int]]] = None) -> ArrayOrTensor:
         if self.is_tensor(*arrays):
             import torch as th
             return th.concat(arrays, dim=axis)
@@ -202,7 +202,7 @@ def encode_one_hot(z: ArrayOrTensor, p: Optional[int] = None) -> ArrayOrTensor:
     return result
 
 
-def match_colorbar(cb: "Colorbar", ax: Optional["Axes"] = None) -> tuple[float]:
+def match_colorbar(cb: "Colorbar", ax: Optional["Axes"] = None) -> Tuple[float]:
     """
     Match the size of the colorbar with the size of the axes.
 

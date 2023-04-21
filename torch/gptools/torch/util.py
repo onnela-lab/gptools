@@ -1,11 +1,11 @@
 from __future__ import annotations
 import torch as th
 from torch.distributions import constraints
-from typing import Optional
+from typing import Dict, Optional, Type
 
 
-DistributionDict = dict[str, th.distributions.Distribution]
-TensorDict = dict[str, th.Tensor]
+DistributionDict = Dict[str, th.distributions.Distribution]
+TensorDict = Dict[str, th.Tensor]
 
 
 class ParameterizedDistribution(th.nn.Module):
@@ -20,7 +20,7 @@ class ParameterizedDistribution(th.nn.Module):
             gradients.
         **kwargs: Initial conditions of the distribution.
     """
-    def __init__(self, cls: type[th.distributions.Distribution], *,
+    def __init__(self, cls: Type[th.distributions.Distribution], *,
                  const: Optional[set[str]] = None, **kwargs: TensorDict):
         super().__init__()
         const = const or set()
@@ -51,7 +51,7 @@ class VariationalModel(th.nn.Module):
     Args:
         approximations: Variational factors approximating the posterior.
     """
-    def __init__(self, approximations: dict[str, ParameterizedDistribution]) -> None:
+    def __init__(self, approximations: Dict[str, ParameterizedDistribution]) -> None:
         super().__init__()
         self.approximations = th.nn.ModuleDict(approximations)
 

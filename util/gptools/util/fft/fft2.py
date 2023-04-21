@@ -1,5 +1,5 @@
 import math
-from typing import Optional
+from typing import Optional, Tuple
 from .. import ArrayOrTensor, ArrayOrTensorDispatch, mutually_exclusive_kwargs, \
     OptionalArrayOrTensor
 from .fft1 import pack_rfft, unpack_rfft
@@ -73,7 +73,7 @@ def evaluate_rfft2_scale(*, cov_rfft2: OptionalArrayOrTensor = None,
     return dispatch.sqrt(rfft2_scale)
 
 
-def unpack_rfft2(z: ArrayOrTensor, shape: tuple[int]) -> ArrayOrTensor:
+def unpack_rfft2(z: ArrayOrTensor, shape: Tuple[int]) -> ArrayOrTensor:
     """
     Unpack the Fourier coefficients of a two-dimensional real Fourier transform with shape
     :code:`(..., height, width // 2 + 1)` to a batch of matrices with shape

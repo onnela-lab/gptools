@@ -245,10 +245,12 @@ fig.savefig(workspace / "padding.png", bbox_inches="tight")
 ```{code-cell} ipython3
 # For simulation-based calibration, we compare the ranks of the true value within the posterior
 # samples with a uniform distribution using the Kolmogorov Smirnov test and report the pvalue.
-pd.DataFrame({
+values = {
     "padding_factors": ["exact"] + padding_factors,
-} | {
+}
+values.update({
     key: [kstest(rank, "randint", (0, iter_sampling + 1)).pvalue for rank in stats["ranks"].T]
     for key, stats in transposed.items()
-}).round(3)
+})
+pd.DataFrame(values).round(3)
 ```

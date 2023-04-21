@@ -6,19 +6,19 @@ import numpy as np
 import pytest
 from scipy import stats
 import torch as th
-from typing import Optional
+from typing import Optional, Tuple
 
 
 shapes = [(20,), (21,), (7, 9), (8, 9), (7, 8), (8, 6)]
 
 
 @pytest.fixture(params=shapes, ids=["-".join(map(str, shape)) for shape in shapes])
-def shape(request: pytest.FixtureRequest) -> tuple[int]:
+def shape(request: pytest.FixtureRequest) -> Tuple[int]:
     return request.param
 
 
 @pytest.fixture
-def data(shape: tuple[int]) -> dict:
+def data(shape: Tuple[int]) -> dict:
     ndim = len(shape)
     xs = coordgrid(*(np.arange(size) for size in shape))
     size = np.prod(shape)

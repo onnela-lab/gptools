@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from scipy.spatial.distance import cdist
 import torch as th
+from typing import Tuple
 
 
 @pytest.mark.parametrize("shape", [(7,), (2, 3)])
@@ -127,7 +128,7 @@ def test_matern_invalid_dof() -> None:
 
 @pytest.mark.parametrize("dof", [3 / 2, 5 / 2])
 @pytest.mark.parametrize("size", [500, (501,), (500, 502), (500, 501), (501, 500), (501, 503)])
-def test_matern_approximate_rfft(dof: float, size: tuple[int]) -> None:
+def test_matern_approximate_rfft(dof: float, size: Tuple[int]) -> None:
     sigma = 1.2
     shape = [size] if isinstance(size, int) else size
     ndim = len(shape)

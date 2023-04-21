@@ -1,7 +1,7 @@
 import cmdstanpy
 from cmdstanpy.model import OptionalPath
 import os
-from typing import Any, Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union
 
 
 def get_include() -> str:
@@ -14,8 +14,8 @@ def get_include() -> str:
 def compile_model(
         model_name: Optional[str] = None, stan_file: OptionalPath = None,
         exe_file: OptionalPath = None, compile: Union[bool, str] = True,
-        stanc_options: Optional[dict[str, Any]] = None,
-        cpp_options: Optional[dict[str, Any]] = None,
+        stanc_options: Optional[Dict[str, Any]] = None,
+        cpp_options: Optional[Dict[str, Any]] = None,
         user_header: OptionalPath = None, cls: Optional[Type] = None, **kwargs) \
             -> cmdstanpy.CmdStanModel:
     """

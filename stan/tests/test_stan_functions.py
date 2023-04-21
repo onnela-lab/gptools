@@ -7,10 +7,10 @@ import numpy as np
 import pathlib
 import pytest
 from scipy import stats
-from typing import Iterable, Optional, Union
+from typing import Dict, Iterable, List, Optional, Union
 
 
-CONFIGURATIONS: list[dict] = []
+CONFIGURATIONS: List[dict] = []
 
 
 def add_configuration(configuration: dict) -> dict:
@@ -36,8 +36,8 @@ def get_configuration_ids() -> Iterable[str]:
 
 
 def assert_stan_function_allclose(
-        stan_function: str, arg_types: dict[str, str], arg_values: dict[str, np.ndarray],
-        result_type: str, desired: Union[np.ndarray, list[np.ndarray]], atol: float = 1e-8,
+        stan_function: str, arg_types: Dict[str, str], arg_values: Dict[str, np.ndarray],
+        result_type: str, desired: Union[np.ndarray, List[np.ndarray]], atol: float = 1e-8,
         includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
         suffix: Optional[str] = None, raises: bool = False) -> None:
     """

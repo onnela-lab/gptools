@@ -5,11 +5,12 @@ import pytest
 import re
 import time
 import torch as th
+from typing import Tuple
 
 
 @pytest.mark.parametrize("shape", [(3,), (4, 5)])
 @pytest.mark.parametrize("ravel", [False, True])
-def test_coord_grid(shape: tuple[int], ravel: bool) -> None:
+def test_coord_grid(shape: Tuple[int], ravel: bool) -> None:
     xs = [np.arange(p) for p in shape]
     coords = util.coordgrid(*xs, ravel=ravel)
     if ravel:

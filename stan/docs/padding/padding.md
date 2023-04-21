@@ -110,8 +110,12 @@ The model for the second method is as follows.
 
 ```{code-cell} ipython3
 padded_model = compile_model(stan_file="padded.stan")
-padded_fits = {factor: padded_model.optimize(data | {"padding": length_scale * factor}) for factor
-               in padding_factors}
+data.update({"padding": length_scale * factor})
+padded_fits = {}
+for factor in padding_factors:
+    data.update({"padding": length_scale * factor})
+    padded_fits[factor] = padded_model.optimize(data)
+
 
 fig, ax = plt.subplots()
 ax.plot(x, f, label="ground truth", color="gray", zorder=9)

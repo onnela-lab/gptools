@@ -3,12 +3,13 @@ import numpy as np
 import pytest
 from scipy import stats
 import torch as th
+from typing import Tuple
 
 rfft2_shapes = [(4, 6), (4, 7), (5, 6), (5, 7)]
 
 
 @pytest.fixture(params=rfft2_shapes, ids=["-".join(map(str, shape)) for shape in rfft2_shapes])
-def rfft2_shape(request: pytest.FixtureRequest) -> tuple[int]:
+def rfft2_shape(request: pytest.FixtureRequest) -> Tuple[int]:
     return request.param
 
 
@@ -18,7 +19,7 @@ def rfft_num(request: pytest.FixtureRequest) -> int:
 
 
 @pytest.fixture(params=[(), (11,), (13, 11)])
-def batch_shape(request: pytest.FixtureRequest) -> tuple[int]:
+def batch_shape(request: pytest.FixtureRequest) -> Tuple[int]:
     return request.param
 
 
@@ -27,7 +28,7 @@ def test_log_prob_norm(use_torch: bool) -> None:
     np.testing.assert_allclose(stats.norm(0, 1).logpdf(x), fft.log_prob_stdnorm(x))
 
 
-def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torch: bool) -> None:
+def test_evaluate_log_prob_rfft(batch_shape: Tuple[int], rfft_num: int, use_torch: bool) -> None:
     x = np.linspace(0, 1, rfft_num, endpoint=False)
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
         + kernels.DiagonalKernel(0.1, 1)
@@ -48,7 +49,7 @@ def test_evaluate_log_prob_rfft(batch_shape: tuple[int], rfft_num: int, use_torc
     np.testing.assert_allclose(log_prob, log_prob_rfft)
 
 
-def test_transform_rfft_roundtrip(batch_shape: tuple[int], rfft_num: int, use_torch: bool) -> None:
+def test_transform_rfft_roundtrip(batch_shape: Tuple[int], rfft_num: int, use_torch: bool) -> None:
     x = np.linspace(0, 1, rfft_num, endpoint=False)
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
         + kernels.DiagonalKernel(0.1, 1)
@@ -71,7 +72,7 @@ def test_transform_rfft_roundtrip(batch_shape: tuple[int], rfft_num: int, use_to
     kernels.MaternKernel(1.5, np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.3),
     kernels.MaternKernel(2.5, np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.4),
 ])
-def test_evaluate_log_prob_rfft2(kernel: kernels.Kernel, batch_shape: tuple[int], rfft2_shape: int,
+def test_evaluate_log_prob_rfft2(kernel: kernels.Kernel, batch_shape: Tuple[int], rfft2_shape: int,
                                  use_torch: bool) -> None:
     xs = coordgrid(*(np.linspace(0, kernel.period, size, endpoint=False) for size in rfft2_shape))
     kernel = kernel + kernels.DiagonalKernel(1e-2, kernel.period)
@@ -94,7 +95,7 @@ def test_evaluate_log_prob_rfft2(kernel: kernels.Kernel, batch_shape: tuple[int]
     np.testing.assert_allclose(log_prob, log_prob_rfft)
 
 
-def test_pack_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, use_torch: bool) -> None:
+def test_pack_rfft2_roundtrip(batch_shape: Tuple[int], rfft2_shape: int, use_torch: bool) -> None:
     z = np.random.normal(0, 1, batch_shape + rfft2_shape)
     if use_torch:
         z = th.as_tensor(z)
@@ -112,7 +113,7 @@ def test_pack_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, use_tor
     np.testing.assert_allclose(z, x)
 
 
-def test_transform_rfft2_roundtrip(batch_shape: tuple[int], rfft2_shape: int, use_torch: bool) \
+def test_transform_rfft2_roundtrip(batch_shape: Tuple[int], rfft2_shape: int, use_torch: bool) \
         -> None:
     xs = coordgrid(*(np.linspace(0, 1, size, endpoint=False) for size in rfft2_shape))
     kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
