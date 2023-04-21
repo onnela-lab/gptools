@@ -49,7 +49,7 @@ def test_torch_evaluate_log_prob(data: dict, lstsq_driver: str) -> None:
 
     # Test for determinism by evaluating the log probability many times and comparing.
     log_probs = [gdist.log_prob(data["ys"]) for _ in range(100)]
-    for a, b in it.pairwise(log_probs):
+    for a, b in zip(log_probs[1:], log_probs):
         assert a.allclose(b)
 
 

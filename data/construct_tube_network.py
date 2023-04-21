@@ -1,5 +1,4 @@
 import argparse
-import itertools as it
 import json
 import logging
 import networkx as nx
@@ -110,7 +109,8 @@ def __main__(args: Optional[List[str]] = None) -> None:
     for line in lines:
         line_id = line["lineId"]
         for stop_point_sequence in line["stopPointSequences"]:
-            for stop_points in it.pairwise(stop_point_sequence["stopPoint"]):
+            for stop_points in zip(stop_point_sequence["stopPoint"],
+                                   stop_point_sequence["stopPoint"][1:]):
                 stop_ids = []
                 for station in stop_points:
                     zones = [int(zone) for zone in re.split(r"[/+]", station["zone"])]
