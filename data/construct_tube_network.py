@@ -9,7 +9,7 @@ from pyproj import CRS, Transformer
 import re
 import requests
 from tqdm import tqdm
-from typing import Optional
+from typing import List, Optional
 
 
 BASE_URL = "https://api.tfl.gov.uk"
@@ -88,7 +88,7 @@ def encode_set(x: set) -> list:
     raise TypeError(type(x))
 
 
-def __main__(args: Optional[list[str]] = None) -> None:
+def __main__(args: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--app_key", help="TfL app key (see https://api-portal.tfl.gov.uk/faq for "
                         "details)")

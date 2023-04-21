@@ -3,12 +3,12 @@ import matplotlib.axes
 import matplotlib.collections
 import matplotlib.lines
 import numpy as np
-from typing import Optional
+from typing import Optional, Tuple
 
 
 def plot_band(x: np.ndarray, ys: np.ndarray, *, p: float = 0.05, relative_alpha: float = 0.25,
               ax: Optional[matplotlib.axes.Axes] = None, **kwargs) \
-        -> tuple[matplotlib.lines.Line2D, matplotlib.collections.PolyCollection]:
+        -> Tuple[matplotlib.lines.Line2D, matplotlib.collections.PolyCollection]:
     """
     Plot a credible band given posterior samples.
 

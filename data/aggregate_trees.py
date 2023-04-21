@@ -1,10 +1,10 @@
 import argparse
 import numpy as np
 import pandas as pd
-from typing import Optional
+from typing import List, Optional
 
 
-def __main__(args: Optional[list[str]] = None) -> None:
+def __main__(args: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="unaggregated trees extracted from rdata file")
     parser.add_argument("species", help="tree species to extract")

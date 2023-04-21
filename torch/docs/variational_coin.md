@@ -25,12 +25,13 @@ from gptools.torch.util import ParameterizedDistribution, VariationalModel
 from matplotlib import pyplot as plt
 import os
 import torch as th
+from typing import Dict
 ```
 
 ```{code-cell} ipython3
 class CoinModel(VariationalModel):
     """
-    Simple model for inferring the bias of a coin (see 
+    Simple model for inferring the bias of a coin (see
     https://pyro.ai/examples/svi_part_i.html#A-simple-example for details).
     """
     def __init__(self, approximations, x) -> None:
@@ -38,7 +39,7 @@ class CoinModel(VariationalModel):
         self.x = x
         self.prior = th.distributions.Beta(10, 10)
 
-    def log_prob(self, parameters: dict[str, th.Tensor]) -> th.Tensor:
+    def log_prob(self, parameters: Dict[str, th.Tensor]) -> th.Tensor:
         # Evaluate the probability of the bias `p` under the prior and the likelihood.
         return self.prior.log_prob(parameters["p"]) \
             + th.distributions.Bernoulli(parameters["p"][..., None]).log_prob(self.x).sum(axis=-1)

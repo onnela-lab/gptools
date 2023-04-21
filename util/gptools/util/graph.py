@@ -1,7 +1,7 @@
 
 import enum
 import numpy as np
-from typing import Literal, Union
+from typing import Literal, Tuple, Union
 from . import coordgrid, FALSE
 
 
@@ -28,7 +28,7 @@ class LatticeBounds(enum.Enum):
 
 
 def lattice_predecessors(
-        shape: tuple[int], k: Union[int, tuple[int]],
+        shape: Tuple[int], k: Union[int, Tuple[int]],
         bounds: LatticeBounds = LatticeBounds.ELLIPSE, compress: bool = True
         ) -> np.ndarray:
     """

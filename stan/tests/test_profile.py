@@ -5,10 +5,11 @@ import numpy as np
 import pathlib
 import pickle
 import pytest
+from typing import Tuple
 
 
 def _run_main(tmp_path: pathlib.Path, method: str, parameterization: str, noise_scale: float = 1.0,
-              **kwargs) -> tuple[dict, dict]:
+              **kwargs) -> Tuple[dict, dict]:
     """
     Run the main process.
     """
