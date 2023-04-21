@@ -13,7 +13,9 @@ def _run_main(tmp_path: pathlib.Path, method: str, parameterization: str, noise_
     """
     Run the main process.
     """
-    kwargs = {"iter_sampling": 3, "n": 7, "num_parents": 2} | kwargs
+    defaults = {"iter_sampling": 3, "n": 7, "num_parents": 2}
+    defaults.update(kwargs)
+    kwargs = defaults
     path = tmp_path / "result.pkl"
     __main__([method, parameterization, str(noise_scale), str(path), "--show_diagnostics",
               "--ignore_converged", *dict2args(**kwargs)])

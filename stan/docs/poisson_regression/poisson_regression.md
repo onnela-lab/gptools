@@ -88,8 +88,10 @@ def sample_and_plot(stan_file: str, data: dict, return_fit: bool = False, **kwar
     """Draw samples from the posterior and visualize them."""
     # Set default parameters. We use a small number of samples during testing.
     niter = 10 if os.environ.get("CI") else 100
-    kwargs = {"iter_warmup": niter, "iter_sampling": niter, "chains": 1,
-              "refresh": niter // 10 or None} | kwargs
+    defaults = {"iter_warmup": niter, "iter_sampling": niter, "chains": 1,
+                "refresh": niter // 10 or None}
+    defaults.update(kwargs)
+    kwargs = defaults
 
     # Compile the model and draw posterior samples.
     model = compile_model(stan_file=stan_file)
@@ -194,7 +196,7 @@ The function `lattice_predecessors` constructs a nearest neighbor matrix `predec
 
 ```{code-cell} ipython3
 edges = predecessors_to_edge_index(predecessors)
-sample |= {"edge_index": edges, "num_edges": edges.shape[1]}
+sample.update({"edge_index": edges, "num_edges": edges.shape[1]})
 sample_and_plot("poisson_regression_graph_centered.stan", sample)
 ```
 
@@ -206,7 +208,7 @@ The centered graph Gaussian process is indeed faster than the standard implement
 
 ```{code-cell} ipython3
 edges = predecessors_to_edge_index(predecessors)
-sample |= {"edge_index": edges, "num_edges": edges.shape[1]}
+sample.update({"edge_index": edges, "num_edges": edges.shape[1]})
 sample_and_plot("poisson_regression_graph_non_centered.stan", sample)
 ```
 

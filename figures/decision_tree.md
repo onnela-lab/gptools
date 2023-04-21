@@ -46,7 +46,7 @@ for (x, y), (text, kwargs) in xy.items():
     kwargs = kwargs or {}
     rotate = kwargs.pop("rotate", False)
     question = kwargs.pop("question", False)
-    kwargs = {
+    defaults = {
         "fontsize": "small",
         "ha": "center",
         "va": "top" if rotate else "center",
@@ -57,7 +57,9 @@ for (x, y), (text, kwargs) in xy.items():
             "facecolor": "k" if question else "w",
         },
         "color": "w" if question else "k",
-    } | kwargs
+    }
+    defaults.update(kwargs)
+    kwargs = defaults
     ax.text(x, y, text, **kwargs)
 
 

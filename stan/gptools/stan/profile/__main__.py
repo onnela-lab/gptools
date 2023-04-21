@@ -141,9 +141,10 @@ def __main__(args: Optional[List[str]] = None) -> None:
     for fit, timeout in zip(result["fits"], result["timeouts"]):
         if not timeout:
             break
-    values = vars(args) | {
+    values = vars(args)
+    values.update({
         "duration": f"{timer.duration:.3f}",
-    }
+    })
     if args.method == "sample":
         values.update({
             "divergences": f"{fit.divergences.sum()} / {fit.num_draws_sampling} "
