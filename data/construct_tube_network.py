@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import networkx as nx
+import os
 import pandas as pd
 import pathlib
 from pyproj import CRS, Transformer
@@ -90,19 +91,20 @@ def encode_set(x: set) -> list:
 def __main__(args: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--app_key", help="TfL app key (see https://api-portal.tfl.gov.uk/faq for "
-                        "details)")
+                        "details)", default=os.environ.get("TFL_APP_KEY"))
     parser.add_argument("annualized_entry_exit", help="Excel sheet of station entries and exits")
     parser.add_argument("output", help="JSON output file", type=pathlib.Path)
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if not args.app_key:
         LOGGER.warning("TfL app key is not available as environment variable `TFL_APP_KEY`; "
                        "fetching information may be slow or fail")
 
     # Get all lines identifiers and their metadata.
-    line_ids = [line["id"] for line in get_and_parse("Line/Mode/tube/Route")]
+    line_ids = [line["id"] for line in get_and_parse("Line/Mode/tube/Route", app_key=args.app_key)]
     print(f"found {len(line_ids)} lines: {', '.join(line_ids)}")
-    lines = [get_and_parse(f'Line/{line_id}/Route/Sequence/all') for line_id in tqdm(line_ids)]
+    lines = [get_and_parse(f'Line/{line_id}/Route/Sequence/all', app_key=args.app_key) for line_id
+             in tqdm(line_ids)]
 
     # Add all stations and connections to the graph.
     graph = nx.Graph()
