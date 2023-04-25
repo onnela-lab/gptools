@@ -206,7 +206,8 @@ def edge_index_to_graph(edge_index: np.ndarray) -> "nx.DiGraph":
 
 
 def graph_to_edge_index(graph: "nx.Graph", return_mapping: bool = False,
-                        indexing: Literal["numpy", "stan"] = "stan") -> np.ndarray:
+                        indexing: Literal["numpy", "stan"] = "stan") \
+        -> Union[np.ndarray, Tuple[np.ndarray, dict]]:
     """
     Convert a graph to edge indices.
 
