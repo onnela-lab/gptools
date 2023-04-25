@@ -43,7 +43,7 @@ graph = nx.Graph()
 graph.add_nodes_from(data["nodes"].items())
 graph.add_edges_from(data["edges"])
 
-# Remove the new stations that don't have data yet (should just be the two new Northern Line 
+# Remove the new stations that don't have data yet (should just be the two new Northern Line
 # stations).
 stations_to_remove = [node for node, data in graph.nodes(data=True) if data["entries"] is None]
 assert len(stations_to_remove) == 2
@@ -57,7 +57,7 @@ y = get_node_attribute(graph, "entries") + get_node_attribute(graph, "exits")
 X = np.transpose([get_node_attribute(graph, "x"), get_node_attribute(graph, "y")]) / 1000
 X = X - np.mean(X, axis=0)
 
-# Print out minimum and maximum distances between stations which we require for the length scale 
+# Print out minimum and maximum distances between stations which we require for the length scale
 # prior.
 distances = pdist(X)
 print(f"distances between stations: min={distances.min():.3f}, max={distances.max():.3f}")
@@ -90,7 +90,7 @@ train_frac = 0.8
 np.random.seed(seed)
 train_mask = np.random.uniform(0, 1, y.size) < train_frac
 
-# Convert the graph to an edge index to pass to Stan and retain an inverse mapping so we can look up 
+# Convert the graph to an edge index to pass to Stan and retain an inverse mapping so we can look up
 # stations again.
 edge_index, mapping = graph_to_edge_index(graph, return_mapping=True)
 check_edge_index(edge_index)
@@ -115,8 +115,10 @@ data = {
 
 niter = 10 if "CI" in os.environ else 200
 model_with_gp = compile_model(stan_file="tube.stan")
-fit_with_gp = model_with_gp.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter,
-                                   seed=seed, adapt_delta=0.9)
+chains = 1 if "READTHEDOCS" in os.environ or "CI" in os.environ else 4
+fit_with_gp = model_with_gp.sample(data, chains=chains, iter_warmup=niter, iter_sampling=niter,
+                                   seed=seed, adapt_delta=0.9, show_progress=False)
+print(fit_with_gp.diagnose())
 ```
 
 ```{code-cell} ipython3
@@ -139,7 +141,7 @@ ax1.legend()
 a = fit_with_gp.stan_variable("length_scale")
 b = fit_with_gp.stan_variable("sigma")
 pts = ax2.scatter(a, b, marker=".", c=fit_with_gp.method_variables()["lp__"])
-d = fit_with_gp.method_variables()["divergent__"].astype(bool).squeeze()
+d = fit_with_gp.method_variables()["divergent__"].astype(bool).ravel()
 ax2.scatter(a[d], b[d], color="C1", marker="x")
 fig.colorbar(pts, ax=ax2, label="log probability", location="top")
 ax2.set_xscale("log")
