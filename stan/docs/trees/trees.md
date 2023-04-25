@@ -76,7 +76,10 @@ data = {
 # Compile and fit the model.
 model = compile_model(stan_file="trees.stan")
 niter = 10 if "CI" in os.environ else 200
-fit = model.sample(data, chains=1, iter_warmup=niter, iter_sampling=niter, seed=seed)
+chains = 1 if "READTHEDOCS" in os.environ or "CI" in os.environ else 4
+fit = model.sample(data, iter_warmup=niter, iter_sampling=niter, seed=seed, show_progress=False,
+                   chains=chains)
+print(fit.diagnose())
 ```
 
 The model is able to infer the underlying density of trees. As shown in the left panel below, the density follows within the original domain the data but is smoother. Outside the domain, in the padded region delineated by dashed lines, the posterior mean of the Gaussian process is very smooth because there are no data. As shown in the right panel, the posterior standard deviation is small where there is data and large in the padded area without data.

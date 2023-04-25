@@ -102,7 +102,8 @@ data = {
     "y": y,
     "epsilon": epsilon,
 }
-fit = model.sample(data, seed=seed, show_progress=False, chains=1)
+fit = model.sample(data, seed=seed, show_progress=False)
+print(fit.diagnose())
 ```
 
 Finally, we can visualize the inferred probability curve (shown in orange in the left panel with a band representing the posterior interquartile range) and compare it with the synthetic GP we generated (in blue).
