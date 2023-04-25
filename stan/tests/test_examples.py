@@ -27,3 +27,24 @@ def test_minimal_trees() -> None:
     model = compile_model(stan_file="stan/docs/trees/trees.stan")
     fit = model.sample(data, iter_sampling=10, iter_warmup=10, chains=1, seed=0)
     print(fit.diagnose())
+
+
+def test_minimal_tube() -> None:
+    """
+    Minimal reproducible example to include in the publication.
+    """
+    from gptools.stan import compile_model
+    import json
+
+    # Load station locations, edges, passenger numbers, and prepare data dictionary.
+    with open("data/tube-stan.json") as fp:
+        data = json.load(fp)
+    data.update({
+        "include_degree_effect": 1,
+        "include_zone_effect": 1,
+    })
+
+    # Compile model and fit it.
+    model = compile_model(stan_file="stan/docs/tube/tube.stan")
+    fit = model.sample(data, iter_sampling=10, iter_warmup=10, chains=1, seed=0)
+    print(fit.diagnose())

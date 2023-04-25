@@ -13,65 +13,9 @@ kernelspec:
 
 # Passengers on the London Underground network
 
-The [London Underground](https://en.wikipedia.org/wiki/London_Underground), nicknamed "The Tube", transports millions of people each day. Which factors might affect passenger numbers at different stations? Here, we use the transport network to build a sparse Gaussian process model and fit it to daily passenger numbers. We first load the graph and extract features, such as the [transport zone](https://en.wikipedia.org/wiki/London_fare_zones), number of interchanges, and location, for each station.
+The [London Underground](https://en.wikipedia.org/wiki/London_Underground), nicknamed "The Tube", transports millions of people each day. Which factors might affect passenger numbers at different stations? Here, we use the transport network to build a sparse Gaussian process model and fit it to daily passenger numbers. We first load the prepared data, including features such as the [transport zone](https://en.wikipedia.org/wiki/London_fare_zones), number of interchanges, and location, for each station. Detailes on the data preparation can be found [here](https://github.com/onnela-lab/gptools/blob/main/data/prepare_tube_data.py).
 
-```{code-cell} ipython3
-from gptools.util import encode_one_hot
-from gptools.util.graph import graph_to_edge_index, check_edge_index
-import json
-from matplotlib import pyplot as plt
-import networkx as nx
-import numpy as np
-import os
-from pathlib import Path
-from scipy.spatial.distance import pdist
-
-workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
-
-
-def get_node_attribute(graph: nx.Graph, key: str) -> np.ndarray:
-    """
-    Get a node attribute with consistent order.
-    """
-    return np.asarray([data[key] for _, data in sorted(graph.nodes(data=True))])
-
-
-with open("../../../data/tube.json") as fp:
-    data = json.load(fp)
-
-graph = nx.Graph()
-graph.add_nodes_from(data["nodes"].items())
-graph.add_edges_from(data["edges"])
-
-# Remove the new stations that don't have data yet (should just be the two new Northern Line
-# stations).
-stations_to_remove = [node for node, data in graph.nodes(data=True) if data["entries"] is None]
-assert len(stations_to_remove) == 2
-graph.remove_nodes_from(stations_to_remove)
-# Remove Kensington Olympia because it's hardly used in regular transit.
-graph.remove_node("940GZZLUKOY")
-print(f"loaded graph with {graph.number_of_nodes()} nodes and {graph.number_of_edges()} edges")
-
-# Get passenger numbers and station locations.
-y = get_node_attribute(graph, "entries") + get_node_attribute(graph, "exits")
-X = np.transpose([get_node_attribute(graph, "x"), get_node_attribute(graph, "y")]) / 1000
-X = X - np.mean(X, axis=0)
-
-# Print out minimum and maximum distances between stations which we require for the length scale
-# prior.
-distances = pdist(X)
-print(f"distances between stations: min={distances.min():.3f}, max={distances.max():.3f}")
-
-# One-hot encode nodes and zones.
-max_zone = 6
-max_degree = 5
-zones = get_node_attribute(graph, "zone")
-one_hot_zones = encode_one_hot(zones.clip(max=max_zone) - 1)
-degrees = np.asarray([graph.degree[node] for node in sorted(graph)])
-one_hot_degrees = encode_one_hot(degrees.clip(max=max_degree) - 1)
-```
-
-We next assemble the data for *Stan*, compile the model, and draw posterior samples. The model is shown below.
+We next compile the model and draw posterior samples. The model is shown below.
 
 ```{literalinclude} tube.stan
    :language: stan
@@ -81,36 +25,28 @@ We next assemble the data for *Stan*, compile the model, and draw posterior samp
 :tags: []
 
 from gptools.stan import compile_model
+import json
+import numpy as np
 import os
 
 
-# Sample a training mask and assemble the data for Stan.
+with open("../../../data/tube-stan.json") as fp:
+    data = json.load(fp)
+
+# Sample a training mask and update the data for Stan.
 seed = 0
 train_frac = 0.8
 np.random.seed(seed)
-train_mask = np.random.uniform(0, 1, y.size) < train_frac
+train_mask = np.random.uniform(0, 1, data["num_stations"]) < train_frac
 
-# Convert the graph to an edge index to pass to Stan and retain an inverse mapping so we can look up
-# stations again.
-edge_index, mapping = graph_to_edge_index(graph, return_mapping=True)
-check_edge_index(edge_index)
-inverse = {b: a for a, b in mapping.items()}
-
-data = {
-    "num_stations": graph.number_of_nodes(),
-    "num_edges": edge_index.shape[1],
-    "edge_index": edge_index,
-    "one_hot_zones": one_hot_zones,
-    "num_zones": one_hot_zones.shape[1],
-    "one_hot_degrees": one_hot_degrees,
-    "num_degrees": one_hot_degrees.shape[1],
-    # We use -1 for held-out data.
-    "passengers": np.where(train_mask, y, -1),
-    "station_locations": X,
-    # Indicators for whether to include fixed effects for zones and degrees.
+# Apply the training mask and include degree and zone effects.
+y = np.asarray(data["passengers"])
+data.update({
     "include_zone_effect": 1,
     "include_degree_effect": 1,
-}
+    # We use -1 for held-out data.
+    "passengers": np.where(train_mask, y, -1),
+})
 
 
 niter = 10 if "CI" in os.environ else 200
@@ -123,6 +59,9 @@ print(fit_with_gp.diagnose())
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
+
+import matplotlib as mpl
+from matplotlib import pyplot as plt
 
 # Show some basic diagnostics plots.
 fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -153,14 +92,14 @@ fig.tight_layout()
 We construct a figure that shows the data, effects of zone and degree, and the residual effects captured by the Gaussian process.
 
 ```{code-cell} ipython3
-import matplotlib as mpl
-
+from pathlib import Path
 
 fig, axes = plt.subplots(2, 2, gridspec_kw={"width_ratios": [2, 1]}, figsize=(6, 6))
 ax1, ax2 = axes[:, 0]
 kwargs = {"marker": "o", "s": 10}
 
 
+X = np.asarray(data["station_locations"])
 ax1.scatter(*X[~train_mask].T, facecolor="w", edgecolor="gray", **kwargs)
 pts1 = ax1.scatter(*X[train_mask].T, c=y[train_mask], norm=mpl.colors.LogNorm(vmin=np.min(y)),
                    **kwargs)
@@ -189,8 +128,8 @@ cb2 = fig.colorbar(pts2, ax=ax2, label="Gaussian process effect", location=locat
 
 for ax in [ax1, ax2]:
     segments = []
-    for u, v in graph.edges():
-        segments.append([X[mapping[u] - 1], X[mapping[v] - 1]])
+    for u, v in np.transpose(data["edge_index"]):
+        segments.append([X[u - 1], X[v - 1]])
     collection = mpl.collections.LineCollection(segments, zorder=0, color="silver")
     ax.add_collection(collection)
 
@@ -206,8 +145,8 @@ line, *_ = ax3.errorbar(np.arange(effect.shape[1]) + 1, effect.mean(axis=0), eff
 line.set_markeredgecolor("w")
 ax3.set_ylabel("degree effect")
 ax3.set_xlabel("degree")
-ax3.set_xticks([1, 3, max_degree])
-ax3.set_xticklabels(["1", "3", f"{max_degree}+"])
+ax3.set_xticks([1, 3, data["num_degrees"]])
+ax3.set_xticklabels(["1", "3", f"{data['num_degrees']}+"])
 ax3.axhline(0, color="k", ls=":")
 
 
@@ -217,8 +156,8 @@ line, *_ = ax4.errorbar(np.arange(effect.shape[1]) + 1, effect.mean(axis=0), eff
 line.set_markeredgecolor("w")
 ax4.set_ylabel("zone effect")
 ax4.set_xlabel("zone")
-ax4.set_xticks([2, 4, max_zone])
-ax4.set_xticklabels(["2", "4", f"{max_zone}+"])
+ax4.set_xticks([2, 4, data["num_zones"]])
+ax4.set_xticklabels(["2", "4", f"{data['num_zones']}+"])
 ax4.axhline(0, color="k", ls=":")
 
 ax1.text(0.025, 0.05, "(a)", transform=ax1.transAxes)
@@ -228,6 +167,8 @@ ax4.text(0.95, 0.95, "(d)", transform=ax4.transAxes, va="top", ha="right")
 
 
 fig.tight_layout()
+
+workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
 fig.savefig(workspace / "tube.pdf", bbox_inches="tight")
 fig.savefig(workspace / "tube.png", bbox_inches="tight")
 ```
