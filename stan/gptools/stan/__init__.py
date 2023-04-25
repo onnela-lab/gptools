@@ -1,5 +1,6 @@
 import cmdstanpy
 from cmdstanpy.model import OptionalPath
+import logging
 import os
 from typing import Any, Dict, Optional, Type, Union
 
@@ -9,6 +10,18 @@ def get_include() -> str:
     Get the include directory for the library.
     """
     return os.path.dirname(__file__)
+
+
+def set_cmdstanpy_log_level(level: Optional[Union[str, int]] = None) -> None:
+    """
+    Set the log level of cmdstanpy.
+
+    Args:
+        level: Log level (defaults to `WARNING`).
+    """
+    cmdstanpy_logger = cmdstanpy.utils.get_logger()
+    for handler in cmdstanpy_logger.handlers:
+        handler.setLevel(level or logging.WARNING)
 
 
 def compile_model(
@@ -49,5 +62,7 @@ def compile_model(
     )
 
 
-if __name__ == "__main__":
-    print(get_include())
+# Reduce logging verbosity if we are compiling documentation on readthedocs. We cannot easily
+# achieve the same effect in the sphinx `conf.py`` because each example runs in its own kernel.
+if "READTHEDOCS" in os.environ:  # pragma: no cover
+    set_cmdstanpy_log_level()

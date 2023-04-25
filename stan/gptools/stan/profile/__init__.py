@@ -1,5 +1,5 @@
 import cmdstanpy
-import logging
+from gptools.stan import set_cmdstanpy_log_level
 import numpy as np
 
 
@@ -10,9 +10,7 @@ PARAMETERIZATIONS = ["graph_centered", "graph_non_centered", "fourier_centered",
                      "fourier_non_centered", "standard_centered", "standard_non_centered"]
 
 # Make cmdstanpy less verbose.
-cmdstanpy_logger = cmdstanpy.utils.get_logger()
-for handler in cmdstanpy_logger.handlers:
-    handler.setLevel(logging.WARNING)
+set_cmdstanpy_log_level()
 
 
 def sample_and_load_fit(model: cmdstanpy.CmdStanModel, **kwargs) -> cmdstanpy.CmdStanMCMC:  # noqa: E501, pragma: no cover

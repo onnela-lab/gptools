@@ -76,14 +76,10 @@ current_project = get_project(multiproject_projects)
 
 if current_project == "stan":
     import cmdstanpy
-    import logging
+
     extensions.append("sphinxcontrib.stan")
     intersphinx_mapping["cmdstanpy"] = \
         (f"https://cmdstanpy.readthedocs.io/en/v{cmdstanpy.__version__}", None)
-
-    cmdstanpy_logger = cmdstanpy.utils.get_logger()
-    for handler in cmdstanpy_logger.handlers:
-        handler.setLevel(logging.WARNING)
 elif current_project == "torch":
     intersphinx_mapping["torch"] = ("https://pytorch.org/docs/stable/", None)
 elif current_project == "util":

@@ -86,8 +86,9 @@ Local runtime
 ^^^^^^^^^^^^^
 You can reproduce the results using your local computing environment (rather than an isolated container runtime) as follows.
 
-1. Ensure a recent python version is installed (the code was tested with python 3.10 on Ubuntu 22.04.2 and macOS 13.2.1).
+1. Ensure a recent python version (3.8 or later) is installed. The code was tested with python 3.8-3.11 on Ubuntu 22.04.2 and python 3.10 on macOS 13.2.1.
 2. Install all dependencies by running :code:`pip install -r dev_requirements.txt`.
 3. Install :code:`cmdstan` by running :code:`install_cmdstan --version=2.31.0`.
 4. Optionally, run :code:`doit tests:stan` to test the installation.
-5. Run the command :code:`doit results:stan` to reproduce the results.
+5. Optionally, launch a `Jupyter notebook <https://jupyter.org>`__ and open the :doc:`docs/logistic_regression/logistic_regression` notebook to get familiar with the package. The notebook illustrates fitting a univariate latent Gaussian process to binary observations. The `MyST markdown <https://myst-nb.readthedocs.io/>`__ notebook is located at :code:`docs/logistic_regression/logistic_regression.md` in this repository.
+6. Run the command :code:`doit results:stan` to reproduce the results.
