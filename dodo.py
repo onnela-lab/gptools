@@ -159,9 +159,13 @@ with di.defaults(basename="tube"):
     entry_exit_target = "data/AnnualisedEntryExit_2019.xlsx"
     manager(name="entry-exit-data", targets=[entry_exit_target],
             actions=[["curl", "-L", "-o", "$@", url]], uptodate=[True])
-    target = "data/tube.json"
-    manager(name="graph", targets=[target], file_dep=[entry_exit_target],
-            actions=[["$!", "data/construct_tube_network.py", entry_exit_target, target]])
+    graph_target = "data/tube.json"
+    manager(name="graph", targets=[graph_target], file_dep=[entry_exit_target],
+            actions=[["$!", "data/construct_tube_network.py", entry_exit_target, graph_target]])
+    # Tube data prepared data for Stan.
+    target = "data/tube-stan.json"
+    manager(name="prepared", targets=[target], file_dep=[graph_target],
+            actions=[["$!", "data/prepare_tube_data.py", graph_target, target]])
 
 
 # Produce dedicated figures that aren't part of the documentation.
