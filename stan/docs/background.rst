@@ -51,7 +51,7 @@ where we changed variables to :math:`x=\Delta + x'` and factorized the integrals
 Parameterizations
 -----------------
 
-Consider a simple model with latent GP and normal observation noise with variance :math:`kappa^2`
+Consider a simple model with latent GP and normal observation noise with variance :math:`\kappa^2`
 
 .. math::
 
