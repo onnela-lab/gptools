@@ -75,7 +75,12 @@ data = {
 
 # Compile and fit the model.
 model = compile_model(stan_file="trees.stan")
-niter = 10 if "CI" in os.environ else 200
+if "CI" in os.environ:
+    niter = 10 
+elif "READTHEDOCS" in os.environ:
+    niter = 200
+else:
+    niter = None
 chains = 1 if "READTHEDOCS" in os.environ or "CI" in os.environ else 4
 fit = model.sample(data, iter_warmup=niter, iter_sampling=niter, seed=seed, show_progress=False,
                    chains=chains)

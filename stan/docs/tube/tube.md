@@ -49,7 +49,12 @@ data.update({
 })
 
 
-niter = 10 if "CI" in os.environ else 200
+if "CI" in os.environ:
+    niter = 10 
+elif "READTHEDOCS" in os.environ:
+    niter = 200
+else:
+    niter = None
 model_with_gp = compile_model(stan_file="tube.stan")
 chains = 1 if "READTHEDOCS" in os.environ or "CI" in os.environ else 4
 fit_with_gp = model_with_gp.sample(data, chains=chains, iter_warmup=niter, iter_sampling=niter,
