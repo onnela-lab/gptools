@@ -136,3 +136,24 @@ def test_expand_rfft(n: int) -> None:
     x = np.random.normal(0, 1, n)
     rfft = np.fft.rfft(x)
     np.testing.assert_allclose(np.fft.fft(x), fft.expand_rfft(rfft, n))
+
+
+@pytest.mark.parametrize("n", [5, 8])
+def test_rfft_pseudocode(n: int) -> None:
+    f, loc = np.random.normal(0, 1, (2, n))
+    cov_rfft = kernels.ExpQuadKernel(1.2, 0.3, n).evaluate_rfft(n)
+    desired = fft.evaluate_log_prob_rfft(f, loc, cov_rfft=cov_rfft)
+
+    if n % 2:
+        z = np.fft.rfft(f - loc) / np.sqrt(n)
+        actual = stats.norm(0, cov_rfft[0] ** 0.5).logpdf(z[0].real) \
+            + stats.norm(0, cov_rfft[1:] ** 0.5).logpdf(z[1:].real * np.sqrt(2)).sum() \
+            + stats.norm(0, cov_rfft[1:] ** 0.5).logpdf(z[1:].imag * np.sqrt(2)).sum()
+    else:
+        z = np.fft.rfft(f - loc) / np.sqrt(n)
+        actual = stats.norm(0, cov_rfft[0] ** 0.5).logpdf(z[0].real) \
+            + stats.norm(0, cov_rfft[-1] ** 0.5).logpdf(z[-1].real) \
+            + stats.norm(0, cov_rfft[1:-1] ** 0.5).logpdf(z[1:-1].real * np.sqrt(2)).sum() \
+            + stats.norm(0, cov_rfft[1:-1] ** 0.5).logpdf(z[1:-1].imag * np.sqrt(2)).sum()
+
+    np.testing.assert_allclose(actual, desired)
