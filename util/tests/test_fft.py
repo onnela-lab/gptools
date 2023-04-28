@@ -144,16 +144,13 @@ def test_rfft_pseudocode(n: int) -> None:
     cov_rfft = kernels.ExpQuadKernel(1.2, 0.3, n).evaluate_rfft(n)
     desired = fft.evaluate_log_prob_rfft(f, loc, cov_rfft=cov_rfft)
 
+    z = np.abs(np.fft.rfft(f - loc) / np.sqrt(n))
+    actual = stats.norm(0, cov_rfft[0] ** 0.5).logpdf(z[0])
     if n % 2:
-        z = np.fft.rfft(f - loc) / np.sqrt(n)
-        actual = stats.norm(0, cov_rfft[0] ** 0.5).logpdf(z[0].real) \
-            + stats.norm(0, cov_rfft[1:] ** 0.5).logpdf(z[1:].real * np.sqrt(2)).sum() \
-            + stats.norm(0, cov_rfft[1:] ** 0.5).logpdf(z[1:].imag * np.sqrt(2)).sum()
+        m = (n + 1) // 2
     else:
-        z = np.fft.rfft(f - loc) / np.sqrt(n)
-        actual = stats.norm(0, cov_rfft[0] ** 0.5).logpdf(z[0].real) \
-            + stats.norm(0, cov_rfft[-1] ** 0.5).logpdf(z[-1].real) \
-            + stats.norm(0, cov_rfft[1:-1] ** 0.5).logpdf(z[1:-1].real * np.sqrt(2)).sum() \
-            + stats.norm(0, cov_rfft[1:-1] ** 0.5).logpdf(z[1:-1].imag * np.sqrt(2)).sum()
+        m = n // 2
+        actual += stats.norm(0, cov_rfft[m] ** 0.5).logpdf(z[m])
+    actual += 2 * stats.norm(0, cov_rfft[1:m] ** 0.5).logpdf(z[1:m]).sum()
 
     np.testing.assert_allclose(actual, desired)
