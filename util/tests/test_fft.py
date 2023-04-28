@@ -139,7 +139,7 @@ def test_expand_rfft(n: int) -> None:
 
 
 @pytest.mark.parametrize("n", [5, 8])
-def test_rfft_pseudocode(n: int) -> None:
+def test_rfft_log_prob_pseudocode(n: int) -> None:
     f, loc = np.random.normal(0, 1, (2, n))
     cov_rfft = kernels.ExpQuadKernel(1.2, 0.3, n).evaluate_rfft(n)
     desired = fft.evaluate_log_prob_rfft(f, loc, cov_rfft=cov_rfft)
@@ -152,5 +152,28 @@ def test_rfft_pseudocode(n: int) -> None:
         m = n // 2
         actual += stats.norm(0, cov_rfft[m] ** 0.5).logpdf(z[m])
     actual += 2 * stats.norm(0, cov_rfft[1:m] ** 0.5).logpdf(z[1:m]).sum()
+
+    np.testing.assert_allclose(actual, desired)
+
+
+@pytest.mark.parametrize("n", [5, 8])
+def test_rfft_inv_pseudocode(n: int) -> None:
+    z, loc = np.random.normal(0, 1, (2, n))
+    cov_rfft = kernels.ExpQuadKernel(1.2, 0.3, n).evaluate_rfft(n)
+    desired = fft.transform_irfft(z, loc, cov_rfft=cov_rfft)
+
+    ftilde = np.zeros(n // 2 + 1, dtype=complex)
+    # Zero-frequency and Nyquist terms.
+    scale = (n * cov_rfft) ** 0.5
+    ftilde[0] = z[0] * scale[0]
+    if n % 2:
+        m = (n + 1) // 2
+    else:
+        m = n // 2
+        ftilde[m] = z[m] * scale[m]
+    # Complex terms.
+    ftilde[1:m] = scale[1:m] * (z[1:m] + 1j * z[m if n % 2 else m + 1:n]) / np.sqrt(2)
+
+    actual = np.fft.irfft(ftilde, n) + loc
 
     np.testing.assert_allclose(actual, desired)
