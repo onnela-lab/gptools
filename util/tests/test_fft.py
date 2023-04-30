@@ -172,7 +172,7 @@ def test_rfft_inv_pseudocode(n: int) -> None:
         m = n // 2
         ftilde[m] = z[m] * scale[m]
     # Complex terms.
-    ftilde[1:m] = scale[1:m] * (z[1:m] + 1j * z[m if n % 2 else m + 1:n]) / np.sqrt(2)
+    ftilde[1:m] = scale[1:m] * (z[1:m] + 1j * z[m + (n + 1) % 2:n]) / np.sqrt(2)
 
     actual = np.fft.irfft(ftilde, n) + loc
 
