@@ -53,11 +53,11 @@ def call_with_timeout(timeout: float, target: Callable, *args, **kwargs) -> Any:
             # Kill the process and all its children (https://stackoverflow.com/a/4229404/1150961).
             children = psutil.Process(process.pid).children(recursive=True)
             for child in children:
-                child.terminate()  # pragma: no cover
+                child.kill()  # pragma: no cover
             _, still_alive = psutil.wait_procs(children, timeout=3)
             if still_alive:
                 raise RuntimeError("some processes are still alive")  # pragma: no cover
-            process.terminate()
+            process.kill()
         process.join(timeout=5)
     if not success:
         ex, tb = result
