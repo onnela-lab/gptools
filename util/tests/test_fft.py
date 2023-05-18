@@ -138,10 +138,11 @@ def test_expand_rfft(n: int) -> None:
     np.testing.assert_allclose(np.fft.fft(x), fft.expand_rfft(rfft, n))
 
 
-@pytest.mark.parametrize("n", [5, 8])
+@pytest.mark.parametrize("n", [21, 22])
 def test_rfft_log_prob_pseudocode(n: int) -> None:
     f, loc = np.random.normal(0, 1, (2, n))
-    cov_rfft = kernels.ExpQuadKernel(1.2, 0.3, n).evaluate_rfft(n)
+    cov = kernels.ExpQuadKernel(1.2, 0.1, n).evaluate(np.arange(n)[:, None])
+    cov_rfft = np.fft.rfft(cov[0]).real
     desired = fft.evaluate_log_prob_rfft(f, loc, cov_rfft=cov_rfft)
 
     z = np.abs(np.fft.rfft(f - loc) / np.sqrt(n))
@@ -154,6 +155,9 @@ def test_rfft_log_prob_pseudocode(n: int) -> None:
     actual += 2 * stats.norm(0, cov_rfft[1:m] ** 0.5).logpdf(z[1:m]).sum()
 
     np.testing.assert_allclose(actual, desired)
+
+    # Let's also verify that this matches the actual log prob.
+    np.testing.assert_allclose(actual, stats.multivariate_normal(loc, cov).logpdf(f).sum())
 
 
 @pytest.mark.parametrize("n", [5, 8])
@@ -177,3 +181,16 @@ def test_rfft_inv_pseudocode(n: int) -> None:
     actual = np.fft.irfft(ftilde, n) + loc
 
     np.testing.assert_allclose(actual, desired)
+
+
+@pytest.mark.parametrize("n", [9, 10])
+def test_orthonormal(n: int) -> None:
+    x = np.random.normal(0, 1, n)
+    y = np.fft.fft(x)
+
+    # Manually verify the transform using matrix multiplication.
+    M = np.exp(-2 * np.pi * 1j * np.arange(n) * np.arange(n)[:, None] / n)
+    Minv = np.exp(2 * np.pi * 1j * np.arange(n) * np.arange(n)[:, None] / n) / n
+    z = M @ x
+    np.testing.assert_allclose(y, z)
+    np.testing.assert_allclose(x.real, (Minv @ y).real)
