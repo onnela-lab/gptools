@@ -145,6 +145,7 @@ ax2.set_xlabel("easting (km)")
 ax3, ax4 = axes[:, 1]
 
 effect = fit_with_gp.stan_variable("degree_effect")
+effect -= effect.mean(axis=1, keepdims=True)
 line, *_ = ax3.errorbar(np.arange(effect.shape[1]) + 1, effect.mean(axis=0), effect.std(axis=0),
                         marker="o")
 line.set_markeredgecolor("w")
@@ -156,6 +157,7 @@ ax3.axhline(0, color="k", ls=":")
 
 
 effect = fit_with_gp.stan_variable("zone_effect")
+effect -= effect.mean(axis=1, keepdims=True)
 line, *_ = ax4.errorbar(np.arange(effect.shape[1]) + 1, effect.mean(axis=0), effect.std(axis=0),
                         marker="o")
 line.set_markeredgecolor("w")
