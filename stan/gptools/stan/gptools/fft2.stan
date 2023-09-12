@@ -89,7 +89,7 @@ complex_matrix gp_pack_rfft2(matrix z) {
     complex_matrix[height, width %/% 2 + 1] result;
     // Real FFT in the first column due to zero-frequency terms for the row-wise Fourier transform.
     result[:, 1] = expand_rfft(gp_pack_rfft(z[:, 1]), height);
-    # Complex Fourier coefficients.
+    // Complex Fourier coefficients.
     result[:, 2:ncomplex + 1] = z[:, 2:ncomplex + 1] + 1.0i * z[:, ncomplex + 2:2 * ncomplex + 1];
     // Real FFT in the last column due to the Nyqvist frequency terms for the row-wise Fourier
     // transform if the number of columns is even.
