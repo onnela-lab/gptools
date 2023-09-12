@@ -13,7 +13,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/x-rst",
     packages=find_namespace_packages(),
-    version="0.1.2",
+    include_package_data=True,
+    version="0.1.3",
     python_requires=">=3.8",
     install_requires=[
         # Required because of a bug in how complex numbers are handled (see
