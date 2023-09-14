@@ -198,6 +198,6 @@ for notebook in Path.cwd().glob("figures/*.md"):
 # Meta target to generate all results for Stan.
 try:
     import gptools.stan as _  # noqa: F401, F811
-    manager(basename="results", name="stan", task_dep=["profile", "docs:stan", "figures"])
+    manager(basename="results", name="stan", task_dep=["docs:stan", "figures"])
 except ModuleNotFoundError:
     pass

@@ -103,8 +103,8 @@ def assert_stan_function_allclose(
 
 add_configuration({
     "stan_function": "linspaced_vector",
-    "arg_types": {"n": "int", "lower": "real", "upper": "real"},
-    "arg_values": {"n": 10, "lower": 0, "upper": 9},
+    "arg_types": {"n": "int", "a": "real", "b": "real"},
+    "arg_values": {"n": 10, "a": 0, "b": 9},
     "result_type": "vector[n]",
     "desired": np.arange(10),
 })

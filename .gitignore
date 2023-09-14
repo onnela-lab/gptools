@@ -135,6 +135,7 @@ dmypy.json
 playground/
 workspace/
 .doit.db*
+*.graffle
 *.hpp
 *.html
 *.tmp

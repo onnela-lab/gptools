@@ -7,9 +7,7 @@
 -e file:stan
     # via -r stan/test_requirements.in
 -e file:util
-    # via
-    #   -r stan/test_requirements.in
-    #   gptools-stan
+    # via -r stan/test_requirements.in
 alabaster==0.7.12
     # via sphinx
 anyio==3.6.2
@@ -56,10 +54,8 @@ click==8.1.3
     # via jupyter-cache
 cloudpickle==2.2.0
     # via doit
-cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@1612c04
-    # via
-    #   -r stan/test_requirements.in
-    #   gptools-stan
+cmdstanpy==1.1.0
+    # via gptools-stan
 colorama==0.4.6
     # via doit-interface
 comm==0.1.2
