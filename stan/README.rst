@@ -65,30 +65,4 @@ If you use `cmdstanr <https://mc-stan.org/cmdstanr/>`__ or another *Stan* `inter
 Reproducing results from the accompanying publication
 -----------------------------------------------------
 
-The `accompanying publication "Scalable Gaussian process inference with Stan" <https://arxiv.org/abs/2301.08836>`__ provides theoretical background and a technical description of the methods. All results and figures can be reproduced using one of the approaches below.
-
-Docker runtime
-^^^^^^^^^^^^^^
-
-`Docker <https://www.docker.com>`__ can run software in isolated containers. If you have docker installed, you can reproduce the results by running
-
-.. code:: bash
-
-    docker run --rm tillahoffmann/gptools -v /path/to/output/directory:/workspace doit --db-file=/workspace/.doit.db results:stan
-
-This command will download a prebuilt docker image and execute the steps required to generate all figures in the publication. Results will be placed in the specified output directory; make sure the directory exists before executing the command and that the specified path is an absolute, e.g., :code:`/path/to/...` instead of :code:`../path/to/...`. You do not need to install any other software or download the source code. Intermediate results are cached if the process is interrupted, and the process can pick up where it left off when invoked using the same command. Your timing results are likely to differ from the results reported in the publication because runtimes vary substantially between different machines. All results reported in the manuscript were obtained on a 2020 Macbook Pro with M1 Apple Silicon chip and 16 GB of memory. Cross-architecture images are built following `this guide <https://blog.jaimyn.dev/how-to-build-multi-architecture-docker-images-on-an-m1-mac/>`__.
-
-Reproducing the results can be time intensive, especially to generate the data for the profiling figure. You can add the :code:`-e CI=1` flag to the above command. This will reduce the number of samples drawn per run and decrease timeouts to speed up the process although at the cost of more noisy and possibly incomplete figures.
-
-If you would rather build the docker image from scratch, run :code:`docker build -t my-image-name .` from the root directory of this repository. You can then reproduce the results using the command above, replacing :code:`tillahoffmann/gptools` with :code:`my-image-name`. Optionally, run :code:`docker run --rm gptools doit tests:stan` to ensure the image runs as expected; this takes about ten to fifteen minutes on a Macbook.
-
-Local runtime
-^^^^^^^^^^^^^
-You can reproduce the results using your local computing environment (rather than an isolated container runtime) as follows.
-
-1. Ensure a recent python version (3.8 or later) is installed. The code was tested with python 3.8-3.11 on Ubuntu 22.04.2 and python 3.10 on macOS 13.2.1.
-2. Install all dependencies by running :code:`pip install -r dev_requirements.txt`.
-3. Install :code:`cmdstan` by running :code:`install_cmdstan --version=2.31.0`.
-4. Optionally, run :code:`doit tests:stan` to test the installation.
-5. Optionally, launch a `Jupyter notebook <https://jupyter.org>`__ and open the :doc:`docs/logistic_regression/logistic_regression` notebook to get familiar with the package. The notebook illustrates fitting a univariate latent Gaussian process to binary observations. The `MyST markdown <https://myst-nb.readthedocs.io/>`__ notebook is located at :code:`docs/logistic_regression/logistic_regression.md` in this repository.
-6. Run the command :code:`doit results:stan` to reproduce the results.
+The `accompanying publication "Scalable Gaussian process inference with Stan" <https://arxiv.org/abs/2301.08836>`__ provides theoretical background and a technical description of the methods. All results and figures can be reproduced by following the instructions in the `repository of reproduction materials <https://github.com/tillahoffmann/gptools-reproduction-material>`__.
