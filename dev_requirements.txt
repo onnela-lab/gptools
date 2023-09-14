@@ -13,7 +13,6 @@
     #   -r stan/test_requirements.txt
     #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
-    #   gptools-stan
     #   gptools-torch
 alabaster==0.7.12
     # via
@@ -127,7 +126,7 @@ cloudpickle==2.2.0
     #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   doit
-cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@1612c04
+cmdstanpy==1.1.0
     # via
     #   -r stan/test_requirements.txt
     #   gptools-stan

@@ -1,4 +1,3 @@
 -e file:stan[docs,tests]
 -e file:util
 -r ../shared_requirements.in
-cmdstanpy @ git+https://github.com/stan-dev/cmdstanpy@1612c04
