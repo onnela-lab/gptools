@@ -2,7 +2,6 @@ from multiproject.utils import get_project
 from sphinx.application import Sphinx
 
 
-master_doc = "README"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
     "multiproject",
@@ -20,7 +19,7 @@ plot_formats = [
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
 exclude_patterns = ["docs/_build", "docs/jupyter_execute", ".pytest_cache", "playground", "figures",
-                    "**.ipynb_checkpoints"]
+                    "**.ipynb_checkpoints", "README.rst"]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
