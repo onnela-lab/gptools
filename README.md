@@ -8,4 +8,4 @@ This collection of packages provides tools for performant inference of Gaussian 
 
 ## Replication
 
-To replicate the results presented in the accompanying publication [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.48550/arXiv.2301.08836), please see the [`README.rst`](stan/README.rst) in the `stan` directory or the [readthedocs.org documentation](https://gptools-stan.readthedocs.io/en/latest/README.html#reproducing-results-from-the-accompanying-publication).
+To replicate the results presented in the accompanying publication [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.48550/arXiv.2301.08836), please see the [dedicted repository of replication materials](https://github.com/onnela-lab/gptools-reproduction-material).
