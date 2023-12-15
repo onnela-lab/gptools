@@ -21,5 +21,3 @@ Suggests:
     rmarkdown,
     cmdstanr
 VignetteBuilder: knitr
-Remotes:
-    cmdstanr=url::https://mc-stan.org/r-packages/src/contrib/cmdstanr_0.7.0.tar.gz

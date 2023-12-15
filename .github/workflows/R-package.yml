@@ -20,7 +20,9 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           working-directory: R-package
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            cmdstanr=url::https://mc-stan.org/r-packages/src/contrib/cmdstanr_0.7.0.tar.gz
           needs: check
       - uses: r-lib/actions/check-r-package@v2
         with:
