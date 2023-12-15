@@ -1,11 +1,11 @@
 Package: gptoolsStan
 Title: Gaussian Processes on Graphs and Lattices in Stan
 Version: 0.1.0
-Authors@R:
-    person("Till", "Hoffmann", , "t.hoffmann@hsph.harvard.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-4403-0722"))
-    person("Jukka-Pekka", "Onnela", , "onnela@hsph.harvard.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-6613-8668"))
+Authors@R: c(
+    person("Till", "Hoffmann", , "thoffmann@hsph.harvard.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-4403-0722")),
+    person("Jukka-Pekka", "Onnela", , "onnela@hsph.harvard.edu", role = c("ctb"),
+           comment = c(ORCID = "0000-0001-6613-8668")))
 Description: Gaussian processes are flexible distributions to model functional data. Whilst
     theoretically appealing, they are computationally cumbersome except for small datasets.
     This package implements two methods for scaling GP inference in Stan. First, a sparse
