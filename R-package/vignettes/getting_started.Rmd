@@ -22,9 +22,13 @@ This vignette demonstrates the package by sampling from a simple Gaussian proces
 cat(readLines("getting_started.stan"), sep = "\n")
 ```
 
-In this vignette, we compile and later fit the model using `cmdstanr`.
+In this vignette, we compile and later fit the model using `cmdstanr`. You may need to install `cmdstan` first.
 
 ```{r}
+# Install cmdstan if required.
+cmdstanr::install_cmdstan()
+
+# Compile the model.
 model <- cmdstanr::cmdstan_model(
   stan_file="getting_started.stan",
   include_paths=gptoolsStan::gptools_include_path(),
