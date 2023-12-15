@@ -1,3 +1,4 @@
 ^gptoolsStan\.Rproj$
 ^R-package\.Rproj$
 ^\.Rproj\.user$
+vignettes/getting_started
