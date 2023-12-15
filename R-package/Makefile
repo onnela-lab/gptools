@@ -1,4 +1,4 @@
-.PHONY : stan_files man vignettes
+.PHONY : build check stan_files man vignettes
 SOURCE_DIR = ../stan/gptools/stan/gptools
 SOURCE_FILES = $(wildcard $(SOURCE_DIR)/*.stan)
 TARGET_DIR = inst/extdata
@@ -21,3 +21,12 @@ vignettes/getting_started.html : vignettes/getting_started.Rmd vignettes/getting
 
 man :
 	Rscript -e 'devtools::document()'
+
+
+build :
+	mkdir -p build
+	cd build && R CMD build ..
+
+check : build
+	mkdir -p check
+	cd check && R CMD check ../build/*.tar.gz
