@@ -13,6 +13,7 @@ Description: Gaussian processes are flexible distributions to model functional d
     regularly spaced data modeled by stationary kernels using fast Fourier methods.
 License: BSD
 Encoding: UTF-8
+Language: en-US
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Suggests:
