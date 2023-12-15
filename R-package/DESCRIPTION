@@ -11,7 +11,7 @@ Description: Gaussian processes are flexible distributions to model functional d
     This package implements two methods for scaling GP inference in Stan. First, a sparse
     approximation of the likelihood that is generally applicable and, second, an exact method for
     regularly spaced data modeled by stationary kernels using fast Fourier methods.
-License: BSD-3-Clause
+License: BSD
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
