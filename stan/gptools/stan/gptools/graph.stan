@@ -44,9 +44,10 @@ Evaluate the location and scale for a node given its predecessors, assuming zero
 :param epsilon: Nugget variance for numerical stability.
 :returns: Location and scale parameters for the distribution of the node given its predecessors.
 */
-vector gp_graph_conditional_loc_scale(vector y, array[] vector x, int kernel, real sigma,
-                                      real length_scale, int node, array [] int predecessors,
-                                      real epsilon) {
+vector gp_graph_conditional_loc_scale(
+    vector y, array[] vector x, int kernel, real sigma, real length_scale,
+    int node, array [] int predecessors, real epsilon
+) {
     int k = size(predecessors);
     matrix[1, k] cov12;
     matrix[k, k] cov22;
