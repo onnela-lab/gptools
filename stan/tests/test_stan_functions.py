@@ -76,7 +76,8 @@ def assert_stan_function_allclose(
         fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9, chains=1)
         success, = fit.stan_variable("success")
         if not success or np.isnan(success):
-            raise RuntimeError("failed to sample from model")
+            console = pathlib.Path(fit.runset.stdout_files[0]).read_text()
+            raise RuntimeError(f"failed to sample from model: \n{console}")
     except Exception as ex:
         if raises:
             return
