@@ -11,8 +11,6 @@
 -e file:util
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
-    #   -r util/test_requirements.txt
     #   gptools-torch
 alabaster==0.7.16
     # via
@@ -316,7 +314,7 @@ ipykernel==6.29.4
     #   jupyterlab
     #   myst-nb
     #   qtconsole
-ipython==8.25.0
+ipython==8.18.1
     # via
     #   -r stan/test_requirements.txt
     #   -r torch/test_requirements.txt
@@ -615,7 +613,7 @@ nest-asyncio==1.6.0
     #   -r util/test_requirements.txt
     #   ipykernel
     #   nbclient
-networkx==3.3
+networkx==3.2.1
     # via
     #   -r stan/test_requirements.txt
     #   -r torch/test_requirements.txt
@@ -1139,7 +1137,6 @@ typing-extensions==4.12.2
     #   -r util/test_requirements.txt
     #   anyio
     #   async-lru
-    #   ipython
     #   myst-nb
     #   sqlalchemy
     #   torch

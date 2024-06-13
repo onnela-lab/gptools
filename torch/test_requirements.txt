@@ -133,7 +133,7 @@ ipykernel==6.29.4
     #   jupyterlab
     #   myst-nb
     #   qtconsole
-ipython==8.25.0
+ipython==8.18.1
     # via
     #   -r torch/../shared_requirements.in
     #   ipykernel
@@ -276,8 +276,9 @@ nest-asyncio==1.6.0
     # via
     #   ipykernel
     #   nbclient
-networkx==3.3
+networkx==3.2.1
     # via
+    #   -r torch/../shared_requirements.in
     #   gptools-torch
     #   torch
 nh3==0.2.17
@@ -517,7 +518,6 @@ typing-extensions==4.12.2
     # via
     #   anyio
     #   async-lru
-    #   ipython
     #   myst-nb
     #   sqlalchemy
     #   torch
