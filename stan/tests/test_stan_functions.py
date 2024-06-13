@@ -2,7 +2,6 @@ from gptools.stan import compile_model
 from gptools.util import coordgrid, fft, kernels
 import hashlib
 import inspect
-import itertools as it
 import numpy as np
 import pathlib
 import pytest
