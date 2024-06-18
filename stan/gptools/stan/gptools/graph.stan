@@ -49,6 +49,12 @@ vector gp_graph_conditional_loc_scale(
     int node, array [] int predecessors, real epsilon
 ) {
     int k = size(predecessors);
+
+    // If there are no predecessors, we simply use the marginal distribution.
+    if (k == 0) {
+        return [0, sqrt(sigma ^ 2 + epsilon)]';
+    }
+
     matrix[1, k] cov12;
     matrix[k, k] cov22;
     if (kernel == 0) {
