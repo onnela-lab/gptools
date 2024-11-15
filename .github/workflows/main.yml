@@ -55,12 +55,12 @@ jobs:
       - name: Upload the package to test pypi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages_dir: ${{ matrix.module }}/dist
-          repository_url: https://test.pypi.org/legacy/
-          skip_existing: true
+          packages-dir: ${{ matrix.module }}/dist
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
       - name: Upload the package to pypi on `main` only
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'onnela-lab' && matrix.python-version == '3.10'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages_dir: ${{ matrix.module }}/dist
-          skip_existing: true
+          packages-dir: ${{ matrix.module }}/dist
+          skip-existing: true
