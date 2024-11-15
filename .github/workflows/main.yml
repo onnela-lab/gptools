@@ -7,6 +7,10 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+# Needed for pypi using trusted publisher setup.
+permissions:
+  id-token: write
+
 env:
   # Our tests may contain a number of stochastic elements. Setting a seed will make sure they are
   # not flaky (but also hide potential issues).
