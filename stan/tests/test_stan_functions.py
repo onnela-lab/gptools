@@ -91,7 +91,7 @@ def assert_stan_function_allclose(
         return
     # Verify against expected value. We only check one because we have already verified that they
     # are the same.
-    result, = fit.stan_variable("result")
+    result = fit.stan_variable("result")[0]
     if not isinstance(desired, list):
         desired = [desired]
     try:
