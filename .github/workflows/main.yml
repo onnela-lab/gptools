@@ -1,4 +1,4 @@
-name: CI
+name: gptools
 
 on:
   push:
@@ -23,11 +23,11 @@ jobs:
     name: Package tests and linting
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@v4"
+      - uses: "actions/setup-python@v5"
         with:
           python-version: ${{  matrix.python-version }}
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ${{ env.pythonLocation }}
@@ -51,14 +51,12 @@ jobs:
       - name: Upload the package to test pypi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           packages_dir: ${{ matrix.module }}/dist
           repository_url: https://test.pypi.org/legacy/
           skip_existing: true
       - name: Upload the package to pypi on `main` only
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'onnela-lab'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'onnela-lab' && matrix.python-version == '3.10'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
           packages_dir: ${{ matrix.module }}/dist
           skip_existing: true
