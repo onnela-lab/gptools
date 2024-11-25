@@ -73,7 +73,8 @@ def assert_stan_function_allclose(
         raise RuntimeError(f"failed to compile model for {stan_function} at {line_info}") from ex
 
     try:
-        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9, chains=1)
+        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9,
+                           chains=1)
         success, = fit.stan_variable("success")
         if not success or np.isnan(success):
             console = pathlib.Path(fit.runset.stdout_files[0]).read_text()

@@ -1,4 +1,4 @@
-from gptools.util.fft import transform_rfft2, transform_irfft2, evaluate_rfft2_log_abs_det_jacobian
+from gptools.util.fft import transform_rfft2, transform_irfft2, evaluate_rfft2_log_abs_det_jac
 from gptools.util.fft.fft2 import _get_rfft2_scale
 import torch as th
 from .. import OptionalTensor
@@ -45,7 +45,7 @@ class FourierGaussianProcess2DTransform(th.distributions.Transform):
         return transform_irfft2(y, self.loc, rfft2_scale=self.rfft2_scale)
 
     def log_abs_det_jacobian(self, x: th.Tensor, y: th.Tensor) -> th.Tensor:
-        return evaluate_rfft2_log_abs_det_jacobian(x.shape[-1], rfft2_scale=self.rfft2_scale)
+        return evaluate_rfft2_log_abs_det_jac(x.shape[-1], rfft2_scale=self.rfft2_scale)
 
 
 class FourierGaussianProcess2D(th.distributions.TransformedDistribution):
