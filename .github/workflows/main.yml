@@ -15,7 +15,7 @@ env:
   # Our tests may contain a number of stochastic elements. Setting a seed will make sure they are
   # not flaky (but also hide potential issues).
   SEED: "0"
-  cmdstanVersion: "2.36.0-rc1"
+  cmdstanVersion: "2.36.0-rc2"
 
 jobs:
   build:
