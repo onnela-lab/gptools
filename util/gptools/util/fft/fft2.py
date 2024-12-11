@@ -178,9 +178,9 @@ def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
     return unpack_rfft2(dispatch[y].fft.rfft2(y - loc) / rfft2_scale, y.shape)
 
 
-def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov_rfft2: OptionalArrayOrTensor = None,
-                                        cov: OptionalArrayOrTensor = None,
-                                        rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def evaluate_rfft2_log_abs_det_jac(width: int, *, cov_rfft2: OptionalArrayOrTensor = None,
+                                   cov: OptionalArrayOrTensor = None,
+                                   rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft2`.
 
@@ -194,7 +194,7 @@ def evaluate_rfft2_log_abs_det_jacobian(width: int, *, cov_rfft2: OptionalArrayO
             :code:`(..., height, width // 2 + 1)`.
 
     Returns:
-        log_abs_det_jacobian: Log absolute determinant of the Jacobian.
+        log_abs_det_jac: Log absolute determinant of the Jacobian.
     """
     rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, width)
     height = rfft2_scale.shape[-2]
@@ -249,4 +249,4 @@ def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
     rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, y.shape[-1])
     rfft2 = transform_rfft2(y, loc, rfft2_scale=rfft2_scale)
     return log_prob_stdnorm(rfft2).sum(axis=(-2, -1)) \
-        + evaluate_rfft2_log_abs_det_jacobian(y.shape[-1], rfft2_scale=rfft2_scale)
+        + evaluate_rfft2_log_abs_det_jac(y.shape[-1], rfft2_scale=rfft2_scale)

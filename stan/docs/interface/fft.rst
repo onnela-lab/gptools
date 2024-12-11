@@ -9,7 +9,7 @@ Utility Functions
 The following functions, and their two-dimensional analogues, primarily exist as utility functions but may be useful for more complex models.
 
 - :stan:func:`gp_rfft` transforms Gaussian process realizations to the Fourier domain and scales the coefficients such that they are white noise under the Gaussian process prior.
-- :stan:func:`gp_rfft_log_abs_det_jacobian` evaluates the log absolute determinant of the Jacobian associated with the transformations :stan:func:`gp_rfft`.
+- :stan:func:`gp_rfft_log_abs_det_jac` evaluates the log absolute determinant of the Jacobian associated with the transformations :stan:func:`gp_rfft`.
 
 Together, these two functions are used by :stan:func:`gp_rfft_lpdf` to evaluate the likelihood.
 

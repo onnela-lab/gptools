@@ -1,4 +1,4 @@
-from gptools.util.fft import transform_rfft, transform_irfft, evaluate_rfft_log_abs_det_jacobian
+from gptools.util.fft import transform_rfft, transform_irfft, evaluate_rfft_log_abs_det_jac
 from gptools.util.fft.fft1 import _get_rfft_scale
 import torch as th
 from torch.distributions import constraints
@@ -44,7 +44,7 @@ class FourierGaussianProcess1DTransform(th.distributions.Transform):
         return transform_irfft(y, self.loc, rfft_scale=self.rfft_scale)
 
     def log_abs_det_jacobian(self, x: th.Tensor, y: th.Tensor) -> th.Tensor:
-        return evaluate_rfft_log_abs_det_jacobian(x.shape[-1], rfft_scale=self.rfft_scale)
+        return evaluate_rfft_log_abs_det_jac(x.shape[-1], rfft_scale=self.rfft_scale)
 
 
 class FourierGaussianProcess1D(th.distributions.TransformedDistribution):

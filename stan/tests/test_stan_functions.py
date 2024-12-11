@@ -2,7 +2,6 @@ from gptools.stan import compile_model
 from gptools.util import coordgrid, fft, kernels
 import hashlib
 import inspect
-import itertools as it
 import numpy as np
 import pathlib
 import pytest
@@ -74,20 +73,22 @@ def assert_stan_function_allclose(
         raise RuntimeError(f"failed to compile model for {stan_function} at {line_info}") from ex
 
     try:
-        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9)
-        success = fit.stan_variable("success")[0] == 1
-        if not success:
-            raise RuntimeError("failed to sample from model")
+        fit = model.sample(arg_values, fixed_param=True, iter_sampling=1, iter_warmup=1, sig_figs=9,
+                           chains=1)
+        success, = fit.stan_variable("success")
+        if not success or np.isnan(success):
+            console = pathlib.Path(fit.runset.stdout_files[0]).read_text()
+            raise RuntimeError(f"failed to sample from model: \n{console}")
     except Exception as ex:
         if raises:
             return
         raise RuntimeError(f"failed to get Stan result for {stan_function} at {line_info}") from ex
 
     if raises:
-        raise RuntimeError("Stan sampling did not raise an error")
+        raise RuntimeError(f"sampling did not raise an error for {stan_function} at {line_info}")
 
     # Skip validation if we don't have a result type.
-    if not result_type:
+    if not result_type or desired is None:
         return
     # Verify against expected value. We only check one because we have already verified that they
     # are the same.
@@ -357,50 +358,99 @@ for num_nodes, edges, raises in [
 
 # Add evaluation of likelihood on a complete graph to check values.
 n = 10
-for p, kernel in it.product([1, 2], [
-        kernels.ExpQuadKernel(1.3, 0.7),
-        kernels.MaternKernel(1.5, 1.3, 0.7),
-        kernels.MaternKernel(2.5, 1.3, 0.7),
-        ]):
-    x = np.random.normal(0, 1, (n, p))
-    epsilon = 1e-3
-    loc = np.random.normal(0, 1, n)
-    cov = kernel.evaluate(x) + epsilon * np.eye(n)
-    dist = stats.multivariate_normal(loc, cov)
-    y = dist.rvs()
-    # Construct a complete graph.
-    edges = []
-    for i in range(1, n):
-        edges.append(np.transpose([np.roll(np.arange(i), 1), np.ones(i) * i]))
-    edges = np.concatenate(edges, axis=0).astype(int).T
-    if isinstance(kernel, kernels.ExpQuadKernel):
-        stan_function = "gp_graph_exp_quad_cov_lpdf"
-    elif isinstance(kernel, kernels.MaternKernel):
-        if kernel.dof == 1.5:
-            stan_function = "gp_graph_matern32_cov_lpdf"
-        elif kernel.dof == 2.5:
-            stan_function = "gp_graph_matern52_cov_lpdf"
+for p in [1, 2]:
+    for kernel in [
+        kernels.ExpQuadKernel(1.3, 0.7 * np.ones(p).squeeze()),
+        kernels.MaternKernel(1.5, 1.3, 0.7 * np.ones(p).squeeze()),
+        kernels.MaternKernel(2.5, 1.3, 0.7 * np.ones(p).squeeze()),
+    ]:
+        x = np.random.normal(0, 1, (n, p))
+        epsilon = 1e-3
+        loc = np.random.normal(0, 1, n)
+        cov = kernel.evaluate(x) + epsilon * np.eye(n)
+        dist = stats.multivariate_normal(loc, cov)
+        y = dist.rvs()
+        z = np.random.normal(0, 1, y.shape)
+        # Construct a complete graph.
+        edges = []
+        for i in range(1, n):
+            edges.append(np.transpose([np.roll(np.arange(i), 1), np.ones(i) * i]))
+        edges = np.concatenate(edges, axis=0).astype(int).T
+
+        length_scale_type = "real" if p == 1 else "array [p_] real"
+
+        # Evaluate the centered parametrization log likelihood.
+        if isinstance(kernel, kernels.ExpQuadKernel):
+            lpdf_stan_function = "gp_graph_exp_quad_cov_lpdf"
+            transform_stan_function = "gp_inv_graph_exp_quad_cov"
+        elif isinstance(kernel, kernels.MaternKernel):
+            if kernel.dof == 1.5:
+                lpdf_stan_function = "gp_graph_matern32_cov_lpdf"
+                transform_stan_function = "gp_inv_graph_matern32_cov"
+            elif kernel.dof == 2.5:
+                lpdf_stan_function = "gp_graph_matern52_cov_lpdf"
+                transform_stan_function = "gp_inv_graph_matern52_cov"
+            else:
+                raise ValueError(kernel.dof)
         else:
-            raise ValueError(kernel.dof)
-    else:
-        raise TypeError(kernel)
-    add_configuration({
-        "stan_function": stan_function,
-        "arg_types": {
-            "p_": "int", "num_nodes_": "int", "num_edges_": "int", "y": "vector[num_nodes_]",
-            "x": "array [num_nodes_] vector[p_]", "sigma": "real", "length_scale": "real",
-            "edges": "array [2, num_edges_] int", "degrees": "array [num_nodes_] int",
-            "epsilon": "real", "loc": "vector[num_nodes_]",
-        },
-        "arg_values": {
-            "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "loc": loc, "x": x,
-            "sigma": kernel.sigma, "length_scale": kernel.length_scale, "edges": edges + 1,
-            "degrees": np.bincount(edges[1], minlength=n), "epsilon": epsilon
-        },
-        "result_type": "real",
-        "includes": ["gptools/util.stan", "gptools/graph.stan"],
-        "desired": dist.logpdf(y),
-    })
+            raise TypeError(kernel)
+
+        # Evaluate the log likelihood.
+        add_configuration({
+            "stan_function": lpdf_stan_function,
+            "arg_types": {
+                "p_": "int",
+                "num_nodes_": "int",
+                "num_edges_": "int",
+                "y": "vector[num_nodes_]",
+                "x": "array [num_nodes_] vector[p_]",
+                "sigma": "real",
+                "length_scale": length_scale_type,
+                "edges": "array [2, num_edges_] int",
+                "degrees": "array [num_nodes_] int",
+                "epsilon": "real",
+                "loc": "vector[num_nodes_]",
+            },
+            "arg_values": {
+                "p_": p, "num_nodes_": n, "num_edges_": edges.shape[1], "y": y, "loc": loc, "x": x,
+                "sigma": kernel.sigma, "length_scale": kernel.length_scale, "edges": edges + 1,
+                "degrees": np.bincount(edges[1], minlength=n), "epsilon": epsilon
+            },
+            "result_type": "real",
+            "includes": ["gptools/util.stan", "gptools/graph.stan"],
+            "desired": dist.logpdf(y),
+        })
+
+        # Evaluate the non-centered transformation.
+        add_configuration({
+            "stan_function": transform_stan_function,
+            "arg_types": {
+                "p_": "int",
+                "num_nodes_": "int",
+                "num_edges_": "int",
+                "z": "vector[num_nodes_]",
+                "x": "array [num_nodes_] vector[p_]",
+                "sigma": "real",
+                "length_scale": length_scale_type,
+                "edges":
+                "array [2, num_edges_] int",
+                "loc": "vector[num_nodes_]",
+            },
+            "arg_values": {
+                "p_": p,
+                "num_nodes_": n,
+                "num_edges_": edges.shape[1],
+                "z": z,
+                "loc": loc,
+                "x": x,
+                "sigma": kernel.sigma,
+                "length_scale": kernel.length_scale,
+                "edges": edges + 1,
+            },
+            "result_type": "vector[num_nodes_]",
+            "includes": ["gptools/util.stan", "gptools/graph.stan"],
+            "desired": None,  # Only check we can execute, not the result.
+        })
 
 
 @pytest.mark.parametrize("config", CONFIGURATIONS, ids=get_configuration_ids())
