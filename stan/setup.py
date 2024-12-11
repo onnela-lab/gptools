@@ -14,7 +14,7 @@ setup(
     long_description_content_type="text/x-rst",
     packages=find_namespace_packages(),
     include_package_data=True,
-    version="0.1.5",
+    version="0.2.0",
     python_requires=">=3.8",
     install_requires=[
         # Required because of a bug in how complex numbers are handled (see
