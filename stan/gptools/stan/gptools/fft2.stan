@@ -171,6 +171,9 @@ real gp_rfft2_log_abs_det_jac(matrix cov_rfft2, int width) {
     ladj += - log2() * nterms + n * log(n) / 2;
     return ladj;
 }
+real gp_rfft2_log_abs_det_jacobian(matrix cov_rfft2, int width) {
+    reject("`gp_rfft2_log_abs_det_jacobian` has been renamed to `gp_rfft2_log_abs_det_jac` to comply with upcoming changes (see https://github.com/stan-dev/stanc3/issues/1470 for details).");
+}
 
 
 /**
