@@ -9,6 +9,17 @@ def get_include() -> str:
     """
     Get the include directory for the library.
     """
+    version = cmdstanpy.cmdstan_version()
+    if version and version < (2, 36):  # pragma: no cover
+        logging.warning(
+            "cmdstan<2.36.0 had a bug in the evaluation of Matern 3/2 kernels "
+            "with different length scales for different dimensions; see "
+            "https://github.com/stan-dev/math/pull/3084 for details. Your "
+            "model may yield unexpected results or crash if you use "
+            "nearest-neighbor Gaussian processes with Matern 3/2 kernels. Your "
+            "cmdstan version is %d.%d; consider upgrading.",
+            *version,
+        )
     return os.path.dirname(__file__)
 
 
