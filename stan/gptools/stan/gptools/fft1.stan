@@ -80,6 +80,9 @@ real gp_rfft_log_abs_det_jac(vector cov_rfft, int n) {
     return - sum(log(rfft_scale[1:n %/% 2 + 1])) -sum(log(rfft_scale[2:(n + 1) %/% 2]))
         - log(2) * ((n - 1) %/% 2) + n * log(n) / 2;
 }
+real gp_rfft_log_abs_det_jacobian(vector cov_rfft, int n) {
+    reject("`gp_rfft_log_abs_det_jacobian` has been renamed to `gp_rfft_log_abs_det_jac` to comply with upcoming changes (see https://github.com/stan-dev/stanc3/issues/1470 for details).");
+}
 
 
 /**
