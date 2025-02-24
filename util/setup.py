@@ -29,7 +29,6 @@ setup(
             "pytest",
             "pytest-cov",
             "scipy",
-            "torch",
             "twine",
         ],
     }

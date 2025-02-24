@@ -5,7 +5,7 @@
 #    pip-compile --output-file=stan/test_requirements.txt stan/test_requirements.in
 #
 -e file:stan
-    # via -r stan/test_requirements.in
+    # via file:///stan
 -e file:util
     # via -r stan/test_requirements.in
 alabaster==0.7.16

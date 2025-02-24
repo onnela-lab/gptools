@@ -4,12 +4,11 @@ import itertools as it
 import numpy as np
 import pytest
 from scipy.spatial.distance import cdist
-import torch as th
 from typing import Tuple
 
 
 @pytest.mark.parametrize("shape", [(7,), (2, 3)])
-def test_kernel(kernel_configuration: KernelConfiguration, shape: tuple, use_torch: bool) -> None:
+def test_kernel(kernel_configuration: KernelConfiguration, shape: tuple) -> None:
     kernel = kernel_configuration()
     X = kernel_configuration.sample_locations(shape)
     cov = (kernel + kernels.DiagonalKernel(1e-3, kernel.period)).evaluate(X)
@@ -20,9 +19,9 @@ def test_kernel(kernel_configuration: KernelConfiguration, shape: tuple, use_tor
 
 
 @pytest.mark.parametrize("p", [1, 3, 5])
-def test_evaluate_squared_distance(p: int, use_torch: bool) -> None:
+def test_evaluate_squared_distance(p: int) -> None:
     shape = (57, p)
-    X = th.randn(shape) if use_torch else np.random.normal(0, 1, shape)
+    X = np.random.normal(0, 1, shape)
     np.testing.assert_allclose(kernels.evaluate_squared_distance(X), cdist(X, X) ** 2)
 
 

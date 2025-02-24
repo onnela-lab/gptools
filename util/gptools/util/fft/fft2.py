@@ -1,16 +1,13 @@
 import math
+import numpy as np
 from typing import Optional, Tuple
-from .. import ArrayOrTensor, ArrayOrTensorDispatch, mutually_exclusive_kwargs, \
-    OptionalArrayOrTensor
+from .. import mutually_exclusive_kwargs
 from .fft1 import pack_rfft, unpack_rfft
 from .util import log2, log_prob_stdnorm
 
 
-dispatch = ArrayOrTensorDispatch()
-
-
-def _get_rfft2_scale(cov_rfft2: OptionalArrayOrTensor, cov: OptionalArrayOrTensor,
-                     rfft2_scale: OptionalArrayOrTensor, width: Optional[int]) -> ArrayOrTensor:
+def _get_rfft2_scale(cov_rfft2: Optional[np.ndarray], cov: Optional[np.ndarray],
+                     rfft2_scale: Optional[np.ndarray], width: Optional[int]) -> np.ndarray:
     num_given = sum([cov_rfft2 is not None, cov is not None, rfft2_scale is not None])
     if num_given != 1:  # pragma: no cover
         raise ValueError("exactly one of `cov_rfft2`, `cov`, or `rfft2_scale` must be given")
@@ -20,9 +17,9 @@ def _get_rfft2_scale(cov_rfft2: OptionalArrayOrTensor, cov: OptionalArrayOrTenso
 
 
 @mutually_exclusive_kwargs("cov", "cov_rfft2")
-def evaluate_rfft2_scale(*, cov_rfft2: OptionalArrayOrTensor = None,
-                         cov: OptionalArrayOrTensor = None, width: Optional[int] = None) \
-        -> ArrayOrTensor:
+def evaluate_rfft2_scale(*, cov_rfft2: Optional[np.ndarray] = None,
+                         cov: Optional[np.ndarray] = None, width: Optional[int] = None) \
+        -> np.ndarray:
     """
     Evaluate the scale of Fourier coefficients.
 
@@ -38,7 +35,7 @@ def evaluate_rfft2_scale(*, cov_rfft2: OptionalArrayOrTensor = None,
     """
     if cov is not None:
         *_, height, width = cov.shape
-        cov_rfft2 = dispatch[cov].fft.rfft2(cov).real
+        cov_rfft2 = np.fft.rfft2(cov).real
     else:
         *_, height, _ = cov_rfft2.shape
     size = width * height
@@ -70,10 +67,10 @@ def evaluate_rfft2_scale(*, cov_rfft2: OptionalArrayOrTensor = None,
     if height % 2 == 0 and width % 2 == 0:
         rfft2_scale[..., height // 2, width // 2] *= 2
 
-    return dispatch.sqrt(rfft2_scale)
+    return np.sqrt(rfft2_scale)
 
 
-def unpack_rfft2(z: ArrayOrTensor, shape: Tuple[int]) -> ArrayOrTensor:
+def unpack_rfft2(z: np.ndarray, shape: Tuple[int]) -> np.ndarray:
     """
     Unpack the Fourier coefficients of a two-dimensional real Fourier transform with shape
     :code:`(..., height, width // 2 + 1)` to a batch of matrices with shape
@@ -100,10 +97,10 @@ def unpack_rfft2(z: ArrayOrTensor, shape: Tuple[int]) -> ArrayOrTensor:
     ]
     if width % 2 == 0:  # Nyqvist frequency terms if the number of columns is even.
         parts.append(unpack_rfft(z[..., :height // 2 + 1, width // 2], height)[..., None])
-    return dispatch.concatenate(parts, axis=-1)
+    return np.concatenate(parts, axis=-1)
 
 
-def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
+def pack_rfft2(z: np.ndarray) -> np.ndarray:
     """
     Transform a batch of real matrices with shape :code:`(..., height, width)` to a batch of complex
     Fourier coefficients with shape :code:`(..., height, width // 2 + 1)` ready for inverse real
@@ -117,8 +114,7 @@ def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
     """
     *batch_shape, height, width = z.shape
     ncomplex = (width - 1) // 2
-    rfft2 = dispatch[z].empty((*batch_shape, height, width // 2 + 1),
-                              dtype=dispatch.get_complex_dtype(z))
+    rfft2 = np.empty((*batch_shape, height, width // 2 + 1), dtype=np.complex128)
     # Real FFT in the first column due to zero-frequency terms for the row-wise Fourier transform.
     rfft2[..., 0] = pack_rfft(z[..., 0], full_fft=True)
     # Complex Fourier coefficients.
@@ -130,9 +126,9 @@ def pack_rfft2(z: ArrayOrTensor) -> ArrayOrTensor:
     return rfft2
 
 
-def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, *,
-                     cov_rfft2: OptionalArrayOrTensor = None, cov: OptionalArrayOrTensor = None,
-                     rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def transform_irfft2(z: np.ndarray, loc: np.ndarray, *,
+                     cov_rfft2: Optional[np.ndarray] = None, cov: Optional[np.ndarray] = None,
+                     rfft2_scale: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Transform white noise in the Fourier domain to a Gaussian process realization.
 
@@ -151,12 +147,12 @@ def transform_irfft2(z: ArrayOrTensor, loc: ArrayOrTensor, *,
         y: Realization of the Gaussian process.
     """
     rfft2 = pack_rfft2(z) * _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, z.shape[-1])
-    return dispatch[rfft2].fft.irfft2(rfft2, z.shape[-2:]) + loc
+    return np.fft.irfft2(rfft2, z.shape[-2:]) + loc
 
 
-def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
-                    cov_rfft2: OptionalArrayOrTensor = None, cov: OptionalArrayOrTensor = None,
-                    rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def transform_rfft2(y: np.ndarray, loc: np.ndarray, *,
+                    cov_rfft2: Optional[np.ndarray] = None, cov: Optional[np.ndarray] = None,
+                    rfft2_scale: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Transform a Gaussian process realization to white noise in the Fourier domain.
 
@@ -175,12 +171,12 @@ def transform_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
             details.
     """
     rfft2_scale = _get_rfft2_scale(cov_rfft2, cov, rfft2_scale, y.shape[-1])
-    return unpack_rfft2(dispatch[y].fft.rfft2(y - loc) / rfft2_scale, y.shape)
+    return unpack_rfft2(np.fft.rfft2(y - loc) / rfft2_scale, y.shape)
 
 
-def evaluate_rfft2_log_abs_det_jac(width: int, *, cov_rfft2: OptionalArrayOrTensor = None,
-                                   cov: OptionalArrayOrTensor = None,
-                                   rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def evaluate_rfft2_log_abs_det_jac(width: int, *, cov_rfft2: Optional[np.ndarray] = None,
+                                   cov: Optional[np.ndarray] = None,
+                                   rfft2_scale: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Evaluate the log absolute determinant of the Jacobian associated with :func:`transform_rfft2`.
 
@@ -203,19 +199,19 @@ def evaluate_rfft2_log_abs_det_jac(width: int, *, cov_rfft2: OptionalArrayOrTens
     ncomplex_vertical = (height - 1) // 2
     parts = [
         # Real part of the first-column RFFT.
-        - dispatch.log(rfft2_scale[..., :height // 2 + 1, 0]).sum(axis=-1),
+        - np.log(rfft2_scale[..., :height // 2 + 1, 0]).sum(axis=-1),
         # Imaginary part of the first-column RFFT.
-        - dispatch.log(rfft2_scale[..., 1:ncomplex_vertical + 1, 0]).sum(axis=-1),
+        - np.log(rfft2_scale[..., 1:ncomplex_vertical + 1, 0]).sum(axis=-1),
         # Complex coefficients in subsequent columns.
-        - 2 * dispatch.log(rfft2_scale[..., 1:1 + ncomplex_horizontal]).sum(axis=(-2, -1))
+        - 2 * np.log(rfft2_scale[..., 1:1 + ncomplex_horizontal]).sum(axis=(-2, -1))
     ]
     # Account for Nyqvist frequencies in the last column if the number of columns is even.
     if width % 2 == 0:
         parts.extend([
             # Real part of the last-column RFFT.
-            - dispatch.log(rfft2_scale[..., :height // 2 + 1, width // 2]).sum(axis=-1),
+            - np.log(rfft2_scale[..., :height // 2 + 1, width // 2]).sum(axis=-1),
             # Imaginary part of the last-column RFFT.
-            - dispatch.log(rfft2_scale[..., 1:ncomplex_vertical + 1, width // 2]).sum(axis=-1),
+            - np.log(rfft2_scale[..., 1:ncomplex_vertical + 1, width // 2]).sum(axis=-1),
         ])
     size = width * height
     nterms = (size - 1) // 2
@@ -224,10 +220,10 @@ def evaluate_rfft2_log_abs_det_jac(width: int, *, cov_rfft2: OptionalArrayOrTens
     return sum(parts) - log2 * nterms + size * math.log(size) / 2
 
 
-def evaluate_log_prob_rfft2(y: ArrayOrTensor, loc: ArrayOrTensor, *,
-                            cov_rfft2: OptionalArrayOrTensor = None,
-                            cov: OptionalArrayOrTensor = None,
-                            rfft2_scale: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def evaluate_log_prob_rfft2(y: np.ndarray, loc: np.ndarray, *,
+                            cov_rfft2: Optional[np.ndarray] = None,
+                            cov: Optional[np.ndarray] = None,
+                            rfft2_scale: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Evaluate the log probability of a two-dimensional Gaussian process realization in Fourier space.
 

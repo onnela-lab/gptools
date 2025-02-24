@@ -16,7 +16,7 @@ SubprocessAction.set_global_env({
     "MKL_NUM_THREADS": 1,
 })
 
-modules = ["stan", "torch", "util"]
+modules = ["stan", "util"]
 requirements_txt = []
 for module in modules:
     # Generate requirement files.

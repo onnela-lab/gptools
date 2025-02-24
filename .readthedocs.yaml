@@ -2,20 +2,22 @@
 # for details).
 
 version: 2
-
+sphinx:
+  # Path to your Sphinx configuration file.
+  configuration: conf.py
 build:
-    os: ubuntu-20.04
-    tools:
-        python: "3.10"
-    jobs:
-      post_install:
-        - pip install -r ${PROJECT}/test_requirements.txt
-        # Download precompiled cmdstan if we're building gptools-stan.
-        - >
-            [ $CMDSTAN_VERSION ]
-            && echo ~
-            && curl -L -o cmdstan.tar.gz https://github.com/tillahoffmann/precompiled-cmdstan/releases/download/cmdstan-ubuntu-20.04-${CMDSTAN_VERSION}/cmdstan-ubuntu-20.04-${CMDSTAN_VERSION}.tar.gz
-            && mkdir -p ~/.cmdstan
-            && tar -xf cmdstan.tar.gz -C ~/.cmdstan
-            && ls -lh ~/.cmdstan
-        - python -m cmdstanpy.install_cmdstan --version=${CMDSTAN_VERSION} || true
+  os: ubuntu-20.04
+  tools:
+    python: "3.10"
+  jobs:
+    post_install:
+      - pip install -r ${PROJECT}/test_requirements.txt
+      # Download precompiled cmdstan if we're building gptools-stan.
+      - >
+        [ $CMDSTAN_VERSION ]
+        && echo ~
+        && curl -L -o cmdstan.tar.gz https://github.com/tillahoffmann/precompiled-cmdstan/releases/download/cmdstan-ubuntu-20.04-${CMDSTAN_VERSION}/cmdstan-ubuntu-20.04-${CMDSTAN_VERSION}.tar.gz
+        && mkdir -p ~/.cmdstan
+        && tar -xf cmdstan.tar.gz -C ~/.cmdstan
+        && ls -lh ~/.cmdstan
+      - python -m cmdstanpy.install_cmdstan --version=${CMDSTAN_VERSION} || true

@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: ["stan", "torch", "util"]
+        module: ["stan", "util"]
         python-version: ["3.9", "3.10", "3.11"]
     name: Package tests and linting
     runs-on: "ubuntu-latest"
