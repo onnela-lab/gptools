@@ -4,9 +4,9 @@
 #
 #    pip-compile
 #
--e file:stan
+-e file:./stan
     # via -r requirements.in
--e file:util
+-e file:./util
     # via -r requirements.in
 alabaster==0.7.16
     # via sphinx

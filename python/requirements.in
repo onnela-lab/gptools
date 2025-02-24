@@ -1,6 +1,6 @@
 # Include all requirements that are also used in CI.
--e file:stan
--e file:util
+-e file:./stan
+-e file:./util
 # Include additional packages we need for development.
 black
 doit-interface
