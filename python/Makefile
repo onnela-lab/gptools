@@ -16,7 +16,7 @@ ${DOCS} : %/docs :
 
 doctests : ${DOCTESTS}
 ${DOCTESTS} : %/doctests :
-	PROJECT=$* sphinx-build -n -W -b doctest . docs/$*/_build
+	PROJECT=$* sphinx-build -n -W -b doctest . $*/docs/_build
 
 lint : ${LINT}
 ${LINT} : %/lint :
