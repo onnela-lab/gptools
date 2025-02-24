@@ -1,0 +1,75 @@
+---
+title: Getting Started with gptools in R
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with gptools in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+params:
+  EVAL: !r identical(Sys.getenv("NOT_CRAN"), "true")
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = params$EVAL
+)
+```
+
+```{r, include = FALSE}
+# Make sure cmdstanr is all set up. But we don't need to show the reader this.
+cmdstanr::check_cmdstan_toolchain(fix = TRUE)
+cmdstanr::install_cmdstan(version = "2.36.0")
+```
+
+`gptoolsStan` is a minimal package to publish Stan code for efficient Gaussian process inference. The package can be used with the [`cmdstanr`](https://mc-stan.org/cmdstanr/) interface for Stan in R. Unfortunately, [`Rstan`](https://mc-stan.org/rstan/) is not supported because it [does not provide an option to specify include paths](https://discourse.mc-stan.org/t/specifying-include-paths-in-rstan/32182/2). If you're already familiar with `cmdstanr`, dive in below. If not, have a look at the [getting started guide](https://mc-stan.org/cmdstanr/articles/cmdstanr.html) for the `cmdstanr` interface.
+
+This vignette demonstrates the package by sampling from a simple Gaussian process using Fourier methods (see the accompanying publication ["Scalable Gaussian Process Inference with Stan"](https://arxiv.org/abs/2301.08836) for background on the approach). Here is the model definition in Stan.
+
+```{r, results='markup', comment='', echo=FALSE}
+cat(readLines("getting_started.stan"), sep = "\n")
+```
+
+Here, we assume that `cmdstanr` is installed and that the `cmdstan` compiler is available. See [here](https://mc-stan.org/cmdstanr/#installation) if you need help getting set up with `cmdstanr`. Let's compile the model.
+
+```{r}
+library(cmdstanr)
+library(gptoolsStan)
+
+model <- cmdstan_model(
+  stan_file="getting_started.stan",
+  include_paths=gptools_include_path(),
+)
+```
+
+As indicated in the `data` section of the Stan program, we need to define the number of elements `n` of the Gaussian process and the [real fast Fourier transform](https://en.wikipedia.org/wiki/Fast_Fourier_transform#FFT_algorithms_specialized_for_real_or_symmetric_data) (RFFT) of the covariance kernel `cov_rfft`. We'll use 100 elements and a [squared exponential covariance kernel](https://en.wikipedia.org/wiki/Gaussian_process#Usual_covariance_functions) which allows us to evaluate the RFFT directly.
+
+```{r}
+n <- 100
+length_scale <- n / 10
+freq <- 1:(n %/% 2 + 1) - 1
+# See appendix B of https://arxiv.org/abs/2301.08836 for details on the expression.
+cov_rfft <- exp(- 2 * (pi * freq * length_scale / n) ^ 2) + 1e-9
+```
+
+Let's obtain prior realization by sampling from the model.
+
+```{r}
+fit <- model$sample(
+  data=list(n=n, cov_rfft=cov_rfft),
+  seed=123,
+  chains=1,
+  iter_warmup=1000,
+  iter_sampling=5,
+)
+```
+
+We extract the draws from the `fit` object and plot a realization of the process.
+
+```{r, fig.width=6, fig.height=5}
+f <- fit$draws("f", format="draws_matrix")
+plot(1:n, f[1,], type="l", xlab="covariate x", ylab="Gaussian process f(x)")
+```
+
+This vignette illustrates the use of gptools with an elementary example. Further details can be found in the [more comprehensive documentation](http://gptools-stan.readthedocs.io/) although using the [`cmdstanpy`](https://mc-stan.org/cmdstanpy/) interface.
