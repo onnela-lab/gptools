@@ -8,7 +8,8 @@ workspace = Path(os.environ.get("WORKSPACE", "workspace")).resolve()
 fast = "CI" in os.environ
 manager = di.Manager.get_instance()
 
-# Prevent each process from parallelizing which can lead to competition across processes.
+# Prevent each process from parallelizing which can lead to competition across
+# processes.
 SubprocessAction.set_global_env(
     {
         "NUMEXPR_NUM_THREADS": 1,
@@ -21,12 +22,16 @@ SubprocessAction.set_global_env(
 modules = ["stan", "util"]
 for module in modules:
     # Generate requirement files.
-    prefix = Path(module)
-    # Tasks for linting, tests, building a distribution, and project-specific documentation.
+    prefix = "python" / Path(module)
+    # Tasks for linting, tests, building a distribution, and project-specific
+    # documentation.
     manager(
         basename="lint",
         name=module,
-        actions=[["flake8", prefix], ["black", "--check", prefix]],
+        actions=[
+            ["flake8", "--append-config", "python/setup.cfg", prefix],
+            ["black", "--check", prefix],
+        ],
     )
     action = [
         "pytest",
@@ -48,13 +53,14 @@ for module in modules:
         ],
     )
     # Documentation and doctests.
-    rm_build_action = f"rm -rf {module}/docs/_build"
+    rm_build_action = f"rm -rf {prefix}/docs/_build"
     action = SubprocessAction(
-        f"sphinx-build -n -W . {workspace}/docs/{module}", env={"PROJECT": module}
+        f"sphinx-build -n -W python {workspace}/docs/{module}", env={"PROJECT": module}
     )
     manager(basename="docs", name=module, actions=[rm_build_action, action])
     action = SubprocessAction(
-        f"sphinx-build -b doctest . {workspace}/docs/{module}", env={"PROJECT": module}
+        f"sphinx-build -b doctest python {workspace}/docs/{module}",
+        env={"PROJECT": module},
     )
     manager(basename="doctest", name=module, actions=[rm_build_action, action])
 
@@ -121,8 +127,9 @@ def add_profile_task(
     )
 
 
-# Run different profiling configurations. We expect the centered parameterization to be better for
-# strong data and the non-centered parameterization to be better for weak data.
+# Run different profiling configurations. We expect the centered parameterization to be
+# better for strong data and the non-centered parameterization to be better for weak
+# data.
 try:
     from gptools.stan.profile import (
         FOURIER_ONLY_SIZE_THRESHOLD,
@@ -148,7 +155,8 @@ try:
             add_profile_task(
                 "variational", parameterization, log10_sigma, 1024, train_frac=0.8
             )
-            # Here, we use a long timeout and many samples to ensure we get the distributions right.
+            # Here, we use a long timeout and many samples to ensure we get the
+            # distributions right.
             add_profile_task(
                 "sample",
                 parameterization,
@@ -160,7 +168,8 @@ try:
                 timeout=300,
             )
 
-        # Add a one-off task to calculate statistics for the abstract with 10k observations.
+        # Add a one-off task to calculate statistics for the abstract with 10k
+        # observations.
         add_profile_task("sample", "fourier_centered", 0, 10_000, timeout=300)
         add_profile_task("sample", "fourier_non_centered", 0, 10_000, timeout=300)
 except ModuleNotFoundError:
@@ -275,8 +284,8 @@ for notebook in Path.cwd().glob("figures/*.md"):
     actions = [
         SubprocessAction(
             f"jupytext --from md --to ipynb --output {ipynb} {notebook} "
-            f"&& jupyter nbconvert --execute --ExecutePreprocessor.timeout=-1 --to=html "
-            f"--output-dir={workspace} {ipynb}",
+            f"&& jupyter nbconvert --execute --ExecutePreprocessor.timeout=-1 "
+            f"--to=html --output-dir={workspace} {ipynb}",
             env={"WORKSPACE": workspace},
             shell=True,
         ),

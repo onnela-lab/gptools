@@ -26,7 +26,7 @@ workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
 
 # Load the matrix of tree frequencies.
 species = "tachve"
-frequency = np.loadtxt(f"../../../data/{species}.csv", delimiter=",")
+frequency = np.loadtxt(f"../../../../data/{species}.csv", delimiter=",")
 nrows, ncols = frequency.shape
 delta = 20 / 1000  # Separation between adjacent plots in km.
 
@@ -76,7 +76,7 @@ data = {
 # Compile and fit the model.
 model = compile_model(stan_file="trees.stan")
 if "CI" in os.environ:
-    niter = 10 
+    niter = 10
 elif "READTHEDOCS" in os.environ:
     niter = 200
 else:

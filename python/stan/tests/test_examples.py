@@ -1,7 +1,9 @@
 from gptools.util.testing import parameterized_notebook_tests
+from pathlib import Path
 
 
 test_example = parameterized_notebook_tests(__file__, "../docs")
+parent = Path(__file__).parent.parent
 
 
 def test_minimal_trees() -> None:
@@ -25,7 +27,7 @@ def test_minimal_trees() -> None:
     }
 
     # Compile model and fit it.
-    model = compile_model(stan_file="stan/docs/trees/trees.stan")
+    model = compile_model(stan_file=parent / "docs/trees/trees.stan")
     fit = model.sample(data, iter_sampling=10, iter_warmup=10, chains=1, seed=0)
     print(fit.diagnose())
 
@@ -52,6 +54,6 @@ def test_minimal_tube() -> None:
     )
 
     # Compile model and fit it.
-    model = compile_model(stan_file="stan/docs/tube/tube.stan")
+    model = compile_model(stan_file=parent / "docs/tube/tube.stan")
     fit = model.sample(data, iter_sampling=10, iter_warmup=10, chains=1, seed=0)
     print(fit.diagnose())

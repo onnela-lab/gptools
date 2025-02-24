@@ -30,7 +30,7 @@ import numpy as np
 import os
 
 
-with open("../../../data/tube-stan.json") as fp:
+with open("../../../../data/tube-stan.json") as fp:
     data = json.load(fp)
 
 # Sample a training mask and update the data for Stan.
@@ -50,7 +50,7 @@ data.update({
 
 
 if "CI" in os.environ:
-    niter = 10 
+    niter = 10
 elif "READTHEDOCS" in os.environ:
     niter = 200
 else:
