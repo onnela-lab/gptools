@@ -12,7 +12,8 @@ def test_kernel(kernel_configuration: KernelConfiguration, shape: tuple) -> None
     kernel = kernel_configuration()
     X = kernel_configuration.sample_locations(shape)
     cov = (kernel + kernels.DiagonalKernel(1e-3, kernel.period)).evaluate(X)
-    # Check the shape and that the kernel is positive definite if there is nugget variance.
+    # Check the shape and that the kernel is positive definite if there is nugget
+    # variance.
     *batch_shape, n = shape
     assert cov.shape == tuple(batch_shape) + (n, n)
     np.linalg.cholesky(cov)
@@ -43,26 +44,27 @@ def test_periodic(kernel_configuration: KernelConfiguration):
         other = kernel.evaluate(X[..., :, None, :], Y[..., None, :, :])
         np.testing.assert_allclose(cov, other, atol=1e-12)
 
-    # For one and two dimensions, ensure that the Fourier transform has the correct structure.
+    # For one and two dimensions, ensure that the Fourier transform has the correct
+    # structure.
     if dim > 2:
         return
 
-    # We consider different shapes here to make sure we don't get unexpected behavior with edge
-    # cases.
+    # We consider different shapes here to make sure we don't get unexpected behavior
+    # with edge cases.
     for shape in it.product(*((5, 8) for _ in range(dim))):
         xs = kernel_configuration.coordgrid(shape)
         assert xs.shape == (np.prod(shape), len(shape))
 
-        # Evaluate the covariance with the origin, take the Fourier transform, and check that there
-        # is no imaginary part.
+        # Evaluate the covariance with the origin, take the Fourier transform, and check
+        # that there is no imaginary part.
         cov = kernel.evaluate(xs)[0].reshape(shape)
         fftcov = np.fft.rfft(cov) if dim == 1 else np.fft.rfft2(cov)
         np.testing.assert_allclose(fftcov.imag, 0, atol=1e-9)
 
-        # We may want to check that the numerical and theoretic FFT match, but this requires a more
-        # "proper" implementation of the periodic kernels involving infinite sums (see
-        # https://github.com/tillahoffmann/gptools/issues/59 for details). For now, let's verify we
-        # have a positive-definite kernel.
+        # We may want to check that the numerical and theoretic FFT match, but this
+        # requires a more "proper" implementation of the periodic kernels involving
+        # infinite sums (see https://github.com/tillahoffmann/gptools/issues/59 for
+        # details). For now, let's verify we have a positive-definite kernel.
         np.testing.assert_array_less(-1e-12, kernel.evaluate_rfft(shape))
 
 
@@ -89,7 +91,9 @@ def test_diagonal_kernel():
         kernel.evaluate(x, x)
 
 
-@pytest.mark.parametrize("size", [500, (501,), (500, 502), (500, 501), (501, 500), (501, 503)])
+@pytest.mark.parametrize(
+    "size", [500, (501,), (500, 502), (500, 501), (501, 500), (501, 503)]
+)
 def test_periodic_exp_quad_rfft(size: int) -> None:
     shape = [size] if isinstance(size, int) else size
     *head, tail = shape
@@ -98,11 +102,17 @@ def test_periodic_exp_quad_rfft(size: int) -> None:
     if ndim == 1:
         kernel = kernels.ExpQuadKernel(1.2, 0.1, 3)
     elif ndim == 2:
-        kernel = kernels.ExpQuadKernel(0.9, np.asarray([0.2, 0.3]), np.asarray([2.1, 2.3]))
+        kernel = kernels.ExpQuadKernel(
+            0.9, np.asarray([0.2, 0.3]), np.asarray([2.1, 2.3])
+        )
     else:
         raise ValueError
-    xs = coordgrid(*[np.linspace(0, period, n, endpoint=False) for n, period in
-                     zip(shape, kernel.period * np.ones(ndim))])
+    xs = coordgrid(
+        *[
+            np.linspace(0, period, n, endpoint=False)
+            for n, period in zip(shape, kernel.period * np.ones(ndim))
+        ]
+    )
     cov = kernel.evaluate(0, xs).reshape(size)
     if ndim == 1:
         rfft = np.fft.rfft(cov)
@@ -110,7 +120,10 @@ def test_periodic_exp_quad_rfft(size: int) -> None:
         rfft = np.fft.rfft2(cov)
     else:
         raise ValueError
-    assert rfft.shape == (*head, tail // 2 + 1,)
+    assert rfft.shape == (
+        *head,
+        tail // 2 + 1,
+    )
     np.testing.assert_allclose(rfft.imag, 0, atol=1e-9)
 
     direct_rfft = kernel.evaluate_rfft(size)
@@ -126,7 +139,9 @@ def test_matern_invalid_dof() -> None:
 
 
 @pytest.mark.parametrize("dof", [3 / 2, 5 / 2])
-@pytest.mark.parametrize("size", [500, (501,), (500, 502), (500, 501), (501, 500), (501, 503)])
+@pytest.mark.parametrize(
+    "size", [500, (501,), (500, 502), (500, 501), (501, 500), (501, 503)]
+)
 def test_matern_approximate_rfft(dof: float, size: Tuple[int]) -> None:
     sigma = 1.2
     shape = [size] if isinstance(size, int) else size
@@ -135,7 +150,9 @@ def test_matern_approximate_rfft(dof: float, size: Tuple[int]) -> None:
     length_scale = np.asarray([0.01, 0.02])[:ndim]
     kernel = kernels.MaternKernel(dof, sigma, length_scale)
     periodic_kernel = kernels.MaternKernel(dof, sigma, length_scale, period)
-    xs = coordgrid(*(np.linspace(0, p, n, endpoint=False) for n, p in zip(shape, period)))
+    xs = coordgrid(
+        *(np.linspace(0, p, n, endpoint=False) for n, p in zip(shape, period))
+    )
     xs = np.minimum(xs, period - xs)
     cov = kernel.evaluate(np.zeros(ndim), xs).reshape(shape)
     if ndim == 1:

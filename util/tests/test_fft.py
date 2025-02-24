@@ -7,7 +7,9 @@ from typing import Tuple
 rfft2_shapes = [(4, 6), (4, 7), (5, 6), (5, 7)]
 
 
-@pytest.fixture(params=rfft2_shapes, ids=["-".join(map(str, shape)) for shape in rfft2_shapes])
+@pytest.fixture(
+    params=rfft2_shapes, ids=["-".join(map(str, shape)) for shape in rfft2_shapes]
+)
 def rfft2_shape(request: pytest.FixtureRequest) -> Tuple[int]:
     return request.param
 
@@ -29,8 +31,9 @@ def test_log_prob_norm() -> None:
 
 def test_evaluate_log_prob_rfft(batch_shape: Tuple[int], rfft_num: int) -> None:
     x = np.linspace(0, 1, rfft_num, endpoint=False)
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
-        + kernels.DiagonalKernel(0.1, 1)
+    kernel = kernels.ExpQuadKernel(
+        np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1
+    ) + kernels.DiagonalKernel(0.1, 1)
     cov = kernel.evaluate(x[:, None])
     loc = np.random.normal(0, 1, rfft_num)
     dist = stats.multivariate_normal(loc, cov)
@@ -46,8 +49,9 @@ def test_evaluate_log_prob_rfft(batch_shape: Tuple[int], rfft_num: int) -> None:
 
 def test_transform_rfft_roundtrip(batch_shape: Tuple[int], rfft_num: int) -> None:
     x = np.linspace(0, 1, rfft_num, endpoint=False)
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
-        + kernels.DiagonalKernel(0.1, 1)
+    kernel = kernels.ExpQuadKernel(
+        np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1
+    ) + kernels.DiagonalKernel(0.1, 1)
     z = np.random.normal(0, 1, (*batch_shape, rfft_num))
     loc = np.random.normal(0, 1, rfft_num)
     cov = kernel.evaluate(x[:, None])
@@ -58,15 +62,24 @@ def test_transform_rfft_roundtrip(batch_shape: Tuple[int], rfft_num: int) -> Non
     np.testing.assert_allclose(z, x)
 
 
-@pytest.mark.parametrize("kernel", [
-    kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.2),
-    kernels.MaternKernel(1.5, np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.3),
-    kernels.MaternKernel(2.5, np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.4),
-])
+@pytest.mark.parametrize(
+    "kernel",
+    [
+        kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.2),
+        kernels.MaternKernel(
+            1.5, np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.3
+        ),
+        kernels.MaternKernel(
+            2.5, np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1.4
+        ),
+    ],
+)
 def test_evaluate_log_prob_rfft2(
-        kernel: kernels.Kernel, batch_shape: Tuple[int], rfft2_shape: int
+    kernel: kernels.Kernel, batch_shape: Tuple[int], rfft2_shape: int
 ) -> None:
-    xs = coordgrid(*(np.linspace(0, kernel.period, size, endpoint=False) for size in rfft2_shape))
+    xs = coordgrid(
+        *(np.linspace(0, kernel.period, size, endpoint=False) for size in rfft2_shape)
+    )
     kernel = kernel + kernels.DiagonalKernel(1e-2, kernel.period)
     cov = kernel.evaluate(xs)
     loc = np.random.normal(0, 1, xs.shape[0])
@@ -98,11 +111,11 @@ def test_pack_rfft2_roundtrip(batch_shape: Tuple[int], rfft2_shape: int) -> None
     np.testing.assert_allclose(z, x)
 
 
-def test_transform_rfft2_roundtrip(batch_shape: Tuple[int], rfft2_shape: int) \
-        -> None:
+def test_transform_rfft2_roundtrip(batch_shape: Tuple[int], rfft2_shape: int) -> None:
     xs = coordgrid(*(np.linspace(0, 1, size, endpoint=False) for size in rfft2_shape))
-    kernel = kernels.ExpQuadKernel(np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1) \
-        + kernels.DiagonalKernel(1e-3, 1)
+    kernel = kernels.ExpQuadKernel(
+        np.random.gamma(10, 0.1), np.random.gamma(10, 0.01), 1
+    ) + kernels.DiagonalKernel(1e-3, 1)
     cov = kernel.evaluate(xs)
     cov = cov[0].reshape(rfft2_shape)
     loc = np.random.normal(0, 1, rfft2_shape)
@@ -139,7 +152,9 @@ def test_rfft_log_prob_pseudocode(n: int) -> None:
     np.testing.assert_allclose(actual, desired)
 
     # Let's also verify that this matches the actual log prob.
-    np.testing.assert_allclose(actual, stats.multivariate_normal(loc, cov).logpdf(f).sum())
+    np.testing.assert_allclose(
+        actual, stats.multivariate_normal(loc, cov).logpdf(f).sum()
+    )
 
 
 @pytest.mark.parametrize("n", [5, 8])
@@ -158,7 +173,7 @@ def test_rfft_inv_pseudocode(n: int) -> None:
         m = n // 2
         ftilde[m] = z[m] * scale[m]
     # Complex terms.
-    ftilde[1:m] = scale[1:m] * (z[1:m] + 1j * z[m + (n + 1) % 2:n]) / np.sqrt(2)
+    ftilde[1:m] = scale[1:m] * (z[1:m] + 1j * z[m + (n + 1) % 2 : n]) / np.sqrt(2)
 
     actual = np.fft.irfft(ftilde, n) + loc
 

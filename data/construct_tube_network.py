@@ -58,9 +58,12 @@ def get_nodes(graph, *args, **kwargs):
         *args: Callable criteria taking node data as input.
         **kwargs: Named attributes that must match exactly.
     """
-    return {node: data for node, data in graph.nodes(data=True) if
-            all(arg(data) for arg in args) and
-            all(data[key] == value for key, value in kwargs.items())}
+    return {
+        node: data
+        for node, data in graph.nodes(data=True)
+        if all(arg(data) for arg in args)
+        and all(data[key] == value for key, value in kwargs.items())
+    }
 
 
 def merge_stations(graph: nx.Graph, keep: str, remove: str, **attrs) -> None:
@@ -90,34 +93,53 @@ def encode_set(x: set) -> list:
 
 def __main__(args: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--app_key", help="TfL app key (see https://api-portal.tfl.gov.uk/faq for "
-                        "details)", default=os.environ.get("TFL_APP_KEY"))
-    parser.add_argument("annualized_entry_exit", help="Excel sheet of station entries and exits")
+    parser.add_argument(
+        "--app_key",
+        help="TfL app key (see https://api-portal.tfl.gov.uk/faq for " "details)",
+        default=os.environ.get("TFL_APP_KEY"),
+    )
+    parser.add_argument(
+        "annualized_entry_exit", help="Excel sheet of station entries and exits"
+    )
     parser.add_argument("output", help="JSON output file", type=pathlib.Path)
     args = parser.parse_args(args)
 
     if not args.app_key:
-        LOGGER.warning("TfL app key is not available as environment variable `TFL_APP_KEY`; "
-                       "fetching information may be slow or fail")
+        LOGGER.warning(
+            "TfL app key is not available as environment variable `TFL_APP_KEY`; "
+            "fetching information may be slow or fail"
+        )
 
     # Get all lines identifiers and their metadata.
-    line_ids = [line["id"] for line in get_and_parse("Line/Mode/tube/Route", app_key=args.app_key)]
+    line_ids = [
+        line["id"]
+        for line in get_and_parse("Line/Mode/tube/Route", app_key=args.app_key)
+    ]
     print(f"found {len(line_ids)} lines: {', '.join(line_ids)}")
-    lines = [get_and_parse(f'Line/{line_id}/Route/Sequence/all', app_key=args.app_key) for line_id
-             in tqdm(line_ids)]
+    lines = [
+        get_and_parse(f"Line/{line_id}/Route/Sequence/all", app_key=args.app_key)
+        for line_id in tqdm(line_ids)
+    ]
 
     # Add all stations and connections to the graph.
     graph = nx.Graph()
     for line in lines:
         line_id = line["lineId"]
         for stop_point_sequence in line["stopPointSequences"]:
-            for stop_points in zip(stop_point_sequence["stopPoint"],
-                                   stop_point_sequence["stopPoint"][1:]):
+            for stop_points in zip(
+                stop_point_sequence["stopPoint"], stop_point_sequence["stopPoint"][1:]
+            ):
                 stop_ids = []
                 for station in stop_points:
                     zones = [int(zone) for zone in re.split(r"[/+]", station["zone"])]
-                    graph.add_node(station["id"], name=station["name"], zone=min(zones),
-                                   lat=station["lat"], lon=station["lon"], zones=zones)
+                    graph.add_node(
+                        station["id"],
+                        name=station["name"],
+                        zone=min(zones),
+                        lat=station["lat"],
+                        lon=station["lon"],
+                        zones=zones,
+                    )
                     stop_ids.append(station["id"])
                 u, v = stop_ids
                 edge_data = graph.get_edge_data(u, v)
@@ -133,13 +155,15 @@ def __main__(args: Optional[List[str]] = None) -> None:
 
     # Merge Bank and Monument as well as the two Paddington Underground stations because that's the
     # level at which entry and exit data are available.
-    bank, = get_nodes(graph, name="Bank Underground Station")
-    monument, = get_nodes(graph, name="Monument Underground Station")
+    (bank,) = get_nodes(graph, name="Bank Underground Station")
+    (monument,) = get_nodes(graph, name="Monument Underground Station")
     merge_stations(graph, bank, monument, name="Bank and Monument Underground Station")
 
-    paddington, = get_nodes(graph, name="Paddington Underground Station")
-    paddington_hc, = get_nodes(graph, name="Paddington (H&C Line)-Underground")
-    merge_stations(graph, paddington, paddington_hc, name="Bank and Monument Underground Station")
+    (paddington,) = get_nodes(graph, name="Paddington Underground Station")
+    (paddington_hc,) = get_nodes(graph, name="Paddington (H&C Line)-Underground")
+    merge_stations(
+        graph, paddington, paddington_hc, name="Bank and Monument Underground Station"
+    )
 
     # Load the data and filter to only London Underground (LU).
     ee = pd.read_excel(args.annualized_entry_exit, sheet_name="Annualised", skiprows=6)
@@ -181,8 +205,10 @@ def __main__(args: Optional[List[str]] = None) -> None:
     with output.with_suffix(".raw.json").open("w") as fp:
         json.dump(lines, fp, indent=4)
 
-    print(f"dumped graph with {graph.number_of_nodes()} nodes and {graph.number_of_edges()} edges "
-          f"to `{args.output}`")
+    print(
+        f"dumped graph with {graph.number_of_nodes()} nodes and {graph.number_of_edges()} edges "
+        f"to `{args.output}`"
+    )
 
 
 if __name__ == "__main__":

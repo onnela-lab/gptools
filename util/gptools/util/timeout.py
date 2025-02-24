@@ -40,8 +40,9 @@ def call_with_timeout(timeout: float, target: Callable, *args, **kwargs) -> Any:
     if not callable(target):
         raise TypeError("target must be callable")
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=_wrapper, args=(queue, target, *args), kwargs=kwargs,
-                                      daemon=True)
+    process = multiprocessing.Process(
+        target=_wrapper, args=(queue, target, *args), kwargs=kwargs, daemon=True
+    )
     process.start()
 
     try:
@@ -50,7 +51,8 @@ def call_with_timeout(timeout: float, target: Callable, *args, **kwargs) -> Any:
         raise TimeoutError(f"failed to fetch result after {timeout} seconds")
     finally:
         if process.is_alive():
-            # Kill the process and all its children (https://stackoverflow.com/a/4229404/1150961).
+            # Kill the process and all its children
+            # (https://stackoverflow.com/a/4229404/1150961).
             children = psutil.Process(process.pid).children(recursive=True)
             for child in children:
                 child.kill()  # pragma: no cover

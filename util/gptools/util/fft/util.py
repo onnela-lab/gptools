@@ -9,4 +9,4 @@ def log_prob_stdnorm(y: np.ndarray) -> np.ndarray:
     """
     Evaluate the log probability of a standard normal random variable.
     """
-    return - (log2pi + y * y) / 2
+    return -(log2pi + y * y) / 2

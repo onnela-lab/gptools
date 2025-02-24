@@ -44,10 +44,12 @@ def test_minimal_tube() -> None:
     train_mask = np.random.binomial(1, 0.8, data["num_stations"])
     data["passengers"] = np.where(train_mask, data["passengers"], -1)
 
-    data.update({
-        "include_degree_effect": 1,
-        "include_zone_effect": 1,
-    })
+    data.update(
+        {
+            "include_degree_effect": 1,
+            "include_zone_effect": 1,
+        }
+    )
 
     # Compile model and fit it.
     model = compile_model(stan_file="stan/docs/tube/tube.stan")
