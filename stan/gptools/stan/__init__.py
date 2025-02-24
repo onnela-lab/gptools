@@ -57,7 +57,7 @@ def compile_model(
             is not given. If both :code:`stan_file` and :code:`exe_file` are given, the
             base names must match.
         compile: Whether or not to compile the model (defaults to :code:`True`). If
-        :code:`"force"`, the model will compile even if a newer executable is found.
+            :code:`"force"`, the model will compile even if a newer executable is found.
         stanc_options: Stanc3 compiler options (see
             `here <https://mc-stan.org/docs/stan-users-guide/stanc-args.html>`__ for
             details).
