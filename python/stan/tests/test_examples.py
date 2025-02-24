@@ -6,7 +6,7 @@ test_example = parameterized_notebook_tests(__file__, "../docs")
 parent = Path(__file__).parent.parent
 
 
-def test_minimal_trees() -> None:
+def test_minimal_trees(data_root: Path) -> None:
     """
     Minimal reproducible example to include in the publication.
     """
@@ -14,7 +14,7 @@ def test_minimal_trees() -> None:
     import numpy as np
 
     # Load tree frequency matrix, define padding, and apply training mask.
-    frequency = np.loadtxt("data/tachve.csv", delimiter=",", dtype=int)
+    frequency = np.loadtxt(data_root / "tachve.csv", delimiter=",", dtype=int)
     num_rows, num_cols = frequency.shape
     padding = 10
     train_mask = np.random.binomial(1, 0.8, frequency.shape)
@@ -32,7 +32,7 @@ def test_minimal_trees() -> None:
     print(fit.diagnose())
 
 
-def test_minimal_tube() -> None:
+def test_minimal_tube(data_root: Path) -> None:
     """
     Minimal reproducible example to include in the publication.
     """
@@ -41,7 +41,7 @@ def test_minimal_tube() -> None:
     import numpy as np
 
     # Load station locations, edges, passenger numbers, and apply training mask.
-    with open("data/tube-stan.json") as fp:
+    with open(data_root / "tube-stan.json") as fp:
         data = json.load(fp)
     train_mask = np.random.binomial(1, 0.8, data["num_stations"])
     data["passengers"] = np.where(train_mask, data["passengers"], -1)

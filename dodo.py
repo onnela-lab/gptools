@@ -21,48 +21,6 @@ SubprocessAction.set_global_env(
 
 modules = ["stan", "util"]
 for module in modules:
-    # Generate requirement files.
-    prefix = "python" / Path(module)
-    # Tasks for linting, tests, building a distribution, and project-specific
-    # documentation.
-    manager(
-        basename="lint",
-        name=module,
-        actions=[
-            ["flake8", "--append-config", "python/setup.cfg", prefix],
-            ["black", "--check", prefix],
-        ],
-    )
-    action = [
-        "pytest",
-        "-v",
-        f"--cov=gptools.{module}",
-        "--cov-report=term-missing",
-        "--cov-report=html",
-        "--cov-fail-under=100",
-        "--durations=5",
-        prefix,
-    ]
-    manager(basename="tests", name=module, actions=[action])
-    manager(
-        basename="package",
-        name=module,
-        actions=[
-            SubprocessAction("python setup.py sdist", cwd=prefix),
-            f"twine check {prefix / 'dist/*.tar.gz'}",
-        ],
-    )
-    # Documentation and doctests.
-    rm_build_action = f"rm -rf {prefix}/docs/_build"
-    action = SubprocessAction(
-        f"sphinx-build -n -W python {workspace}/docs/{module}", env={"PROJECT": module}
-    )
-    manager(basename="docs", name=module, actions=[rm_build_action, action])
-    action = SubprocessAction(
-        f"sphinx-build -b doctest python {workspace}/docs/{module}",
-        env={"PROJECT": module},
-    )
-    manager(basename="doctest", name=module, actions=[rm_build_action, action])
 
     # Compile example notebooks to create html reports.
     for path in Path.cwd().glob(f"{module}/**/*.ipynb"):
