@@ -1,16 +1,13 @@
 import math
 import numpy as np
 import operator
-from typing import Callable, Iterable, Tuple, Union
-from . import ArrayOrTensor, ArrayOrTensorDispatch, coordgrid, OptionalArrayOrTensor
+from typing import Callable, Iterable, Optional, Tuple, Union
+from . import coordgrid
 from .fft import expand_rfft
 
 
-dispatch = ArrayOrTensorDispatch()
-
-
-def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
-                       period: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def evaluate_residuals(x: np.ndarray, y: Optional[np.ndarray] = None,
+                       period: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Evaluate the residuals between points respecting periodic boundary conditions.
 
@@ -75,12 +72,12 @@ def evaluate_residuals(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
         x, y = x[..., :, None, :], x[..., None, :, :]
     residuals = x - y
     if period is not None:
-        residuals = residuals - period * dispatch.round(residuals / period)
+        residuals = residuals - period * np.round(residuals / period)
     return residuals
 
 
-def evaluate_squared_distance(x: ArrayOrTensor, y: OptionalArrayOrTensor = None,
-                              period: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+def evaluate_squared_distance(x: np.ndarray, y: Optional[np.ndarray] = None,
+                              period: Optional[np.ndarray] = None) -> np.ndarray:
     r"""
     Evaluate the squared distance between points respecting periodic boundary conditions.
 
@@ -141,10 +138,10 @@ class Kernel:
     Args:
         period: Period for circular boundary conditions.
     """
-    def __init__(self, period: OptionalArrayOrTensor = None):
+    def __init__(self, period: Optional[np.ndarray] = None):
         self.period = period
 
-    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    def evaluate(self, x: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
         """
         Evaluate the covariance kernel.
 
@@ -157,7 +154,7 @@ class Kernel:
         """
         raise NotImplementedError
 
-    def evaluate_rfft(self, shape: Union[int, Tuple[int]]) -> ArrayOrTensor:
+    def evaluate_rfft(self, shape: Union[int, Tuple[int]]) -> np.ndarray:
         """
         Evaluate the real fast Fourier transform of the kernel.
 
@@ -192,7 +189,7 @@ class CompositeKernel(Kernel):
             if a.is_periodic != b.is_periodic:
                 raise ValueError("either both or neither kernel must be periodic")
             if a.is_periodic:
-                if not dispatch.allclose(a.period, b.period):
+                if not np.allclose(a.period, b.period):
                     raise ValueError("kernels do not have the same period")
                 period = a.period
         super().__init__(period)
@@ -200,7 +197,7 @@ class CompositeKernel(Kernel):
         self.a = a
         self.b = b
 
-    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    def evaluate(self, x: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
         return self.operation(self.a.evaluate(x, y) if isinstance(self.a, Kernel) else self.a,
                               self.b.evaluate(x, y) if isinstance(self.b, Kernel) else self.b)
 
@@ -210,14 +207,14 @@ class DiagonalKernel(Kernel):
     Diagonal kernel with "nugget" variance. The kernel can only evaluated pairwise for a single set
     of points but not for the Cartesian product of two sets of points.
     """
-    def __init__(self, epsilon: float = 1, period: OptionalArrayOrTensor = None) -> None:
+    def __init__(self, epsilon: float = 1, period: Optional[np.ndarray] = None) -> None:
         super().__init__(period)
         self.epsilon = epsilon
 
-    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    def evaluate(self, x: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
         if y is not None:
             raise ValueError
-        return dispatch[x].eye(x.shape[-2]) * self.epsilon
+        return np.eye(x.shape[-2]) * self.epsilon
 
 
 class ExpQuadKernel(Kernel):
@@ -229,18 +226,18 @@ class ExpQuadKernel(Kernel):
         length_scale: Correlation length.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, sigma: float, length_scale: float, period: OptionalArrayOrTensor = None) \
+    def __init__(self, sigma: float, length_scale: float, period: Optional[np.ndarray] = None) \
             -> None:
         super().__init__(period)
         self.sigma = sigma
         self.length_scale = length_scale
 
-    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    def evaluate(self, x: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
         residuals = evaluate_residuals(x, y, self.period) / self.length_scale
-        exponent = - dispatch.square(residuals).sum(axis=-1) / 2
-        return self.sigma * self.sigma * dispatch.exp(exponent)
+        exponent = - np.square(residuals).sum(axis=-1) / 2
+        return self.sigma * self.sigma * np.exp(exponent)
 
-    def evaluate_rfft(self, shape: Union[int, Tuple[int]]) -> ArrayOrTensor:
+    def evaluate_rfft(self, shape: Union[int, Tuple[int]]) -> np.ndarray:
         if not self.is_periodic:
             raise NotImplementedError
         if not isinstance(shape, Iterable):
@@ -273,7 +270,7 @@ class MaternKernel(Kernel):
         period: Period for circular boundary conditions.
     """
     def __init__(self, dof: float, sigma: float, length_scale: float,
-                 period: OptionalArrayOrTensor = None) -> None:
+                 period: Optional[np.ndarray] = None) -> None:
         super().__init__(period)
         if dof not in (allowed_dofs := {3 / 2, 5 / 2}):
             raise ValueError(f"dof must be one of {allowed_dofs} but got {dof}")
@@ -281,7 +278,7 @@ class MaternKernel(Kernel):
         self.length_scale = length_scale
         self.dof = dof
 
-    def evaluate(self, x: ArrayOrTensor, y: OptionalArrayOrTensor = None) -> ArrayOrTensor:
+    def evaluate(self, x: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
         residuals = evaluate_residuals(x, y, self.period) / self.length_scale
         distance = (2 * self.dof * residuals * residuals).sum(axis=-1) ** 0.5
         if self.dof == 3 / 2:
@@ -290,7 +287,7 @@ class MaternKernel(Kernel):
             value = 1 + distance + distance * distance / 3
         else:
             raise NotImplementedError
-        return self.sigma * self.sigma * value * dispatch.exp(-distance)
+        return self.sigma * self.sigma * value * np.exp(-distance)
 
     def evaluate_rfft(self, shape: Tuple[int]):
         if not self.is_periodic:

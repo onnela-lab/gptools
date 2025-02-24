@@ -4,7 +4,7 @@ import inspect
 import numpy as np
 import os
 import time
-from typing import Any, Callable, Iterable, Literal, Optional, Tuple, Union
+from typing import Any, Callable, Iterable, Literal, Optional, Tuple
 
 
 # This tricks pylance into thinking that the imports *could* happen for type checking.
@@ -12,74 +12,6 @@ FALSE = os.environ.get("f1571823-5638-473a-adb5-6f5efb0cb773")
 if FALSE:
     from matplotlib.axes import Axes
     from matplotlib.colorbar import Colorbar
-    import torch as th
-
-
-ArrayOrTensor = Union[np.ndarray, "th.Tensor"]
-OptionalArrayOrTensor = Optional[ArrayOrTensor]
-
-
-class ArrayOrTensorDispatch:
-    """
-    Call the equivalent numpy or torch function based on the value of arguments.
-    """
-    def __getattr__(self, name: str) -> Callable:
-        return ft.partial(self, name)
-
-    def __call__(self, name, *args, **kwargs) -> Any:
-        module = self[args + tuple(kwargs.values())]
-        return getattr(module, name)(*args, **kwargs)
-
-    def __getitem__(self, x: ArrayOrTensor) -> Any:
-        if self.is_tensor(*x) if isinstance(x, tuple) else self.is_tensor(x):
-            import torch
-            return torch
-        else:
-            return np
-
-    def is_tensor(self, *xs: Iterable[ArrayOrTensor]) -> bool:
-        """
-        Check if objects are tensors.
-
-        Args:
-            xs: Objects to check.
-
-        Returns:
-            is_tensor: :code:`True` if :code:`x` is a tensor; :code:`False` otherwise.
-
-        Raises:
-            ValueError: If the objects are a mixture of torch tensors and numpy arrays.
-        """
-        #
-        try:
-            import torch as th
-        except ModuleNotFoundError:
-            return False
-        # None of the arguments are tensors.
-        if not any(isinstance(x, th.Tensor) for x in xs):
-            return False
-        # At least one is a tensor. If another is an array, we're in trouble.
-        if any(isinstance(x, np.ndarray) for x in xs):
-            raise ValueError("arguments are a mixture of torch tensors and numpy arrays")
-        return True
-
-    def get_complex_dtype(self, x: ArrayOrTensor) -> Any:
-        """
-        Get the complex dtype matching :code:`x` in precision.
-        """
-        return (1j * self[x].empty(0, dtype=x.dtype)).dtype
-
-    @ft.wraps(np.concatenate)
-    def concatenate(self, arrays: Iterable[ArrayOrTensor],
-                    axis: Optional[Union[int, Tuple[int]]] = None) -> ArrayOrTensor:
-        if self.is_tensor(*arrays):
-            import torch as th
-            return th.concat(arrays, dim=axis)
-        else:
-            return np.concatenate(arrays, axis=axis)
-
-
-dispatch = ArrayOrTensorDispatch()
 
 
 def coordgrid(*xs: Iterable[np.ndarray], ravel: bool = True, indexing: Literal["ij", "xy"] = "ij") \
@@ -184,7 +116,7 @@ class mutually_exclusive_kwargs:
         return _wrapper
 
 
-def encode_one_hot(z: ArrayOrTensor, p: Optional[int] = None) -> ArrayOrTensor:
+def encode_one_hot(z: np.ndarray, p: Optional[int] = None) -> np.ndarray:
     """
     Encode a vector of integers as a one-hot matrix.
 
@@ -197,8 +129,8 @@ def encode_one_hot(z: ArrayOrTensor, p: Optional[int] = None) -> ArrayOrTensor:
     """
     p = p or z.max() + 1
     n = z.shape[0]
-    result = dispatch[z].zeros((n, p))
-    result[dispatch[z].arange(n), z] = 1
+    result = np.zeros((n, p))
+    result[np.arange(n), z] = 1
     return result
 
 

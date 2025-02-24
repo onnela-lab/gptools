@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 import re
 import time
-import torch as th
 from typing import Tuple
 
 
@@ -40,37 +39,6 @@ def test_timer_errors():
     timer = util.Timer()
     with pytest.raises(RuntimeError, match="timer has not yet"):
         timer.duration
-
-
-def test_dispatch():
-    dispatch = util.ArrayOrTensorDispatch()
-
-    tensor = th.empty(7)
-    assert dispatch[tensor] is th
-    assert dispatch[tensor, 0.1] is th
-    assert isinstance(dispatch.add(tensor, tensor), th.Tensor)
-
-    array = np.empty(3)
-    assert dispatch[array] is np
-    assert dispatch[array, 0.2] is np
-    assert isinstance(dispatch.add(array, array), np.ndarray)
-
-    with pytest.raises(ValueError):
-        dispatch[tensor, array]
-    with pytest.raises(ValueError):
-        dispatch.add(array, tensor)
-
-
-@pytest.mark.parametrize("float_, complex_", [
-    (np.float32, np.complex64),
-    (np.float64, np.complex128),
-    (th.float32, th.complex64),
-    (th.float64, th.complex128),
-])
-def test_get_complex_dtype(float_, complex_) -> None:
-    dispatch = util.ArrayOrTensorDispatch()
-    x = (th if float_.__module__ == "torch" else np).ones(3, dtype=float_)
-    assert dispatch.get_complex_dtype(x) == complex_
 
 
 def test_mutually_exclusive_kwargs() -> None:

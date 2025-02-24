@@ -1,3 +1,0 @@
--e file:torch[docs,tests]
--e file:util
--r ../shared_requirements.in

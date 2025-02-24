@@ -6,65 +6,52 @@
 #
 -e file:stan
     # via -r stan/test_requirements.txt
--e file:torch
-    # via -r torch/test_requirements.txt
 -e file:util
-    # via
-    #   -r stan/test_requirements.txt
-    #   gptools-torch
+    # via -r stan/test_requirements.txt
 alabaster==0.7.16
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 anyio==4.4.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   httpx
     #   jupyter-server
 appnope==0.1.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
 argon2-cffi==23.1.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
 argon2-cffi-bindings==21.2.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   argon2-cffi
 arrow==1.3.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   isoduration
 asttokens==2.4.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   stack-data
 async-lru==2.0.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab
 attrs==23.2.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
     #   jupyter-cache
@@ -72,26 +59,22 @@ attrs==23.2.0
 babel==2.15.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab-server
     #   sphinx
 backports-tarfile==1.2.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jaraco-context
 beautifulsoup4==4.12.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbconvert
 bleach==6.1.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbconvert
 build==1.2.1
@@ -99,7 +82,6 @@ build==1.2.1
 certifi==2024.6.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   httpcore
     #   httpx
@@ -108,26 +90,22 @@ certifi==2024.6.2
 cffi==1.16.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   argon2-cffi-bindings
 charset-normalizer==3.3.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   requests
 click==8.1.7
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-cache
     #   pip-tools
 cloudpickle==3.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   doit
 cmdstanpy==1.2.3
@@ -137,56 +115,47 @@ cmdstanpy==1.2.3
 colorama==0.4.6
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   doit-interface
 comm==0.2.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   ipywidgets
 contourpy==1.2.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   matplotlib
 coverage[toml]==7.5.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   pytest-cov
 cycler==0.12.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   matplotlib
 debugpy==1.8.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
 decorator==5.1.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipython
 defusedxml==0.7.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbconvert
 docutils==0.20.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   myst-parser
     #   readme-renderer
@@ -195,13 +164,11 @@ docutils==0.20.1
 doit==0.36.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   doit-interface
 doit-interface==0.1.10
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 et-xmlfile==1.1.0
     # via
@@ -210,7 +177,6 @@ et-xmlfile==1.1.0
 exceptiongroup==1.2.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   anyio
     #   ipython
@@ -218,64 +184,45 @@ exceptiongroup==1.2.1
 executing==2.0.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   stack-data
 fastjsonschema==2.19.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbformat
-filelock==3.14.0
-    # via
-    #   -r torch/test_requirements.txt
-    #   -r util/test_requirements.txt
-    #   torch
 flake8==7.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 fonttools==4.53.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   matplotlib
 fqdn==1.5.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
-fsspec==2024.6.0
-    # via
-    #   -r torch/test_requirements.txt
-    #   -r util/test_requirements.txt
-    #   torch
 h11==0.14.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   httpcore
 httpcore==1.0.5
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   httpx
 httpx==0.27.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab
 idna==3.7
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   anyio
     #   httpx
@@ -284,15 +231,12 @@ idna==3.7
 imagesize==1.4.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 importlib-metadata==7.1.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
-    #   build
     #   doit
     #   jupyter-cache
     #   keyring
@@ -301,13 +245,11 @@ importlib-metadata==7.1.0
 iniconfig==2.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   pytest
 ipykernel==6.29.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter
     #   jupyter-console
@@ -317,7 +259,6 @@ ipykernel==6.29.4
 ipython==8.18.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   ipywidgets
@@ -326,43 +267,36 @@ ipython==8.18.1
 ipywidgets==8.1.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter
 isoduration==20.11.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
 jaraco-classes==3.4.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   keyring
 jaraco-context==5.3.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   keyring
 jaraco-functools==4.0.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   keyring
 jedi==0.19.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipython
 jinja2==3.1.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
     #   jupyterlab
@@ -370,23 +304,19 @@ jinja2==3.1.4
     #   myst-parser
     #   nbconvert
     #   sphinx
-    #   torch
 json5==0.9.25
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab-server
 jsonpointer==3.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
 jsonschema[format-nongpl]==4.22.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-events
     #   jupyterlab-server
@@ -394,24 +324,20 @@ jsonschema[format-nongpl]==4.22.0
 jsonschema-specifications==2023.12.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
 jupyter==1.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 jupyter-cache==1.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   myst-nb
 jupyter-client==8.6.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   jupyter-console
@@ -421,13 +347,11 @@ jupyter-client==8.6.2
 jupyter-console==6.6.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter
 jupyter-core==5.7.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   jupyter-client
@@ -440,19 +364,16 @@ jupyter-core==5.7.2
 jupyter-events==0.10.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
 jupyter-lsp==2.2.5
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab
 jupyter-server==2.14.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-lsp
     #   jupyterlab
@@ -462,32 +383,27 @@ jupyter-server==2.14.1
 jupyter-server-terminals==0.5.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
 jupyterlab==4.2.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   notebook
 jupyterlab-pygments==0.3.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbconvert
 jupyterlab-server==2.27.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab
     #   notebook
 jupyterlab-widgets==3.0.11
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipywidgets
 jupytext[myst]==1.16.2
@@ -495,19 +411,16 @@ jupytext[myst]==1.16.2
 keyring==25.2.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   twine
 kiwisolver==1.4.5
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   matplotlib
 markdown-it-py==3.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupytext
     #   mdit-py-plugins
@@ -516,74 +429,58 @@ markdown-it-py==3.0.0
 markupsafe==2.1.5
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jinja2
     #   nbconvert
 matplotlib==3.9.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 matplotlib-inline==0.1.7
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   ipython
 mccabe==0.7.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   flake8
 mdit-py-plugins==0.4.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupytext
     #   myst-parser
 mdurl==0.1.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   markdown-it-py
 mistune==3.0.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbconvert
 more-itertools==10.3.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jaraco-classes
     #   jaraco-functools
-mpmath==1.3.0
-    # via
-    #   -r torch/test_requirements.txt
-    #   -r util/test_requirements.txt
-    #   sympy
 myst-nb==1.1.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 myst-parser==3.0.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   myst-nb
 nbclient==0.5.13
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-cache
     #   myst-nb
@@ -591,14 +488,12 @@ nbclient==0.5.13
 nbconvert==7.16.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter
     #   jupyter-server
 nbformat==5.10.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-cache
     #   jupyter-server
@@ -609,44 +504,36 @@ nbformat==5.10.4
 nest-asyncio==1.6.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   nbclient
 networkx==3.2.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
-    #   torch
 nh3==0.2.17
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   readme-renderer
 notebook==7.2.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter
 notebook-shim==0.2.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab
     #   notebook
 numpy==1.26.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   cmdstanpy
     #   contourpy
     #   gptools-stan
-    #   gptools-torch
     #   gptools-util
     #   matplotlib
     #   pandas
@@ -657,13 +544,11 @@ openpyxl==3.1.4
 overrides==7.7.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
 packaging==24.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   build
     #   ipykernel
@@ -684,25 +569,21 @@ pandas==2.2.2
 pandocfilters==1.5.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbconvert
 parso==0.8.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jedi
 pexpect==4.9.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipython
 pillow==10.3.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   matplotlib
 pip-tools==7.4.1
@@ -710,75 +591,63 @@ pip-tools==7.4.1
 pkginfo==1.11.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   twine
 platformdirs==4.2.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-core
 pluggy==1.5.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   pytest
 prometheus-client==0.20.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
 prompt-toolkit==3.0.47
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipython
     #   jupyter-console
 psutil==5.9.8
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
 ptyprocess==0.7.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   pexpect
     #   terminado
 pure-eval==0.2.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   stack-data
 pycodestyle==2.11.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   flake8
 pycparser==2.22
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   cffi
 pyflakes==3.2.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   flake8
 pygments==2.18.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipython
     #   jupyter-console
@@ -790,7 +659,6 @@ pygments==2.18.0
 pyparsing==3.1.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   matplotlib
 pyproj==3.6.1
@@ -802,18 +670,15 @@ pyproject-hooks==1.1.0
 pytest==8.2.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   pytest-cov
 pytest-cov==5.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 python-dateutil==2.9.0.post0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   arrow
     #   jupyter-client
@@ -822,7 +687,6 @@ python-dateutil==2.9.0.post0
 python-json-logger==2.0.7
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-events
 pytz==2024.1
@@ -832,7 +696,6 @@ pytz==2024.1
 pyyaml==6.0.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-cache
     #   jupyter-events
@@ -842,7 +705,6 @@ pyyaml==6.0.1
 pyzmq==26.0.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   jupyter-client
@@ -852,25 +714,21 @@ pyzmq==26.0.3
 qtconsole==5.5.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter
 qtpy==2.4.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   qtconsole
 readme-renderer==43.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   twine
 referencing==0.35.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
     #   jsonschema-specifications
@@ -878,7 +736,6 @@ referencing==0.35.1
 requests==2.32.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyterlab-server
     #   requests-toolbelt
@@ -887,57 +744,48 @@ requests==2.32.3
 requests-toolbelt==1.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   twine
 rfc3339-validator==0.1.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
     #   jupyter-events
 rfc3986==2.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   twine
 rfc3986-validator==0.1.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
     #   jupyter-events
 rich==13.7.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   twine
 rpds-py==0.18.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
     #   referencing
 scipy==1.13.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 send2trash==1.8.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
 six==1.16.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   asttokens
     #   bleach
@@ -946,26 +794,22 @@ six==1.16.0
 sniffio==1.3.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   anyio
     #   httpx
 snowballstemmer==2.2.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 soupsieve==2.5
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   beautifulsoup4
 sphinx==7.3.7
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   myst-nb
     #   myst-parser
@@ -975,101 +819,81 @@ sphinx==7.3.7
 sphinx-multiproject==1.0.0rc1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 sphinx-rtd-theme==2.0.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 sphinx-stan==0.1.6
     # via -r stan/test_requirements.txt
 sphinxcontrib-applehelp==1.0.8
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 sphinxcontrib-devhelp==1.0.6
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 sphinxcontrib-htmlhelp==2.0.5
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 sphinxcontrib-jquery==4.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 sphinxcontrib-qthelp==1.0.7
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 sphinxcontrib-serializinghtml==1.1.10
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   sphinx
 sqlalchemy==2.0.30
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-cache
 stack-data==0.6.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipython
 stanio==0.5.0
     # via
     #   -r stan/test_requirements.txt
     #   cmdstanpy
-sympy==1.12.1
-    # via
-    #   -r torch/test_requirements.txt
-    #   -r util/test_requirements.txt
-    #   torch
 tabulate==0.9.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-cache
 terminado==0.18.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
     #   jupyter-server-terminals
 tinycss2==1.3.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   nbconvert
 tomli==2.0.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   build
     #   coverage
@@ -1078,15 +902,9 @@ tomli==2.0.1
     #   pip-tools
     #   pytest
     #   sphinx
-torch==2.3.1
-    # via
-    #   -r torch/test_requirements.txt
-    #   -r util/test_requirements.txt
-    #   gptools-torch
 tornado==6.4.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipykernel
     #   jupyter-client
@@ -1097,12 +915,10 @@ tornado==6.4.1
 tqdm==4.66.4
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   cmdstanpy
 traitlets==5.14.3
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   comm
     #   ipykernel
@@ -1122,24 +938,20 @@ traitlets==5.14.3
 twine==5.1.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
 types-python-dateutil==2.9.0.20240316
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   arrow
 typing-extensions==4.12.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   anyio
     #   async-lru
     #   myst-nb
     #   sqlalchemy
-    #   torch
 tzdata==2024.1
     # via
     #   -r stan/test_requirements.txt
@@ -1147,39 +959,33 @@ tzdata==2024.1
 uri-template==1.3.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
 urllib3==2.2.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   requests
     #   twine
 wcwidth==0.2.13
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   prompt-toolkit
 webcolors==24.6.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jsonschema
 webencodings==0.5.1
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   bleach
     #   tinycss2
 websocket-client==1.8.0
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   jupyter-server
 wheel==0.43.0
@@ -1187,13 +993,11 @@ wheel==0.43.0
 widgetsnbextension==4.0.11
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   ipywidgets
 zipp==3.19.2
     # via
     #   -r stan/test_requirements.txt
-    #   -r torch/test_requirements.txt
     #   -r util/test_requirements.txt
     #   importlib-metadata
 

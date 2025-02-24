@@ -9,7 +9,7 @@ import pytest
 from typing import Any, Callable, Type
 from unittest import mock
 from .kernels import ExpQuadKernel, Kernel, MaternKernel
-from . import coordgrid, ArrayOrTensor
+from . import coordgrid
 
 
 class KernelConfiguration:
@@ -33,7 +33,7 @@ class KernelConfiguration:
     def __call__(self) -> Kernel:
         return self.kernel_cls(**self.kwargs)
 
-    def sample_locations(self, size: tuple = None) -> ArrayOrTensor:
+    def sample_locations(self, size: tuple = None) -> np.ndarray:
         """
         Sample locations consistent with the domain on which to apply the kernel.
         """
@@ -47,7 +47,7 @@ class KernelConfiguration:
         locations = np.asarray(locations)
         return np.moveaxis(locations, 0, -1)
 
-    def coordgrid(self, shape) -> ArrayOrTensor:
+    def coordgrid(self, shape) -> np.ndarray:
         """
         Create a coordinate grid on which to evaluate the kernel.
         """

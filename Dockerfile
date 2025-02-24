@@ -4,7 +4,6 @@ WORKDIR /src
 # Copy files required for installing dependencies.
 COPY util/setup.py util/README.rst util/
 COPY stan/setup.py stan/README.rst stan/
-COPY torch/setup.py torch/README.rst torch/
 COPY dev_requirements.txt .
 
 # Install all the dependencies.
