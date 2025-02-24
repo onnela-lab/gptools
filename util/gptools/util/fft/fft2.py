@@ -114,7 +114,7 @@ def pack_rfft2(z: np.ndarray) -> np.ndarray:
     """
     *batch_shape, height, width = z.shape
     ncomplex = (width - 1) // 2
-    rfft2 = np.empty((*batch_shape, height, width // 2 + 1), dtype=np.complex64)
+    rfft2 = np.empty((*batch_shape, height, width // 2 + 1), dtype=np.complex128)
     # Real FFT in the first column due to zero-frequency terms for the row-wise Fourier transform.
     rfft2[..., 0] = pack_rfft(z[..., 0], full_fft=True)
     # Complex Fourier coefficients.
