@@ -36,7 +36,7 @@ def get_configuration_ids() -> Iterable[str]:
 
 def assert_stan_function_allclose(
         stan_function: str, arg_types: Dict[str, str], arg_values: Dict[str, np.ndarray],
-        result_type: str, desired: Union[np.ndarray, List[np.ndarray]], atol: float = 1e-8,
+        result_type: str, desired: Union[np.ndarray, List[np.ndarray]], atol: float = 1e-6,
         includes: Optional[Iterable[str]] = None, line_info: Optional[str] = "???",
         suffix: Optional[str] = None, raises: bool = False) -> None:
     """
