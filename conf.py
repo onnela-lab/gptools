@@ -18,8 +18,15 @@ plot_formats = [
 ]
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
-exclude_patterns = ["docs/_build", "docs/jupyter_execute", ".pytest_cache", "playground", "figures",
-                    "**.ipynb_checkpoints", "README.rst"]
+exclude_patterns = [
+    "docs/_build",
+    "docs/jupyter_execute",
+    ".pytest_cache",
+    "playground",
+    "figures",
+    "**.ipynb_checkpoints",
+    "README.rst",
+]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
 add_module_names = False
@@ -69,7 +76,8 @@ multiproject_projects = {
         "config": {
             "project": f"gptools-{project}",
         },
-    } for project in ["stan", "util"]
+    }
+    for project in ["stan", "util"]
 }
 current_project = get_project(multiproject_projects)
 
@@ -77,8 +85,10 @@ if current_project == "stan":
     import cmdstanpy
 
     extensions.append("sphinxcontrib.stan")
-    intersphinx_mapping["cmdstanpy"] = \
-        (f"https://cmdstanpy.readthedocs.io/en/v{cmdstanpy.__version__}", None)
+    intersphinx_mapping["cmdstanpy"] = (
+        f"https://cmdstanpy.readthedocs.io/en/v{cmdstanpy.__version__}",
+        None,
+    )
 elif current_project == "util":
     pass
 else:

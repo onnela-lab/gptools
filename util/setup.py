@@ -10,26 +10,5 @@ setup(
     packages=find_namespace_packages(),
     version="0.1.1",
     python_requires=">=3.8",
-    install_requires=[
-        "numpy",
-    ],
-    extras_require={
-        "docs": [
-            "myst-nb",
-            "sphinx",
-            "sphinx-multiproject",
-            "sphinx_rtd_theme",
-        ],
-        "tests": [
-            "doit-interface",
-            "flake8",
-            "jupyter",
-            "matplotlib",
-            "networkx",
-            "pytest",
-            "pytest-cov",
-            "scipy",
-            "twine",
-        ],
-    }
+    install_requires=["numpy"],
 )

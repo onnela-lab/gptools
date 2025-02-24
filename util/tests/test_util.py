@@ -13,7 +13,10 @@ def test_coord_grid(shape: Tuple[int], ravel: bool) -> None:
     xs = [np.arange(p) for p in shape]
     coords = util.coordgrid(*xs, ravel=ravel)
     if ravel:
-        assert coords.shape == (np.prod(shape), len(shape),)
+        assert coords.shape == (
+            np.prod(shape),
+            len(shape),
+        )
     else:
         assert coords.shape == shape + (len(shape),)
 

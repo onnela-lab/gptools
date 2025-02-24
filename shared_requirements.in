@@ -1,3 +1,0 @@
-nbclient<=0.5.13  # Required for myst-nb.
-ipython<=8.18.1
-networkx<=3.2.1

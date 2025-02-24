@@ -6,21 +6,24 @@ from . import coordgrid
 from .fft import expand_rfft
 
 
-def evaluate_residuals(x: np.ndarray, y: Optional[np.ndarray] = None,
-                       period: Optional[np.ndarray] = None) -> np.ndarray:
+def evaluate_residuals(
+    x: np.ndarray, y: Optional[np.ndarray] = None, period: Optional[np.ndarray] = None
+) -> np.ndarray:
     """
     Evaluate the residuals between points respecting periodic boundary conditions.
 
-    If :code:`period is not None` and boundary conditions apply, residuals have the correct "local"
-    behavior, i.e., points to the left have a negative residual and points to the right have a
-    positive residual. This leads to a discontinuity a distance :code:`period / 2` from any
-    reference point. The discontinuity is immaterial for even kernel functions.
+    If :code:`period is not None` and boundary conditions apply, residuals have the
+    correct "local" behavior, i.e., points to the left have a negative residual and
+    points to the right have a positive residual. This leads to a discontinuity a
+    distance :code:`period / 2` from any reference point. The discontinuity is
+    immaterial for even kernel functions.
 
     Args:
-        x: Coordinates with shape :code:`(..., p)`, where :code:`...` is the batch shape and
-            :code:`p` is the number of dimensions of the embedding space.
-        y: Coordinates with shape :code:`(..., p)` which must be broadcastable to :code:`x`. If not
-            given, the distance between the Cartesian product of :code:`x` will be evaluated.
+        x: Coordinates with shape :code:`(..., p)`, where :code:`...` is the batch shape
+            and :code:`p` is the number of dimensions of the embedding space.
+        y: Coordinates with shape :code:`(..., p)` which must be broadcastable to
+            :code:`x`. If not given, the distance between the Cartesian product of
+            :code:`x` will be evaluated.
         period: Period of circular boundary conditions.
 
     Returns:
@@ -51,7 +54,9 @@ def evaluate_residuals(x: np.ndarray, y: Optional[np.ndarray] = None,
             for i in range(-1, 3):
                 ax.axvline(i * width, color=boundary_color, ls="--")
             ax.axhline(width / 2, color=boundary_color, ls="--")
-            ax.axhline(-width / 2, color=boundary_color, ls="--", label="domain boundaries")
+            ax.axhline(
+                -width / 2, color=boundary_color, ls="--", label="domain boundaries"
+            )
             ax.axhline(0, color="silver", ls=":")
 
             ax.set_aspect("equal")
@@ -66,8 +71,8 @@ def evaluate_residuals(x: np.ndarray, y: Optional[np.ndarray] = None,
         ax.set_xlim(-(1 + factor / 2) * width, (2 + factor / 2) * width)
         fig.tight_layout()
     """
-    # Expand the shape so we get the Cartesian product of elements in x (while keeping the batch
-    # shape).
+    # Expand the shape so we get the Cartesian product of elements in x (while keeping
+    # the batch shape).
     if y is None:
         x, y = x[..., :, None, :], x[..., None, :, :]
     residuals = x - y
@@ -76,16 +81,19 @@ def evaluate_residuals(x: np.ndarray, y: Optional[np.ndarray] = None,
     return residuals
 
 
-def evaluate_squared_distance(x: np.ndarray, y: Optional[np.ndarray] = None,
-                              period: Optional[np.ndarray] = None) -> np.ndarray:
+def evaluate_squared_distance(
+    x: np.ndarray, y: Optional[np.ndarray] = None, period: Optional[np.ndarray] = None
+) -> np.ndarray:
     r"""
-    Evaluate the squared distance between points respecting periodic boundary conditions.
+    Evaluate the squared distance between points respecting periodic boundary
+    conditions.
 
     Args:
-        x: Coordinates with shape :code:`(..., p)`, where :code:`...` is the batch shape and
-            :code:`p` is the number of dimensions of the embedding space.
-        y: Coordinates with shape :code:`(..., p)` which must be broadcastable to :code:`x`. If not
-            given, the distance between the Cartesian product of :code:`x` will be evaluated.
+        x: Coordinates with shape :code:`(..., p)`, where :code:`...` is the batch shape
+            and :code:`p` is the number of dimensions of the embedding space.
+        y: Coordinates with shape :code:`(..., p)` which must be broadcastable to
+            :code:`x`. If not given, the distance between the Cartesian product of
+            :code:`x` will be evaluated.
         period: Period of circular boundary conditions.
 
     Returns:
@@ -119,9 +127,13 @@ def evaluate_squared_distance(x: np.ndarray, y: Optional[np.ndarray] = None,
             if period:
                 label += " (periodic boundaries)"
             colorbar.set_label(label)
-            cs = ax.contour(dist, colors="w", levels=[10, 20, 30], linestyles=["-", "--", ":"])
+            cs = ax.contour(
+                dist, colors="w", levels=[10, 20, 30], linestyles=["-", "--", ":"]
+            )
             plt.clabel(cs)
-            ax.scatter(*np.unravel_index(idx, shape)[::-1], color="C1").set_edgecolor("w")
+            ax.scatter(
+                *np.unravel_index(idx, shape)[::-1], color="C1"
+            ).set_edgecolor("w")
             ax.set_xlabel("position $x$")
 
         axes[0].set_ylabel("position $y$")
@@ -138,6 +150,7 @@ class Kernel:
     Args:
         period: Period for circular boundary conditions.
     """
+
     def __init__(self, period: Optional[np.ndarray] = None):
         self.period = period
 
@@ -162,7 +175,8 @@ class Kernel:
             shape: Number of sample points in each dimension.
 
         Returns:
-            rfft: Fourier coefficients with shape :code:`(*shape[:-1], shape[-1] // 2 + 1)`.
+            rfft: Fourier coefficients with shape
+                :code:`(*shape[:-1], shape[-1] // 2 + 1)`.
         """
         raise NotImplementedError
 
@@ -183,6 +197,7 @@ class CompositeKernel(Kernel):
         a: First kernel.
         b: Second kernel.
     """
+
     def __init__(self, operation: Callable, a: Kernel, b: Kernel) -> None:
         period = None
         if isinstance(a, Kernel) and isinstance(b, Kernel):
@@ -198,15 +213,18 @@ class CompositeKernel(Kernel):
         self.b = b
 
     def evaluate(self, x: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
-        return self.operation(self.a.evaluate(x, y) if isinstance(self.a, Kernel) else self.a,
-                              self.b.evaluate(x, y) if isinstance(self.b, Kernel) else self.b)
+        return self.operation(
+            self.a.evaluate(x, y) if isinstance(self.a, Kernel) else self.a,
+            self.b.evaluate(x, y) if isinstance(self.b, Kernel) else self.b,
+        )
 
 
 class DiagonalKernel(Kernel):
     """
-    Diagonal kernel with "nugget" variance. The kernel can only evaluated pairwise for a single set
-    of points but not for the Cartesian product of two sets of points.
+    Diagonal kernel with "nugget" variance. The kernel can only evaluated pairwise for a
+    single set of points but not for the Cartesian product of two sets of points.
     """
+
     def __init__(self, epsilon: float = 1, period: Optional[np.ndarray] = None) -> None:
         super().__init__(period)
         self.epsilon = epsilon
@@ -219,22 +237,25 @@ class DiagonalKernel(Kernel):
 
 class ExpQuadKernel(Kernel):
     r"""
-    Exponentiated quadratic kernel or solution to the heat equation if the kernel is periodic.
+    Exponentiated quadratic kernel or solution to the heat equation if the kernel is
+    periodic.
 
     Args:
         sigma: Scale of the covariance.
         length_scale: Correlation length.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, sigma: float, length_scale: float, period: Optional[np.ndarray] = None) \
-            -> None:
+
+    def __init__(
+        self, sigma: float, length_scale: float, period: Optional[np.ndarray] = None
+    ) -> None:
         super().__init__(period)
         self.sigma = sigma
         self.length_scale = length_scale
 
     def evaluate(self, x: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
         residuals = evaluate_residuals(x, y, self.period) / self.length_scale
-        exponent = - np.square(residuals).sum(axis=-1) / 2
+        exponent = -np.square(residuals).sum(axis=-1) / 2
         return self.sigma * self.sigma * np.exp(exponent)
 
     def evaluate_rfft(self, shape: Union[int, Tuple[int]]) -> np.ndarray:
@@ -247,8 +268,12 @@ class ExpQuadKernel(Kernel):
         value = None
         for i, size in enumerate(shape):
             xi = np.arange(size // 2 + 1)
-            part = size * rescaled_length_scale[i] * (2 * math.pi) ** 0.5 \
+            part = (
+                size
+                * rescaled_length_scale[i]
+                * (2 * math.pi) ** 0.5
                 * np.exp(-2 * (math.pi * xi * rescaled_length_scale[i]) ** 2)
+            )
             if i != ndim - 1:
                 part = expand_rfft(part, size)
             if value is None:
@@ -256,7 +281,7 @@ class ExpQuadKernel(Kernel):
             else:
                 value = value[..., None] * part
 
-        return self.sigma ** 2 * value
+        return self.sigma**2 * value
 
 
 class MaternKernel(Kernel):
@@ -269,8 +294,14 @@ class MaternKernel(Kernel):
         length_scale: Correlation length.
         period: Period for circular boundary conditions.
     """
-    def __init__(self, dof: float, sigma: float, length_scale: float,
-                 period: Optional[np.ndarray] = None) -> None:
+
+    def __init__(
+        self,
+        dof: float,
+        sigma: float,
+        length_scale: float,
+        period: Optional[np.ndarray] = None,
+    ) -> None:
         super().__init__(period)
         if dof not in (allowed_dofs := {3 / 2, 5 / 2}):
             raise ValueError(f"dof must be one of {allowed_dofs} but got {dof}")
@@ -308,7 +339,13 @@ class MaternKernel(Kernel):
         # Evaluate the spectral density.
         length_scale = self.length_scale / self.period * np.ones(ndim)
         arg = 1 + 2 / self.dof * np.sum((math.pi * length_scale * ks) ** 2, axis=-1)
-        value = size * 2 ** ndim * (math.pi / (2 * self.dof)) ** (ndim / 2) \
-            * special.gamma(self.dof + ndim / 2) / special.gamma(self.dof) \
-            * arg ** -(self.dof + ndim / 2) * length_scale.prod()
+        value = (
+            size
+            * 2**ndim
+            * (math.pi / (2 * self.dof)) ** (ndim / 2)
+            * special.gamma(self.dof + ndim / 2)
+            / special.gamma(self.dof)
+            * arg ** -(self.dof + ndim / 2)
+            * length_scale.prod()
+        )
         return self.sigma * self.sigma * value.reshape(head + [tail // 2 + 1])

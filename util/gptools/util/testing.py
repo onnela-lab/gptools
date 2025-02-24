@@ -21,6 +21,7 @@ class KernelConfiguration:
         kernel_cls: Class of the kernel to create.
         **kwargs: Keyword arguments passed to the kernel.
     """
+
     def __init__(self, dims: tuple, kernel_cls: Type[Kernel], **kwargs) -> None:
         if all(dims):
             dims = np.asarray(dims)
@@ -64,12 +65,17 @@ _kernel_configurations = [
     KernelConfiguration([None, None, None], ExpQuadKernel, sigma=4, length_scale=0.2),
     KernelConfiguration([2, 3], ExpQuadKernel, sigma=1.7, length_scale=0.3),
     KernelConfiguration([1.5], ExpQuadKernel, sigma=1.5, length_scale=0.1),
-    KernelConfiguration([2, 3, 4], ExpQuadKernel, sigma=2.1,
-                        length_scale=np.asarray([0.1, 0.15, 0.2])),
+    KernelConfiguration(
+        [2, 3, 4], ExpQuadKernel, sigma=2.1, length_scale=np.asarray([0.1, 0.15, 0.2])
+    ),
     KernelConfiguration([None], MaternKernel, dof=3 / 2, sigma=1.3, length_scale=0.2),
-    KernelConfiguration([None, None, None], MaternKernel, dof=3 / 2, sigma=4, length_scale=0.2),
+    KernelConfiguration(
+        [None, None, None], MaternKernel, dof=3 / 2, sigma=4, length_scale=0.2
+    ),
     KernelConfiguration([None], MaternKernel, dof=5 / 2, sigma=1.3, length_scale=0.2),
-    KernelConfiguration([None, None, None], MaternKernel, dof=5 / 2, sigma=4, length_scale=0.2),
+    KernelConfiguration(
+        [None, None, None], MaternKernel, dof=5 / 2, sigma=4, length_scale=0.2
+    ),
 ]
 
 
@@ -100,13 +106,18 @@ def run_myst_notebook(path: pathlib.Path) -> Any:  # pragma: no cover
 
 def parameterized_notebook_tests(file: str, rel: str) -> Callable:  # pragma: no cover
     """
-    Discover notebooks starting at a root directory and return a parameterized test to execute all.
+    Discover notebooks starting at a root directory and return a parameterized test to
+    execute all.
     """
     root = (pathlib.Path(file).parent / rel).resolve()
-    notebooks = [str(notebook) for notebook in root.glob("**/*.md") if not
-                 any(x in notebook.parts for x in EXCLUDED_DIRECTORIES)]
+    notebooks = [
+        str(notebook)
+        for notebook in root.glob("**/*.md")
+        if not any(x in notebook.parts for x in EXCLUDED_DIRECTORIES)
+    ]
 
     @pytest.mark.parametrize("notebook", notebooks)
     def _wrapped(notebook: str) -> None:
         run_myst_notebook(notebook)
+
     return _wrapped

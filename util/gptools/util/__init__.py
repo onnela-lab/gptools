@@ -14,22 +14,24 @@ if FALSE:
     from matplotlib.colorbar import Colorbar
 
 
-def coordgrid(*xs: Iterable[np.ndarray], ravel: bool = True, indexing: Literal["ij", "xy"] = "ij") \
-        -> np.ndarray:
+def coordgrid(
+    *xs: Iterable[np.ndarray], ravel: bool = True, indexing: Literal["ij", "xy"] = "ij"
+) -> np.ndarray:
     """
     Obtain coordinates for all grid points induced by :code:`xs`.
 
     Args:
         xs: Coordinates to construct the grid.
         ravel: Whether to reshape the leading dimensions.
-        indexing: Whether to use Cartesian :code:`xy` or matrix :code:`ij` indexing (defaults to
-            :code:`ij`).
+        indexing: Whether to use Cartesian :code:`xy` or matrix :code:`ij` indexing
+            (defaults to :code:`ij`).
 
     Returns:
         coord: Coordinates for all grid points with shape
-            :code:`(len(xs[0]), ..., len(xs[p - 1]), p)` if :code:`ravel` is :code:`False`, where
-            :code:`p = len(xs)` is the number of dimensions. If :code:`ravel` is :code:`True`, the
-            shape is :code:`(len(xs[0]) * ... * len(xs[p - 1]), p)`.
+            :code:`(len(xs[0]), ..., len(xs[p - 1]), p)` if :code:`ravel` is
+            :code:`False`, where :code:`p = len(xs)` is the number of dimensions. If
+            :code:`ravel` is :code:`True`, the shape is
+            :code:`(len(xs[0]) * ... * len(xs[p - 1]), p)`.
     """
     # Stack the coordinate matrices and move the coordinate dimension to the back.
     coords = np.moveaxis(np.stack(np.meshgrid(*xs, indexing=indexing)), 0, -1)
@@ -45,6 +47,7 @@ class Timer:
     Args:
         message: Message to print when the context becomes inactive.
     """
+
     def __init__(self, message: str = None):
         self.start = None
         self.end = None
@@ -64,8 +67,8 @@ class Timer:
     @property
     def duration(self) -> float:
         """
-        The duration between the start and end of the context. Returns the time since the start if
-        the context is still active.
+        The duration between the start and end of the context. Returns the time since
+        the start if the context is still active.
         """
         if self.start is None:
             raise RuntimeError("timer has not yet been started")
@@ -84,9 +87,10 @@ class mutually_exclusive_kwargs:
     Ensure a function receives mutually exclusive keyword arguments.
 
     Args:
-        keys: Sequence of string or string tuple keys. Tuples indicate that none or all of the keys
-            must be given together.
+        keys: Sequence of string or string tuple keys. Tuples indicate that none or all
+            of the keys must be given together.
     """
+
     def __init__(self, *keys) -> None:
         self.keys = keys
 
@@ -101,18 +105,23 @@ class mutually_exclusive_kwargs:
                 else:
                     given = {x: kwargs.get(x) is not None for x in key}
                     if all(given.values()) != any(given.values()):
-                        raise ValueError(f"some but not all of {key} are given: {given}")
+                        raise ValueError(
+                            f"some but not all of {key} are given: {given}"
+                        )
                     given = all(given.values())
                 if given and given_key:
                     raise ValueError(f"`{key}` and `{given_key}` are both given")
                 if given:
                     given_key = key
             if not given_key:
-                raise ValueError(f"expected exactly one of {self.keys} to be given but got "
-                                 f"{kwargs}")
+                raise ValueError(
+                    f"expected exactly one of {self.keys} to be given but got "
+                    f"{kwargs}"
+                )
             if "given" in list(inspect.signature(func).parameters):
                 kwargs["given"] = given_key
             return func(*args, **kwargs)
+
         return _wrapper
 
 

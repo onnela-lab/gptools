@@ -29,16 +29,23 @@ def __main__(args: Optional[List[str]] = None) -> None:
 
     # Remove the new stations that don't have data yet (should just be the two new Northern Line
     # stations).
-    stations_to_remove = [node for node, data in graph.nodes(data=True) if data["entries"] is None]
+    stations_to_remove = [
+        node for node, data in graph.nodes(data=True) if data["entries"] is None
+    ]
     assert len(stations_to_remove) == 2
     graph.remove_nodes_from(stations_to_remove)
     # Remove Kensington Olympia because it's hardly used in regular transit.
     graph.remove_node("940GZZLUKOY")
-    print(f"loaded graph with {graph.number_of_nodes()} nodes and {graph.number_of_edges()} edges")
+    print(
+        f"loaded graph with {graph.number_of_nodes()} nodes and {graph.number_of_edges()} edges"
+    )
 
     # Get passenger numbers and station locations.
     y = get_node_attribute(graph, "entries") + get_node_attribute(graph, "exits")
-    X = np.transpose([get_node_attribute(graph, "x"), get_node_attribute(graph, "y")]) / 1000
+    X = (
+        np.transpose([get_node_attribute(graph, "x"), get_node_attribute(graph, "y")])
+        / 1000
+    )
     X = X - np.mean(X, axis=0)
 
     # One-hot encode nodes and zones.
@@ -66,8 +73,10 @@ def __main__(args: Optional[List[str]] = None) -> None:
         "station_locations": X,
     }
     # Cast any numpy arrays to lists to ensure they are json-serializable.
-    data = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in
-            data.items()}
+    data = {
+        key: value.tolist() if isinstance(value, np.ndarray) else value
+        for key, value in data.items()
+    }
 
     with open(args.data, "w") as fp:
         json.dump(data, fp, indent=4)
