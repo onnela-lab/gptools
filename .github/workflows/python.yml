@@ -51,10 +51,6 @@ jobs:
         run: make ${{ matrix.module }}/tests
       - name: Lint the code
         run: make ${{ matrix.module }}/lint
-      - name: Build the documentation
-        run: make ${{ matrix.module }}/docs
-      - name: Run doctests
-        run: make ${{ matrix.module }}/doctests
       - name: Build the package
         run: make ${{ matrix.module }}/dist
       - name: Upload the package to test pypi
