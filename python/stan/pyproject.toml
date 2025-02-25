@@ -1,0 +1,14 @@
+[project]
+name = "gptools-stan"
+version = "0.2.1"
+description = "Gaussian processes on graphs and lattices in Stan."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "cmdstanpy>=1.0.7",  # Required because of a bug in how complex numbers are handled
+    "numpy",
+]
+
+[tool.setuptools]
+packages = {find = {namespaces = true}}
+include-package-data = true

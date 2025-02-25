@@ -14,7 +14,7 @@ ${LINT} : %/lint :
 
 dists : ${DISTS}
 ${DISTS} : %/dist :
-	cd $* && python setup.py sdist
+	cd $* && python -m build
 	twine check $@/*.tar.gz
 
 tests : ${TESTS}
