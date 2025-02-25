@@ -1,4 +1,4 @@
-# gptoolsStan [![gptools-stan: R](https://github.com/onnela-lab/gptools/actions/workflows/python.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/python.yml) [![](https://img.shields.io/pypi/v/gptools-stan)](https://pypi.org/project/gptools-stan)
+# gptoolsStan [![gptools: Python](https://github.com/onnela-lab/gptools/actions/workflows/python.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/python.yml) [![](https://img.shields.io/pypi/v/gptools-stan)](https://pypi.org/project/gptools-stan)
 
 *gptools* is a minimal package to publish Stan code for efficient Gaussian process inference. The package can be used with the [*cmdstanpy*](https://cmdstanpy.readthedocs.io/) interface for Stan in Python.
 

@@ -1,4 +1,4 @@
-name: "gptools-stan: R"
+name: "gptools: R"
 
 on:
   push:

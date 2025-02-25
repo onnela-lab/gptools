@@ -1,4 +1,4 @@
-# *gptools*: Performant Gaussian Processes in [Stan](https://mc-stan.org) [![gptools-stan: Python](https://github.com/onnela-lab/gptools/actions/workflows/python.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/python.yml) [![gptools-stan: R](https://github.com/onnela-lab/gptools/actions/workflows/R.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/R.yml)
+# *gptools*: Performant Gaussian Processes in [Stan](https://mc-stan.org) [![gptools: Python](https://github.com/onnela-lab/gptools/actions/workflows/python.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/python.yml) [![gptools: R](https://github.com/onnela-lab/gptools/actions/workflows/R.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/R.yml)
 
 Gaussian processes (GPs) are powerful distributions for modeling functional data, but using them is computationally challenging except for small datasets. *gptools* implements two methods for performant GP inference in Stan.
 
