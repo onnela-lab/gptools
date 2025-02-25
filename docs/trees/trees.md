@@ -26,7 +26,7 @@ workspace = Path(os.environ.get("WORKSPACE", os.getcwd()))
 
 # Load the matrix of tree frequencies.
 species = "tachve"
-frequency = np.loadtxt(f"../../../../data/{species}.csv", delimiter=",")
+frequency = np.loadtxt(f"../../data/{species}.csv", delimiter=",")
 nrows, ncols = frequency.shape
 delta = 20 / 1000  # Separation between adjacent plots in km.
 
