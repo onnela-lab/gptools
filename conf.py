@@ -1,15 +1,15 @@
-from multiproject.utils import get_project
+import cmdstanpy
 from sphinx.application import Sphinx
 
 
 extensions = [
     "matplotlib.sphinxext.plot_directive",
-    "multiproject",
     "myst_nb",
-    "sphinx.ext.doctest",
-    "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+    "sphinxcontrib.stan",
 ]
 
 napoleon_custom_sections = [("Returns", "params_style")]
@@ -19,13 +19,18 @@ plot_formats = [
 html_theme = "sphinx_rtd_theme"
 html_sidebars = {}
 exclude_patterns = [
+    ".pytest_cache",
+    "**.ipynb_checkpoints",
+    "**/cran-comments.md",
+    "**/LICENSE.md",
+    "**/NEWS.md",
+    "**/README.md",
     "docs/_build",
     "docs/jupyter_execute",
-    ".pytest_cache",
-    "playground",
     "figures",
-    "**.ipynb_checkpoints",
-    "README.rst",
+    "playground",
+    "README.md",
+    "venv",
 ]
 
 # Configure autodoc to avoid excessively long fully-qualified names.
@@ -37,6 +42,10 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
+    "cmdstanpy": (
+        f"https://cmdstanpy.readthedocs.io/en/v{cmdstanpy.__version__}",
+        None,
+    ),
 }
 
 source_suffix = {
@@ -70,32 +79,9 @@ mathjax3_config = {
     }
 }
 
-multiproject_projects = {
-    project: {
-        "use_config_file": False,
-        "config": {
-            "project": f"gptools-{project}",
-        },
-    }
-    for project in ["stan", "util"]
-}
-current_project = get_project(multiproject_projects)
-
-if current_project == "stan":
-    import cmdstanpy
-
-    extensions.append("sphinxcontrib.stan")
-    intersphinx_mapping["cmdstanpy"] = (
-        f"https://cmdstanpy.readthedocs.io/en/v{cmdstanpy.__version__}",
-        None,
-    )
-elif current_project == "util":
-    pass
-else:
-    raise ValueError(current_project)
-
 
 def setup(app: Sphinx) -> None:
-    # Ignore .ipynb and .html files (cf. https://github.com/executablebooks/MyST-NB/issues/363).
+    # Ignore .ipynb and .html files (cf.
+    # https://github.com/executablebooks/MyST-NB/issues/363).
     app.registry.source_suffix.pop(".ipynb", None)
     app.registry.source_suffix.pop(".html", None)

@@ -1,0 +1,38 @@
+name: "gptools-stan: Documentation"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+# Needed for pypi using trusted publisher setup.
+permissions:
+  id-token: write
+
+env:
+  cmdstanVersion: "2.36.0"
+
+jobs:
+  build:
+    name: Build documentation
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+      - uses: "actions/setup-python@v5"
+        with:
+          python-version: "3.10"
+          cache: pip
+      - uses: actions/cache@v4
+        with:
+          path: /home/runner/.cmdstan
+          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}-${{ env.cmdstanVersion }}-v1
+      - name: Install python dependencies
+        run: cd python && pip install -r requirements.txt
+      - name: Install cmdstanpy
+        run: python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
+      - name: Build the documentation
+        run: make docs
+      - name: Run doctests
+        run: make doctests

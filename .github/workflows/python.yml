@@ -1,0 +1,69 @@
+name: "gptools-stan: Python"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: python
+
+# Needed for pypi using trusted publisher setup.
+permissions:
+  id-token: write
+
+env:
+  cmdstanVersion: "2.36.0"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - stan
+          - util
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+    name: Package tests and linting
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+      - uses: "actions/setup-python@v5"
+        with:
+          python-version: ${{  matrix.python-version }}
+          cache: pip
+      - uses: actions/cache@v4
+        with:
+          path: /home/runner/.cmdstan
+          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}-${{ env.cmdstanVersion }}-v1
+      - name: Install python dependencies
+        run: pip install -r requirements.txt
+      - name: Install cmdstanpy
+        run: python -m cmdstanpy.install_cmdstan --version ${{ env.cmdstanVersion }}
+        if: matrix.module == 'stan'
+      - name: Run the tests
+        run: make ${{ matrix.module }}/tests
+      - name: Lint the code
+        run: make ${{ matrix.module }}/lint
+      - name: Build the package
+        run: make ${{ matrix.module }}/dist
+      - name: Upload the package to test pypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python/${{ matrix.module }}/dist
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+      - name: Delete attestation file if present to pass twine check
+        run: rm -f ${{ matrix.module }}/dist/*.attestation
+      - name: Upload the package to pypi on `main` only
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'onnela-lab' && matrix.python-version == '3.10'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python/${{ matrix.module }}/dist
+          skip-existing: true

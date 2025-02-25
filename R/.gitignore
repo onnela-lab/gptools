@@ -1,0 +1,10 @@
+.Rproj.user
+*.Rproj
+*.Rcheck
+*.tar.gz
+inst/doc
+vignettes/getting_started
+*.html
+build
+CRAN-SUBMISSION
+.Rhistory
