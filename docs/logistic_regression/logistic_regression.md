@@ -13,7 +13,7 @@ kernelspec:
 
 # Logistic regression
 
-This notebook illustrates the use of the `gptools-stan` package by fitting a univariate latent Gaussian process (GP) to synthetic binary outcomes. It comprises three steps:
+This notebook illustrates the use of the *gptools* package by fitting a univariate latent Gaussian process (GP) to synthetic binary outcomes. It comprises three steps:
 
 1. generating synthetic data from the model.
 2. defining the model in Stan using the Fourier methods provided by the package.
@@ -75,7 +75,7 @@ fig.tight_layout()
 
 ## Defining the model in Stan
 
-We employ `gptools-stan` to approximate the GP using Fourier methods (see {ref}`Fourier-methods` for theoretical background). Fourier methods induce periodic boundary conditions, and we need to introduce padding $p$ to attenuate their effect (see {doc}`../padding/padding` for details). Here, we pad the domain with the number of observations, i.e., the padded domain has $m=2n$ grid points, which is sufficient to overcome boundary effects.
+We employ *gptools* to approximate the GP using Fourier methods (see {ref}`Fourier-methods` for theoretical background). Fourier methods induce periodic boundary conditions, and we need to introduce padding $p$ to attenuate their effect (see {doc}`../padding/padding` for details). Here, we pad the domain with the number of observations, i.e., the padded domain has $m=2n$ grid points, which is sufficient to overcome boundary effects.
 
 Each binary outcome only contains a limited amount of information (think of trying to estimate whether a coin is fair by only flipping it once). The latent GP $z$ is thus only weakly constrained by the data such that adjacent point are highly correlated under the posterior distribution. We use a non-centered parameterization of the GP which is more efficient for weakly constrained GPs (see {ref}`parameterizations` for details and the ["Reparameterization" section](https://mc-stan.org/docs/stan-users-guide/reparameterization.html) of the Stan user guide for a general discussion).
 
@@ -89,7 +89,7 @@ The complete model is shown below.
 
 ## Fitting the model and analyzing results
 
-We fit the model in two steps. First, we compile the model using the {func}`~gptools.stan.compile_model` wrapper for `cmdstanpy`. The function ensures include paths are configured appropriately such that `gptools-stan` can be included using Stan's `#include` syntax. If you intend to use a different interface, the library path needs to be added to the `include_paths` of the interface (see the [`cmdstanpy` documentation](https://mc-stan.org/docs/stan-users-guide/stanc-args.html) for details). The library path can be obtained by running `python -m gptools.stan` from the command line. Second we call the `sample` method of the compiled model to obtain posterior samples.
+We fit the model in two steps. First, we compile the model using the {func}`~gptools.stan.compile_model` wrapper for `cmdstanpy`. The function ensures include paths are configured appropriately such that *gptools* can be included using Stan's `#include` syntax. If you intend to use a different interface, the library path needs to be added to the `include_paths` of the interface (see the [`cmdstanpy` documentation](https://mc-stan.org/docs/stan-users-guide/stanc-args.html) for details). The library path can be obtained by running `python -m gptools.stan` from the command line. Second we call the `sample` method of the compiled model to obtain posterior samples.
 
 ```{code-cell} ipython3
 from gptools.stan import compile_model

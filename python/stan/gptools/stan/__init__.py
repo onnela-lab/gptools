@@ -91,4 +91,4 @@ def compile_model(
 # easily achieve the same effect in the sphinx `conf.py`` because each example runs in
 # its own kernel.
 if "READTHEDOCS" in os.environ:  # pragma: no cover
-    set_cmdstanpy_log_level()
+    set_cmdstanpy_log_level("ERROR")

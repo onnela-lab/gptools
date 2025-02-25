@@ -1,7 +1,7 @@
 import cmdstanpy
 from sphinx.application import Sphinx
 
-
+project = "gptools"
 extensions = [
     "matplotlib.sphinxext.plot_directive",
     "myst_nb",
@@ -16,8 +16,11 @@ napoleon_custom_sections = [("Returns", "params_style")]
 plot_formats = [
     ("png", 144),
 ]
-html_theme = "sphinx_rtd_theme"
-html_sidebars = {}
+html_theme = "sphinx_book_theme"
+html_theme_options = {
+    "repository_url": "https://github.com/onnela-lab/gptools",
+    "use_repository_button": True,
+}
 exclude_patterns = [
     ".pytest_cache",
     "**.ipynb_checkpoints",
