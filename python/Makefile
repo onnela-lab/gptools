@@ -15,7 +15,7 @@ ${LINT} : %/lint :
 dists : ${DISTS}
 ${DISTS} : %/dist :
 	cd $* && python -m build
-	twine check $@/*.tar.gz
+	twine check $@/gptools*
 
 tests : ${TESTS}
 ${TESTS} : %/tests :
