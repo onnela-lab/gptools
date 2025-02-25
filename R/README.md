@@ -1,4 +1,4 @@
-# gptoolsStan [![gptoolsStan R package](https://github.com/onnela-lab/gptoolsStan/actions/workflows/main.yml/badge.svg)](https://github.com/onnela-lab/gptoolsStan/actions/workflows/main.yml) [![CRAN/METACRAN Version](https://img.shields.io/cran/v/gptoolsStan)](https://cran.r-project.org/package=gptoolsStan)
+# gptoolsStan [![gptools-stan: R](https://github.com/onnela-lab/gptools/actions/workflows/R.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/R.yml) [![CRAN/METACRAN Version](https://img.shields.io/cran/v/gptoolsStan)](https://cran.r-project.org/package=gptoolsStan)
 
 `gptoolsStan` is a minimal package to publish Stan code for efficient Gaussian process inference. The package can be used with the [`cmdstanr`](https://mc-stan.org/cmdstanr/) interface for Stan in R.
 

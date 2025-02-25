@@ -1,12 +1,16 @@
 Scalable Gaussian process inference with *Stan*
 ===============================================
 
-.. image:: https://github.com/onnela-lab/gptools/actions/workflows/main.yml/badge.svg
-    :target: https://github.com/onnela-lab/gptools/actions/workflows/main.yml
+.. image:: https://github.com/onnela-lab/gptools/actions/workflows/python.yml/badge.svg
+    :target: https://github.com/onnela-lab/gptools/actions/workflows/python.yml
+.. image:: https://github.com/onnela-lab/gptools/actions/workflows/R.yml/badge.svg
+    :target: https://github.com/onnela-lab/gptools/actions/workflows/R.yml
 .. image:: https://readthedocs.org/projects/gptools-stan/badge/?version=latest
     :target: https://gptools-stan.readthedocs.io/en/latest/?badge=latest
 .. image:: https://img.shields.io/pypi/v/gptools-stan
     :target: https://pypi.org/project/gptools-stan
+.. image:: https://img.shields.io/cran/v/gptoolsStan
+    :target: https://cran.r-project.org/package=gptoolsStan
 .. image:: https://img.shields.io/static/v1?label=&message=GitHub&color=gray&logo=github
     :target: https://github.com/onnela-lab/gptools
 
@@ -49,7 +53,7 @@ from the command line. The library exposes a function :func:`gptools.stan.compil
 
 .. testsetup::
 
-    stan_file = "stan/docs/getting_started/getting_started.stan"
+    stan_file = "docs/getting_started/getting_started.stan"
 
 .. doctest::
 

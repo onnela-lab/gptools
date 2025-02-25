@@ -10,4 +10,4 @@ Utility functions support the implementation of :doc:`graph` and :doc:`fft`, suc
 Function Reference
 ------------------
 
-.. stan:autodoc:: ../../gptools/stan/gptools/util.stan
+.. stan:autodoc:: ../../stan/gptools/util.stan

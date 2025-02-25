@@ -6,4 +6,4 @@ The module implements methods to approximate Gaussian processes using :ref:`spar
 Function Reference
 ------------------
 
-.. stan:autodoc:: ../../gptools/stan/gptools/graph.stan
+.. stan:autodoc:: ../../stan/gptools/graph.stan

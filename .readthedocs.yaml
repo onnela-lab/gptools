@@ -4,7 +4,7 @@
 version: 2
 sphinx:
   # Path to your Sphinx configuration file.
-  configuration: python/conf.py
+  configuration: conf.py
 build:
   os: ubuntu-20.04
   tools:

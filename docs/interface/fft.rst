@@ -23,11 +23,11 @@ Function Reference
 One-dimensional Signals
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. stan:autodoc:: ../../gptools/stan/gptools/fft1.stan
+.. stan:autodoc:: ../../stan/gptools/fft1.stan
 
 Two-dimensional Signals
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. stan:autodoc:: ../../gptools/stan/gptools/fft2.stan
+.. stan:autodoc:: ../../stan/gptools/fft2.stan
 
 .. [#] Fourier-domain kernels are implemented by discretizing their power spectrum naively. This approach works well if the number of grid points is large and the correlation length is small compared with the size of the domain. More `sophisticated techniques <https://proceedings.neurips.cc/paper/2020/file/92bf5e6240737e0326ea59846a83e076-Paper.pdf>`_ may be required otherwise.
