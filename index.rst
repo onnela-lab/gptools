@@ -65,13 +65,13 @@ Getting Started in R
 
 .. code-block:: R
 
-    library(cmdstanr)
-    library(gptoolsStan)
-
-    model <- cmdstan_model(
-    stan_file="docs/getting_started/getting_started.stan",
-    include_paths=gptools_include_path(),
-    )
+    > library(cmdstanr)
+    > library(gptoolsStan)
+    >
+    > model <- cmdstan_model(
+    +     stan_file="docs/getting_started/getting_started.stan",
+    +     include_paths=gptools_include_path(),
+    + )
 
 If you use another *Stan* `interface <https://mc-stan.org/users/interfaces/>`__, you can download the `library files from GitHub <https://github.com/onnela-lab/gptools/tree/main/stan>`__. Then add the library location to the compiler :code:`include_paths` as `described in the manual <https://mc-stan.org/docs/stan-users-guide/stanc-args.html>`__.
 
