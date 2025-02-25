@@ -1,11 +1,11 @@
-# *gptools*: Performant Gaussian Processes in [Stan](https://mc-stan.org) [![gptools-stan: Python](https://github.com/onnela-lab/gptools/actions/workflows/python.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/python.yml) [![gptools-stan: R](https://github.com/onnela-lab/gptools/actions/workflows/R.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/R.yml)
+# *gptools*: Performant Gaussian Processes in [Stan](https://mc-stan.org) [![gptools: Python](https://github.com/onnela-lab/gptools/actions/workflows/python.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/python.yml) [![gptools: R](https://github.com/onnela-lab/gptools/actions/workflows/R.yml/badge.svg)](https://github.com/onnela-lab/gptools/actions/workflows/R.yml)
 
 Gaussian processes (GPs) are powerful distributions for modeling functional data, but using them is computationally challenging except for small datasets. *gptools* implements two methods for performant GP inference in Stan.
 
 1. A sparse approximation of the likelihood. This approach includes nearest neighbor Gaussian processes but also supports more general dependence structures, e.g., for periodic kernels.
 2. An exact likelihood evaluation for data on regularly spaced lattices using fast Fourier transforms.
 
-The implementation follows Stan’s design and exposes performant inference through a familiar interface. We provide interfaces in Python and R. See the  [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.48550/arXiv.2301.08836) for details of the implementation. The comprehensive [documentation](http://gptools-stan.readthedocs.io/) includes many [examples](https://gptools-stan.readthedocs.io/docs/examples.html).
+The implementation follows Stan’s design and exposes performant inference through a familiar interface. We provide interfaces in Python and R. See the accompanying publication [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.48550/arXiv.2301.08836) for details of the implementation. The comprehensive [documentation](http://gptools-stan.readthedocs.io/) includes many [examples](https://gptools-stan.readthedocs.io/docs/examples.html).
 
 ## Getting Started
 
@@ -20,7 +20,7 @@ functions {
 }
 ```
 
-See [here](stan) for the list of all options. You can download the [Stan files](stan) and use them with your favorite interface or use the provided Python and R interfaces.
+See [here](stan/gptools) for the list of all include options. You can download the [Stan files](stan) and use them with your favorite interface or use the provided Python and R interfaces.
 
 ### Python and *cmdstanpy*
 
@@ -65,9 +65,9 @@ For an end-to-end example, see [this vignette](https://cran.r-project.org/web/pa
 
 Contributions to the package are always welcome! The repository structure is as follows:
 
-- [`stan`](stan) contains the core implementation of *gptools*.
-- [`python`](python) contains the Python wrapper for *gptools*.
-- [`R`](R) contains the Python wrapper for *gptools*.
+- [`stan/gptools`](stan/gptools) contains the core implementation of *gptools*.
+- [`python/stan`](python/stan) contains the Python wrapper for *gptools*.
+- [`R`](R) contains the R wrapper for *gptools*.
 - [`docs`](docs) contains the documentation hosted at https://gptools-stan.readthedocs.io.
 
 ## Replicating the Results

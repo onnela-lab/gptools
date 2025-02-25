@@ -1,4 +1,4 @@
-name: "gptools-stan: Python"
+name: "gptools: Python"
 
 on:
   push:

@@ -19,8 +19,7 @@ pytest
 pytest-cov
 scipy
 sphinx
-sphinx_rtd_theme
-sphinx-multiproject
+sphinx-book-theme
 sphinx-stan>=0.1.5
 tabulate
 twine
