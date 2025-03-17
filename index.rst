@@ -26,7 +26,7 @@ Gaussian processes (GPs) are powerful distributions for modeling functional data
 1. A :ref:`sparse-approximation` of the likelihood. This approach includes nearest neighbor Gaussian processes but also supports more general dependence structures, e.g., for periodic kernels.
 2. An exact likelihood evaluation for data on regularly spaced lattices using fast :ref:`Fourier-methods`.
 
-The implementation follows Stan's design and exposes performant inference through a familiar interface. We provide interfaces in Python and R. See the accompanying publication `Scalable Gaussian Process Inference with Stan <https://doi.org/10.48550/arXiv.2301.08836>`__ for details of the implementation.
+The implementation follows Stan's design and exposes performant inference through a familiar interface. We provide interfaces in Python and R. See the accompanying publication `Scalable Gaussian Process Inference with Stan <https://doi.org/10.18637/jss.v112.i02>`__ for details of the implementation.
 
 .. _getting-started:
 
@@ -78,4 +78,4 @@ If you use another *Stan* `interface <https://mc-stan.org/users/interfaces/>`__,
 Reproducing Results From the Accompanying Publication
 -----------------------------------------------------
 
-The `accompanying publication "Scalable Gaussian process inference with Stan" <https://arxiv.org/abs/2301.08836>`__ provides theoretical background and a technical description of the methods. All results and figures can be reproduced by following the instructions in the `repository of reproduction materials <https://github.com/onnela-lab/gptools-reproduction-material>`__.
+The `accompanying publication "Scalable Gaussian process inference with Stan" <https://doi.org/10.18637/jss.v112.i02>`__ provides theoretical background and a technical description of the methods. All results and figures can be reproduced by following the instructions in the `repository of reproduction materials <https://github.com/onnela-lab/gptools-reproduction-material>`__.
