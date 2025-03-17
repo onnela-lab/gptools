@@ -25,7 +25,7 @@ cmdstanr::install_cmdstan(version = "2.36.0")
 
 `gptoolsStan` is a minimal package to publish Stan code for efficient Gaussian process inference. The package can be used with the [`cmdstanr`](https://mc-stan.org/cmdstanr/) interface for Stan in R. Unfortunately, [`Rstan`](https://mc-stan.org/rstan/) is not supported because it [does not provide an option to specify include paths](https://discourse.mc-stan.org/t/specifying-include-paths-in-rstan/32182/2). If you're already familiar with `cmdstanr`, dive in below. If not, have a look at the [getting started guide](https://mc-stan.org/cmdstanr/articles/cmdstanr.html) for the `cmdstanr` interface.
 
-This vignette demonstrates the package by sampling from a simple Gaussian process using Fourier methods (see the accompanying publication ["Scalable Gaussian Process Inference with Stan"](https://arxiv.org/abs/2301.08836) for background on the approach). Here is the model definition in Stan.
+This vignette demonstrates the package by sampling from a simple Gaussian process using Fourier methods (see the accompanying publication ["Scalable Gaussian Process Inference with Stan"](https://doi.org/10.18637/jss.v112.i02) for background on the approach). Here is the model definition in Stan.
 
 ```{r, results='markup', comment='', echo=FALSE}
 cat(readLines("getting_started.stan"), sep = "\n")
@@ -49,7 +49,7 @@ As indicated in the `data` section of the Stan program, we need to define the nu
 n <- 100
 length_scale <- n / 10
 freq <- 1:(n %/% 2 + 1) - 1
-# See appendix B of https://arxiv.org/abs/2301.08836 for details on the expression.
+# See appendix B of https://doi.org/10.18637/jss.v112.i02 for details on the expression.
 cov_rfft <- exp(- 2 * (pi * freq * length_scale / n) ^ 2) + 1e-9
 ```
 

@@ -59,6 +59,7 @@ jobs:
           packages-dir: python/${{ matrix.module }}/dist
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
+          verbose: true
       - name: Delete attestation file if present to pass twine check
         run: rm -f ${{ matrix.module }}/dist/*.attestation
       - name: Upload the package to pypi on `main` only
@@ -67,3 +68,4 @@ jobs:
         with:
           packages-dir: python/${{ matrix.module }}/dist
           skip-existing: true
+          verbose: true

@@ -1,0 +1,17 @@
+bibentry(bibtype = "Article",
+  title        = "{gptools}: Scalable {G}aussian Process Inference with {Stan}",
+  author       = c(person(given = "Till",
+                          family = "Hoffmann",
+                          email = "thoffmann@hsph.harvard.edu"),
+                   person(given = "Jukka-Pekka",
+                          family = "Onnela",
+                          email = "onnela@hsph.harvard.edu")),
+  journal      = "Journal of Statistical Software",
+  year         = "2025",
+  volume       = "112",
+  number       = "2",
+  pages        = "1--31",
+  doi          = "10.18637/jss.v112.i02",
+  header       = "To cite gptoolsStan in publications use:"
+)
+

@@ -5,7 +5,7 @@ Gaussian processes (GPs) are powerful distributions for modeling functional data
 1. A sparse approximation of the likelihood. This approach includes nearest neighbor Gaussian processes but also supports more general dependence structures, e.g., for periodic kernels.
 2. An exact likelihood evaluation for data on regularly spaced lattices using fast Fourier transforms.
 
-The implementation follows Stan’s design and exposes performant inference through a familiar interface. We provide interfaces in Python and R. See the accompanying publication [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.48550/arXiv.2301.08836) for details of the implementation. The comprehensive [documentation](http://gptools-stan.readthedocs.io/) includes many [examples](https://gptools-stan.readthedocs.io/docs/examples.html).
+The implementation follows Stan’s design and exposes performant inference through a familiar interface. We provide interfaces in Python and R. See the accompanying publication [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.18637/jss.v112.i02) for details of the implementation. The comprehensive [documentation](http://gptools-stan.readthedocs.io/) includes many [examples](https://gptools-stan.readthedocs.io/docs/examples.html).
 
 ## Getting Started
 
@@ -72,4 +72,4 @@ Contributions to the package are always welcome! The repository structure is as 
 
 ## Replicating the Results
 
-To replicate the results presented in the accompanying publication [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.48550/arXiv.2301.08836), please see the [dedicated repository of replication materials](https://github.com/onnela-lab/gptools-reproduction-material).
+To replicate the results presented in the accompanying publication [*Scalable Gaussian Process Inference with Stan*](https://doi.org/10.18637/jss.v112.i02), please see the [dedicated repository of replication materials](https://github.com/onnela-lab/gptools-reproduction-material).

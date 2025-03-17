@@ -4,14 +4,33 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gptools-stan"
-version = "0.2.2"
+version = "1.0.0"
 description = "Gaussian processes on graphs and lattices in Stan."
+license.file = "LICENSE"
 readme = "README.md"
+authors = [
+    {name = "Till Hoffmann"},
+    {name = "Jukka-Pekka Onnela"}
+]
+keywords = ["Gaussian process", "Stan", "Bayesian inference", "graph", "Fourier"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering",
+]
 requires-python = ">=3.8"
 dependencies = [
-    "cmdstanpy>=1.0.7",  # Required because of a bug in how complex numbers are handled
+    "cmdstanpy>=1.0.7",  # Required because of a bug in how complex numbers are handled.
     "numpy",
 ]
+
+[project.urls]
+Documentation = "https://gptools-stan.readthedocs.io"
+Repository = "https://github.com/onnela-lab/gptools.git"
+Issues = "https://github.com/onnela-lab/gptools/issues"
+Reference = "https://doi.org/10.18637/jss.v112.i02"
 
 [tool.setuptools]
 packages = {find = {namespaces = true}}
