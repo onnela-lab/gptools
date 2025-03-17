@@ -16,7 +16,7 @@ keywords = ["Gaussian process", "Stan", "Bayesian inference", "graph", "Fourier"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Stan",
-    "Progamming Language :: Python :: 3",
+    "Programming Language :: Python :: 3",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Topic :: Scientific/Engineering",
