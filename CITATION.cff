@@ -19,8 +19,11 @@ preferred-citation:
   - family-names: Onnela
     given-names: Jukka-Pekka
     orcid: https://orcid.org/0000-0001-6613-8668
-  doi: 10.48550/arXiv.2301.08836
-  journal: arXiv
-  start: "2301.08836"
+  doi: 10.18637/jss.v112.i02
+  journal: Journal of Statistical Software
+  volume: 112
+  issue: 2
+  start: 1
+  end: 31
   title: Scalable Gaussian Process Inference with Stan
-  year: 2023
+  year: 2025
