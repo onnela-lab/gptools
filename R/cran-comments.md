@@ -1,3 +1,7 @@
+# Submission of version 1.0.0.
+
+The DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
+
 # Submission of version 0.2.0.
 
 This submission adds functionality to specify different length scales in different dimensions for Gaussian processes on graphs.
