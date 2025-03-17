@@ -15,7 +15,6 @@ authors = [
 keywords = ["Gaussian process", "Stan", "Bayesian inference", "graph", "Fourier"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Stan",
     "Programming Language :: Python :: 3",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
